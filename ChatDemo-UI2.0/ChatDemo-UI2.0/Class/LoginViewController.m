@@ -123,6 +123,7 @@
      ^(NSDictionary *loginInfo, EMError *error) {
          [self hideHud];
          if (loginInfo && !error) {
+             [[EaseMob sharedInstance].chatManager setIsAutoLoginEnabled:YES];
              //发送自动登陆状态通知
              [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATION_LOGINCHANGE object:@YES];
              //将旧版的coredata数据导入新的数据库

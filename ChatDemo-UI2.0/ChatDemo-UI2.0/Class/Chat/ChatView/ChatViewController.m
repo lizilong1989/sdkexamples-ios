@@ -201,7 +201,7 @@
     //判断当前会话是否为空，若符合则删除该会话
     EMMessage *message = [_conversation latestMessage];
     if (message == nil) {
-        [[EaseMob sharedInstance].chatManager removeConversationByChatter:_conversation.chatter deleteMessages:YES];
+        [[EaseMob sharedInstance].chatManager removeConversationByChatter:_conversation.chatter deleteMessages:NO];
     }
     
     [self.navigationController popViewControllerAnimated:YES];
@@ -770,7 +770,7 @@
 
 - (void)moreViewAudioCallAction:(DXChatBarMoreView *)moreView
 {
-//    [[NSNotificationCenter defaultCenter] postNotificationName:@"callOutWithChatter" object:self.chatter];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"callOutWithChatter" object:self.chatter];
     
 //    __weak typeof(self) weakSelf = self;
 //    if([[AVAudioSession sharedInstance] respondsToSelector:@selector(requestRecordPermission:)])
