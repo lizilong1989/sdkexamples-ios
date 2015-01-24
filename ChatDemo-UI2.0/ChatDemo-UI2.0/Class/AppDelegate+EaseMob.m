@@ -334,7 +334,7 @@
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"推送内容"
                                                     message:str
                                                    delegate:nil
-                                          cancelButtonTitle:@"确定"
+                                          cancelButtonTitle:NSLocalizedString(@"ok", @"OK")
                                           otherButtonTitles:nil];
     [alert show];
 
