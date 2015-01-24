@@ -269,8 +269,16 @@
     return retText;
 }
 
-+ (NSString *)convertToSystemEmoticons:(NSString *)text {
-    int allEmoticsCount = [Emoji allEmoji].count;
++ (NSString *)convertToSystemEmoticons:(NSString *)text
+{
+    if (![text isKindOfClass:[NSString class]]) {
+        return @"";
+    }
+    
+    if ([text length] == 0) {
+        return @"";
+    }
+    int allEmoticsCount = (int)[[Emoji allEmoji] count];
     NSMutableString *retText = [[NSMutableString alloc] initWithString:text];
     for(int i=0; i<allEmoticsCount; ++i) {
         NSRange range;
