@@ -702,6 +702,11 @@
     }
 }
 
+- (void)didFinishedReceiveOfflineMessages:(NSArray *)offlineMessages
+{
+    [self loadMoreMessages];
+}
+
 - (void)group:(EMGroup *)group didLeave:(EMGroupLeaveReason)reason error:(EMError *)error
 {
     if (_isChatGroup && [group.groupId isEqualToString:_chatter]) {
@@ -933,6 +938,7 @@
                 [indexPaths addObject:[NSIndexPath indexPathForRow:(_longPressIndexPath.row - 1) inSection:0]];
             }
         }
+        
         [self.dataSource removeObjectsInArray:messages];
         [self.tableView deleteRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationFade];
     }
@@ -986,12 +992,11 @@
         
         NSArray *messages = [weakSelf.conversation loadNumbersOfMessages:([weakSelf.messages count] + KPageCount) before:timestamp];
         if ([messages count] > 0) {
-            [weakSelf.messages removeAllObjects];
-            [weakSelf.messages addObjectsFromArray:messages];
+            weakSelf.messages = [messages mutableCopy];
             
             NSInteger currentCount = [weakSelf.dataSource count];
             [weakSelf.dataSource removeAllObjects];
-            [weakSelf.dataSource addObjectsFromArray:[weakSelf formatMessages:messages]];
+            weakSelf.dataSource = [[weakSelf formatMessages:messages] mutableCopy];
             dispatch_async(dispatch_get_main_queue(), ^{
                 [weakSelf.tableView reloadData];
                 
@@ -1050,7 +1055,6 @@
         
         for (int i = 0; i < messages.count; i++) {
             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:weakSelf.dataSource.count+i inSection:0];
-//            [indexPaths insertObject:indexPath atIndex:0];
             [indexPaths addObject:indexPath];
         }
         
@@ -1059,8 +1063,6 @@
             [weakSelf.dataSource addObjectsFromArray:messages];
             [weakSelf.tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
             [weakSelf.tableView endUpdates];
-            
-            //            [weakSelf.tableView reloadData];
             
             [weakSelf.tableView scrollToRowAtIndexPath:[indexPaths lastObject] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
         });
