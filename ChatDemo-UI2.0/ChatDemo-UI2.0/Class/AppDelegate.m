@@ -115,7 +115,7 @@
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"apns.failToRegisterApns", @"Fail to register apns")
                                                     message:error.description
                                                    delegate:nil
-                                          cancelButtonTitle:NSLocalizedString(@"cancelButton", @"")
+                                          cancelButtonTitle:NSLocalizedString(@"ok", @"OK")
                                           otherButtonTitles:nil];
     [alert show];
 }

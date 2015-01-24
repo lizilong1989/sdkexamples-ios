@@ -228,7 +228,7 @@
         }
         
         cell.imageView.image = [UIImage imageNamed:@"newFriends"];
-        cell.textLabel.text = NSLocalizedString(@"title.apply", @"");
+        cell.textLabel.text = NSLocalizedString(@"title.apply", @"Application and notification");
         [cell addSubview:self.unapplyCountLabel];
     }
     else{
@@ -372,7 +372,7 @@
         NSString *loginUsername = [loginInfo objectForKey:kSDKUsername];
         if (loginUsername && loginUsername.length > 0) {
             if ([loginUsername isEqualToString:buddy.username]) {
-                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:NSLocalizedString(@"friend.notChatSelf", @"can't talk to yourself") delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"") otherButtonTitles:nil, nil];
+                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:NSLocalizedString(@"friend.notChatSelf", @"can't talk to yourself") delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
                 [alertView show];
                 
                 return;

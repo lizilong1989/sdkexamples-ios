@@ -484,7 +484,7 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
 
 - (void)didRejectedByBuddy:(NSString *)username
 {
-    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"MainViewController.message", @""), username];
+    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"friend.beRefusedToAdd", @"you are shameless refused by '%@'"), username];
     TTAlertNoTitle(message);
 }
 

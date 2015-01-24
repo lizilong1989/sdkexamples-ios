@@ -287,7 +287,7 @@
 - (BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar
 {
     [searchBar setShowsCancelButton:YES animated:YES];
-    [self.searchBar setCancelButtonTitle:NSLocalizedString(@"ok", @"")];
+    [self.searchBar setCancelButtonTitle:NSLocalizedString(@"ok", @"OK")];
     
     return YES;
 }
