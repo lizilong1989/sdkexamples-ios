@@ -22,6 +22,7 @@
     UIImageView *_headerImageView;
     UILabel *_nameLabel;
     
+    UILabel *_timeLabel;
     UIButton *_silenceButton;
     UILabel *_silenceLabel;
     UIButton *_speakerOutButton;
@@ -30,6 +31,7 @@
     UIButton *_answerButton;
     
     AVAudioPlayer *_player;
+    NSTimer *_timer;
 }
 
 @property (strong, nonatomic) EMCallSession *callSession;
@@ -95,7 +97,10 @@
 
 - (void)dealloc
 {
-//    [[EMSDKFull sharedInstance].callManager removeDelegate:self];
+    [[EMSDKFull sharedInstance].callManager removeDelegate:self];
+    
+    [_timer invalidate];
+    _timer = nil;
 }
 
 #pragma mark - private
@@ -110,12 +115,19 @@
     _bgImageView.image = [UIImage imageNamed:@"callBg.png"];
     [self.view addSubview:_bgImageView];
     
-    _statusLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 20, self.view.frame.size.width, 80)];
+    _statusLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 20, self.view.frame.size.width, 50)];
     _statusLabel.font = [UIFont systemFontOfSize:15.0];
     _statusLabel.backgroundColor = [UIColor clearColor];
     _statusLabel.textColor = [UIColor whiteColor];
     _statusLabel.textAlignment = NSTextAlignmentCenter;
     [self.view addSubview:_statusLabel];
+    
+    _timeLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_statusLabel.frame), self.view.frame.size.width, 15)];
+    _timeLabel.font = [UIFont systemFontOfSize:12.0];
+    _timeLabel.backgroundColor = [UIColor clearColor];
+    _timeLabel.textColor = [UIColor whiteColor];
+    _timeLabel.textAlignment = NSTextAlignmentCenter;
+    [self.view addSubview:_timeLabel];
     
     _headerImageView = [[UIImageView alloc] initWithFrame:CGRectMake((self.view.frame.size.width - 50) / 2, CGRectGetMaxY(_statusLabel.frame) + 20, 50, 50)];
     _headerImageView.image = [UIImage imageNamed:@"chatListCellHead"];
@@ -177,6 +189,8 @@
     if (_callType == CallIn) {
         _statusLabel.text = @"等待接听...";
         _nameLabel.text = _chatter;
+        _timeLabel.text = @"";
+        _callLength = 0;
         
         CGFloat tmpWidth = self.view.frame.size.width / 2;
         _hangupButton.frame = CGRectMake((tmpWidth - 100) / 2, self.view.frame.size.height - 120, 100, 40);
@@ -322,9 +336,8 @@
                 [self hideHud];
                 [self _stopRing];
                 _statusLabel.text = @"可以通话了...";
-                
-                //开始计时,测试数据
-                _callLength = 1;
+                _callLength = 0;
+                _timer =  [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(timerAction:) userInfo:nil repeats:YES];
                 
                 if(_callType == CallIn)
                 {
@@ -338,9 +351,30 @@
             }
         }
     }
+    else{
+        [self _close];
+    }
 }
 
 #pragma mark - action
+
+- (void)timerAction:(id)sender
+{
+    _callLength += 1;
+    int hour = _callLength / 3600;
+    int m = (_callLength - hour * 3600) / 60;
+    int s = _callLength - hour * 3600 - m * 60;
+    
+    if (hour > 0) {
+        _timeLabel.text = [NSString stringWithFormat:@"%i:%i:%i", hour, m, s];
+    }
+    else if(m > 0){
+        _timeLabel.text = [NSString stringWithFormat:@"%i:%i", m, s];
+    }
+    else{
+        _timeLabel.text = [NSString stringWithFormat:@"00:%i", s];
+    }
+}
 
 - (void)silenceAction:(id)sender
 {
@@ -354,6 +388,7 @@
 
 - (void)hangupAction:(id)sender
 {
+    [_timer invalidate];
     [self showHint:@"正在挂断语音通话..."];
     [self _stopRing];
     
