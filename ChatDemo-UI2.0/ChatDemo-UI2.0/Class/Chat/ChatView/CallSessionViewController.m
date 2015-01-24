@@ -71,6 +71,7 @@
     if (self) {
         _callType = CallIn;
         _callSession = callSession;
+        _chatter = callSession.sessionChatter;
     }
     
     return self;
@@ -125,6 +126,7 @@
     _nameLabel.backgroundColor = [UIColor clearColor];
     _nameLabel.textColor = [UIColor whiteColor];
     _nameLabel.textAlignment = NSTextAlignmentCenter;
+    _nameLabel.text = _chatter;
     [self.view addSubview:_nameLabel];
     
     CGFloat tmpWidth = self.view.frame.size.width / 2;
@@ -224,6 +226,7 @@
 
 - (void)_close
 {
+    [self hideHud];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"callControllerClose" object:nil];
     [self dismissViewControllerAnimated:YES completion:nil];
 }
@@ -232,7 +235,7 @@
 {
     EMChatText *chatText = [[EMChatText alloc] initWithText:str];
     EMTextMessageBody *textBody = [[EMTextMessageBody alloc] initWithChatObject:chatText];
-    EMMessage *message = [[EMMessage alloc] initWithReceiver:_callSession.conversationChatter bodies:@[textBody]];
+    EMMessage *message = [[EMMessage alloc] initWithReceiver:_callSession.sessionChatter bodies:@[textBody]];
     message.isRead = YES;
     [[EaseMob sharedInstance].chatManager insertMessageToDB:message append2Chat:YES];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"insertCallMessage" object:message];
@@ -316,8 +319,10 @@
             }
             else if (callSession.status == eCallSessionStatusAccepted)
             {
+                [self hideHud];
                 [self _stopRing];
                 _statusLabel.text = @"可以通话了...";
+                
                 //开始计时,测试数据
                 _callLength = 1;
                 
@@ -349,6 +354,7 @@
 
 - (void)hangupAction:(id)sender
 {
+    [self showHint:@"正在挂断语音通话..."];
     [self _stopRing];
     
     EMCallStatusChangedReason reason = eCallReason_Hangup;
@@ -364,6 +370,7 @@
 
 - (void)answerAction:(id)sender
 {
+    [self showHint:@"正在初始化语音通话..."];
     [self _stopRing];
     
     [[EMSDKFull sharedInstance].callManager asyncAcceptCallSessionWithId:_callSession.sessionId];

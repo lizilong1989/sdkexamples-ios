@@ -78,6 +78,13 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    
+    [self hideHud];
+}
+
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -151,8 +158,9 @@
 
 - (void)isIgnoreGroup:(BOOL)isIgnore
 {
-    __weak typeof(self) weakSelf = self;
     [self showHudInView:self.view hint:NSLocalizedString(@"group.setting.save", @"set properties")];
+    
+    __weak GroupSettingViewController *weakSelf = self;
     [[EaseMob sharedInstance].chatManager asyncIgnoreGroupPushNotification:_group.groupId isIgnore:isIgnore completion:^(NSArray *ignoreGroupsList, EMError *error) {
         [weakSelf hideHud];
         if (!error) {

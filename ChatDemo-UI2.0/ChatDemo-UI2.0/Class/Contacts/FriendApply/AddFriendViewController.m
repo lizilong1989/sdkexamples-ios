@@ -48,7 +48,7 @@
     {
         [self setEdgesForExtendedLayout:UIRectEdgeNone];
     }
-    self.title = NSLocalizedString(@"AddFriendViewController.title", @"add friend");
+    self.title = NSLocalizedString(@"friend.add", @"Add friend");
     self.view.backgroundColor = [UIColor whiteColor];
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.tableHeaderView = self.headerView;
