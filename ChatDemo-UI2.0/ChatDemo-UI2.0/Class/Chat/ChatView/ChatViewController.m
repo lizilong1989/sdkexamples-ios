@@ -31,7 +31,7 @@
 #import "NSDate+Category.h"
 #import "DXMessageToolBar.h"
 #import "DXChatBarMoreView.h"
-
+#import "ChatViewController+Category.h"
 #define KPageCount 20
 
 @interface ChatViewController ()<UITableViewDataSource, UITableViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, SRRefreshDelegate, IChatManagerDelegate, DXChatBarMoreViewDelegate, DXMessageToolBarDelegate, LocationViewDelegate, IDeviceManagerDelegate>
@@ -91,6 +91,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    [self registerBecomeActive];
     // Do any additional setup after loading the view.
     self.view.backgroundColor = [UIColor lightGrayColor];
     if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0) {
@@ -174,6 +175,8 @@
     
     // 设置当前conversation的所有message为已读
     [_conversation markAllMessagesAsRead:YES];
+    [[EaseMob sharedInstance].deviceManager disableProximitySensor];
+    
 }
 
 - (void)dealloc
@@ -451,6 +454,11 @@
     }
 }
 
+- (void)reloadData{
+    self.dataSource = [[self formatMessages:self.messages] mutableCopy];
+    [self.tableView reloadData];
+}
+
 #pragma mark - UIResponder actions
 
 - (void)routerEventWithName:(NSString *)eventName userInfo:(NSDictionary *)userInfo
@@ -529,7 +537,7 @@
                     [weakSelf.tableView reloadData];
                     
                     weakSelf.isPlayingAudio = NO;
-//                    [[[EaseMob sharedInstance] deviceManager] disableProximitySensor];
+                    [[[EaseMob sharedInstance] deviceManager] disableProximitySensor];
                 });
             } onQueue:nil];
         }
@@ -797,7 +805,7 @@
 
 -(void)sendLocationLatitude:(double)latitude longitude:(double)longitude andAddress:(NSString *)address
 {
-    EMMessage *locationMessage = [ChatSendHelper sendLocationLatitude:latitude longitude:longitude address:address toUsername:_conversation.chatter isChatGroup:_isChatGroup requireEncryption:NO];
+    EMMessage *locationMessage = [ChatSendHelper sendLocationLatitude:latitude longitude:longitude address:address toUsername:_conversation.chatter isChatGroup:_isChatGroup requireEncryption:NO ext:nil];
     [self addMessage:locationMessage];
 }
 
@@ -995,7 +1003,6 @@
             weakSelf.messages = [messages mutableCopy];
             
             NSInteger currentCount = [weakSelf.dataSource count];
-            [weakSelf.dataSource removeAllObjects];
             weakSelf.dataSource = [[weakSelf formatMessages:messages] mutableCopy];
             dispatch_async(dispatch_get_main_queue(), ^{
                 [weakSelf.tableView reloadData];
@@ -1170,30 +1177,25 @@
 
 -(void)sendTextMessage:(NSString *)textMessage
 {
-//    for (int i = 0; i < 100; i++) {
-//        NSString *str = [NSString stringWithFormat:@"%@--%i", _conversation.chatter, i];
-//        EMMessage *tempMessage = [ChatSendHelper sendTextMessageWithString:str toUsername:_conversation.chatter isChatGroup:_isChatGroup requireEncryption:NO];
-//        [self addChatDataToMessage:tempMessage];
-//    }
-    EMMessage *tempMessage = [ChatSendHelper sendTextMessageWithString:textMessage toUsername:_conversation.chatter isChatGroup:_isChatGroup requireEncryption:NO];
+    EMMessage *tempMessage = [ChatSendHelper sendTextMessageWithString:textMessage toUsername:_conversation.chatter isChatGroup:_isChatGroup requireEncryption:NO ext:nil];
     [self addMessage:tempMessage];
 }
 
 -(void)sendImageMessage:(UIImage *)imageMessage
 {
-    EMMessage *tempMessage = [ChatSendHelper sendImageMessageWithImage:imageMessage toUsername:_conversation.chatter isChatGroup:_isChatGroup requireEncryption:NO];
+    EMMessage *tempMessage = [ChatSendHelper sendImageMessageWithImage:imageMessage toUsername:_conversation.chatter isChatGroup:_isChatGroup requireEncryption:NO ext:nil];
     [self addMessage:tempMessage];
 }
 
 -(void)sendAudioMessage:(EMChatVoice *)voice
 {
-    EMMessage *tempMessage = [ChatSendHelper sendVoice:voice toUsername:_conversation.chatter isChatGroup:_isChatGroup requireEncryption:NO];
+    EMMessage *tempMessage = [ChatSendHelper sendVoice:voice toUsername:_conversation.chatter isChatGroup:_isChatGroup requireEncryption:NO ext:nil];
     [self addMessage:tempMessage];
 }
 
 -(void)sendVideoMessage:(EMChatVideo *)video
 {
-    EMMessage *tempMessage = [ChatSendHelper sendVideo:video toUsername:_conversation.chatter isChatGroup:_isChatGroup requireEncryption:NO];
+    EMMessage *tempMessage = [ChatSendHelper sendVideo:video toUsername:_conversation.chatter isChatGroup:_isChatGroup requireEncryption:NO ext:nil];
     [self addMessage:tempMessage];
 }
 

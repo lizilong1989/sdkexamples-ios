@@ -355,6 +355,7 @@
 		90F1BED11930493200121AEC /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 90F1BED01930493100121AEC /* libiconv.dylib */; };
 		90F1BED31930493F00121AEC /* libstdc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 90F1BED21930493F00121AEC /* libstdc++.dylib */; };
 		90F1BED51930495800121AEC /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90F1BED41930495800121AEC /* MobileCoreServices.framework */; };
+		90F3ED471A75F3A4005A0135 /* ChatViewController+Category.m in Sources */ = {isa = PBXBuildFile; fileRef = 90F3ED461A75F3A4005A0135 /* ChatViewController+Category.m */; };
 		C09DF1F21983ABC1001C0D0D /* 114.png in Resources */ = {isa = PBXBuildFile; fileRef = C09DF1EC1983ABC1001C0D0D /* 114.png */; };
 		C09DF1F31983ABC1001C0D0D /* 120.png in Resources */ = {isa = PBXBuildFile; fileRef = C09DF1ED1983ABC1001C0D0D /* 120.png */; };
 		C09DF1F41983ABC1001C0D0D /* 29.png in Resources */ = {isa = PBXBuildFile; fileRef = C09DF1EE1983ABC1001C0D0D /* 29.png */; };
@@ -976,6 +977,8 @@
 		90F1BED01930493100121AEC /* libiconv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.dylib; path = usr/lib/libiconv.dylib; sourceTree = SDKROOT; };
 		90F1BED21930493F00121AEC /* libstdc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libstdc++.dylib"; path = "usr/lib/libstdc++.dylib"; sourceTree = SDKROOT; };
 		90F1BED41930495800121AEC /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		90F3ED451A75F3A4005A0135 /* ChatViewController+Category.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ChatViewController+Category.h"; sourceTree = "<group>"; };
+		90F3ED461A75F3A4005A0135 /* ChatViewController+Category.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ChatViewController+Category.m"; sourceTree = "<group>"; };
 		C09DF1EC1983ABC1001C0D0D /* 114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 114.png; sourceTree = "<group>"; };
 		C09DF1ED1983ABC1001C0D0D /* 120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 120.png; sourceTree = "<group>"; };
 		C09DF1EE1983ABC1001C0D0D /* 29.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 29.png; sourceTree = "<group>"; };
@@ -1438,6 +1441,8 @@
 				3C06AB001940597D0076FF0B /* delete@2x.png */,
 				9003D7851939D8D000DC38A4 /* ChatViewController.h */,
 				9003D7861939D8D000DC38A4 /* ChatViewController.m */,
+				90F3ED451A75F3A4005A0135 /* ChatViewController+Category.h */,
+				90F3ED461A75F3A4005A0135 /* ChatViewController+Category.m */,
 				9003D7871939D8D000DC38A4 /* ChatSendHelper.h */,
 				9003D7881939D8D000DC38A4 /* ChatSendHelper.m */,
 				9003D7891939D8D000DC38A4 /* MessageToolbar */,
@@ -2603,6 +2608,7 @@
 				90517D6D1A5C3E69008F1315 /* AppDelegate+MagicalRecord.m in Sources */,
 				9003D8711939D8D000DC38A4 /* DXFaceView.m in Sources */,
 				3C1614F01973D4B700564BF5 /* NSManagedObjectModel+MagicalRecord.m in Sources */,
+				90F3ED471A75F3A4005A0135 /* ChatViewController+Category.m in Sources */,
 				90ABA8C21A2EBD0D00EDF0E8 /* MWGridCell.m in Sources */,
 				90ABA8D91A2EBD0D00EDF0E8 /* UIView+EMWebCacheOperation.m in Sources */,
 				90911117192EEAED008A48AA /* THProgressView.m in Sources */,
