@@ -21,13 +21,14 @@
  *  @param username          接收方
  *  @param isChatGroup       是否是群聊
  *  @param requireEncryption 是否加密
- *
+ *  @param ext               扩展信息
  *  @return 封装的消息体
  */
 +(EMMessage *)sendTextMessageWithString:(NSString *)str
                              toUsername:(NSString *)username
                             isChatGroup:(BOOL)isChatGroup
-                      requireEncryption:(BOOL)requireEncryption;
+                      requireEncryption:(BOOL)requireEncryption
+                                    ext:(NSDictionary *)ext;
 
 /**
  *  发送图片消息
@@ -36,13 +37,14 @@
  *  @param username          接收方
  *  @param isChatGroup       是否是群聊
  *  @param requireEncryption 是否加密
- *
+ *  @param ext               扩展信息
  *  @return 封装的消息体
  */
 +(EMMessage *)sendImageMessageWithImage:(UIImage *)image
                              toUsername:(NSString *)username
                             isChatGroup:(BOOL)isChatGroup
-                      requireEncryption:(BOOL)requireEncryption;
+                      requireEncryption:(BOOL)requireEncryption
+                                    ext:(NSDictionary *)ext;
 
 /**
  *  发送音频消息
@@ -51,13 +53,14 @@
  *  @param username          接收方
  *  @param isChatGroup       是否是群聊
  *  @param requireEncryption 是否加密
- *
+ *  @param ext               扩展信息
  *  @return 封装的消息体
  */
 +(EMMessage *)sendVoice:(EMChatVoice *)voice
              toUsername:(NSString *)username
             isChatGroup:(BOOL)isChatGroup
-      requireEncryption:(BOOL)requireEncryption;
+      requireEncryption:(BOOL)requireEncryption
+                    ext:(NSDictionary *)ext;
 
 /**
  *  发送位置消息（定位）
@@ -68,7 +71,7 @@
  *  @param username          接收方
  *  @param isChatGroup       是否是群聊
  *  @param requireEncryption 是否加密
- *
+ *  @param ext               扩展信息
  *  @return 封装的消息体
  */
 +(EMMessage *)sendLocationLatitude:(double)latitude
@@ -76,7 +79,8 @@
                            address:(NSString *)address
                         toUsername:(NSString *)username
                         isChatGroup:(BOOL)isChatGroup
-                 requireEncryption:(BOOL)requireEncryption;
+                 requireEncryption:(BOOL)requireEncryption
+                               ext:(NSDictionary *)ext;
 
 /**
  *  发送视频文件消息
@@ -85,12 +89,13 @@
  *  @param username          接收方
  *  @param isChatGroup       是否是群聊
  *  @param requireEncryption 是否加密
- *
+ *  @param ext               扩展信息
  *  @return 封装的消息体
  */
 +(EMMessage *)sendVideo:(EMChatVideo *)video
              toUsername:(NSString *)username
             isChatGroup:(BOOL)isChatGroup
-      requireEncryption:(BOOL)requireEncryption;
+      requireEncryption:(BOOL)requireEncryption
+                    ext:(NSDictionary *)ext;
 
 @end
