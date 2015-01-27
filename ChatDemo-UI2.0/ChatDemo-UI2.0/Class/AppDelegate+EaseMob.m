@@ -7,15 +7,10 @@
 //
 
 #import "AppDelegate+EaseMob.h"
-#import "EaseMob.h"
 
 /**
  *  本类中做了EaseMob初始化和推送等操作
  */
-
-@interface AppDelegate ()<IChatManagerDelegate>
-
-@end
 
 @implementation AppDelegate (EaseMob)
 - (void)easemobApplication:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {

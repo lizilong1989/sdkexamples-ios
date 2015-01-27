@@ -297,8 +297,6 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
                                                                                fromDate:now];
                 
                 NSInteger hour = [components hour];
-                //        NSInteger minute= [components minute];
-                
                 NSUInteger startH = options.noDisturbingStartH;
                 NSUInteger endH = options.noDisturbingEndH;
                 if (startH>endH) {

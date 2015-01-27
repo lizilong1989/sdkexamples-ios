@@ -14,7 +14,7 @@
 @interface CallSessionViewController ()<UIAlertViewDelegate, ICallManagerDelegate>
 {
     NSString *_chatter;
-    NSUInteger _callLength;
+    int _callLength;
     
     int _callType;
     UIImageView *_bgImageView;
@@ -280,25 +280,16 @@
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-    if (alertView.tag == kAlertViewTag_Close)
-    {
-        [self _close];
-    }
+//    if (alertView.tag == kAlertViewTag_Close)
+//    {
+//        [self _close];
+//    }
 }
 
 #pragma mark - ICallManagerDelegate
 
 - (void)callSessionStatusChanged:(EMCallSession *)callSession changeReason:(EMCallStatusChangedReason)reason error:(EMError *)error
 {
-    if (_callSession && ![callSession.sessionId isEqualToString:_callSession.sessionId] && callSession.status == eCallSessionStatusRinging)
-    {
-        [self showHint:@"有新的语音请求，当前正在通话中，已自动拒绝"];
-        
-        [self _insertMessageWithStr:@"语音通话已取消"];
-        
-        return;
-    }
-    
     if ([_callSession.sessionId isEqualToString:callSession.sessionId])
     {
         UIAlertView *alertView = nil;
@@ -307,7 +298,7 @@
             [self _insertMessageWithStr:@"语音通话失败"];
             
             _statusLabel.text = @"连接失败";
-            alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"error", @"Error") message:error.description delegate:self cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
+            alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"error", @"Error") message:error.description delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
             alertView.tag = kAlertViewTag_Close;
             [alertView show];
         }
