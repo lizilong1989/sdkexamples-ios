@@ -56,12 +56,13 @@
     return self;
 }
 
-- (instancetype)initCallOutWithChatter:(NSString *)chatter
+- (instancetype)initCallOutWithSession:(EMCallSession *)callSession
 {
     self = [self initWithNibName:nil bundle:nil];
     if (self) {
         _callType = CallOut;
-        _chatter = chatter;
+        _callSession = callSession;
+        _chatter = callSession.sessionChatter;
     }
     
     return self;
@@ -83,9 +84,9 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
-    if (_callType == CallOut) {
-        [self _callOutWithChatter:_chatter];
-    }
+//    if (_callType == CallOut) {
+//        [self _callOutWithChatter:_chatter];
+//    }
     [self _setupSubviews];
     [self _beginRing];
 }
@@ -227,16 +228,16 @@
     }
 }
 
-- (void)_callOutWithChatter:(NSString *)chatter
-{
-    EMError *error = nil;
-    _callSession = [[EMSDKFull sharedInstance].callManager asyncCallAudioWithChatter:chatter timeout:50 error:&error];
-    if (error) {
-        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"error", @"Error") message:error.description delegate:self cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
-        alertView.tag = kAlertViewTag_Close;
-        [alertView show];
-    }
-}
+//- (void)_callOutWithChatter:(NSString *)chatter
+//{
+//    EMError *error = nil;
+//    _callSession = [[EMSDKFull sharedInstance].callManager asyncCallAudioWithChatter:chatter timeout:50 error:&error];
+//    if (error) {
+//        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"error", @"Error") message:error.description delegate:self cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
+//        alertView.tag = kAlertViewTag_Close;
+//        [alertView show];
+//    }
+//}
 
 - (void)_close
 {
@@ -341,9 +342,6 @@
                 }
             }
         }
-    }
-    else{
-        [self _close];
     }
 }
 

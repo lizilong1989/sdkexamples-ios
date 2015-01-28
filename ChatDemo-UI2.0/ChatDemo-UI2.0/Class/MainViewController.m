@@ -236,10 +236,13 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
         NSString *chatter = (NSString *)object;
         
         if (_callController == nil) {
-            [[EMSDKFull sharedInstance].callManager removeDelegate:self];
+            EMCallSession *callSession = [[EMSDKFull sharedInstance].callManager asyncCallAudioWithChatter:chatter timeout:50 error:nil];
             
-            _callController = [[CallSessionViewController alloc] initCallOutWithChatter:chatter];
-            [self presentViewController:_callController animated:YES completion:nil];
+            if (callSession) {
+                [[EMSDKFull sharedInstance].callManager removeDelegate:self];
+                _callController = [[CallSessionViewController alloc] initCallOutWithSession:callSession];
+                [self presentViewController:_callController animated:YES completion:nil];
+            }
         }
         else{
             [self showHint:@"正在通话中"];
