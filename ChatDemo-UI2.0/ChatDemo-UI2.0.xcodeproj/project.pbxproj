@@ -122,7 +122,6 @@
 		909308BE19604821005013BD /* Emoji.m in Sources */ = {isa = PBXBuildFile; fileRef = 909308BB19604821005013BD /* Emoji.m */; };
 		909308BF19604821005013BD /* EmojiEmoticons.m in Sources */ = {isa = PBXBuildFile; fileRef = 909308BD19604821005013BD /* EmojiEmoticons.m */; };
 		909E89C21A6E7A270064B20F /* LoginViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 909E89C41A6E7A270064B20F /* LoginViewController.xib */; };
-		909E89C91A6E7A6B0064B20F /* libEaseMobClientSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 909E89C81A6E7A6B0064B20F /* libEaseMobClientSDK.a */; };
 		90ABA8C11A2EBD0D00EDF0E8 /* MWCaptionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 90ABA86B1A2EBD0D00EDF0E8 /* MWCaptionView.m */; };
 		90ABA8C21A2EBD0D00EDF0E8 /* MWGridCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 90ABA86E1A2EBD0D00EDF0E8 /* MWGridCell.m */; };
 		90ABA8C31A2EBD0D00EDF0E8 /* MWGridViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 90ABA8701A2EBD0D00EDF0E8 /* MWGridViewController.m */; };
@@ -174,7 +173,6 @@
 		90F1BED31930493F00121AEC /* libstdc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 90F1BED21930493F00121AEC /* libstdc++.dylib */; };
 		90F1BED51930495800121AEC /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90F1BED41930495800121AEC /* MobileCoreServices.framework */; };
 		90F3ED471A75F3A4005A0135 /* ChatViewController+Category.m in Sources */ = {isa = PBXBuildFile; fileRef = 90F3ED461A75F3A4005A0135 /* ChatViewController+Category.m */; };
-		EBD2AA331A7C863100D16528 /* libMobClickLibrary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EBD2AA321A7C863100D16528 /* libMobClickLibrary.a */; };
 		EBD2AB011A7CDAC000D16528 /* 114.png in Resources */ = {isa = PBXBuildFile; fileRef = EBD2AA361A7CDABF00D16528 /* 114.png */; };
 		EBD2AB021A7CDAC000D16528 /* 120.png in Resources */ = {isa = PBXBuildFile; fileRef = EBD2AA371A7CDABF00D16528 /* 120.png */; };
 		EBD2AB031A7CDAC000D16528 /* 29.png in Resources */ = {isa = PBXBuildFile; fileRef = EBD2AA381A7CDABF00D16528 /* 29.png */; };
@@ -283,8 +281,6 @@
 		EBD2AB6A1A7CDAC000D16528 /* chatBar_recordSelected@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EBD2AAA61A7CDABF00D16528 /* chatBar_recordSelected@2x.png */; };
 		EBD2AB6B1A7CDAC000D16528 /* chatBar_recordSelectedBg.png in Resources */ = {isa = PBXBuildFile; fileRef = EBD2AAA71A7CDABF00D16528 /* chatBar_recordSelectedBg.png */; };
 		EBD2AB6C1A7CDAC000D16528 /* chatBar_recordSelectedBg@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EBD2AAA81A7CDABF00D16528 /* chatBar_recordSelectedBg@2x.png */; };
-		EBD2AB6D1A7CDAC000D16528 /* chatBar_colorMore_audioCall.png in Resources */ = {isa = PBXBuildFile; fileRef = EBD2AAAA1A7CDABF00D16528 /* chatBar_colorMore_audioCall.png */; };
-		EBD2AB6E1A7CDAC000D16528 /* chatBar_colorMore_audioCallSelected.png in Resources */ = {isa = PBXBuildFile; fileRef = EBD2AAAB1A7CDABF00D16528 /* chatBar_colorMore_audioCallSelected.png */; };
 		EBD2AB6F1A7CDAC000D16528 /* chatBar_colorMore_camera@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EBD2AAAC1A7CDABF00D16528 /* chatBar_colorMore_camera@2x.png */; };
 		EBD2AB701A7CDAC000D16528 /* chatBar_colorMore_cameraSelected@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EBD2AAAD1A7CDABF00D16528 /* chatBar_colorMore_cameraSelected@2x.png */; };
 		EBD2AB711A7CDAC000D16528 /* chatBar_colorMore_location@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EBD2AAAE1A7CDABF00D16528 /* chatBar_colorMore_location@2x.png */; };
@@ -363,6 +359,10 @@
 		EBD2ABBA1A7CDAC000D16528 /* tabbarBackground@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EBD2AAFE1A7CDAC000D16528 /* tabbarBackground@2x.png */; };
 		EBD2ABBB1A7CDAC000D16528 /* tabbarSelectBg.png in Resources */ = {isa = PBXBuildFile; fileRef = EBD2AAFF1A7CDAC000D16528 /* tabbarSelectBg.png */; };
 		EBD2ABBC1A7CDAC000D16528 /* tabbarSelectBg@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EBD2AB001A7CDAC000D16528 /* tabbarSelectBg@2x.png */; };
+		EBD2ACC51A7CECBC00D16528 /* libMobClickLibrary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C18CAED1A0B556D00FEB270 /* libMobClickLibrary.a */; };
+		EBD2AD441A7CEF2D00D16528 /* libEaseMobClientSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EBD2AD431A7CEF2D00D16528 /* libEaseMobClientSDK.a */; };
+		EBD2AD471A7CEFE100D16528 /* chatBar_colorMore_audioCall@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EBD2AD451A7CEFE100D16528 /* chatBar_colorMore_audioCall@2x.png */; };
+		EBD2AD481A7CEFE100D16528 /* chatBar_colorMore_audioCallSelected@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EBD2AD461A7CEFE100D16528 /* chatBar_colorMore_audioCallSelected@2x.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -479,9 +479,7 @@
 		3C9B15931A6D158C00D09FD6 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		3C9DDAB2193871D8007C765A /* EMSearchDisplayController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EMSearchDisplayController.h; sourceTree = "<group>"; };
 		3C9DDAB3193871D8007C765A /* EMSearchDisplayController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EMSearchDisplayController.m; sourceTree = "<group>"; };
-		3CA121441A14D8FE00753D7F /* libEaseMobClientSDK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libEaseMobClientSDK.a; path = "../../../../../Library/Developer/Xcode/DerivedData/sdk-cyvrcbrfzbzlhqdmmmcqwaqmwvrv/Build/Products/Debug-iphoneos/libEaseMobClientSDK.a"; sourceTree = "<group>"; };
 		3CBB931B1A14B227007FED9E /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
-		3CBB94311A14B522007FED9E /* libEaseMobClientSDKLite.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libEaseMobClientSDKLite.a; path = "../../../../../Library/Developer/Xcode/DerivedData/sdk-cyvrcbrfzbzlhqdmmmcqwaqmwvrv/Build/Products/Debug-iphoneos/libEaseMobClientSDKLite.a"; sourceTree = "<group>"; };
 		3CBF90BE19302F5000AD68AE /* BaseViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BaseViewController.h; sourceTree = "<group>"; };
 		3CBF90BF19302F5000AD68AE /* BaseViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BaseViewController.m; sourceTree = "<group>"; };
 		3CE6293219A1B13700829632 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
@@ -599,7 +597,6 @@
 		909E89C31A6E7A270064B20F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LoginViewController.xib; sourceTree = "<group>"; };
 		909E89C61A6E7A2A0064B20F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/LoginViewController.strings; sourceTree = "<group>"; };
 		909E89C71A6E7A2B0064B20F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LoginViewController.strings"; sourceTree = "<group>"; };
-		909E89C81A6E7A6B0064B20F /* libEaseMobClientSDK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libEaseMobClientSDK.a; path = "../../../../Library/Developer/Xcode/DerivedData/sdk-akpmjkycllgvjzeueixmeaqxqkdf/Build/Products/Debug-iphoneos/libEaseMobClientSDK.a"; sourceTree = "<group>"; };
 		90ABA86A1A2EBD0D00EDF0E8 /* MWCaptionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MWCaptionView.h; sourceTree = "<group>"; };
 		90ABA86B1A2EBD0D00EDF0E8 /* MWCaptionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MWCaptionView.m; sourceTree = "<group>"; };
 		90ABA86C1A2EBD0D00EDF0E8 /* MWCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MWCommon.h; sourceTree = "<group>"; };
@@ -699,7 +696,6 @@
 		90F1BED41930495800121AEC /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		90F3ED451A75F3A4005A0135 /* ChatViewController+Category.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ChatViewController+Category.h"; sourceTree = "<group>"; };
 		90F3ED461A75F3A4005A0135 /* ChatViewController+Category.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ChatViewController+Category.m"; sourceTree = "<group>"; };
-		EBD2AA321A7C863100D16528 /* libMobClickLibrary.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libMobClickLibrary.a; sourceTree = "<group>"; };
 		EBD2AA361A7CDABF00D16528 /* 114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 114.png; sourceTree = "<group>"; };
 		EBD2AA371A7CDABF00D16528 /* 120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 120.png; sourceTree = "<group>"; };
 		EBD2AA381A7CDABF00D16528 /* 29.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 29.png; sourceTree = "<group>"; };
@@ -808,8 +804,6 @@
 		EBD2AAA61A7CDABF00D16528 /* chatBar_recordSelected@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chatBar_recordSelected@2x.png"; sourceTree = "<group>"; };
 		EBD2AAA71A7CDABF00D16528 /* chatBar_recordSelectedBg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = chatBar_recordSelectedBg.png; sourceTree = "<group>"; };
 		EBD2AAA81A7CDABF00D16528 /* chatBar_recordSelectedBg@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chatBar_recordSelectedBg@2x.png"; sourceTree = "<group>"; };
-		EBD2AAAA1A7CDABF00D16528 /* chatBar_colorMore_audioCall.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = chatBar_colorMore_audioCall.png; sourceTree = "<group>"; };
-		EBD2AAAB1A7CDABF00D16528 /* chatBar_colorMore_audioCallSelected.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = chatBar_colorMore_audioCallSelected.png; sourceTree = "<group>"; };
 		EBD2AAAC1A7CDABF00D16528 /* chatBar_colorMore_camera@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chatBar_colorMore_camera@2x.png"; sourceTree = "<group>"; };
 		EBD2AAAD1A7CDABF00D16528 /* chatBar_colorMore_cameraSelected@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chatBar_colorMore_cameraSelected@2x.png"; sourceTree = "<group>"; };
 		EBD2AAAE1A7CDABF00D16528 /* chatBar_colorMore_location@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chatBar_colorMore_location@2x.png"; sourceTree = "<group>"; };
@@ -888,6 +882,9 @@
 		EBD2AAFE1A7CDAC000D16528 /* tabbarBackground@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tabbarBackground@2x.png"; sourceTree = "<group>"; };
 		EBD2AAFF1A7CDAC000D16528 /* tabbarSelectBg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tabbarSelectBg.png; sourceTree = "<group>"; };
 		EBD2AB001A7CDAC000D16528 /* tabbarSelectBg@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tabbarSelectBg@2x.png"; sourceTree = "<group>"; };
+		EBD2AD431A7CEF2D00D16528 /* libEaseMobClientSDK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libEaseMobClientSDK.a; path = "../../../../Library/Developer/Xcode/DerivedData/sdk-egftlguniriaatetrtetyjwlreue/Build/Products/Debug-iphoneos/libEaseMobClientSDK.a"; sourceTree = "<group>"; };
+		EBD2AD451A7CEFE100D16528 /* chatBar_colorMore_audioCall@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chatBar_colorMore_audioCall@2x.png"; sourceTree = "<group>"; };
+		EBD2AD461A7CEFE100D16528 /* chatBar_colorMore_audioCallSelected@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chatBar_colorMore_audioCallSelected@2x.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -895,8 +892,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				909E89C91A6E7A6B0064B20F /* libEaseMobClientSDK.a in Frameworks */,
-				EBD2AA331A7C863100D16528 /* libMobClickLibrary.a in Frameworks */,
+				EBD2AD441A7CEF2D00D16528 /* libEaseMobClientSDK.a in Frameworks */,
+				EBD2ACC51A7CECBC00D16528 /* libMobClickLibrary.a in Frameworks */,
 				3CBB931C1A14B227007FED9E /* libsqlite3.dylib in Frameworks */,
 				3CE6293319A1B13700829632 /* CoreText.framework in Frameworks */,
 				3C1CEF7F196EA37600DBA56B /* ImageIO.framework in Frameworks */,
@@ -1301,12 +1298,9 @@
 		90911026192EEA70008A48AA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				EBD2AA321A7C863100D16528 /* libMobClickLibrary.a */,
-				909E89C81A6E7A6B0064B20F /* libEaseMobClientSDK.a */,
+				EBD2AD431A7CEF2D00D16528 /* libEaseMobClientSDK.a */,
 				3C36CA691A1EDB6200CDDD48 /* CoreData.framework */,
 				3C27F9101A1C8FCD008272EF /* QuartzCore.framework */,
-				3CA121441A14D8FE00753D7F /* libEaseMobClientSDK.a */,
-				3CBB94311A14B522007FED9E /* libEaseMobClientSDKLite.a */,
 				3CBB931B1A14B227007FED9E /* libsqlite3.dylib */,
 				3CE6293219A1B13700829632 /* CoreText.framework */,
 				3C1CEF7E196EA37600DBA56B /* ImageIO.framework */,
@@ -1807,8 +1801,8 @@
 		EBD2AAA91A7CDABF00D16528 /* Color */ = {
 			isa = PBXGroup;
 			children = (
-				EBD2AAAA1A7CDABF00D16528 /* chatBar_colorMore_audioCall.png */,
-				EBD2AAAB1A7CDABF00D16528 /* chatBar_colorMore_audioCallSelected.png */,
+				EBD2AD451A7CEFE100D16528 /* chatBar_colorMore_audioCall@2x.png */,
+				EBD2AD461A7CEFE100D16528 /* chatBar_colorMore_audioCallSelected@2x.png */,
 				EBD2AAAC1A7CDABF00D16528 /* chatBar_colorMore_camera@2x.png */,
 				EBD2AAAD1A7CDABF00D16528 /* chatBar_colorMore_cameraSelected@2x.png */,
 				EBD2AAAE1A7CDABF00D16528 /* chatBar_colorMore_location@2x.png */,
@@ -1969,6 +1963,7 @@
 				ORGANIZATIONNAME = "___FULLUSERNAME___";
 				TargetAttributes = {
 					90911023192EEA70008A48AA = {
+						DevelopmentTeam = 499WYUV8Q2;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -2047,6 +2042,7 @@
 				EBD2AB481A7CDAC000D16528 /* chatBar_more_face@2x.png in Resources */,
 				EBD2AB551A7CDAC000D16528 /* faceDelete.png in Resources */,
 				90EF2CEC192F2B4E00BDC549 /* sr_refresh.png in Resources */,
+				EBD2AD481A7CEFE100D16528 /* chatBar_colorMore_audioCallSelected@2x.png in Resources */,
 				EBD2AB581A7CDAC000D16528 /* messageSendFail@2x.png in Resources */,
 				EBD2ABB21A7CDAC000D16528 /* tabbar_contacts@2x.png in Resources */,
 				EBD2AB201A7CDAC000D16528 /* VoiceSearchFeedback008@2x.png in Resources */,
@@ -2056,6 +2052,7 @@
 				EBD2AB511A7CDAC000D16528 /* chat_location_detail_disclosureHL.png in Resources */,
 				EBD2AB2A1A7CDAC000D16528 /* VoiceSearchFeedback013@2x.png in Resources */,
 				EBD2ABB71A7CDAC000D16528 /* tabbar_settingHL.png in Resources */,
+				EBD2AD471A7CEFE100D16528 /* chatBar_colorMore_audioCall@2x.png in Resources */,
 				EBD2AB211A7CDAC000D16528 /* VoiceSearchFeedback009.png in Resources */,
 				EBD2AB801A7CDAC000D16528 /* chatBar_more_photo@2x.png in Resources */,
 				EBD2AB921A7CDAC000D16528 /* chat_sender_audio_playing_001.png in Resources */,
@@ -2088,7 +2085,6 @@
 				EBD2AB911A7CDAC000D16528 /* chat_sender_audio_playing_000@2x.png in Resources */,
 				EBD2AB9D1A7CDAC000D16528 /* account@2x.png in Resources */,
 				EBD2AB661A7CDAC000D16528 /* chatBar_record@2x.png in Resources */,
-				EBD2AB6D1A7CDAC000D16528 /* chatBar_colorMore_audioCall.png in Resources */,
 				EBD2AB881A7CDAC000D16528 /* chat_receiver_audio_playing002.png in Resources */,
 				EBD2AB1C1A7CDAC000D16528 /* VoiceSearchFeedback006@2x.png in Resources */,
 				EBD2AB6B1A7CDAC000D16528 /* chatBar_recordSelectedBg.png in Resources */,
@@ -2168,7 +2164,6 @@
 				EBD2ABBC1A7CDAC000D16528 /* tabbarSelectBg@2x.png in Resources */,
 				EBD2ABA51A7CDAC000D16528 /* titleBar@2x.png in Resources */,
 				EBD2AB831A7CDAC000D16528 /* messageToolbarBg@2x.png in Resources */,
-				EBD2AB6E1A7CDAC000D16528 /* chatBar_colorMore_audioCallSelected.png in Resources */,
 				EBD2AB751A7CDAC000D16528 /* chatBar_colorMore_video@2x.png in Resources */,
 				EBD2AB191A7CDAC000D16528 /* VoiceSearchFeedback005.png in Resources */,
 				EBD2AB951A7CDAC000D16528 /* chat_sender_audio_playing_002@2x.png in Resources */,
@@ -2462,6 +2457,7 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer: Ji Fang (4BQ5R7ZSAG)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -2479,8 +2475,8 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/ChatDemo-UI2.0/3rdparty",
 					"$(PROJECT_DIR)/ChatDemo-UI2.0/3rdparty/UMeng",
-					"$(PROJECT_DIR)",
-					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/sdk-akpmjkycllgvjzeueixmeaqxqkdf/Build/Products/Debug-iphoneos",
+					/Users/dhc/Desktop/EasemobRelease/EaseMobSDK/lib,
+					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/sdk-egftlguniriaatetrtetyjwlreue/Build/Products/Debug-iphoneos",
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";
@@ -2497,6 +2493,7 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer: Ji Fang (4BQ5R7ZSAG)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -2514,8 +2511,8 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/ChatDemo-UI2.0/3rdparty",
 					"$(PROJECT_DIR)/ChatDemo-UI2.0/3rdparty/UMeng",
-					"$(PROJECT_DIR)",
-					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/sdk-akpmjkycllgvjzeueixmeaqxqkdf/Build/Products/Debug-iphoneos",
+					/Users/dhc/Desktop/EasemobRelease/EaseMobSDK/lib,
+					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/sdk-egftlguniriaatetrtetyjwlreue/Build/Products/Debug-iphoneos",
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";

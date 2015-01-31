@@ -23,6 +23,7 @@
 @property (strong, nonatomic) UIView *footerView;
 
 @property (strong, nonatomic) UISwitch *autoLoginSwitch;
+@property (strong, nonatomic) UISwitch *ipSwitch;
 
 @property (strong, nonatomic) UISwitch *beInvitedSwitch;
 @property (strong, nonatomic) UILabel *beInvitedLabel;
@@ -30,6 +31,9 @@
 @end
 
 @implementation SettingsViewController
+
+@synthesize autoLoginSwitch = _autoLoginSwitch;
+@synthesize ipSwitch = _ipSwitch;
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -65,6 +69,16 @@
     }
     
     return _autoLoginSwitch;
+}
+
+- (UISwitch *)ipSwitch
+{
+    if (_ipSwitch == nil) {
+        _ipSwitch = [[UISwitch alloc] init];
+        [_ipSwitch addTarget:self action:@selector(useIpChanged:) forControlEvents:UIControlEventValueChanged];
+    }
+    
+    return _ipSwitch;
 }
 
 - (UISwitch *)beInvitedSwitch
@@ -133,6 +147,13 @@
             cell.textLabel.text = NSLocalizedString(@"title.debug", @"Debug");
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         }
+//        else if (indexPath.row == 4){
+//            cell.textLabel.text = @"使用IP";
+//            cell.accessoryType = UITableViewCellAccessoryNone;
+//            self.ipSwitch.frame = CGRectMake(self.tableView.frame.size.width - (self.ipSwitch.frame.size.width + 10), (cell.contentView.frame.size.height - self.ipSwitch.frame.size.height) / 2, self.ipSwitch.frame.size.width, self.ipSwitch.frame.size.height);
+//            [cell.contentView addSubview:self.ipSwitch];
+//        }
+
 //        else if (indexPath.row == 3)
 //        {
 //            cell.textLabel.text = @"被邀请人权限";
@@ -207,6 +228,11 @@
     [[EaseMob sharedInstance].chatManager setIsAutoLoginEnabled:autoSwitch.isOn];
 }
 
+//- (void)useIpChanged:(UISwitch *)ipSwitch
+//{
+//    [[EaseMob sharedInstance].chatManager setIsUseIp:ipSwitch.isOn];
+//}
+
 - (void)beInvitedChanged:(UISwitch *)beInvitedSwitch
 {
 //    if (beInvitedSwitch.isOn) {
@@ -223,6 +249,7 @@
 - (void)refreshConfig
 {
     [self.autoLoginSwitch setOn:[[EaseMob sharedInstance].chatManager isAutoLoginEnabled] animated:YES];
+//    [self.ipSwitch setOn:[[EaseMob sharedInstance].chatManager isUseIp] animated:YES];
     
     [self.tableView reloadData];
 }
