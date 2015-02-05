@@ -236,12 +236,17 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
         NSString *chatter = (NSString *)object;
         
         if (_callController == nil) {
-            EMCallSession *callSession = [[EMSDKFull sharedInstance].callManager asyncCallAudioWithChatter:chatter timeout:50 error:nil];
+            EMError *error = nil;
+            EMCallSession *callSession = [[EMSDKFull sharedInstance].callManager asyncCallAudioWithChatter:chatter timeout:50 error:&error];
             
             if (callSession) {
                 [[EMSDKFull sharedInstance].callManager removeDelegate:self];
                 _callController = [[CallSessionViewController alloc] initCallOutWithSession:callSession];
                 [self presentViewController:_callController animated:YES completion:nil];
+            }
+            else{
+                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"error", @"error") message:error.description delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
+                [alertView show];
             }
         }
         else{
