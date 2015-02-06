@@ -147,12 +147,12 @@
             cell.textLabel.text = NSLocalizedString(@"title.debug", @"Debug");
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         }
-//        else if (indexPath.row == 4){
-//            cell.textLabel.text = @"使用IP";
-//            cell.accessoryType = UITableViewCellAccessoryNone;
-//            self.ipSwitch.frame = CGRectMake(self.tableView.frame.size.width - (self.ipSwitch.frame.size.width + 10), (cell.contentView.frame.size.height - self.ipSwitch.frame.size.height) / 2, self.ipSwitch.frame.size.width, self.ipSwitch.frame.size.height);
-//            [cell.contentView addSubview:self.ipSwitch];
-//        }
+        else if (indexPath.row == 4){
+            cell.textLabel.text = @"使用IP";
+            cell.accessoryType = UITableViewCellAccessoryNone;
+            self.ipSwitch.frame = CGRectMake(self.tableView.frame.size.width - (self.ipSwitch.frame.size.width + 10), (cell.contentView.frame.size.height - self.ipSwitch.frame.size.height) / 2, self.ipSwitch.frame.size.width, self.ipSwitch.frame.size.height);
+            [cell.contentView addSubview:self.ipSwitch];
+        }
 
 //        else if (indexPath.row == 3)
 //        {
@@ -258,7 +258,7 @@
 {
     __weak SettingsViewController *weakSelf = self;
     [self showHudInView:self.view hint:NSLocalizedString(@"setting.logoutOngoing", @"loging out...")];
-    [[EaseMob sharedInstance].chatManager asyncLogoffWithCompletion:^(NSDictionary *info, EMError *error) {
+    [[EaseMob sharedInstance].chatManager asyncLogoffWithUnbindDeviceToken:YES completion:^(NSDictionary *info, EMError *error) {
         [weakSelf hideHud];
         if (error && error.errorCode != EMErrorServerNotLogin) {
             [weakSelf showHint:error.description];

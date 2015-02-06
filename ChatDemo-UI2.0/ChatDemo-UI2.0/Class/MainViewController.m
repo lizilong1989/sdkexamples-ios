@@ -549,26 +549,18 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
 
 - (void)didLoginFromOtherDevice
 {
-    [[EaseMob sharedInstance].chatManager asyncLogoffWithCompletion:^(NSDictionary *info, EMError *error) {
-        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt")
-                                                            message:NSLocalizedString(@"loginAtOtherDevice", @"your login account has been in other places")
-                                                           delegate:self
-                                                  cancelButtonTitle:NSLocalizedString(@"ok", @"OK")
-                                                  otherButtonTitles:nil,
-                                  nil];
+    [[EaseMob sharedInstance].chatManager asyncLogoffWithUnbindDeviceToken:NO completion:^(NSDictionary *info, EMError *error) {
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:NSLocalizedString(@"loginAtOtherDevice", @"your login account has been in other places") delegate:self cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
         alertView.tag = 100;
         [alertView show];
+
     } onQueue:nil];
 }
 
-- (void)didRemovedFromServer {
-    [[EaseMob sharedInstance].chatManager asyncLogoffWithCompletion:^(NSDictionary *info, EMError *error) {
-        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt")
-                                                            message:NSLocalizedString(@"loginUserRemoveFromServer", @"your account has been removed from the server side")
-                                                           delegate:self
-                                                  cancelButtonTitle:NSLocalizedString(@"ok", @"OK")
-                                                  otherButtonTitles:nil,
-                                  nil];
+- (void)didRemovedFromServer
+{
+    [[EaseMob sharedInstance].chatManager asyncLogoffWithUnbindDeviceToken:NO completion:^(NSDictionary *info, EMError *error) {
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:NSLocalizedString(@"loginUserRemoveFromServer", @"your account has been removed from the server side") delegate:self cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
         alertView.tag = 101;
         [alertView show];
     } onQueue:nil];
