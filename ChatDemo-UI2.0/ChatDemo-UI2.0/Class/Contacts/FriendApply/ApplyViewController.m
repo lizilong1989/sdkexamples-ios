@@ -13,7 +13,7 @@
 #import "ApplyViewController.h"
 
 #import "ApplyFriendCell.h"
-#import "ApplyEntity.h"
+#import "InvitationManager.h"
 
 static ApplyViewController *controller = nil;
 
@@ -188,9 +188,9 @@ static ApplyViewController *controller = nil;
         [self hideHud];
         if (!error) {
             [self.dataSource removeObject:entity];
-            [entity deleteEntity];
+            NSString *loginUsername = [[[EaseMob sharedInstance].chatManager loginInfo] objectForKey:kSDKUsername];
+            [[InvitationManager sharedInstance] removeInvitation:entity loginUser:loginUsername];
             [self.tableView reloadData];
-            [self save];
         }
         else{
             [self showHint:NSLocalizedString(@"acceptFail", @"accept failure")];
@@ -221,9 +221,10 @@ static ApplyViewController *controller = nil;
         [self hideHud];
         if (!error) {
             [self.dataSource removeObject:entity];
-            [entity deleteEntity];
+            NSString *loginUsername = [[[EaseMob sharedInstance].chatManager loginInfo] objectForKey:kSDKUsername];
+            [[InvitationManager sharedInstance] removeInvitation:entity loginUser:loginUsername];
+            
             [self.tableView reloadData];
-            [self save];
         }
         else{
             [self showHint:NSLocalizedString(@"rejectFail", @"reject failure")];
@@ -256,14 +257,13 @@ static ApplyViewController *controller = nil;
                     [_dataSource removeObject:oldEntity];
                     [_dataSource insertObject:oldEntity atIndex:0];
                     [self.tableView reloadData];
-                    [self save];
                     
                     return;
                 }
             }
             
             //new apply
-            ApplyEntity *newEntity = [ApplyEntity createEntity];
+            ApplyEntity * newEntity= [[ApplyEntity alloc] init];
             newEntity.applicantUsername = [dictionary objectForKey:@"username"];
             newEntity.style = [dictionary objectForKey:@"applyStyle"];
             newEntity.reason = [dictionary objectForKey:@"applyMessage"];
@@ -278,12 +278,12 @@ static ApplyViewController *controller = nil;
             NSString *groupSubject = [dictionary objectForKey:@"groupname"];
             newEntity.groupSubject = (groupSubject && groupSubject.length > 0) ? groupSubject : @"";
             
+            NSString *loginUsername = [[[EaseMob sharedInstance].chatManager loginInfo] objectForKey:kSDKUsername];
+            [[InvitationManager sharedInstance] addInvitation:newEntity loginUser:loginUsername];
+            
             [_dataSource insertObject:newEntity atIndex:0];
             [self.tableView reloadData];
-            
-            if (style != ApplyStyleFriend) {
-                [self save];
-            }
+
         }
     }
 }
@@ -295,12 +295,8 @@ static ApplyViewController *controller = nil;
     NSString *loginName = [loginInfo objectForKey:kSDKUsername];
     if(loginName && [loginName length] > 0)
     {
-        NSPredicate *deletePredicate = [NSPredicate predicateWithFormat:@"receiverUsername = %@ and style = %i", loginName, ApplyStyleFriend];
-        [ApplyEntity deleteAllMatchingPredicate:deletePredicate];
         
-        NSPredicate *searchPredicate = [NSPredicate predicateWithFormat:@"receiverUsername = %@", loginName];
-        NSFetchRequest *request = [ApplyEntity requestAllWithPredicate:searchPredicate];
-        NSArray *applyArray = [ApplyEntity executeFetchRequest:request];
+        NSArray * applyArray = [[InvitationManager sharedInstance] applyEmtitiesWithloginUser:loginName];
         [self.dataSource addObjectsFromArray:applyArray];
         
         [self.tableView reloadData];
@@ -313,10 +309,6 @@ static ApplyViewController *controller = nil;
     [self.navigationController popViewControllerAnimated:YES];
 }
 
-- (void)save
-{
-    [[NSManagedObjectContext defaultContext] saveToPersistentStoreAndWait];
-}
 
 - (void)clear
 {

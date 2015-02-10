@@ -16,7 +16,7 @@
 
 #import "AppDelegate+EaseMob.h"
 #import "AppDelegate+UMeng.h"
-#import "AppDelegate+MagicalRecord.h"
+
 
 @interface AppDelegate ()
 
@@ -48,8 +48,6 @@
     // 初始化环信SDK，详细内容在AppDelegate+EaseMob.m 文件中
     [self easemobApplication:application didFinishLaunchingWithOptions:launchOptions];
 
-    // 初始化UIDemoDB部分，本db只存储uidemo上的好友申请等信息，不存储im消息。im消息存储已经由sdk处理了，您不需要单独处理。
-    [self setupUIDemoDB];
 
     [self loginStateChange:nil];
     [self.window makeKeyAndVisible];
