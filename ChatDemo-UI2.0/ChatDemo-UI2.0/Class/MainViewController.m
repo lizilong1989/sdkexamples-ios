@@ -22,7 +22,7 @@
 //两次提示的默认间隔
 static const CGFloat kDefaultPlaySoundInterval = 3.0;
 
-@interface MainViewController () <UIAlertViewDelegate, IChatManagerDelegate>
+@interface MainViewController () <UIAlertViewDelegate, IChatManagerDelegate, ICallManagerDelegate>
 {
     ChatListViewController *_chatListVC;
     ContactsViewController *_contactsVC;
@@ -109,7 +109,7 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
 {
     if (alertView.tag == 99) {
         if (buttonIndex != [alertView cancelButtonIndex]) {
-            [[EaseMob sharedInstance].chatManager asyncLogoffWithCompletion:^(NSDictionary *info, EMError *error) {
+            [[EaseMob sharedInstance].chatManager asyncLogoffWithUnbindDeviceToken:YES completion:^(NSDictionary *info, EMError *error) {
                 [[ApplyViewController shareController] clear];
                 [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATION_LOGINCHANGE object:@NO];
             } onQueue:nil];
@@ -201,7 +201,7 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
     }
     if (_chatListVC) {
         if (unreadCount > 0) {
-            _chatListVC.tabBarItem.badgeValue = [NSString stringWithFormat:@"%d",unreadCount];
+            _chatListVC.tabBarItem.badgeValue = [NSString stringWithFormat:@"%i",(int)unreadCount];
         }else{
             _chatListVC.tabBarItem.badgeValue = nil;
         }
@@ -216,7 +216,7 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
     NSInteger unreadCount = [[[ApplyViewController shareController] dataSource] count];
     if (_contactsVC) {
         if (unreadCount > 0) {
-            _contactsVC.tabBarItem.badgeValue = [NSString stringWithFormat:@"%d",unreadCount];
+            _contactsVC.tabBarItem.badgeValue = [NSString stringWithFormat:@"%i",(int)unreadCount];
         }else{
             _contactsVC.tabBarItem.badgeValue = nil;
         }
@@ -479,7 +479,7 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
 
 - (void)didRemovedByBuddy:(NSString *)username
 {
-    [[EaseMob sharedInstance].chatManager removeConversationByChatter:username deleteMessages:YES];
+    [[EaseMob sharedInstance].chatManager removeConversationByChatter:username deleteMessages:YES append2Chat:YES];
     [_chatListVC refreshDataSource];
     [_contactsVC reloadDataSource];
 }

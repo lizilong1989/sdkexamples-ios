@@ -228,10 +228,10 @@
     [[EaseMob sharedInstance].chatManager setIsAutoLoginEnabled:autoSwitch.isOn];
 }
 
-//- (void)useIpChanged:(UISwitch *)ipSwitch
-//{
+- (void)useIpChanged:(UISwitch *)ipSwitch
+{
 //    [[EaseMob sharedInstance].chatManager setIsUseIp:ipSwitch.isOn];
-//}
+}
 
 - (void)beInvitedChanged:(UISwitch *)beInvitedSwitch
 {

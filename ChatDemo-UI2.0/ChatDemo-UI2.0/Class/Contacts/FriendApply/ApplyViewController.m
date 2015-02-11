@@ -122,7 +122,7 @@ static ApplyViewController *controller = nil;
         ApplyEntity *entity = [self.dataSource objectAtIndex:indexPath.row];
         if (entity) {
             cell.indexPath = indexPath;
-            ApplyStyle applyStyle = [entity.style integerValue];
+            ApplyStyle applyStyle = [entity.style intValue];
             if (applyStyle == ApplyStyleGroupInvitation) {
                 cell.titleLabel.text = NSLocalizedString(@"title.groupApply", @"Group Notification");
                 cell.headerImageView.image = [UIImage imageNamed:@"groupPrivateHeader"];
@@ -171,7 +171,7 @@ static ApplyViewController *controller = nil;
         [self showHudInView:self.view hint:NSLocalizedString(@"sendingApply", @"sending apply...")];
         
         ApplyEntity *entity = [self.dataSource objectAtIndex:indexPath.row];
-        ApplyStyle applyStyle = [entity.style integerValue];
+        ApplyStyle applyStyle = [entity.style intValue];
         EMError *error;
         
         if (applyStyle == ApplyStyleGroupInvitation) {
@@ -241,7 +241,7 @@ static ApplyViewController *controller = nil;
         ApplyStyle style = [[dictionary objectForKey:@"applyStyle"] intValue];
         
         if (applyUsername && applyUsername.length > 0) {
-            for (int i = ([_dataSource count] - 1); i >= 0; i--) {
+            for (int i = ((int)[_dataSource count] - 1); i >= 0; i--) {
                 ApplyEntity *oldEntity = [_dataSource objectAtIndex:i];
                 ApplyStyle oldStyle = [oldEntity.style intValue];
                 if (oldStyle == style && [applyUsername isEqualToString:oldEntity.applicantUsername]) {
