@@ -203,7 +203,7 @@ static ApplyViewController *controller = nil;
     if (indexPath.row < [self.dataSource count]) {
         [self showHudInView:self.view hint:NSLocalizedString(@"sendingApply", @"sending apply...")];
         ApplyEntity *entity = [self.dataSource objectAtIndex:indexPath.row];
-        ApplyStyle applyStyle = [entity.style integerValue];
+        ApplyStyle applyStyle = [entity.style intValue];
         EMError *error;
         
         if (applyStyle == ApplyStyleGroupInvitation) {
