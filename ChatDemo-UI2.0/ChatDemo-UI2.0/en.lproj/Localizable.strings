@@ -55,6 +55,7 @@
 //login
 "login.beginAutoLogin" = "Start automatic login...";
 "login.endAutoLogin" = "End automatic login...";
+"login.errorAutoLogin" = "Automatic logon failure.";
 "login.nameNotSupportZh" = "Name does not support Chinese";
 "login.ongoing" = "Is Login...";
 "login.fail" = "Logon failure";

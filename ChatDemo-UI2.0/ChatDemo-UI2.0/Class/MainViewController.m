@@ -575,7 +575,7 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
 
 - (void)willAutoReconnect{
     [self hideHud];
-    [self showHudInView:self.view hint:NSLocalizedString(@"reconnection.ongoing", @"reconnecting...")];
+    [self showHint:NSLocalizedString(@"reconnection.ongoing", @"reconnecting...")];
 }
 
 - (void)didAutoReconnectFinishedWithError:(NSError *)error{
