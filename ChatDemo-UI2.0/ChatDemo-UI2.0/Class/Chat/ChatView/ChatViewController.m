@@ -632,7 +632,7 @@
 
 #pragma mark - IChatManagerDelegate
 
--(void)didSendMessage:(EMMessage *)message error:(EMError *)error;
+-(void)didSendMessage:(EMMessage *)message error:(EMError *)error
 {
     [self reloadTableViewDataWithMessage:message];
 }
