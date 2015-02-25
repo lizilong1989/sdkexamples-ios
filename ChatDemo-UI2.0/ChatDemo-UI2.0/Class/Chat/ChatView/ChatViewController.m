@@ -455,6 +455,7 @@
 }
 
 - (void)reloadData{
+    _chatTagDate = nil;
     self.dataSource = [[self formatMessages:self.messages] mutableCopy];
     [self.tableView reloadData];
 }
@@ -1106,6 +1107,8 @@
         NSString *groupId = (NSString *)[(NSNotification *)sender object];
         if (_isChatGroup && [groupId isEqualToString:_conversation.chatter]) {
             [_conversation removeAllMessages];
+            [_messages removeAllObjects];
+            _chatTagDate = nil;
             [_dataSource removeAllObjects];
             [_tableView reloadData];
             [self showHint:NSLocalizedString(@"message.noMessage", @"no messages")];
@@ -1121,6 +1124,8 @@
          ^(NSUInteger buttonIndex, WCAlertView *alertView) {
              if (buttonIndex == 1) {
                  [weakSelf.conversation removeAllMessages];
+                 [weakSelf.messages removeAllObjects];
+                 weakSelf.chatTagDate = nil;
                  [weakSelf.dataSource removeAllObjects];
                  [weakSelf.tableView reloadData];
              }
