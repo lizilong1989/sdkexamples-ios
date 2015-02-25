@@ -114,7 +114,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return 4;
+    return 5;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -230,7 +230,7 @@
 
 - (void)useIpChanged:(UISwitch *)ipSwitch
 {
-//    [[EaseMob sharedInstance].chatManager setIsUseIp:ipSwitch.isOn];
+    [[EaseMob sharedInstance].chatManager setIsUseIp:ipSwitch.isOn];
 }
 
 - (void)beInvitedChanged:(UISwitch *)beInvitedSwitch
@@ -249,7 +249,7 @@
 - (void)refreshConfig
 {
     [self.autoLoginSwitch setOn:[[EaseMob sharedInstance].chatManager isAutoLoginEnabled] animated:YES];
-//    [self.ipSwitch setOn:[[EaseMob sharedInstance].chatManager isUseIp] animated:YES];
+    [self.ipSwitch setOn:[[EaseMob sharedInstance].chatManager isUseIp] animated:YES];
     
     [self.tableView reloadData];
 }
