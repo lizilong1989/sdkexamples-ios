@@ -17,6 +17,7 @@
 #import "EMGroup.h"
 #import "ContactView.h"
 #import "GroupBansViewController.h"
+#import "GroupSubjectChangingViewController.h"
 
 #pragma mark - ChatGroupDetailViewController
 
@@ -227,7 +228,7 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
-    return 4;
+    return 5;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -262,6 +263,11 @@
     }
     else if (indexPath.row == 4)
     {
+        cell.textLabel.text = NSLocalizedString(@"title.groupSubjectChanging", @"Change group name");
+        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    }
+    else if (indexPath.row == 5)
+    {
         cell.textLabel.text = NSLocalizedString(@"title.groupBlackList", @"Group black list");
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     }
@@ -290,7 +296,12 @@
         GroupSettingViewController *settingController = [[GroupSettingViewController alloc] initWithGroup:_chatGroup];
         [self.navigationController pushViewController:settingController animated:YES];
     }
-    else if (indexPath.row == 4) {
+    else if (indexPath.row == 4)
+    {
+        GroupSubjectChangingViewController *changingController = [[GroupSubjectChangingViewController alloc] initWithGroup:_chatGroup];
+        [self.navigationController pushViewController:changingController animated:YES];
+    }
+    else if (indexPath.row == 5) {
         GroupBansViewController *bansController = [[GroupBansViewController alloc] initWithGroup:_chatGroup];
         [self.navigationController pushViewController:bansController animated:YES];
     }

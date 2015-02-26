@@ -734,6 +734,14 @@
     [self stopAudioPlaying];
 }
 
+- (void)groupDidUpdateInfo:(EMGroup *)group error:(EMError *)error
+{
+    if (!error && _isChatGroup && [_chatter isEqualToString:group.groupId])
+    {
+        self.title = group.groupSubject;
+    }
+}
+
 #pragma mark - EMChatBarMoreViewDelegate
 
 - (void)moreViewPhotoAction:(DXChatBarMoreView *)moreView
