@@ -206,6 +206,7 @@
 "title.buddyBlock" = "黑名单";
 "title.apply" = "申请与通知";
 "title.groupApply" = "群组通知";
+"title.groupSubjectChanging" = "修改群名称";
 
 //setting
 "setting.autoLogin" = "自动登录";

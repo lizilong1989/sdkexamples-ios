@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		283403091A9EBB8200B7DE9B /* GroupSubjectChangingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 283403081A9EBB8200B7DE9B /* GroupSubjectChangingViewController.m */; };
 		3C06AAFF194050A00076FF0B /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C06AAFE194050A00076FF0B /* CoreLocation.framework */; };
 		3C06AB0319405D330076FF0B /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C06AB0219405D330076FF0B /* MapKit.framework */; };
 		3C11304E195AFFDD00ED1D0D /* EMChatVideoBubbleView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C11304D195AFFDD00ED1D0D /* EMChatVideoBubbleView.m */; };
@@ -366,6 +367,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		283403071A9EBB8200B7DE9B /* GroupSubjectChangingViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GroupSubjectChangingViewController.h; sourceTree = "<group>"; };
+		283403081A9EBB8200B7DE9B /* GroupSubjectChangingViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GroupSubjectChangingViewController.m; sourceTree = "<group>"; };
 		3C06AAFE194050A00076FF0B /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		3C06AB0219405D330076FF0B /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		3C0CE53A193895E200219149 /* macros.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = macros.h; sourceTree = "<group>"; };
@@ -1059,6 +1062,8 @@
 				3C3EB2FE195465D100E1AE9E /* PublicGroupDetailViewController.m */,
 				3C35365A19A22164003EF79E /* GroupSettingViewController.h */,
 				3C35365B19A22164003EF79E /* GroupSettingViewController.m */,
+				283403071A9EBB8200B7DE9B /* GroupSubjectChangingViewController.h */,
+				283403081A9EBB8200B7DE9B /* GroupSubjectChangingViewController.m */,
 			);
 			path = ChatGroup;
 			sourceTree = "<group>";
@@ -2263,6 +2268,7 @@
 				9003D8761939D8D000DC38A4 /* DXRecordView.m in Sources */,
 				90ABA8E31A2EBD0D00EDF0E8 /* PSTGridLayoutInfo.m in Sources */,
 				3C914D8519514BBD0002DAD3 /* ContactSelectionViewController.m in Sources */,
+				283403091A9EBB8200B7DE9B /* GroupSubjectChangingViewController.m in Sources */,
 				9003D9151939D8D000DC38A4 /* ApplyFriendCell.m in Sources */,
 				3C6BBA091941A58C00A64684 /* XHMessageTextView.m in Sources */,
 				3C24DA301A6CA6C100B0F750 /* CallSessionViewController.m in Sources */,

@@ -208,6 +208,7 @@
 "title.buddyBlock" = "Black List";
 "title.apply" = "Application and notification";
 "title.groupApply" = "Group Notification";
+"title.groupSubjectChanging" = "Change group name";
 
 //setting
 "setting.autoLogin" = "automatic login";
