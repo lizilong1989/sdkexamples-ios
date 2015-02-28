@@ -18,6 +18,26 @@
 #import "PublicGroupDetailViewController.h"
 #import "RealtimeSearchUtil.h"
 
+@interface ObjectWeakContainer : NSObject
+@property (nonatomic, weak) id obj;
++ (instancetype)sharedInstance;
+@end
+
+@implementation ObjectWeakContainer
++ (instancetype)sharedInstance
+{
+    static dispatch_once_t onceToken;
+    static ObjectWeakContainer *instance = nil;
+    dispatch_once(&onceToken, ^{
+        instance = [[ObjectWeakContainer alloc] init];
+    });
+    return instance;
+}
+@end
+
+
+static BOOL isFetchingPublicGroupList = NO;
+
 @interface PublicGroupListViewController ()<UISearchBarDelegate, UISearchDisplayDelegate, SRRefreshDelegate>
 
 @property (strong, nonatomic) NSMutableArray *dataSource;
@@ -43,7 +63,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
+
     if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)])
     {
         [self setEdgesForExtendedLayout:UIRectEdgeNone];
@@ -65,7 +85,8 @@
     [backButton addTarget:self.navigationController action:@selector(popViewControllerAnimated:) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *backItem = [[UIBarButtonItem alloc] initWithCustomView:backButton];
     [self.navigationItem setLeftBarButtonItem:backItem];
-    
+
+    [ObjectWeakContainer sharedInstance].obj = self;
     [self reloadDataSource];
 }
 
@@ -272,14 +293,22 @@
 
 - (void)reloadDataSource
 {
+    [self hideHud];
     [self showHudInView:self.view hint:NSLocalizedString(@"loadData", @"Load data...")];
-    
-    __weak PublicGroupListViewController *weakSelf = self;
+
+    if (isFetchingPublicGroupList)
+    {
+        return;
+    }
+
+    isFetchingPublicGroupList = YES;
     [[EaseMob sharedInstance].chatManager asyncFetchAllPublicGroupsWithCompletion:^(NSArray *groups, EMError *error) {
-        [weakSelf.dataSource removeAllObjects];
-        [weakSelf.dataSource addObjectsFromArray:groups];
-        [weakSelf.tableView reloadData];
-        [weakSelf hideHud];
+        PublicGroupListViewController *controller = [ObjectWeakContainer sharedInstance].obj;
+        [controller hideHud];
+        [controller.dataSource removeAllObjects];
+        [controller.dataSource addObjectsFromArray:groups];
+        [controller.tableView reloadData];
+        isFetchingPublicGroupList = NO;
     } onQueue:nil];
 }
 
