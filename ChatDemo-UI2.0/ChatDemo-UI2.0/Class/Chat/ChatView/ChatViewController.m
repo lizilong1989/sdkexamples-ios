@@ -1019,8 +1019,59 @@
                 
                 [weakSelf.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:[weakSelf.dataSource count] - currentCount - 1 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:NO];
             });
+
+            //从数据库导入时重新下载没有下载成功的附件
+            for (NSInteger i = currentCount; i < [weakSelf.dataSource count]; i++)
+            {
+                id obj = weakSelf.dataSource[i];
+                if ([obj isKindOfClass:[MessageModel class]])
+                {
+                    [weakSelf downloadMessageAttachments:obj];
+                }
+            }
         }
     });
+}
+
+- (void)downloadMessageAttachments:(MessageModel *)model
+{
+    void (^completion)(EMMessage *aMessage, EMError *error) = ^(EMMessage *aMessage, EMError *error) {
+        if (!error)
+        {
+            [self reloadTableViewDataWithMessage:model.message];
+        }
+        else
+        {
+            [self showHint:NSLocalizedString(@"message.thumImageFail", @"thumbnail for failure!")];
+        }
+    };
+
+    if ([model.messageBody messageBodyType] == eMessageBodyType_Image) {
+        EMImageMessageBody *imageBody = (EMImageMessageBody *)model.messageBody;
+        if (imageBody.thumbnailDownloadStatus != EMAttachmentDownloadSuccessed)
+        {
+            //下载缩略图
+            [[[EaseMob sharedInstance] chatManager] asyncFetchMessageThumbnail:model.message progress:nil completion:completion onQueue:nil];
+        }
+    }
+    else if ([model.messageBody messageBodyType] == eMessageBodyType_Video)
+    {
+        EMVideoMessageBody *videoBody = (EMVideoMessageBody *)model.messageBody;
+        if (videoBody.thumbnailDownloadStatus != EMAttachmentDownloadSuccessed)
+        {
+            //下载缩略图
+            [[[EaseMob sharedInstance] chatManager] asyncFetchMessageThumbnail:model.message progress:nil completion:completion onQueue:nil];
+        }
+    }
+    else if ([model.messageBody messageBodyType] == eMessageBodyType_Voice)
+    {
+        EMVoiceMessageBody *voiceBody = (EMVoiceMessageBody*)model.messageBody;
+        if (voiceBody.attachmentDownloadStatus != EMAttachmentDownloadSuccessed)
+        {
+            //下载语言
+            [[EaseMob sharedInstance].chatManager asyncFetchMessage:model.message progress:nil];
+        }
+    }
 }
 
 - (NSArray *)formatMessages:(NSArray *)messagesArray
