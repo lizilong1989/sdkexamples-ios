@@ -35,8 +35,6 @@
     apnsCertName = @"chatdemoui";
 #endif
 
-    //dewmobile#kuaiya
-    //easemob-demo#chatdemoui
     [[EaseMob sharedInstance] registerSDKWithAppKey:@"easemob-demo#chatdemoui"
                                        apnsCertName:apnsCertName];
     // 登录成功后，自动去取好友列表
