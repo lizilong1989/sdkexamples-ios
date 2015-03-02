@@ -956,9 +956,11 @@
                 [indexPaths addObject:[NSIndexPath indexPathForRow:(_longPressIndexPath.row - 1) inSection:0]];
             }
         }
-        
+
         [self.dataSource removeObjectsInArray:messages];
+        [self.tableView beginUpdates];
         [self.tableView deleteRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationFade];
+        [self.tableView endUpdates];
     }
     
     _longPressIndexPath = nil;
