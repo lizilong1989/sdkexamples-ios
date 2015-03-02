@@ -224,6 +224,13 @@
                }
            }];
     ret = [[NSMutableArray alloc] initWithArray:sorte];
+    [ret enumerateObjectsUsingBlock:^(EMConversation *conversation, NSUInteger idx, BOOL *stop) {
+        if (![conversation latestMessage])
+        {
+            [[EaseMob sharedInstance].chatManager removeConversationByChatter:conversation.chatter deleteMessages:NO append2Chat:YES];
+            [ret removeObjectAtIndex:idx];
+        }
+    }];
     return ret;
 }
 
