@@ -319,6 +319,11 @@
 - (void)didAcceptInvitationFromGroup:(EMGroup *)group
                                error:(EMError *)error
 {
+    if(error)
+    {
+        return;
+    }
+    
     NSString *groupTag = group.groupSubject;
     if ([groupTag length] == 0) {
         groupTag = group.groupId;

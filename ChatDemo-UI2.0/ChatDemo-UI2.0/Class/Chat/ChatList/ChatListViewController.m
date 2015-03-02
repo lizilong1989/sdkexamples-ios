@@ -213,7 +213,14 @@
 {
     NSMutableArray *ret = nil;
     NSArray *conversations = [[EaseMob sharedInstance].chatManager conversations];
-    NSArray* sorte = [conversations sortedArrayUsingComparator:
+    NSMutableArray *tmpConversations = [NSMutableArray array];
+    for (EMConversation *conversation in conversations) {
+        if ([conversation latestMessage]) {
+            [tmpConversations addObject:conversation];
+        }
+    }
+
+    NSArray* sorte = [tmpConversations sortedArrayUsingComparator:
            ^(EMConversation *obj1, EMConversation* obj2){
                EMMessage *message1 = [obj1 latestMessage];
                EMMessage *message2 = [obj2 latestMessage];
