@@ -166,15 +166,20 @@
 
 // 注册推送
 - (void)registerRemoteNotification{
-#if !TARGET_IPHONE_SIMULATOR
     UIApplication *application = [UIApplication sharedApplication];
     application.applicationIconBadgeNumber = 0;
-    //iOS8 注册APNS
-    if ([application respondsToSelector:@selector(registerForRemoteNotifications)]) {
-        [application registerForRemoteNotifications];
+
+    if([application respondsToSelector:@selector(registerUserNotificationSettings:)])
+    {
         UIUserNotificationType notificationTypes = UIUserNotificationTypeBadge | UIUserNotificationTypeSound | UIUserNotificationTypeAlert;
         UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:notificationTypes categories:nil];
         [application registerUserNotificationSettings:settings];
+    }
+
+#if !TARGET_IPHONE_SIMULATOR
+    //iOS8 注册APNS
+    if ([application respondsToSelector:@selector(registerForRemoteNotifications)]) {
+        [application registerForRemoteNotifications];
     }else{
         UIRemoteNotificationType notificationTypes = UIRemoteNotificationTypeBadge |
         UIRemoteNotificationTypeSound |
