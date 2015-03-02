@@ -35,8 +35,6 @@
     apnsCertName = @"chatdemoui";
 #endif
 
-    //dewmobile#kuaiya
-    //easemob-demo#chatdemoui
     [[EaseMob sharedInstance] registerSDKWithAppKey:@"easemob-demo#chatdemoui"
                                        apnsCertName:apnsCertName
                                         otherConfig:@{kSDKConfigEnableConsoleLogger:[NSNumber numberWithBool:YES]}];
