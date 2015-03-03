@@ -1118,6 +1118,7 @@
 
 -(void)addMessage:(EMMessage *)message
 {
+    [_messages addObject:message];
     __weak ChatViewController *weakSelf = self;
     dispatch_async(_messageQueue, ^{
         NSArray *messages = [weakSelf formatMessage:message];
@@ -1258,30 +1259,40 @@
 //        }
 //    }
 
-    EMMessage *tempMessage = [ChatSendHelper sendTextMessageWithString:textMessage toUsername:_conversation.chatter isChatGroup:_isChatGroup requireEncryption:NO ext:nil];
+    EMMessage *tempMessage = [ChatSendHelper sendTextMessageWithString:textMessage
+                                                            toUsername:_conversation.chatter
+                                                           isChatGroup:_isChatGroup
+                                                     requireEncryption:NO
+                                                                   ext:nil];
     [self addMessage:tempMessage];
-    [_messages addObject:tempMessage];
 }
 
 -(void)sendImageMessage:(UIImage *)imageMessage
 {
-    EMMessage *tempMessage = [ChatSendHelper sendImageMessageWithImage:imageMessage toUsername:_conversation.chatter isChatGroup:_isChatGroup requireEncryption:NO ext:nil];
+    EMMessage *tempMessage = [ChatSendHelper sendImageMessageWithImage:imageMessage
+                                                            toUsername:_conversation.chatter
+                                                           isChatGroup:_isChatGroup
+                                                     requireEncryption:NO
+                                                                   ext:nil];
     [self addMessage:tempMessage];
-    [_messages addObject:tempMessage];
 }
 
 -(void)sendAudioMessage:(EMChatVoice *)voice
 {
-    EMMessage *tempMessage = [ChatSendHelper sendVoice:voice toUsername:_conversation.chatter isChatGroup:_isChatGroup requireEncryption:NO ext:nil];
+    EMMessage *tempMessage = [ChatSendHelper sendVoice:voice
+                                            toUsername:_conversation.chatter
+                                           isChatGroup:_isChatGroup
+                                     requireEncryption:NO ext:nil];
     [self addMessage:tempMessage];
-    [_messages addObject:tempMessage];
 }
 
 -(void)sendVideoMessage:(EMChatVideo *)video
 {
-    EMMessage *tempMessage = [ChatSendHelper sendVideo:video toUsername:_conversation.chatter isChatGroup:_isChatGroup requireEncryption:NO ext:nil];
+    EMMessage *tempMessage = [ChatSendHelper sendVideo:video
+                                            toUsername:_conversation.chatter
+                                           isChatGroup:_isChatGroup
+                                     requireEncryption:NO ext:nil];
     [self addMessage:tempMessage];
-    [_messages addObject:tempMessage];
 }
 
 #pragma mark - EMDeviceManagerProximitySensorDelegate

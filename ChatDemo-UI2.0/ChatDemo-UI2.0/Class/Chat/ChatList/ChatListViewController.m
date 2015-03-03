@@ -78,13 +78,23 @@
 
 - (void)removeEmptyConversationsFromDB
 {
-    NSMutableArray *conversations = [NSMutableArray arrayWithArray:[[EaseMob sharedInstance].chatManager conversations]];
-    [conversations enumerateObjectsUsingBlock:^(EMConversation *conversation, NSUInteger idx, BOOL *stop) {
-        if (![conversation latestMessage])
-        {
-            [[EaseMob sharedInstance].chatManager removeConversationByChatter:conversation.chatter deleteMessages:NO append2Chat:NO];
+    NSArray *conversations = [[EaseMob sharedInstance].chatManager conversations];
+    NSMutableArray *needRemoveConversations;
+    for (EMConversation *conversation in conversations) {
+        if (!conversation.latestMessage) {
+            if (!needRemoveConversations) {
+                needRemoveConversations = [[NSMutableArray alloc] initWithCapacity:0];
+            }
+            
+            [needRemoveConversations addObject:conversation.chatter];
         }
-    }];
+    }
+    
+    if (needRemoveConversations && needRemoveConversations.count > 0) {
+        [[EaseMob sharedInstance].chatManager removeConversationsByChatters:needRemoveConversations
+                                                             deleteMessages:YES
+                                                                append2Chat:NO];
+    }
 }
 
 #pragma mark - getter

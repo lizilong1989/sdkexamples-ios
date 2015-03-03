@@ -1,14 +1,14 @@
 /************************************************************
-  *  * EaseMob CONFIDENTIAL 
-  * __________________ 
-  * Copyright (C) 2013-2014 EaseMob Technologies. All rights reserved. 
-  *  
-  * NOTICE: All information contained herein is, and remains 
-  * the property of EaseMob Technologies.
-  * Dissemination of this information or reproduction of this material 
-  * is strictly forbidden unless prior written permission is obtained
-  * from EaseMob Technologies.
-  */
+ *  * EaseMob CONFIDENTIAL
+ * __________________
+ * Copyright (C) 2013-2014 EaseMob Technologies. All rights reserved.
+ *
+ * NOTICE: All information contained herein is, and remains
+ * the property of EaseMob Technologies.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from EaseMob Technologies.
+ */
 
 #import <CoreLocation/CoreLocation.h>
 #import <MapKit/MapKit.h>
@@ -18,11 +18,11 @@
 
 static LocationViewController *defaultLocation = nil;
 
-@interface LocationViewController () <MKMapViewDelegate>
+@interface LocationViewController () <MKMapViewDelegate,CLLocationManagerDelegate>
 {
     MKMapView *_mapView;
     MKPointAnnotation *_annotation;
-    
+    CLLocationManager *_locationManager;
     CLLocationCoordinate2D _currentLocationCoordinate;
     BOOL _isSendLocation;
 }
@@ -138,13 +138,50 @@ static LocationViewController *defaultLocation = nil;
 
 - (void)mapView:(MKMapView *)mapView didFailToLocateUserWithError:(NSError *)error
 {
-    [self showHint:NSLocalizedString(@"location.fail", @"locate failure")];
+    //    [self showHint:NSLocalizedString(@"location.fail", @"locate failure")];
+    [self hideHud];
+    if (error.code == 0) {
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil
+                                                            message:[error.userInfo objectForKey:NSLocalizedRecoverySuggestionErrorKey]
+                                                           delegate:nil
+                                                  cancelButtonTitle:@"确定"
+                                                  otherButtonTitles:nil, nil];
+        [alertView show];
+    }
+}
+
+- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
+{
+    switch (status) {
+        case kCLAuthorizationStatusNotDetermined:
+            if ([_locationManager respondsToSelector:@selector(requestAlwaysAuthorization)])
+            {
+                [_locationManager requestWhenInUseAuthorization];
+            }
+            break;
+        case kCLAuthorizationStatusDenied:
+        {
+            
+        }
+        default:
+            break;
+    }
 }
 
 #pragma mark - public
 
 - (void)startLocation
 {
+    if([CLLocationManager locationServicesEnabled]){
+        _locationManager = [[CLLocationManager alloc] init];
+        _locationManager.delegate = self;
+        _locationManager.distanceFilter = 5;
+        _locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation;//kCLLocationAccuracyBest;
+        if ([[UIDevice currentDevice].systemVersion floatValue] >= 8.0) {
+            [_locationManager requestWhenInUseAuthorization];
+        }
+    }
+    
     if (_isSendLocation) {
         self.navigationItem.rightBarButtonItem.enabled = NO;
     }
