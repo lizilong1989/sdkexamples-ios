@@ -47,12 +47,13 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
+    [self removeEmptyConversationsFromDB];
+
     [self.view addSubview:self.searchBar];
     [self.view addSubview:self.tableView];
     [self.tableView addSubview:self.slimeView];
     [self networkStateView];
-    
+
     [self searchController];
 }
 
@@ -73,6 +74,17 @@
 {
     [super viewWillDisappear:animated];
     [self unregisterNotifications];
+}
+
+- (void)removeEmptyConversationsFromDB
+{
+    NSMutableArray *conversations = [NSMutableArray arrayWithArray:[[EaseMob sharedInstance].chatManager conversations]];
+    [conversations enumerateObjectsUsingBlock:^(EMConversation *conversation, NSUInteger idx, BOOL *stop) {
+        if (![conversation latestMessage])
+        {
+            [[EaseMob sharedInstance].chatManager removeConversationByChatter:conversation.chatter deleteMessages:NO append2Chat:NO];
+        }
+    }];
 }
 
 #pragma mark - getter
@@ -224,13 +236,6 @@
                }
            }];
     ret = [[NSMutableArray alloc] initWithArray:sorte];
-    [ret enumerateObjectsUsingBlock:^(EMConversation *conversation, NSUInteger idx, BOOL *stop) {
-        if (![conversation latestMessage])
-        {
-            [[EaseMob sharedInstance].chatManager removeConversationByChatter:conversation.chatter deleteMessages:NO append2Chat:YES];
-            [ret removeObjectAtIndex:idx];
-        }
-    }];
     return ret;
 }
 
