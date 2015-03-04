@@ -700,7 +700,6 @@
 {
     if ([_conversation.chatter isEqualToString:message.conversationChatter]) {
         [self addMessage:message];
-        [_messages addObject:message];
     }
 }
 
@@ -816,7 +815,6 @@
 {
     EMMessage *locationMessage = [ChatSendHelper sendLocationLatitude:latitude longitude:longitude address:address toUsername:_conversation.chatter isChatGroup:_isChatGroup requireEncryption:NO ext:nil];
     [self addMessage:locationMessage];
-    [_messages addObject:locationMessage];
 }
 
 #pragma mark - DXMessageToolBarDelegate
