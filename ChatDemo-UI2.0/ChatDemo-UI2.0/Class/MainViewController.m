@@ -294,31 +294,7 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
             break;
         }
     }
-    
-    if (ret) {
-        EMPushNotificationOptions *options = [[EaseMob sharedInstance].chatManager pushNotificationOptions];
-        
-        do {
-            if (options.noDisturbing) {
-                NSDate *now = [NSDate date];
-                NSDateComponents *components = [[NSCalendar currentCalendar] components:NSCalendarUnitHour | NSCalendarUnitMinute
-                                                                               fromDate:now];
-                
-                NSInteger hour = [components hour];
-                NSUInteger startH = options.noDisturbingStartH;
-                NSUInteger endH = options.noDisturbingEndH;
-                if (startH>endH) {
-                    endH += 24;
-                }
-                
-                if (hour>=startH && hour<=endH) {
-                    ret = NO;
-                    break;
-                }
-            }
-        } while (0);
-    }
-    
+
     return ret;
 }
 
