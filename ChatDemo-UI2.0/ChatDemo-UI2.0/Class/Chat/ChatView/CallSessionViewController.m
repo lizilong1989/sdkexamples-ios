@@ -281,10 +281,11 @@
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-//    if (alertView.tag == kAlertViewTag_Close)
-//    {
-//        [self _close];
-//    }
+    if (alertView.tag == kAlertViewTag_Close)
+    {
+        [[EMSDKFull sharedInstance].callManager asyncTerminateCallSessionWithId:_callSession.sessionId reason:eCallReason_Null];
+        [self _close];
+    }
 }
 
 #pragma mark - ICallManagerDelegate
@@ -299,7 +300,7 @@
             [self _insertMessageWithStr:@"语音通话失败"];
             
             _statusLabel.text = @"连接失败";
-            alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"error", @"Error") message:error.description delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
+            alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"error", @"Error") message:error.description delegate:self cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
             alertView.tag = kAlertViewTag_Close;
             [alertView show];
         }

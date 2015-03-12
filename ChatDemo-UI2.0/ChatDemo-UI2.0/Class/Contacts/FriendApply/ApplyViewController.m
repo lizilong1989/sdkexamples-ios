@@ -174,10 +174,10 @@ static ApplyViewController *controller = nil;
         ApplyStyle applyStyle = [entity.style intValue];
         EMError *error;
         
-        if (applyStyle == ApplyStyleGroupInvitation) {
+        /*if (applyStyle == ApplyStyleGroupInvitation) {
             [[EaseMob sharedInstance].chatManager acceptInvitationFromGroup:entity.groupId error:&error];
         }
-        else if (applyStyle == ApplyStyleJoinGroup)
+        else */if (applyStyle == ApplyStyleJoinGroup)
         {
             [[EaseMob sharedInstance].chatManager acceptApplyJoinGroup:entity.groupId groupname:entity.groupSubject applicant:entity.applicantUsername error:&error];
         }
