@@ -557,6 +557,17 @@
 }
 
 - (void)chatVideoCellPressed:(MessageModel *)model{
+    EMVideoMessageBody *videoBody = (EMVideoMessageBody*)model.messageBody;
+    if (videoBody.attachmentDownloadStatus == EMAttachmentDownloadSuccessed)
+    {
+        NSString *localPath = model.message == nil ? model.localPath : [[model.message.messageBodies firstObject] localPath];
+        if (localPath && localPath.length > 0)
+        {
+            [self playVideoWithVideoPath:localPath];
+            return;
+        }
+    }
+
     __weak ChatViewController *weakSelf = self;
     id <IChatManager> chatManager = [[EaseMob sharedInstance] chatManager];
     [weakSelf showHudInView:weakSelf.view hint:NSLocalizedString(@"message.downloadingVideo", @"downloading video...")];
@@ -591,6 +602,16 @@
     if ([model.messageBody messageBodyType] == eMessageBodyType_Image) {
         EMImageMessageBody *imageBody = (EMImageMessageBody *)model.messageBody;
         if (imageBody.thumbnailDownloadStatus == EMAttachmentDownloadSuccessed) {
+            if (imageBody.attachmentDownloadStatus == EMAttachmentDownloadSuccessed)
+            {
+                NSString *localPath = model.message == nil ? model.localPath : [[model.message.messageBodies firstObject] localPath];
+                if (localPath && localPath.length > 0) {
+                    NSURL *url = [NSURL fileURLWithPath:localPath];
+                    self.isScrollToBottom = NO;
+                    [self.messageReadManager showBrowserWithImages:@[url]];
+                    return ;
+                }
+            }
             [weakSelf showHudInView:weakSelf.view hint:NSLocalizedString(@"message.downloadingImage", @"downloading a image...")];
             [chatManager asyncFetchMessage:model.message progress:nil completion:^(EMMessage *aMessage, EMError *error) {
                 [weakSelf hideHud];
