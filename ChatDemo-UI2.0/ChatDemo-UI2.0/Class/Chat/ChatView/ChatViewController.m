@@ -667,17 +667,15 @@
             for (int i = 0; i < weakSelf.dataSource.count; i ++) {
                 id object = [weakSelf.dataSource objectAtIndex:i];
                 if ([object isKindOfClass:[MessageModel class]]) {
-                    EMMessage *currMsg = [weakSelf.dataSource objectAtIndex:i];
-                    if ([message.messageId isEqualToString:currMsg.messageId]) {
+                    MessageModel *model = (MessageModel *)object;
+                    if ([message.messageId isEqualToString:model.messageId]) {
                         MessageModel *cellModel = [MessageModelManager modelWithMessage:message];
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [weakSelf.tableView beginUpdates];
                             [weakSelf.dataSource replaceObjectAtIndex:i withObject:cellModel];
                             [weakSelf.tableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:i inSection:0]] withRowAnimation:UITableViewRowAnimationNone];
                             [weakSelf.tableView endUpdates];
-                            
                         });
-                        
                         break;
                     }
                 }

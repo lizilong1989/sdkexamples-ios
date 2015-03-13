@@ -30,4 +30,9 @@
     
 }
 
+- (NSString *)messageId
+{
+    return _message.messageId;
+}
+
 @end
