@@ -323,6 +323,7 @@
 {
     if (_imagePicker == nil) {
         _imagePicker = [[UIImagePickerController alloc] init];
+        _imagePicker.modalPresentationStyle= UIModalPresentationOverFullScreen;
         _imagePicker.delegate = self;
     }
     
@@ -750,7 +751,6 @@
     
     // 弹出照片选择
     self.imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-    self.imagePicker.modalPresentationStyle= UIModalPresentationOverFullScreen;
     self.imagePicker.mediaTypes = @[(NSString *)kUTTypeImage];
     [self presentViewController:self.imagePicker animated:YES completion:NULL];
 }
