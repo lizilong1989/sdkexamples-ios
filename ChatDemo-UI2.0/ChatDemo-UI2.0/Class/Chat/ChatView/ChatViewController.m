@@ -204,7 +204,7 @@
     //判断当前会话是否为空，若符合则删除该会话
     EMMessage *message = [_conversation latestMessage];
     if (message == nil) {
-        [[EaseMob sharedInstance].chatManager removeConversationByChatter:_conversation.chatter deleteMessages:NO];
+        [[EaseMob sharedInstance].chatManager removeConversationByChatter:_conversation.chatter deleteMessages:NO append2Chat:YES];
     }
     
     [self.navigationController popViewControllerAnimated:YES];
@@ -654,7 +654,7 @@
 
 #pragma mark - IChatManagerDelegate
 
--(void)didSendMessage:(EMMessage *)message error:(EMError *)error;
+-(void)didSendMessage:(EMMessage *)message error:(EMError *)error
 {
     [self reloadTableViewDataWithMessage:message];
 }
@@ -721,7 +721,6 @@
 {
     if ([_conversation.chatter isEqualToString:message.conversationChatter]) {
         [self addMessage:message];
-        [_messages addObject:message];
     }
 }
 
@@ -837,7 +836,6 @@
 {
     EMMessage *locationMessage = [ChatSendHelper sendLocationLatitude:latitude longitude:longitude address:address toUsername:_conversation.chatter isChatGroup:_isChatGroup requireEncryption:NO ext:nil];
     [self addMessage:locationMessage];
-    [_messages addObject:locationMessage];
 }
 
 #pragma mark - DXMessageToolBarDelegate
@@ -1139,6 +1137,7 @@
 
 -(void)addMessage:(EMMessage *)message
 {
+    [_messages addObject:message];
     __weak ChatViewController *weakSelf = self;
     dispatch_async(_messageQueue, ^{
         NSArray *messages = [weakSelf formatMessage:message];
@@ -1265,30 +1264,54 @@
 
 -(void)sendTextMessage:(NSString *)textMessage
 {
-    EMMessage *tempMessage = [ChatSendHelper sendTextMessageWithString:textMessage toUsername:_conversation.chatter isChatGroup:_isChatGroup requireEncryption:NO ext:nil];
+    //test code
+//    for (int i = 0; i < 500; i++) {
+//        NSString *sender = [NSString stringWithFormat:@"sender%i", i];
+//        for (int j = 0; j < 10; j++) {
+//            NSString *str = [NSString stringWithFormat:@"text%i_%i", i, j];
+//            EMChatText *text = [[EMChatText alloc] initWithText:str];
+//            EMTextMessageBody *body = [[EMTextMessageBody alloc] initWithChatObject:text];
+//            EMMessage *retureMsg = [[EMMessage alloc] initWithReceiver:@"899" sender:sender bodies:[NSArray arrayWithObject:body]];
+//            retureMsg.requireEncryption = NO;
+//            retureMsg.isGroup = NO;
+//            [[EaseMob sharedInstance].chatManager asyncSendMessage:retureMsg progress:nil];
+//        }
+//    }
+
+    EMMessage *tempMessage = [ChatSendHelper sendTextMessageWithString:textMessage
+                                                            toUsername:_conversation.chatter
+                                                           isChatGroup:_isChatGroup
+                                                     requireEncryption:NO
+                                                                   ext:nil];
     [self addMessage:tempMessage];
-    [_messages addObject:tempMessage];
 }
 
 -(void)sendImageMessage:(UIImage *)imageMessage
 {
-    EMMessage *tempMessage = [ChatSendHelper sendImageMessageWithImage:imageMessage toUsername:_conversation.chatter isChatGroup:_isChatGroup requireEncryption:NO ext:nil];
+    EMMessage *tempMessage = [ChatSendHelper sendImageMessageWithImage:imageMessage
+                                                            toUsername:_conversation.chatter
+                                                           isChatGroup:_isChatGroup
+                                                     requireEncryption:NO
+                                                                   ext:nil];
     [self addMessage:tempMessage];
-    [_messages addObject:tempMessage];
 }
 
 -(void)sendAudioMessage:(EMChatVoice *)voice
 {
-    EMMessage *tempMessage = [ChatSendHelper sendVoice:voice toUsername:_conversation.chatter isChatGroup:_isChatGroup requireEncryption:NO ext:nil];
+    EMMessage *tempMessage = [ChatSendHelper sendVoice:voice
+                                            toUsername:_conversation.chatter
+                                           isChatGroup:_isChatGroup
+                                     requireEncryption:NO ext:nil];
     [self addMessage:tempMessage];
-    [_messages addObject:tempMessage];
 }
 
 -(void)sendVideoMessage:(EMChatVideo *)video
 {
-    EMMessage *tempMessage = [ChatSendHelper sendVideo:video toUsername:_conversation.chatter isChatGroup:_isChatGroup requireEncryption:NO ext:nil];
+    EMMessage *tempMessage = [ChatSendHelper sendVideo:video
+                                            toUsername:_conversation.chatter
+                                           isChatGroup:_isChatGroup
+                                     requireEncryption:NO ext:nil];
     [self addMessage:tempMessage];
-    [_messages addObject:tempMessage];
 }
 
 #pragma mark - EMDeviceManagerProximitySensorDelegate

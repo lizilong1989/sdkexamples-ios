@@ -36,7 +36,9 @@
 #endif
 
     [[EaseMob sharedInstance] registerSDKWithAppKey:@"easemob-demo#chatdemoui"
-                                       apnsCertName:apnsCertName];
+                                       apnsCertName:apnsCertName
+                                        otherConfig:@{kSDKConfigEnableConsoleLogger:[NSNumber numberWithBool:YES]}];
+    
     // 登录成功后，自动去取好友列表
     // SDK获取结束后，会回调
     // - (void)didFetchedBuddyList:(NSArray *)buddyList error:(EMError *)error方法。
@@ -205,13 +207,29 @@
 // 开始自动登录回调
 -(void)willAutoLoginWithInfo:(NSDictionary *)loginInfo error:(EMError *)error
 {
-    NSLog(NSLocalizedString(@"login.beginAutoLogin", @"Start automatic login..."));
+    UIAlertView *alertView = nil;
+    if (error) {
+        alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:NSLocalizedString(@"login.errorAutoLogin", @"Automatic logon failure") delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
+    }
+    else{
+        alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:NSLocalizedString(@"login.beginAutoLogin", @"Start automatic login...") delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
+    }
+    
+    [alertView show];
 }
 
 // 结束自动登录回调
 -(void)didAutoLoginWithInfo:(NSDictionary *)loginInfo error:(EMError *)error
 {
-    NSLog(NSLocalizedString(@"login.endAutoLogin", @"End automatic login..."));
+    UIAlertView *alertView = nil;
+    if (error) {
+        alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:NSLocalizedString(@"login.errorAutoLogin", @"Automatic logon failure") delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
+    }
+    else{
+        alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:NSLocalizedString(@"login.endAutoLogin", @"End automatic login...") delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
+    }
+    
+    [alertView show];
 }
 
 // 好友申请回调
@@ -302,6 +320,11 @@
 - (void)didAcceptInvitationFromGroup:(EMGroup *)group
                                error:(EMError *)error
 {
+    if(error)
+    {
+        return;
+    }
+    
     NSString *groupTag = group.groupSubject;
     if ([groupTag length] == 0) {
         groupTag = group.groupId;

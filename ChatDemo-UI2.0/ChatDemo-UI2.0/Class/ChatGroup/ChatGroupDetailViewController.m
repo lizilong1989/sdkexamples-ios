@@ -262,7 +262,7 @@
     {
         cell.textLabel.text = NSLocalizedString(@"group.occupantCount", @"members count");
         cell.accessoryType = UITableViewCellAccessoryNone;
-        cell.detailTextLabel.text = [NSString stringWithFormat:@"%i / %i", [_chatGroup.occupants count], _chatGroup.groupSetting.groupMaxUsersCount];
+        cell.detailTextLabel.text = [NSString stringWithFormat:@"%i / %i", (int)[_chatGroup.occupants count], (int)_chatGroup.groupSetting.groupMaxUsersCount];
     }
     else if (indexPath.row == 3)
     {
@@ -287,7 +287,7 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    int row = indexPath.row;
+    int row = (int)indexPath.row;
     if (row == 0) {
         return self.scrollView.frame.size.height + 40;
     }
@@ -440,7 +440,7 @@
     }
     
     int tmp = ([self.dataSource count] + 1) % kColOfRow;
-    int row = ([self.dataSource count] + 1) / kColOfRow;
+    int row = (int)([self.dataSource count] + 1) / kColOfRow;
     row += tmp == 0 ? 0 : 1;
     self.scrollView.tag = row;
     self.scrollView.frame = CGRectMake(10, 20, self.tableView.frame.size.width - 20, row * kContactSize);

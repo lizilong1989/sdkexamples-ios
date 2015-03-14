@@ -19,11 +19,12 @@
 @property (weak, nonatomic) IBOutlet UITextField *passwordTextField;
 @property (weak, nonatomic) IBOutlet UIButton *registerButton;
 @property (weak, nonatomic) IBOutlet UIButton *loginButton;
+@property (weak, nonatomic) IBOutlet UISwitch *useIpSwitch;
 
 
 - (IBAction)doRegister:(id)sender;
 - (IBAction)doLogin:(id)sender;
-
+- (IBAction)useIpAction:(id)sender;
 
 @end
 
@@ -49,6 +50,8 @@
     [super viewDidLoad];
     [self setupForDismissKeyboard];
     _usernameTextField.delegate = self;
+    
+    [_useIpSwitch setOn:[[EaseMob sharedInstance].chatManager isUseIp] animated:YES];
     
     self.title = NSLocalizedString(@"AppName", @"EaseMobDemo");
 }
@@ -193,6 +196,13 @@
         [self loginWithUsername:_usernameTextField.text password:_passwordTextField.text];
 #endif
     }
+}
+
+//是否使用ip
+- (IBAction)useIpAction:(id)sender
+{
+    UISwitch *ipSwitch = (UISwitch *)sender;
+    [[EaseMob sharedInstance].chatManager setIsUseIp:ipSwitch.isOn];
 }
 
 //判断账号和密码是否为空

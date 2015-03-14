@@ -290,7 +290,7 @@
             EMError *error;
             [[EaseMob sharedInstance].chatManager removeBuddy:buddy.username removeFromRemote:YES error:&error];
             if (!error) {
-                [[EaseMob sharedInstance].chatManager removeConversationByChatter:buddy.username deleteMessages:YES];
+                [[EaseMob sharedInstance].chatManager removeConversationByChatter:buddy.username deleteMessages:YES append2Chat:YES];
             }
         });
     }
@@ -576,7 +576,7 @@
     }
     else
     {
-        NSString *tmpStr = [NSString stringWithFormat:@"%i", count];
+        NSString *tmpStr = [NSString stringWithFormat:@"%i", (int)count];
         CGSize size = [tmpStr sizeWithFont:self.unapplyCountLabel.font constrainedToSize:CGSizeMake(50, 20) lineBreakMode:NSLineBreakByWordWrapping];
         CGRect rect = self.unapplyCountLabel.frame;
         rect.size.width = size.width > 20 ? size.width : 20;

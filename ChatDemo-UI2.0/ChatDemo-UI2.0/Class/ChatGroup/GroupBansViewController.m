@@ -144,8 +144,8 @@
     [self.scrollView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
 //    [self.scrollView removeGestureRecognizer:_longPress];
     
-    int tmp = ([_group.bans count] + 1) % kColOfRow;
-    int row = ([_group.bans count] + 1) / kColOfRow;
+    int tmp = (int)([_group.bans count] + 1) % kColOfRow;
+    int row = (int)([_group.bans count] + 1) / kColOfRow;
     row += tmp == 0 ? 0 : 1;
     self.scrollView.tag = row;
     self.scrollView.frame = CGRectMake(10, 20, self.view.frame.size.width - 20, row * kContactSize);

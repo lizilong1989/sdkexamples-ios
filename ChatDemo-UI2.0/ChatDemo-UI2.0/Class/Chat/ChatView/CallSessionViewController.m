@@ -281,10 +281,11 @@
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-//    if (alertView.tag == kAlertViewTag_Close)
-//    {
-//        [self _close];
-//    }
+    if (alertView.tag == kAlertViewTag_Close)
+    {
+        [[EMSDKFull sharedInstance].callManager asyncTerminateCallSessionWithId:_callSession.sessionId reason:eCallReason_Null];
+        [self _close];
+    }
 }
 
 #pragma mark - ICallManagerDelegate
@@ -299,7 +300,7 @@
             [self _insertMessageWithStr:@"语音通话失败"];
             
             _statusLabel.text = @"连接失败";
-            alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"error", @"Error") message:error.description delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
+            alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"error", @"Error") message:error.description delegate:self cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
             alertView.tag = kAlertViewTag_Close;
             [alertView show];
         }
@@ -309,11 +310,14 @@
                 NSString *str = @"语音通话结束";
                 if(_callLength == 0)
                 {
-                    if (_callType == CallIn) {
-                        str = reason == eCallReason_Reject ? @"拒接语音通话" : @"对方取消语音通话";
+                    if (reason == eCallReason_Hangup) {
+                        str = @"取消语音通话";
                     }
-                    else{
-                        str = reason == eCallReason_Hangup ? @"取消语音通话" : @"对方拒接语音通话";
+                    else if (reason == eCallReason_Reject){
+                        str = @"对方拒接语音通话";
+                    }
+                    else if (reason == eCallReason_Busy){
+                        str = @"对方正在通话中";
                     }
                 }
                 [self _insertMessageWithStr:str];
