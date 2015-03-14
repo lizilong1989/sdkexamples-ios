@@ -24,7 +24,7 @@
 #define kColOfRow 5
 #define kContactSize 60
 
-@interface ChatGroupDetailViewController ()<IChatManagerDelegate, EMChooseViewDelegate>
+@interface ChatGroupDetailViewController ()<IChatManagerDelegate, EMChooseViewDelegate, UIActionSheetDelegate>
 
 - (void)unregisterNotifications;
 - (void)registerNotifications;
@@ -42,6 +42,7 @@
 @property (strong, nonatomic) UIButton *dissolveButton;
 @property (strong, nonatomic) UIButton *configureButton;
 @property (strong, nonatomic) UILongPressGestureRecognizer *longPress;
+@property (strong, nonatomic) ContactView *selectedContact;
 
 - (void)dissolveAction;
 - (void)clearAction;
@@ -228,7 +229,14 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
-    return 5;
+    if (self.occupantType == GroupOccupantTypeOwner)
+    {
+        return 6;
+    }
+    else
+    {
+        return 5;
+    }
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -537,8 +545,23 @@
 {
     if (longPress.state == UIGestureRecognizerStateBegan)
     {
-        BOOL isEdit = self.addButton.hidden ? NO : YES;
-        [self setScrollViewEditing:isEdit];
+        NSDictionary *loginInfo = [[[EaseMob sharedInstance] chatManager] loginInfo];
+        NSString *loginUsername = [loginInfo objectForKey:kSDKUsername];
+        for (ContactView *contactView in self.scrollView.subviews)
+        {
+            CGPoint locaton = [longPress locationInView:contactView];
+            if (CGRectContainsPoint(contactView.bounds, locaton))
+            {
+                if ([contactView isKindOfClass:[ContactView class]]) {
+                    if ([contactView.remark isEqualToString:loginUsername]) {
+                        return;
+                    }
+                    _selectedContact = contactView;
+                    UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"cancel", @"cancel") destructiveButtonTitle:nil otherButtonTitles:NSLocalizedString(@"delete", @"deleting member..."), NSLocalizedString(@"friend.block", @"add to black list"), nil];
+                    [sheet showInView:self.view];
+                }
+            }
+        }
     }
 }
 
@@ -644,4 +667,41 @@
     NSLog(@"ignored group list:%@.", ignoredGroupList);
 }
 
+#pragma mark - UIActionSheetDelegate
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (buttonIndex == 0)
+    {
+        //delete
+        _selectedContact.deleteContact(_selectedContact.index);
+    }
+    else if (buttonIndex == 1)
+    {
+        //add to black list
+        [self showHudInView:self.view hint:@"Adding to black list"];
+        NSArray *occupants = [NSArray arrayWithObject:[self.dataSource objectAtIndex:_selectedContact.index]];
+        __weak ChatGroupDetailViewController *weakSelf = self;
+        [[EaseMob sharedInstance].chatManager asyncBlockOccupants:occupants fromGroup:self.chatGroup.groupId completion:^(EMGroup *group, EMError *error) {
+            if (weakSelf)
+            {
+                __weak ChatGroupDetailViewController *strongSelf = weakSelf;
+                [strongSelf hideHud];
+                if (!error) {
+                    strongSelf.chatGroup = group;
+                    [strongSelf.dataSource removeObjectAtIndex:strongSelf.selectedContact.index];
+                    [strongSelf refreshScrollView];
+                }
+                else{
+                    [strongSelf showHint:error.description];
+                }
+            }
+        } onQueue:nil];
+    }
+    _selectedContact = nil;
+}
+
+- (void)actionSheetCancel:(UIActionSheet *)actionSheet
+{
+    _selectedContact = nil;
+}
 @end
