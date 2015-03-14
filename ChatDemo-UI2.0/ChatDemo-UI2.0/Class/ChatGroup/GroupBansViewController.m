@@ -40,6 +40,7 @@
         _group = group;
         _isEditing = NO;
         _isUpdate = NO;
+        self.view.backgroundColor = [UIColor whiteColor];
     }
     
     return self;
