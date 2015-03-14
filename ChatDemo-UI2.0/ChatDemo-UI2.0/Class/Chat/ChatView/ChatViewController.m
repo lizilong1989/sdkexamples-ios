@@ -731,6 +731,37 @@
     }
 }
 
+- (void)didReceiveMessageId:(NSString *)messageId
+                    chatter:(NSString *)conversationChatter
+                      error:(EMError *)error
+{
+    if (error && [_conversation.chatter isEqualToString:conversationChatter]) {
+        
+        __weak ChatViewController *weakSelf = self;
+        for (int i = 0; i < self.dataSource.count; i ++) {
+            id object = [self.dataSource objectAtIndex:i];
+            if ([object isKindOfClass:[MessageModel class]]) {
+                MessageModel *currentModel = [self.dataSource objectAtIndex:i];
+                EMMessage *currMsg = [currentModel message];
+                if ([messageId isEqualToString:currMsg.messageId]) {
+                    currentModel.status = eMessageDeliveryState_Failure;
+                    currMsg.deliveryState = eMessageDeliveryState_Failure;
+                    MessageModel *cellModel = [MessageModelManager modelWithMessage:currMsg];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [weakSelf.tableView beginUpdates];
+                        [weakSelf.dataSource replaceObjectAtIndex:i withObject:cellModel];
+                        [weakSelf.tableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:i inSection:0]] withRowAnimation:UITableViewRowAnimationNone];
+                        [weakSelf.tableView endUpdates];
+                        
+                    });
+                    
+                    break;
+                }
+            }
+        }
+    }
+}
+
 - (void)didFinishedReceiveOfflineMessages:(NSArray *)offlineMessages
 {
     [self loadMoreMessages];
