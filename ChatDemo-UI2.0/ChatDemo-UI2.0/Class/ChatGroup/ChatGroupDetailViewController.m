@@ -670,10 +670,11 @@
 #pragma mark - UIActionSheetDelegate
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
 {
+    NSInteger index = _selectedContact.index;
     if (buttonIndex == 0)
     {
         //delete
-        _selectedContact.deleteContact(_selectedContact.index);
+        _selectedContact.deleteContact(index);
     }
     else if (buttonIndex == 1)
     {
@@ -688,7 +689,7 @@
                 [strongSelf hideHud];
                 if (!error) {
                     strongSelf.chatGroup = group;
-                    [strongSelf.dataSource removeObjectAtIndex:strongSelf.selectedContact.index];
+                    [strongSelf.dataSource removeObjectAtIndex:index];
                     [strongSelf refreshScrollView];
                 }
                 else{
