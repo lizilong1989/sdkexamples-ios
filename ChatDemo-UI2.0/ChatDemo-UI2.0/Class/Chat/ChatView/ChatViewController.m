@@ -606,9 +606,16 @@
             {
                 NSString *localPath = model.message == nil ? model.localPath : [[model.message.messageBodies firstObject] localPath];
                 if (localPath && localPath.length > 0) {
-                    NSURL *url = [NSURL fileURLWithPath:localPath];
+                    UIImage *image = [UIImage imageWithContentsOfFile:localPath];
                     self.isScrollToBottom = NO;
-                    [self.messageReadManager showBrowserWithImages:@[url]];
+                    if (image)
+                    {
+                        [self.messageReadManager showBrowserWithImages:@[image]];
+                    }
+                    else
+                    {
+                        NSLog(@"Read %@ failed!", localPath);
+                    }
                     return ;
                 }
             }
@@ -618,9 +625,16 @@
                 if (!error) {
                     NSString *localPath = aMessage == nil ? model.localPath : [[aMessage.messageBodies firstObject] localPath];
                     if (localPath && localPath.length > 0) {
-                        NSURL *url = [NSURL fileURLWithPath:localPath];
+                        UIImage *image = [UIImage imageWithContentsOfFile:localPath];
                         weakSelf.isScrollToBottom = NO;
-                        [weakSelf.messageReadManager showBrowserWithImages:@[url]];
+                        if (image)
+                        {
+                            [weakSelf.messageReadManager showBrowserWithImages:@[image]];
+                        }
+                        else
+                        {
+                            NSLog(@"Read %@ failed!", localPath);
+                        }
                         return ;
                     }
                 }

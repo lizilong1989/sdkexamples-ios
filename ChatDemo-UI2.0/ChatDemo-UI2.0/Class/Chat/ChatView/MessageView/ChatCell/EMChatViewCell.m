@@ -61,6 +61,7 @@ NSString *const kShouldResendCell = @"kShouldResendCell";
                 
             }
                 break;
+            case eMessageDeliveryState_Pending:
             case eMessageDeliveryState_Failure:
             {
                 [_activityView setHidden:NO];
