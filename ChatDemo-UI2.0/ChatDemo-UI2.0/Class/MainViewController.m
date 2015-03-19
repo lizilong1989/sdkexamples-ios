@@ -22,7 +22,7 @@
 //两次提示的默认间隔
 static const CGFloat kDefaultPlaySoundInterval = 3.0;
 
-@interface MainViewController () <UIAlertViewDelegate, IChatManagerDelegate, ICallManagerDelegate>
+@interface MainViewController () <UIAlertViewDelegate, IChatManagerDelegate, EMCallManagerDelegate>
 {
     ChatListViewController *_chatListVC;
     ContactsViewController *_contactsVC;

@@ -11,7 +11,7 @@
 
 #define kAlertViewTag_Close 1000
 
-@interface CallSessionViewController ()<UIAlertViewDelegate, ICallManagerDelegate>
+@interface CallSessionViewController ()<UIAlertViewDelegate, EMCallManagerDelegate>
 {
     NSString *_chatter;
     int _callLength;

@@ -323,6 +323,7 @@
 {
     if (_imagePicker == nil) {
         _imagePicker = [[UIImagePickerController alloc] init];
+        _imagePicker.modalPresentationStyle= UIModalPresentationOverFullScreen;
         _imagePicker.delegate = self;
     }
     
