@@ -10,8 +10,8 @@
   * from EaseMob Technologies.
   */
 
+#import <EMIMSDK/EMError.h>
 #import "LoginViewController.h"
-#import "EMError.h"
 
 @interface LoginViewController ()<IChatManagerDelegate,UITextFieldDelegate>
 

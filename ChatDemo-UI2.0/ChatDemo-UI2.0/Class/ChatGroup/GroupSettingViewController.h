@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-#import "EMGroup.h"
+#import <EMIMSDK/EMGroup.h>
 
 @interface GroupSettingViewController : UITableViewController
 

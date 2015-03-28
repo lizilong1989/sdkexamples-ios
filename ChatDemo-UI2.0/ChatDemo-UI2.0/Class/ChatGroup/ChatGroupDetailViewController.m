@@ -10,11 +10,11 @@
   * from EaseMob Technologies.
   */
 
+#import <EMIMSDK/EMGroup.h>
 #import "ChatGroupDetailViewController.h"
 
 #import "ContactSelectionViewController.h"
 #import "GroupSettingViewController.h"
-#import "EMGroup.h"
 #import "ContactView.h"
 #import "GroupBansViewController.h"
 #import "GroupSubjectChangingViewController.h"
@@ -91,7 +91,7 @@
     }
     
     if (chatGroup == nil) {
-        chatGroup = [[EMGroup alloc] initWithGroupId:chatGroupId];
+        chatGroup = [EMGroup groupWithId:chatGroupId];
     }
     
     self = [self initWithGroup:chatGroup];

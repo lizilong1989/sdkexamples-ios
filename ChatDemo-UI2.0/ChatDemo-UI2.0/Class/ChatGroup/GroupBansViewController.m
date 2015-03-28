@@ -6,10 +6,10 @@
 //  Copyright (c) 2014年 dhcdht. All rights reserved.
 //
 
+#import <EMIMSDK/EMGroup.h>
 #import "GroupBansViewController.h"
 
 #import "ContactView.h"
-#import "EMGroup.h"
 
 #define kColOfRow 5
 #define kContactSize 60

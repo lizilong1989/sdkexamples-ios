@@ -293,23 +293,28 @@ static BOOL isFetchingPublicGroupList = NO;
 
 - (void)reloadDataSource
 {
-    [self hideHud];
-    [self showHudInView:self.view hint:NSLocalizedString(@"loadData", @"Load data...")];
-
-    if (isFetchingPublicGroupList)
-    {
-        return;
-    }
-
-    isFetchingPublicGroupList = YES;
-    [[EaseMob sharedInstance].chatManager asyncFetchAllPublicGroupsWithCompletion:^(NSArray *groups, EMError *error) {
-        PublicGroupListViewController *controller = [ObjectWeakContainer sharedInstance].obj;
-        [controller hideHud];
-        [controller.dataSource removeAllObjects];
-        [controller.dataSource addObjectsFromArray:groups];
-        [controller.tableView reloadData];
-        isFetchingPublicGroupList = NO;
+    
+    [[EaseMob sharedInstance].chatManager asyncApplyJoinPublicGroup:@"1426759173544" withGroupname:@"Needapply" message:@"123" completion:^(EMGroup *group, EMError *error) {
+        NSLog(@"");
     } onQueue:nil];
+    
+//    [self hideHud];
+//    [self showHudInView:self.view hint:NSLocalizedString(@"loadData", @"Load data...")];
+//
+//    if (isFetchingPublicGroupList)
+//    {
+//        return;
+//    }
+//
+//    isFetchingPublicGroupList = YES;
+//    [[EaseMob sharedInstance].chatManager asyncFetchAllPublicGroupsWithCompletion:^(NSArray *groups, EMError *error) {
+//        PublicGroupListViewController *controller = [ObjectWeakContainer sharedInstance].obj;
+//        [controller hideHud];
+//        [controller.dataSource removeAllObjects];
+//        [controller.dataSource addObjectsFromArray:groups];
+//        [controller.tableView reloadData];
+//        isFetchingPublicGroupList = NO;
+//    } onQueue:nil];
 }
 
 @end

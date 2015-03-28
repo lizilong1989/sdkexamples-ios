@@ -15,8 +15,6 @@
 		3C13D94B1A12095D00903622 /* GroupBansViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C13D94A1A12095D00903622 /* GroupBansViewController.m */; };
 		3C13D94E1A120BA200903622 /* ContactView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C13D94D1A120BA200903622 /* ContactView.m */; };
 		3C1CEF7F196EA37600DBA56B /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C1CEF7E196EA37600DBA56B /* ImageIO.framework */; };
-		3C23CAFB1A29B24F007D7F76 /* callRing.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 3C23CAFA1A29B24F007D7F76 /* callRing.mp3 */; };
-		3C24DA301A6CA6C100B0F750 /* CallSessionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C24DA2F1A6CA6C100B0F750 /* CallSessionViewController.m */; };
 		3C2923B11988E13300DCCD40 /* BlackListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C2923B01988E13300DCCD40 /* BlackListViewController.m */; };
 		3C3527361931D1BE00385240 /* BaseTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C3527351931D1BE00385240 /* BaseTableViewCell.m */; };
 		3C3527451931D37900385240 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C3527441931D37900385240 /* SystemConfiguration.framework */; };
@@ -146,6 +144,7 @@
 		90F1BED31930493F00121AEC /* libstdc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 90F1BED21930493F00121AEC /* libstdc++.dylib */; };
 		90F1BED51930495800121AEC /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90F1BED41930495800121AEC /* MobileCoreServices.framework */; };
 		90F3ED471A75F3A4005A0135 /* ChatViewController+Category.m in Sources */ = {isa = PBXBuildFile; fileRef = 90F3ED461A75F3A4005A0135 /* ChatViewController+Category.m */; };
+		EB4B04CD1AC6547800DCF67B /* EMIMSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB4B04CC1AC6547800DCF67B /* EMIMSDK.framework */; };
 		EBD2AB011A7CDAC000D16528 /* 114.png in Resources */ = {isa = PBXBuildFile; fileRef = EBD2AA361A7CDABF00D16528 /* 114.png */; };
 		EBD2AB021A7CDAC000D16528 /* 120.png in Resources */ = {isa = PBXBuildFile; fileRef = EBD2AA371A7CDABF00D16528 /* 120.png */; };
 		EBD2AB031A7CDAC000D16528 /* 29.png in Resources */ = {isa = PBXBuildFile; fileRef = EBD2AA381A7CDABF00D16528 /* 29.png */; };
@@ -335,7 +334,21 @@
 		EBD2ACC51A7CECBC00D16528 /* libMobClickLibrary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C18CAED1A0B556D00FEB270 /* libMobClickLibrary.a */; };
 		EBD2AD471A7CEFE100D16528 /* chatBar_colorMore_audioCall@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EBD2AD451A7CEFE100D16528 /* chatBar_colorMore_audioCall@2x.png */; };
 		EBD2AD481A7CEFE100D16528 /* chatBar_colorMore_audioCallSelected@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EBD2AD461A7CEFE100D16528 /* chatBar_colorMore_audioCallSelected@2x.png */; };
+		EBF3061F1AC11F7700D16FC0 /* callRing.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = EBF3061C1AC11F7700D16FC0 /* callRing.mp3 */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		EB4B04D01AC661B600DCF67B /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		283403071A9EBB8200B7DE9B /* GroupSubjectChangingViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GroupSubjectChangingViewController.h; sourceTree = "<group>"; };
@@ -353,9 +366,6 @@
 		3C13D94D1A120BA200903622 /* ContactView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContactView.m; sourceTree = "<group>"; };
 		3C18CAED1A0B556D00FEB270 /* libMobClickLibrary.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libMobClickLibrary.a; sourceTree = "<group>"; };
 		3C1CEF7E196EA37600DBA56B /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
-		3C23CAFA1A29B24F007D7F76 /* callRing.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = callRing.mp3; sourceTree = "<group>"; };
-		3C24DA2E1A6CA6C100B0F750 /* CallSessionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CallSessionViewController.h; sourceTree = "<group>"; };
-		3C24DA2F1A6CA6C100B0F750 /* CallSessionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CallSessionViewController.m; sourceTree = "<group>"; };
 		3C27F9101A1C8FCD008272EF /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		3C2923AF1988E13300DCCD40 /* BlackListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlackListViewController.h; sourceTree = "<group>"; };
 		3C2923B01988E13300DCCD40 /* BlackListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlackListViewController.m; sourceTree = "<group>"; };
@@ -612,6 +622,7 @@
 		90F1BED41930495800121AEC /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		90F3ED451A75F3A4005A0135 /* ChatViewController+Category.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ChatViewController+Category.h"; sourceTree = "<group>"; };
 		90F3ED461A75F3A4005A0135 /* ChatViewController+Category.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ChatViewController+Category.m"; sourceTree = "<group>"; };
+		EB4B04CC1AC6547800DCF67B /* EMIMSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EMIMSDK.framework; path = "/Users/dhc/Desktop/easemobProject/sdkexamples-ios/ChatDemo-UI2.0/EMIMSDK.framework"; sourceTree = "<absolute>"; };
 		EBD2AA361A7CDABF00D16528 /* 114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 114.png; sourceTree = "<group>"; };
 		EBD2AA371A7CDABF00D16528 /* 120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 120.png; sourceTree = "<group>"; };
 		EBD2AA381A7CDABF00D16528 /* 29.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 29.png; sourceTree = "<group>"; };
@@ -801,6 +812,7 @@
 		EBD2AD431A7CEF2D00D16528 /* libEaseMobClientSDK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libEaseMobClientSDK.a; path = "../../../../Library/Developer/Xcode/DerivedData/sdk-egftlguniriaatetrtetyjwlreue/Build/Products/Debug-iphoneos/libEaseMobClientSDK.a"; sourceTree = "<group>"; };
 		EBD2AD451A7CEFE100D16528 /* chatBar_colorMore_audioCall@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chatBar_colorMore_audioCall@2x.png"; sourceTree = "<group>"; };
 		EBD2AD461A7CEFE100D16528 /* chatBar_colorMore_audioCallSelected@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chatBar_colorMore_audioCallSelected@2x.png"; sourceTree = "<group>"; };
+		EBF3061C1AC11F7700D16FC0 /* callRing.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = callRing.mp3; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -820,6 +832,7 @@
 				90F1BED31930493F00121AEC /* libstdc++.dylib in Frameworks */,
 				90F1BED11930493200121AEC /* libiconv.dylib in Frameworks */,
 				90F1BECF1930492B00121AEC /* AddressBook.framework in Frameworks */,
+				EB4B04CD1AC6547800DCF67B /* EMIMSDK.framework in Frameworks */,
 				90F1BECD1930492300121AEC /* CFNetwork.framework in Frameworks */,
 				90F1BECB1930491D00121AEC /* libz.dylib in Frameworks */,
 				90F1BEC91930491600121AEC /* libxml2.dylib in Frameworks */,
@@ -929,9 +942,6 @@
 		9003D7821939D8D000DC38A4 /* ChatView */ = {
 			isa = PBXGroup;
 			children = (
-				3C24DA2E1A6CA6C100B0F750 /* CallSessionViewController.h */,
-				3C24DA2F1A6CA6C100B0F750 /* CallSessionViewController.m */,
-				3C23CAFA1A29B24F007D7F76 /* callRing.mp3 */,
 				9003D7851939D8D000DC38A4 /* ChatViewController.h */,
 				9003D7861939D8D000DC38A4 /* ChatViewController.m */,
 				90F3ED451A75F3A4005A0135 /* ChatViewController+Category.h */,
@@ -1231,6 +1241,7 @@
 		90911120192EEBB8008A48AA /* Class */ = {
 			isa = PBXGroup;
 			children = (
+				EBF3061B1AC11F7700D16FC0 /* Call */,
 				3C16149C1973D1A600564BF5 /* Core Data */,
 				3C914D7019514BBD0002DAD3 /* ChatGroup */,
 				9003D7761939D8D000DC38A4 /* Chat */,
@@ -1744,6 +1755,14 @@
 			path = tabbar;
 			sourceTree = "<group>";
 		};
+		EBF3061B1AC11F7700D16FC0 /* Call */ = {
+			isa = PBXGroup;
+			children = (
+				EBF3061C1AC11F7700D16FC0 /* callRing.mp3 */,
+			);
+			path = Call;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1754,6 +1773,7 @@
 				90911020192EEA70008A48AA /* Sources */,
 				90911021192EEA70008A48AA /* Frameworks */,
 				90911022192EEA70008A48AA /* Resources */,
+				EB4B04D01AC661B600DCF67B /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1917,7 +1937,6 @@
 				EBD2ABA01A7CDAC000D16528 /* add@2x.png in Resources */,
 				EBD2AB8A1A7CDAC000D16528 /* chat_receiver_audio_playing003.png in Resources */,
 				EBD2ABB41A7CDAC000D16528 /* tabbar_contactsHL@2x.png in Resources */,
-				3C23CAFB1A29B24F007D7F76 /* callRing.mp3 in Resources */,
 				EBD2AB0B1A7CDAC000D16528 /* chatFire_audioPlaying1.png in Resources */,
 				3C372B5F19FE60DC005925B6 /* (null) in Resources */,
 				EBD2AB8F1A7CDAC000D16528 /* chat_receiver_bg@2x.png in Resources */,
@@ -1990,6 +2009,7 @@
 				EBD2AB821A7CDAC000D16528 /* chatBar_more_photoSelected@2x.png in Resources */,
 				EBD2AB771A7CDAC000D16528 /* chatBar_more_camera.png in Resources */,
 				EBD2AB071A7CDAC000D16528 /* chatListCellHead.png in Resources */,
+				EBF3061F1AC11F7700D16FC0 /* callRing.mp3 in Resources */,
 				EBD2AB101A7CDAC000D16528 /* chatFire_audioPlaying3@2x.png in Resources */,
 				EBD2AB311A7CDAC000D16528 /* VoiceSearchFeedback017.png in Resources */,
 				EBD2AB421A7CDAC000D16528 /* chat_video_play.png in Resources */,
@@ -2063,7 +2083,6 @@
 				283403091A9EBB8200B7DE9B /* GroupSubjectChangingViewController.m in Sources */,
 				9003D9151939D8D000DC38A4 /* ApplyFriendCell.m in Sources */,
 				3C6BBA091941A58C00A64684 /* XHMessageTextView.m in Sources */,
-				3C24DA301A6CA6C100B0F750 /* CallSessionViewController.m in Sources */,
 				90911118192EEAED008A48AA /* WCAlertView.m in Sources */,
 				90133E611972D11000C49B56 /* NSString+Valid.m in Sources */,
 				9003D9161939D8D000DC38A4 /* ApplyViewController.m in Sources */,
@@ -2180,7 +2199,8 @@
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: EaseMob Inc.";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: EaseMob Inc.";
 				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -2198,6 +2218,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				ONLY_ACTIVE_ARCH = YES;
+				PROVISIONING_PROFILE = "768cfd92-ff07-4900-9951-f4ba03e1bc9f";
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -2218,7 +2239,8 @@
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: EaseMob Inc.";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: EaseMob Inc.";
 				COPY_PHASE_STRIP = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -2229,6 +2251,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				PROVISIONING_PROFILE = "768cfd92-ff07-4900-9951-f4ba03e1bc9f";
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -2254,15 +2277,17 @@
 				);
 				INFOPLIST_FILE = "ChatDemo-UI2.0/ChatDemo-UI2.0-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/ChatDemo-UI2.0/3rdparty",
 					"$(PROJECT_DIR)/ChatDemo-UI2.0/3rdparty/UMeng",
+					/Users/dhc/Desktop/test/debug/lib,
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "78ae1ea8-da05-4c03-a41d-d82e4ae55a3d";
+				PROVISIONING_PROFILE = "1c5f61c8-18cd-4ef8-bffd-23f712dc05d0";
 				VALID_ARCHS = "armv7 armv7s arm64";
 				WRAPPER_EXTENSION = app;
 			};
@@ -2288,15 +2313,17 @@
 				);
 				INFOPLIST_FILE = "ChatDemo-UI2.0/ChatDemo-UI2.0-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/ChatDemo-UI2.0/3rdparty",
 					"$(PROJECT_DIR)/ChatDemo-UI2.0/3rdparty/UMeng",
+					/Users/dhc/Desktop/test/debug/lib,
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "78ae1ea8-da05-4c03-a41d-d82e4ae55a3d";
+				PROVISIONING_PROFILE = "1c5f61c8-18cd-4ef8-bffd-23f712dc05d0";
 				VALID_ARCHS = "armv7 armv7s arm64";
 				WRAPPER_EXTENSION = app;
 			};

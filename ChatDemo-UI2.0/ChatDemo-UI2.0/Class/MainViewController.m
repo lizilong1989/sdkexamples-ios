@@ -17,17 +17,17 @@
 #import "ContactsViewController.h"
 #import "SettingsViewController.h"
 #import "ApplyViewController.h"
-#import "CallSessionViewController.h"
+//#import "CallSessionViewController.h"
 
 //两次提示的默认间隔
 static const CGFloat kDefaultPlaySoundInterval = 3.0;
 
-@interface MainViewController () <UIAlertViewDelegate, IChatManagerDelegate, ICallManagerDelegate>
+@interface MainViewController () <UIAlertViewDelegate, IChatManagerDelegate/*, EMCallManagerDelegate*/>
 {
     ChatListViewController *_chatListVC;
     ContactsViewController *_contactsVC;
     SettingsViewController *_settingsVC;
-    CallSessionViewController *_callController;
+//    CallSessionViewController *_callController;
     
     UIBarButtonItem *_addFriendItem;
 }
@@ -129,13 +129,13 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
     [self unregisterNotifications];
     
     [[EaseMob sharedInstance].chatManager addDelegate:self delegateQueue:nil];
-    [[EMSDKFull sharedInstance].callManager addDelegate:self delegateQueue:nil];
+//    [[EMSDKFull sharedInstance].callManager addDelegate:self delegateQueue:nil];
 }
 
 -(void)unregisterNotifications
 {
     [[EaseMob sharedInstance].chatManager removeDelegate:self];
-    [[EMSDKFull sharedInstance].callManager removeDelegate:self];
+//    [[EMSDKFull sharedInstance].callManager removeDelegate:self];
 }
 
 - (void)setupSubviews
@@ -231,34 +231,34 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
 
 - (void)callOutWithChatter:(NSNotification *)notification
 {
-    id object = notification.object;
-    if ([object isKindOfClass:[NSString class]]) {
-        NSString *chatter = (NSString *)object;
-        
-        if (_callController == nil) {
-            EMError *error = nil;
-            EMCallSession *callSession = [[EMSDKFull sharedInstance].callManager asyncCallAudioWithChatter:chatter timeout:50 error:&error];
-            
-            if (callSession) {
-                [[EMSDKFull sharedInstance].callManager removeDelegate:self];
-                _callController = [[CallSessionViewController alloc] initCallOutWithSession:callSession];
-                [self presentViewController:_callController animated:YES completion:nil];
-            }
-            else{
-                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"error", @"error") message:error.description delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
-                [alertView show];
-            }
-        }
-        else{
-            [self showHint:@"正在通话中"];
-        }
-    }
+//    id object = notification.object;
+//    if ([object isKindOfClass:[NSString class]]) {
+//        NSString *chatter = (NSString *)object;
+//        
+//        if (_callController == nil) {
+//            EMError *error = nil;
+//            EMCallSession *callSession = [[EMSDKFull sharedInstance].callManager asyncCallAudioWithChatter:chatter timeout:50 error:&error];
+//            
+//            if (callSession) {
+//                [[EMSDKFull sharedInstance].callManager removeDelegate:self];
+//                _callController = [[CallSessionViewController alloc] initCallOutWithSession:callSession];
+//                [self presentViewController:_callController animated:YES completion:nil];
+//            }
+//            else{
+//                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"error", @"error") message:error.description delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
+//                [alertView show];
+//            }
+//        }
+//        else{
+//            [self showHint:@"正在通话中"];
+//        }
+//    }
 }
 
 - (void)callControllerClose:(NSNotification *)notification
 {
-    [[EMSDKFull sharedInstance].callManager addDelegate:self delegateQueue:nil];
-    _callController = nil;
+//    [[EMSDKFull sharedInstance].callManager addDelegate:self delegateQueue:nil];
+//    _callController = nil;
 }
 
 #pragma mark - IChatManagerDelegate 消息变化
@@ -565,16 +565,16 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
 
 #pragma mark - ICallManagerDelegate
 
-- (void)callSessionStatusChanged:(EMCallSession *)callSession changeReason:(EMCallStatusChangedReason)reason error:(EMError *)error
-{
-    if (callSession.status == eCallSessionStatusConnected)
-    {
-        if (_callController == nil) {
-            _callController = [[CallSessionViewController alloc] initCallInWithSession:callSession];
-            [self presentViewController:_callController animated:YES completion:nil];
-        }
-    }
-}
+//- (void)callSessionStatusChanged:(EMCallSession *)callSession changeReason:(EMCallStatusChangedReason)reason error:(EMError *)error
+//{
+//    if (callSession.status == eCallSessionStatusConnected)
+//    {
+//        if (_callController == nil) {
+//            _callController = [[CallSessionViewController alloc] initCallInWithSession:callSession];
+//            [self presentViewController:_callController animated:YES completion:nil];
+//        }
+//    }
+//}
 
 #pragma mark - public
 
