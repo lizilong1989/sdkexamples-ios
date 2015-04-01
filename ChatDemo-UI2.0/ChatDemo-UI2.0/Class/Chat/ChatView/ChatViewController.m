@@ -673,6 +673,11 @@
     [self reloadTableViewDataWithMessage:message];
 }
 
+- (void)didReceiveHasReadResponse:(EMReceipt*)receipt
+{
+    [self.tableView reloadData];
+}
+
 - (void)reloadTableViewDataWithMessage:(EMMessage *)message{
     __weak ChatViewController *weakSelf = self;
     dispatch_async(_messageQueue, ^{
@@ -733,6 +738,7 @@
 {
     if ([_conversation.chatter isEqualToString:message.conversationChatter]) {
         [self addMessage:message];
+        [self sendHasReadResponseForMessages:@[message]];
     }
 }
 
@@ -1062,6 +1068,20 @@
                     [weakSelf downloadMessageAttachments:obj];
                 }
             }
+
+            NSString *account = [[EaseMob sharedInstance].chatManager loginInfo][kSDKUsername];
+            NSMutableArray *unreadMessages = [NSMutableArray array];
+            for (EMMessage *message in weakSelf.messages)
+            {
+                if (!message.isReadAcked && ![account isEqualToString:message.from])
+                {
+                    [unreadMessages addObject:message];
+                }
+            }
+            if ([unreadMessages count])
+            {
+                [self sendHasReadResponseForMessages:unreadMessages];
+            }
         }
     });
 }
@@ -1324,6 +1344,16 @@
                                            isChatGroup:_isChatGroup
                                      requireEncryption:NO ext:nil];
     [self addMessage:tempMessage];
+}
+
+- (void)sendHasReadResponseForMessages:(NSArray*)messages
+{
+    dispatch_async(_messageQueue, ^{
+        for (EMMessage *message in messages)
+        {
+            [[EaseMob sharedInstance].chatManager sendHasReadResponseForMessage:message];
+        }
+    });
 }
 
 #pragma mark - EMDeviceManagerProximitySensorDelegate
