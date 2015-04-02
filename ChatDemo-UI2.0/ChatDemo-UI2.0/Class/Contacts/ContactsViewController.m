@@ -66,8 +66,6 @@
     self.tableView.frame = CGRectMake(0, self.searchBar.frame.size.height, self.view.frame.size.width, self.view.frame.size.height - self.searchBar.frame.size.height);
     [self.view addSubview:self.tableView];
     [self.tableView addSubview:self.slimeView];
-    
-    [self.slimeView setLoadingWithExpansion];
 }
 
 - (void)didReceiveMemoryWarning
@@ -461,9 +459,6 @@
 {
     __weak ContactsViewController *weakSelf = self;
     [[[EaseMob sharedInstance] chatManager] asyncFetchBuddyListWithCompletion:^(NSArray *buddyList, EMError *error) {
-        if (!error) {
-            [weakSelf reloadDataSource];
-        }
         [weakSelf.slimeView endRefresh];
     } onQueue:nil];
 }
@@ -541,7 +536,6 @@
 
 - (void)reloadDataSource
 {
-    [self showHudInView:self.view hint:NSLocalizedString(@"refreshData", @"Refresh data...")];
     [self.dataSource removeAllObjects];
     [self.contactsSource removeAllObjects];
     
@@ -562,7 +556,6 @@
     [self.dataSource addObjectsFromArray:[self sortDataArray:self.contactsSource]];
     
     [_tableView reloadData];
-    [self hideHud];
 }
 
 #pragma mark - action

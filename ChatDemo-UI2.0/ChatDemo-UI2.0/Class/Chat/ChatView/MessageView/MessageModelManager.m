@@ -28,7 +28,6 @@
     model.messageBody = messageBody;
     model.message = message;
     model.type = messageBody.messageBodyType;
-    model.messageId = message.messageId;
     model.isSender = isSender;
     model.isPlaying = NO;
     model.isChatGroup = message.isGroup;

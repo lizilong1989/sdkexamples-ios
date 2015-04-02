@@ -607,9 +607,16 @@
             {
                 NSString *localPath = model.message == nil ? model.localPath : [[model.message.messageBodies firstObject] localPath];
                 if (localPath && localPath.length > 0) {
-                    NSURL *url = [NSURL fileURLWithPath:localPath];
+                    UIImage *image = [UIImage imageWithContentsOfFile:localPath];
                     self.isScrollToBottom = NO;
-                    [self.messageReadManager showBrowserWithImages:@[url]];
+                    if (image)
+                    {
+                        [self.messageReadManager showBrowserWithImages:@[image]];
+                    }
+                    else
+                    {
+                        NSLog(@"Read %@ failed!", localPath);
+                    }
                     return ;
                 }
             }
@@ -619,9 +626,16 @@
                 if (!error) {
                     NSString *localPath = aMessage == nil ? model.localPath : [[aMessage.messageBodies firstObject] localPath];
                     if (localPath && localPath.length > 0) {
-                        NSURL *url = [NSURL fileURLWithPath:localPath];
+                        UIImage *image = [UIImage imageWithContentsOfFile:localPath];
                         weakSelf.isScrollToBottom = NO;
-                        [weakSelf.messageReadManager showBrowserWithImages:@[url]];
+                        if (image)
+                        {
+                            [weakSelf.messageReadManager showBrowserWithImages:@[image]];
+                        }
+                        else
+                        {
+                            NSLog(@"Read %@ failed!", localPath);
+                        }
                         return ;
                     }
                 }
@@ -660,6 +674,11 @@
     [self reloadTableViewDataWithMessage:message];
 }
 
+- (void)didReceiveHasReadResponse:(EMReceipt*)receipt
+{
+    [self.tableView reloadData];
+}
+
 - (void)reloadTableViewDataWithMessage:(EMMessage *)message{
     __weak ChatViewController *weakSelf = self;
     dispatch_async(_messageQueue, ^{
@@ -668,17 +687,15 @@
             for (int i = 0; i < weakSelf.dataSource.count; i ++) {
                 id object = [weakSelf.dataSource objectAtIndex:i];
                 if ([object isKindOfClass:[MessageModel class]]) {
-                    EMMessage *currMsg = [weakSelf.dataSource objectAtIndex:i];
-                    if ([message.messageId isEqualToString:currMsg.messageId]) {
+                    MessageModel *model = (MessageModel *)object;
+                    if ([message.messageId isEqualToString:model.messageId]) {
                         MessageModel *cellModel = [MessageModelManager modelWithMessage:message];
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [weakSelf.tableView beginUpdates];
                             [weakSelf.dataSource replaceObjectAtIndex:i withObject:cellModel];
                             [weakSelf.tableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:i inSection:0]] withRowAnimation:UITableViewRowAnimationNone];
                             [weakSelf.tableView endUpdates];
-                            
                         });
-                        
                         break;
                     }
                 }
@@ -722,6 +739,7 @@
 {
     if ([_conversation.chatter isEqualToString:message.conversationChatter]) {
         [self addMessage:message];
+        [self sendHasReadResponseForMessages:@[message]];
     }
 }
 
@@ -1082,6 +1100,20 @@
                     [weakSelf downloadMessageAttachments:obj];
                 }
             }
+
+            NSString *account = [[EaseMob sharedInstance].chatManager loginInfo][kSDKUsername];
+            NSMutableArray *unreadMessages = [NSMutableArray array];
+            for (EMMessage *message in weakSelf.messages)
+            {
+                if (!message.isReadAcked && ![account isEqualToString:message.from])
+                {
+                    [unreadMessages addObject:message];
+                }
+            }
+            if ([unreadMessages count])
+            {
+                [self sendHasReadResponseForMessages:unreadMessages];
+            }
         }
     });
 }
@@ -1344,6 +1376,16 @@
                                            isChatGroup:_isChatGroup
                                      requireEncryption:NO ext:nil];
     [self addMessage:tempMessage];
+}
+
+- (void)sendHasReadResponseForMessages:(NSArray*)messages
+{
+    dispatch_async(_messageQueue, ^{
+        for (EMMessage *message in messages)
+        {
+            [[EaseMob sharedInstance].chatManager sendHasReadResponseForMessage:message];
+        }
+    });
 }
 
 #pragma mark - EMDeviceManagerProximitySensorDelegate
