@@ -15,8 +15,6 @@
 		3C13D94B1A12095D00903622 /* GroupBansViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C13D94A1A12095D00903622 /* GroupBansViewController.m */; };
 		3C13D94E1A120BA200903622 /* ContactView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C13D94D1A120BA200903622 /* ContactView.m */; };
 		3C1CEF7F196EA37600DBA56B /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C1CEF7E196EA37600DBA56B /* ImageIO.framework */; };
-		3C23CAFB1A29B24F007D7F76 /* callRing.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 3C23CAFA1A29B24F007D7F76 /* callRing.mp3 */; };
-		3C24DA301A6CA6C100B0F750 /* CallSessionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C24DA2F1A6CA6C100B0F750 /* CallSessionViewController.m */; };
 		3C2923B11988E13300DCCD40 /* BlackListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C2923B01988E13300DCCD40 /* BlackListViewController.m */; };
 		3C3527361931D1BE00385240 /* BaseTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C3527351931D1BE00385240 /* BaseTableViewCell.m */; };
 		3C3527451931D37900385240 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C3527441931D37900385240 /* SystemConfiguration.framework */; };
@@ -353,9 +351,6 @@
 		3C13D94D1A120BA200903622 /* ContactView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContactView.m; sourceTree = "<group>"; };
 		3C18CAED1A0B556D00FEB270 /* libMobClickLibrary.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libMobClickLibrary.a; sourceTree = "<group>"; };
 		3C1CEF7E196EA37600DBA56B /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
-		3C23CAFA1A29B24F007D7F76 /* callRing.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = callRing.mp3; sourceTree = "<group>"; };
-		3C24DA2E1A6CA6C100B0F750 /* CallSessionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CallSessionViewController.h; sourceTree = "<group>"; };
-		3C24DA2F1A6CA6C100B0F750 /* CallSessionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CallSessionViewController.m; sourceTree = "<group>"; };
 		3C27F9101A1C8FCD008272EF /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		3C2923AF1988E13300DCCD40 /* BlackListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlackListViewController.h; sourceTree = "<group>"; };
 		3C2923B01988E13300DCCD40 /* BlackListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlackListViewController.m; sourceTree = "<group>"; };
@@ -929,9 +924,6 @@
 		9003D7821939D8D000DC38A4 /* ChatView */ = {
 			isa = PBXGroup;
 			children = (
-				3C24DA2E1A6CA6C100B0F750 /* CallSessionViewController.h */,
-				3C24DA2F1A6CA6C100B0F750 /* CallSessionViewController.m */,
-				3C23CAFA1A29B24F007D7F76 /* callRing.mp3 */,
 				9003D7851939D8D000DC38A4 /* ChatViewController.h */,
 				9003D7861939D8D000DC38A4 /* ChatViewController.m */,
 				90F3ED451A75F3A4005A0135 /* ChatViewController+Category.h */,
@@ -1231,6 +1223,7 @@
 		90911120192EEBB8008A48AA /* Class */ = {
 			isa = PBXGroup;
 			children = (
+				EB4276341ACA7FB4001BFD38 /* Call */,
 				3C16149C1973D1A600564BF5 /* Core Data */,
 				3C914D7019514BBD0002DAD3 /* ChatGroup */,
 				9003D7761939D8D000DC38A4 /* Chat */,
@@ -1917,7 +1910,6 @@
 				EBD2ABA01A7CDAC000D16528 /* add@2x.png in Resources */,
 				EBD2AB8A1A7CDAC000D16528 /* chat_receiver_audio_playing003.png in Resources */,
 				EBD2ABB41A7CDAC000D16528 /* tabbar_contactsHL@2x.png in Resources */,
-				3C23CAFB1A29B24F007D7F76 /* callRing.mp3 in Resources */,
 				EBD2AB0B1A7CDAC000D16528 /* chatFire_audioPlaying1.png in Resources */,
 				3C372B5F19FE60DC005925B6 /* (null) in Resources */,
 				EBD2AB8F1A7CDAC000D16528 /* chat_receiver_bg@2x.png in Resources */,
@@ -2063,7 +2055,6 @@
 				283403091A9EBB8200B7DE9B /* GroupSubjectChangingViewController.m in Sources */,
 				9003D9151939D8D000DC38A4 /* ApplyFriendCell.m in Sources */,
 				3C6BBA091941A58C00A64684 /* XHMessageTextView.m in Sources */,
-				3C24DA301A6CA6C100B0F750 /* CallSessionViewController.m in Sources */,
 				90911118192EEAED008A48AA /* WCAlertView.m in Sources */,
 				90133E611972D11000C49B56 /* NSString+Valid.m in Sources */,
 				9003D9161939D8D000DC38A4 /* ApplyViewController.m in Sources */,
@@ -2111,6 +2102,7 @@
 				9003D9181939D8D000DC38A4 /* RealtimeSearchUtil.m in Sources */,
 				9003D8751939D8D000DC38A4 /* DXChatBarMoreView.m in Sources */,
 				90A706061A8B63B200376154 /* EMSDWebImageDownloader.m in Sources */,
+				EB4276391ACA7FE9001BFD38 /* CallSessionViewController.m in Sources */,
 				3C13D94B1A12095D00903622 /* GroupBansViewController.m in Sources */,
 				9003D8A61939D8D000DC38A4 /* EMChatViewBaseCell.m in Sources */,
 				90A7060C1A8B63B200376154 /* UIButton+EMWebCache.m in Sources */,

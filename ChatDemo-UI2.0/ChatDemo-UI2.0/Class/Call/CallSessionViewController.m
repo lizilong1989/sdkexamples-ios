@@ -6,6 +6,8 @@
 //  Copyright (c) 2014年 dhcdht. All rights reserved.
 //
 
+#import <CoreTelephony/CTCallCenter.h>
+#import <CoreTelephony/CTCall.h>
 #import <AVFoundation/AVFoundation.h>
 #import "CallSessionViewController.h"
 
@@ -75,6 +77,22 @@
         _callType = CallIn;
         _callSession = callSession;
         _chatter = callSession.sessionChatter;
+        
+        CTCallCenter *callCenter = [[CTCallCenter alloc] init];
+        callCenter.callEventHandler=^(CTCall* call)
+        {
+            if (call.callState == CTCallStateConnected)
+            {
+                NSLog(@"Call has just been connected");
+                [self hangupAction:nil];
+            }
+            
+            else if(call.callState == CTCallStateIncoming)
+            {
+                NSLog(@"Call is incoming");
+                //self.viewController.signalStatus=NO;
+            }
+        };
     }
     
     return self;
@@ -283,7 +301,7 @@
 {
     if (alertView.tag == kAlertViewTag_Close)
     {
-        [[EMSDKFull sharedInstance].callManager asyncTerminateCallSessionWithId:_callSession.sessionId reason:eCallReason_Null];
+        [[EMSDKFull sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Null];
         [self _close];
     }
 }
@@ -391,7 +409,7 @@
         reason = _callType == CallIn ? eCallReason_Reject : eCallReason_Hangup;
     }
     
-    [[EMSDKFull sharedInstance].callManager asyncTerminateCallSessionWithId:_callSession.sessionId reason:reason];
+    [[EMSDKFull sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:reason];
     
     [self _close];
 }
@@ -401,7 +419,7 @@
     [self showHint:@"正在初始化语音通话..."];
     [self _stopRing];
     
-    [[EMSDKFull sharedInstance].callManager asyncAcceptCallSessionWithId:_callSession.sessionId];
+    [[EMSDKFull sharedInstance].callManager asyncAnswerCall:_callSession.sessionId];
 }
 
 @end
