@@ -270,6 +270,7 @@
     EMTextMessageBody *textBody = [[EMTextMessageBody alloc] initWithChatObject:chatText];
     EMMessage *message = [[EMMessage alloc] initWithReceiver:_callSession.sessionChatter bodies:@[textBody]];
     message.isRead = YES;
+    message.deliveryState = eMessageDeliveryState_Delivered;
     [[EaseMob sharedInstance].chatManager insertMessageToDB:message append2Chat:YES];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"insertCallMessage" object:message];
 }
