@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
+static CTCallCenter *g_callCenter;
+
 typedef enum{
     CallNone = 0,
     CallOut,

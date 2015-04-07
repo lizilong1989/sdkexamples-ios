@@ -77,20 +77,15 @@
         _callType = CallIn;
         _callSession = callSession;
         _chatter = callSession.sessionChatter;
-        
-        CTCallCenter *callCenter = [[CTCallCenter alloc] init];
-        callCenter.callEventHandler=^(CTCall* call)
+
+        g_callCenter = [[CTCallCenter alloc] init];
+        g_callCenter.callEventHandler=^(CTCall* call)
         {
-            if (call.callState == CTCallStateConnected)
-            {
-                NSLog(@"Call has just been connected");
-                [self hangupAction:nil];
-            }
-            
-            else if(call.callState == CTCallStateIncoming)
+            if(call.callState == CTCallStateIncoming)
             {
                 NSLog(@"Call is incoming");
                 //self.viewController.signalStatus=NO;
+                [self hangupAction:nil];
             }
         };
     }
