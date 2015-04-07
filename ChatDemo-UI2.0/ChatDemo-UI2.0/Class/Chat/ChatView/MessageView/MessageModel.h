@@ -20,7 +20,7 @@
 }
 
 @property (nonatomic) MessageBodyType type;
-@property (nonatomic) MessageDeliveryState status;
+@property (nonatomic, readonly) MessageDeliveryState status;
 
 @property (nonatomic) BOOL isSender;    //是否是发送者
 @property (nonatomic) BOOL isRead;      //是否已读
