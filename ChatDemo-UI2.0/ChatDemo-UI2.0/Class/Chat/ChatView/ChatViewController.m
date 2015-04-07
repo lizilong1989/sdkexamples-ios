@@ -670,11 +670,35 @@
 
 -(void)didSendMessage:(EMMessage *)message error:(EMError *)error
 {
+    [self.dataSource enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop)
+     {
+         if ([obj isKindOfClass:[MessageModel class]])
+         {
+             MessageModel *model = (MessageModel*)obj;
+             if ([model.messageId isEqualToString:message.messageId])
+             {
+                 model.message.deliveryState = message.deliveryState;
+                 *stop = YES;
+             }
+         }
+     }];
     [self.tableView reloadData];
 }
 
 - (void)didReceiveHasReadResponse:(EMReceipt*)receipt
 {
+    [self.dataSource enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop)
+     {
+         if ([obj isKindOfClass:[MessageModel class]])
+         {
+             MessageModel *model = (MessageModel*)obj;
+             if ([model.messageId isEqualToString:receipt.chatId])
+             {
+                 model.message.isReadAcked = YES;
+                 *stop = YES;
+             }
+         }
+     }];
     [self.tableView reloadData];
 }
 
