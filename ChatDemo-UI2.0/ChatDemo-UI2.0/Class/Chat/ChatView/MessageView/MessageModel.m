@@ -35,4 +35,9 @@
     return _message.messageId;
 }
 
+- (MessageDeliveryState)status
+{
+    return _message.deliveryState;
+}
+
 @end

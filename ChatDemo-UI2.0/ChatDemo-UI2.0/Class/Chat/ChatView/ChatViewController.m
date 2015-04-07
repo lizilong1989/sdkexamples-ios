@@ -162,7 +162,7 @@
     [super viewWillAppear:animated];
     
     if (_isScrollToBottom) {
-        [self scrollViewToBottom:YES];
+        [self scrollViewToBottom:NO];
     }
     else{
         _isScrollToBottom = YES;
@@ -428,6 +428,7 @@
 //加载更多
 - (void)slimeRefreshStartRefresh:(SRRefreshView *)refreshView
 {
+    _chatTagDate = nil;
     [self loadMoreMessages];
     [_slimeView endRefresh];
 }
@@ -481,7 +482,6 @@
     else if([eventName isEqualToString:kResendButtonTapEventName]){
         EMChatViewCell *resendCell = [userInfo objectForKey:kShouldResendCell];
         MessageModel *messageModel = resendCell.messageModel;
-        messageModel.status = eMessageDeliveryState_Delivering;
         NSIndexPath *indexPath = [self.tableView indexPathForCell:resendCell];
         [self.tableView beginUpdates];
         [self.tableView reloadRowsAtIndexPaths:@[indexPath]
@@ -671,7 +671,7 @@
 
 -(void)didSendMessage:(EMMessage *)message error:(EMError *)error
 {
-    [self reloadTableViewDataWithMessage:message];
+    [self.tableView reloadData];
 }
 
 - (void)didReceiveHasReadResponse:(EMReceipt*)receipt
@@ -901,7 +901,7 @@
         rect.size.height = self.view.frame.size.height - toHeight;
         self.tableView.frame = rect;
     }];
-    [self scrollViewToBottom:YES];
+    [self scrollViewToBottom:NO];
 }
 
 - (void)didSendText:(NSString *)text
@@ -1081,6 +1081,7 @@
         
         NSArray *messages = [weakSelf.conversation loadNumbersOfMessages:([weakSelf.messages count] + KPageCount) before:timestamp];
         if ([messages count] > 0) {
+            NSInteger newMessagesCount = [messages count] - [weakSelf.messages count];
             weakSelf.messages = [messages mutableCopy];
             
             NSInteger currentCount = [weakSelf.dataSource count];
@@ -1092,7 +1093,7 @@
             });
 
             //从数据库导入时重新下载没有下载成功的附件
-            for (NSInteger i = currentCount; i < [weakSelf.dataSource count]; i++)
+            for (NSInteger i = 0; i < currentCount; i++)
             {
                 id obj = weakSelf.dataSource[i];
                 if ([obj isKindOfClass:[MessageModel class]])
@@ -1103,8 +1104,9 @@
 
             NSString *account = [[EaseMob sharedInstance].chatManager loginInfo][kSDKUsername];
             NSMutableArray *unreadMessages = [NSMutableArray array];
-            for (EMMessage *message in weakSelf.messages)
+            for (NSInteger i = 0; i < newMessagesCount; i++)
             {
+                EMMessage *message = messages[i];
                 if (!message.isReadAcked && ![account isEqualToString:message.from])
                 {
                     [unreadMessages addObject:message];
@@ -1205,20 +1207,11 @@
     __weak ChatViewController *weakSelf = self;
     dispatch_async(_messageQueue, ^{
         NSArray *messages = [weakSelf formatMessage:message];
-        NSMutableArray *indexPaths = [[NSMutableArray alloc] init];
-        
-        for (int i = 0; i < messages.count; i++) {
-            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:weakSelf.dataSource.count+i inSection:0];
-            [indexPaths addObject:indexPath];
-        }
-        
+
         dispatch_async(dispatch_get_main_queue(), ^{
-            [weakSelf.tableView beginUpdates];
             [weakSelf.dataSource addObjectsFromArray:messages];
-            [weakSelf.tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
-            [weakSelf.tableView endUpdates];
-            
-            [weakSelf.tableView scrollToRowAtIndexPath:[indexPaths lastObject] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+            [weakSelf.tableView reloadData];
+            [weakSelf.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:[weakSelf.dataSource count] - 1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
         });
     });
 }
@@ -1228,7 +1221,7 @@
     if (self.tableView.contentSize.height > self.tableView.frame.size.height)
     {
         CGPoint offset = CGPointMake(0, self.tableView.contentSize.height - self.tableView.frame.size.height);
-        [self.tableView setContentOffset:offset animated:YES];
+        [self.tableView setContentOffset:offset animated:animated];
     }
 }
 
@@ -1312,7 +1305,7 @@
     id object = notification.object;
     if (object) {
         EMMessage *message = (EMMessage *)object;
-        [self didReceiveMessage:message];
+        [self addMessage:message];
     }
 }
 

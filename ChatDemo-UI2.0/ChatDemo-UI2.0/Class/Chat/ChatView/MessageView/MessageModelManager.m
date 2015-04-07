@@ -40,11 +40,9 @@
     
     if (isSender) {
         model.headImageURL = nil;
-        model.status = message.deliveryState;
     }
     else{
         model.headImageURL = nil;
-        model.status = eMessageDeliveryState_Delivered;
     }
     
     switch (messageBody.messageBodyType) {
