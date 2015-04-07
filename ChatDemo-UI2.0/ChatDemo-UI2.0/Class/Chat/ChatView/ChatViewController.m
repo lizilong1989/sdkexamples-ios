@@ -161,6 +161,7 @@
 {
     [super viewWillAppear:animated];
     
+    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:@"isShowPicker"];
     if (_isScrollToBottom) {
         [self scrollViewToBottom:NO];
     }
@@ -816,6 +817,7 @@
 
 - (void)moreViewPhotoAction:(DXChatBarMoreView *)moreView
 {
+    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:YES] forKey:@"isShowPicker"];
     // 隐藏键盘
     [self keyBoardHidden];
     
@@ -827,6 +829,7 @@
 
 - (void)moreViewTakePicAction:(DXChatBarMoreView *)moreView
 {
+    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:YES] forKey:@"isShowPicker"];
     [self keyBoardHidden];
     
 #if TARGET_IPHONE_SIMULATOR
@@ -848,7 +851,9 @@
     [self.navigationController pushViewController:locationController animated:YES];
 }
 
-- (void)moreViewVideoAction:(DXChatBarMoreView *)moreView{
+- (void)moreViewVideoAction:(DXChatBarMoreView *)moreView
+{
+    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:YES] forKey:@"isShowPicker"];
     [self keyBoardHidden];
     
 #if TARGET_IPHONE_SIMULATOR
@@ -863,21 +868,6 @@
 - (void)moreViewAudioCallAction:(DXChatBarMoreView *)moreView
 {
     [[NSNotificationCenter defaultCenter] postNotificationName:@"callOutWithChatter" object:self.chatter];
-    
-//    __weak typeof(self) weakSelf = self;
-//    if([[AVAudioSession sharedInstance] respondsToSelector:@selector(requestRecordPermission:)])
-//    {
-//        //requestRecordPermission
-//        [[AVAudioSession sharedInstance] requestRecordPermission:^(BOOL granted) {
-//            NSLog(@"granted = %d",granted);
-//            if(granted)
-//            {
-//                dispatch_async(dispatch_get_main_queue(), ^{
-//                    [[NSNotificationCenter defaultCenter] postNotificationName:@"callOutWithChatter" object:weakSelf.chatter];
-//                });
-//            }
-//        }];
-//    }
 }
 
 #pragma mark - LocationViewDelegate
@@ -965,7 +955,9 @@
     NSString *mediaType = info[UIImagePickerControllerMediaType];
     if ([mediaType isEqualToString:(NSString *)kUTTypeMovie]) {
         NSURL *videoURL = info[UIImagePickerControllerMediaURL];
-        [picker dismissViewControllerAnimated:YES completion:nil];
+        [picker dismissViewControllerAnimated:YES completion:^{
+            [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:@"isShowPicker"];
+        }];
         // video url:
         // file:///private/var/mobile/Applications/B3CDD0B2-2F19-432B-9CFA-158700F4DE8F/tmp/capture-T0x16e39100.tmp.9R8weF/capturedvideo.mp4
         // we will convert it to mp4 format
@@ -983,13 +975,16 @@
         
     }else{
         UIImage *orgImage = info[UIImagePickerControllerOriginalImage];
-        [picker dismissViewControllerAnimated:YES completion:nil];
+        [picker dismissViewControllerAnimated:YES completion:^{
+            [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:@"isShowPicker"];
+        }];
         [self sendImageMessage:orgImage];
     }
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
 {
+    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:@"isShowPicker"];
     [self.imagePicker dismissViewControllerAnimated:YES completion:nil];
 }
 

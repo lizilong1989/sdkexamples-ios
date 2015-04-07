@@ -328,7 +328,7 @@
                         str = @"取消语音通话";
                     }
                     else if (reason == eCallReason_Reject){
-                        str = @"对方拒接语音通话";
+                        str = @"对方取消语音通话";
                     }
                     else if (reason == eCallReason_Busy){
                         str = @"对方正在通话中";
