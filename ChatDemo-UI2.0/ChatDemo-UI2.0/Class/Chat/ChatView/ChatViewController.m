@@ -1273,7 +1273,7 @@
     id object = notification.object;
     if (object) {
         EMMessage *message = (EMMessage *)object;
-        [self didReceiveMessage:message];
+        [self addMessage:message];
     }
 }
 
