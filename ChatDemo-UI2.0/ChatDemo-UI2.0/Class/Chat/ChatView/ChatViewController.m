@@ -764,7 +764,6 @@
                 MessageModel *currentModel = [self.dataSource objectAtIndex:i];
                 EMMessage *currMsg = [currentModel message];
                 if ([messageId isEqualToString:currMsg.messageId]) {
-                    currentModel.status = eMessageDeliveryState_Failure;
                     currMsg.deliveryState = eMessageDeliveryState_Failure;
                     MessageModel *cellModel = [MessageModelManager modelWithMessage:currMsg];
                     dispatch_async(dispatch_get_main_queue(), ^{

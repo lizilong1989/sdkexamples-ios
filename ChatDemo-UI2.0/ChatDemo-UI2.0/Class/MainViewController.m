@@ -57,7 +57,7 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
     self.title = NSLocalizedString(@"title.conversation", @"Conversations");
     
     //获取未读消息数，此时并没有把self注册为SDK的delegate，读取出的未读数是上次退出程序时的
-    [self didUnreadMessagesCountChanged];
+//    [self didUnreadMessagesCountChanged];
 #warning 把self注册为SDK的delegate
     [self registerNotifications];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setupUntreatedApplyCount) name:@"setupUntreatedApplyCount" object:nil];
@@ -265,6 +265,7 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
 
 - (void)didUpdateConversationList:(NSArray *)conversationList
 {
+    [self setupUnreadMessageCount];
     [_chatListVC refreshDataSource];
 }
 
