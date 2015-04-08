@@ -278,19 +278,21 @@
             return;
         }
         
-        [tableView beginUpdates];
-        [[self.dataSource objectAtIndex:(indexPath.section - 1)] removeObjectAtIndex:indexPath.row];
-        [self.contactsSource removeObject:buddy];
-        [tableView  deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-        [tableView  endUpdates];
-        
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            EMError *error;
-            [[EaseMob sharedInstance].chatManager removeBuddy:buddy.username removeFromRemote:YES error:&error];
-            if (!error) {
-                [[EaseMob sharedInstance].chatManager removeConversationByChatter:buddy.username deleteMessages:YES append2Chat:YES];
-            }
-        });
+        EMError *error = nil;
+        [[EaseMob sharedInstance].chatManager removeBuddy:buddy.username removeFromRemote:YES error:&error];
+        if (!error) {
+            [[EaseMob sharedInstance].chatManager removeConversationByChatter:buddy.username deleteMessages:YES append2Chat:YES];
+            
+            [tableView beginUpdates];
+            [[self.dataSource objectAtIndex:(indexPath.section - 1)] removeObjectAtIndex:indexPath.row];
+            [self.contactsSource removeObject:buddy];
+            [tableView  deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+            [tableView  endUpdates];
+        }
+        else{
+            [self showHint:[NSString stringWithFormat:@"删除失败：%@", error.description]];
+            [tableView reloadData];
+        }
     }
 }
 
