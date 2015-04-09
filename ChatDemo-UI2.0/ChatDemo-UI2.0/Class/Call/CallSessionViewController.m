@@ -6,6 +6,8 @@
 //  Copyright (c) 2014年 dhcdht. All rights reserved.
 //
 
+#import <CoreTelephony/CTCallCenter.h>
+#import <CoreTelephony/CTCall.h>
 #import <AVFoundation/AVFoundation.h>
 #import "CallSessionViewController.h"
 
@@ -75,6 +77,17 @@
         _callType = CallIn;
         _callSession = callSession;
         _chatter = callSession.sessionChatter;
+
+        g_callCenter = [[CTCallCenter alloc] init];
+        g_callCenter.callEventHandler=^(CTCall* call)
+        {
+            if(call.callState == CTCallStateIncoming)
+            {
+                NSLog(@"Call is incoming");
+                //self.viewController.signalStatus=NO;
+                [self hangupAction:nil];
+            }
+        };
     }
     
     return self;
@@ -252,6 +265,7 @@
     EMTextMessageBody *textBody = [[EMTextMessageBody alloc] initWithChatObject:chatText];
     EMMessage *message = [[EMMessage alloc] initWithReceiver:_callSession.sessionChatter bodies:@[textBody]];
     message.isRead = YES;
+    message.deliveryState = eMessageDeliveryState_Delivered;
     [[EaseMob sharedInstance].chatManager insertMessageToDB:message append2Chat:YES];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"insertCallMessage" object:message];
 }
@@ -283,7 +297,7 @@
 {
     if (alertView.tag == kAlertViewTag_Close)
     {
-        [[EMSDKFull sharedInstance].callManager asyncTerminateCallSessionWithId:_callSession.sessionId reason:eCallReason_Null];
+        [[EMSDKFull sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Null];
         [self _close];
     }
 }
@@ -314,7 +328,7 @@
                         str = @"取消语音通话";
                     }
                     else if (reason == eCallReason_Reject){
-                        str = @"对方拒接语音通话";
+                        str = @"对方取消语音通话";
                     }
                     else if (reason == eCallReason_Busy){
                         str = @"对方正在通话中";
@@ -391,7 +405,7 @@
         reason = _callType == CallIn ? eCallReason_Reject : eCallReason_Hangup;
     }
     
-    [[EMSDKFull sharedInstance].callManager asyncTerminateCallSessionWithId:_callSession.sessionId reason:reason];
+    [[EMSDKFull sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:reason];
     
     [self _close];
 }
@@ -401,7 +415,7 @@
     [self showHint:@"正在初始化语音通话..."];
     [self _stopRing];
     
-    [[EMSDKFull sharedInstance].callManager asyncAcceptCallSessionWithId:_callSession.sessionId];
+    [[EMSDKFull sharedInstance].callManager asyncAnswerCall:_callSession.sessionId];
 }
 
 @end

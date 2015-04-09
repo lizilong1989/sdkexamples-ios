@@ -91,7 +91,7 @@
     }
     
     if (chatGroup == nil) {
-        chatGroup = [[EMGroup alloc] initWithGroupId:chatGroupId];
+        chatGroup = [EMGroup groupWithId:chatGroupId];
     }
     
     self = [self initWithGroup:chatGroup];

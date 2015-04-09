@@ -66,8 +66,6 @@
     self.tableView.frame = CGRectMake(0, self.searchBar.frame.size.height, self.view.frame.size.width, self.view.frame.size.height - self.searchBar.frame.size.height);
     [self.view addSubview:self.tableView];
     [self.tableView addSubview:self.slimeView];
-    
-    [self.slimeView setLoadingWithExpansion];
 }
 
 - (void)didReceiveMemoryWarning
@@ -280,19 +278,21 @@
             return;
         }
         
-        [tableView beginUpdates];
-        [[self.dataSource objectAtIndex:(indexPath.section - 1)] removeObjectAtIndex:indexPath.row];
-        [self.contactsSource removeObject:buddy];
-        [tableView  deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-        [tableView  endUpdates];
-        
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            EMError *error;
-            [[EaseMob sharedInstance].chatManager removeBuddy:buddy.username removeFromRemote:YES error:&error];
-            if (!error) {
-                [[EaseMob sharedInstance].chatManager removeConversationByChatter:buddy.username deleteMessages:YES append2Chat:YES];
-            }
-        });
+        EMError *error = nil;
+        [[EaseMob sharedInstance].chatManager removeBuddy:buddy.username removeFromRemote:YES error:&error];
+        if (!error) {
+            [[EaseMob sharedInstance].chatManager removeConversationByChatter:buddy.username deleteMessages:YES append2Chat:YES];
+            
+            [tableView beginUpdates];
+            [[self.dataSource objectAtIndex:(indexPath.section - 1)] removeObjectAtIndex:indexPath.row];
+            [self.contactsSource removeObject:buddy];
+            [tableView  deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+            [tableView  endUpdates];
+        }
+        else{
+            [self showHint:[NSString stringWithFormat:@"删除失败：%@", error.description]];
+            [tableView reloadData];
+        }
     }
 }
 
@@ -461,9 +461,6 @@
 {
     __weak ContactsViewController *weakSelf = self;
     [[[EaseMob sharedInstance] chatManager] asyncFetchBuddyListWithCompletion:^(NSArray *buddyList, EMError *error) {
-        if (!error) {
-            [weakSelf reloadDataSource];
-        }
         [weakSelf.slimeView endRefresh];
     } onQueue:nil];
 }
@@ -541,7 +538,6 @@
 
 - (void)reloadDataSource
 {
-    [self showHudInView:self.view hint:NSLocalizedString(@"refreshData", @"Refresh data...")];
     [self.dataSource removeAllObjects];
     [self.contactsSource removeAllObjects];
     
@@ -562,7 +558,6 @@
     [self.dataSource addObjectsFromArray:[self sortDataArray:self.contactsSource]];
     
     [_tableView reloadData];
-    [self hideHud];
 }
 
 #pragma mark - action
