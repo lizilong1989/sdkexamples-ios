@@ -429,15 +429,23 @@
 {
     if (buttonIndex != actionSheet.cancelButtonIndex && _currentLongPressIndex) {
         EMBuddy *buddy = [[self.dataSource objectAtIndex:(_currentLongPressIndex.section - 1)] objectAtIndex:_currentLongPressIndex.row];
-        [self.tableView beginUpdates];
-        [[self.dataSource objectAtIndex:(_currentLongPressIndex.section - 1)] removeObjectAtIndex:_currentLongPressIndex.row];
-        [self.contactsSource removeObject:buddy];
-        [self.tableView  deleteRowsAtIndexPaths:[NSArray arrayWithObject:_currentLongPressIndex] withRowAnimation:UITableViewRowAnimationFade];
-        [self.tableView  endUpdates];
-        
-        [[EaseMob sharedInstance].chatManager blockBuddy:buddy.username relationship:eRelationshipBoth];
+        [self hideHud];
+        [self showHudInView:self.view hint:NSLocalizedString(@"wait", @"Pleae wait...")];
+
+        __weak typeof(self) weakSelf = self;
+        [[EaseMob sharedInstance].chatManager asyncBlockBuddy:buddy.username relationship:eRelationshipBoth withCompletion:^(NSString *username, EMError *error){
+            typeof(weakSelf) strongSelf = weakSelf;
+            [strongSelf hideHud];
+            if (!error)
+            {
+                //由于加入黑名单成功后会刷新好友列表，所以此处不需要再更改好友列表
+            }
+            else
+            {
+                [strongSelf showHint:error.description];
+            }
+        } onQueue:nil];
     }
-    
     _currentLongPressIndex = nil;
 }
 
@@ -478,7 +486,7 @@
     {
         return;
     }
-    
+
     _currentLongPressIndex = indexPath;
     UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"cancel", @"Cancel") destructiveButtonTitle:NSLocalizedString(@"friend.block", @"join the blacklist") otherButtonTitles:nil, nil];
     [actionSheet showInView:[[UIApplication sharedApplication] keyWindow]];

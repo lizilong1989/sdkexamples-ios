@@ -1085,7 +1085,7 @@
             });
 
             //从数据库导入时重新下载没有下载成功的附件
-            for (NSInteger i = 0; i < currentCount; i++)
+            for (NSInteger i = 0; i < [weakSelf.dataSource count] - currentCount; i++)
             {
                 id obj = weakSelf.dataSource[i];
                 if ([obj isKindOfClass:[MessageModel class]])

@@ -114,7 +114,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return 5;
+    return 6;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -153,7 +153,10 @@
             self.ipSwitch.frame = CGRectMake(self.tableView.frame.size.width - (self.ipSwitch.frame.size.width + 10), (cell.contentView.frame.size.height - self.ipSwitch.frame.size.height) / 2, self.ipSwitch.frame.size.width, self.ipSwitch.frame.size.height);
             [cell.contentView addSubview:self.ipSwitch];
         }
-
+        else if (indexPath.row == 5){
+            cell.textLabel.text = @"Test";
+            cell.accessoryType = UITableViewCellAccessoryNone;
+        }
 //        else if (indexPath.row == 3)
 //        {
 //            cell.textLabel.text = @"被邀请人权限";
@@ -192,6 +195,16 @@
     {
         DebugViewController *debugController = [[DebugViewController alloc] initWithStyle:UITableViewStylePlain];
         [self.navigationController pushViewController:debugController animated:YES];
+    }
+    else if (indexPath.row == 5)
+    {
+        //[[EaseMob sharedInstance].chatManager setIsAutoDeleteConversationWhenLeaveGroup:NO];
+        //[[EaseMob sharedInstance].chatManager fetchAllChatroomsWithError:nil];
+        NSArray *conversations = [[EaseMob sharedInstance].chatManager conversations];
+        for (EMConversation *conversation in conversations)
+        {
+            NSLog(@"%@", conversation);
+        }
     }
 }
 

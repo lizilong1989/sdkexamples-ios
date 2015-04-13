@@ -377,6 +377,14 @@
 - (void)speakerOutAction:(id)sender
 {
     _speakerOutButton.selected = !_speakerOutButton.selected;
+    if (_speakerOutButton.selected )
+    {
+        [[AVAudioSession sharedInstance] overrideOutputAudioPort:AVAudioSessionPortOverrideSpeaker error:nil];
+    }
+    else
+    {
+        [[AVAudioSession sharedInstance] overrideOutputAudioPort:AVAudioSessionPortOverrideNone error:nil];
+    }
 }
 
 - (void)hangupAction:(id)sender
