@@ -129,34 +129,19 @@
     }
     else if (indexPath.section == 1)
     {
-        BOOL isOn = _noDisturbingStatus != ePushNotificationNoDisturbStatusClose ? YES : NO;
         if (indexPath.row == 0) {
             cell.textLabel.text = NSLocalizedString(@"setting.open", @"Open");
-            
-            if (_noDisturbingStart == 0 && _noDisturbingEnd == 24) {
-                isOn = YES;
-            }
-            else{
-                isOn = NO;
-            }
-            cell.accessoryType = isOn ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone;
+            cell.accessoryType = _noDisturbingStatus == ePushNotificationNoDisturbStatusDay ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone;
         }
         else if (indexPath.row == 1)
         {
             cell.textLabel.text = NSLocalizedString(@"setting.nightOpen", @"only open at night (22:00 - 7:00)");
-            
-            if (_noDisturbingStart == 22 && _noDisturbingEnd == 7) {
-                isOn = YES;
-            }
-            else{
-                isOn = NO;
-            }
-            cell.accessoryType = isOn ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone;
+            cell.accessoryType = _noDisturbingStatus == ePushNotificationNoDisturbStatusCustom ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone;
         }
         else if (indexPath.row == 2)
         {
             cell.textLabel.text = NSLocalizedString(@"setting.close", @"Close");
-            cell.accessoryType = _noDisturbingStatus != ePushNotificationNoDisturbStatusClose ? UITableViewCellAccessoryNone : UITableViewCellAccessoryCheckmark;
+            cell.accessoryType = _noDisturbingStatus == ePushNotificationNoDisturbStatusClose ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone;
         }
     }
     
