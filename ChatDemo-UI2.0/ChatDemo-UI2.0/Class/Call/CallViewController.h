@@ -10,6 +10,7 @@
 
 @interface CallViewController : UIViewController<UIAlertViewDelegate, EMCallManagerDelegate>
 {
+    BOOL _isSetupSubviews;
     NSTimer *_timeTimer;
     AVAudioPlayer *_ringPlayer;
     
@@ -18,6 +19,11 @@
     UILabel *_nameLabel;
     UIImageView *_headerImageView;
     
+    UIView *_smallView;
+    AVCaptureVideoPreviewLayer *_smallCaptureLayer;
+    AVCaptureSession *_session;
+    
+    UIView *_actionView;
     UIButton *_silenceButton;
     UILabel *_silenceLabel;
     UIButton *_speakerOutButton;

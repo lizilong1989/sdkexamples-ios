@@ -234,7 +234,6 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
 {
     id object = notification.object;
     if ([object isKindOfClass:[NSString class]]) {
-        
         EMError *error = nil;
         if (_callSession) {
             error = [EMError errorWithCode:EMErrorServerTooManyOperations andDescription:@"正在进行通话"];
