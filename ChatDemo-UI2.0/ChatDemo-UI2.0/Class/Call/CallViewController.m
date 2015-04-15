@@ -40,6 +40,8 @@
         [self _initializeCamera];
         [_session startRunning];
         [self.view addGestureRecognizer:self.tapRecognizer];
+        [self.view bringSubviewToFront:_topView];
+        [self.view bringSubviewToFront:_actionView];
         
 #warning 要提前设置视频通话对方图像的显示区域
         _callSession.displayView = _openGLView;
@@ -73,6 +75,8 @@
     
     [_session stopRunning];
     _session = nil;
+    
+    free(_imageDataBuffer);
 }
 
 #pragma makr - property
@@ -102,34 +106,38 @@
     bgImageView.image = [UIImage imageNamed:@"callBg.png"];
     [self.view addSubview:bgImageView];
     
-    _statusLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 20, self.view.frame.size.width - 20, 20)];
+    _topView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 120)];
+    _topView.backgroundColor = [UIColor colorWithWhite:0.5 alpha:0.3];
+    [self.view addSubview:_topView];
+    
+    _statusLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 20, _topView.frame.size.width - 20, 20)];
     _statusLabel.font = [UIFont systemFontOfSize:15.0];
     _statusLabel.backgroundColor = [UIColor clearColor];
     _statusLabel.textColor = [UIColor whiteColor];
     _statusLabel.textAlignment = NSTextAlignmentCenter;
-    [self.view addSubview:self.statusLabel];
+    [_topView addSubview:self.statusLabel];
     
-    _timeLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_statusLabel.frame), self.view.frame.size.width, 15)];
+    _timeLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_statusLabel.frame), _topView.frame.size.width, 15)];
     _timeLabel.font = [UIFont systemFontOfSize:12.0];
     _timeLabel.backgroundColor = [UIColor clearColor];
     _timeLabel.textColor = [UIColor whiteColor];
     _timeLabel.textAlignment = NSTextAlignmentCenter;
-    [self.view addSubview:_timeLabel];
+    [_topView addSubview:_timeLabel];
     
-    _headerImageView = [[UIImageView alloc] initWithFrame:CGRectMake((self.view.frame.size.width - 50) / 2, CGRectGetMaxY(_statusLabel.frame) + 20, 50, 50)];
+    _headerImageView = [[UIImageView alloc] initWithFrame:CGRectMake((_topView.frame.size.width - 50) / 2, CGRectGetMaxY(_statusLabel.frame) + 20, 50, 50)];
     _headerImageView.image = [UIImage imageNamed:@"chatListCellHead"];
-    [self.view addSubview:_headerImageView];
+    [_topView addSubview:_headerImageView];
     
-    _nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_headerImageView.frame) + 5, self.view.frame.size.width, 20)];
+    _nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_headerImageView.frame) + 5, _topView.frame.size.width, 20)];
     _nameLabel.font = [UIFont systemFontOfSize:14.0];
     _nameLabel.backgroundColor = [UIColor clearColor];
     _nameLabel.textColor = [UIColor whiteColor];
     _nameLabel.textAlignment = NSTextAlignmentCenter;
     _nameLabel.text = _chatter;
-    [self.view addSubview:_nameLabel];
+    [_topView addSubview:_nameLabel];
     
     _actionView = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height - 180, self.view.frame.size.width, 180)];
-    _actionView.backgroundColor = [UIColor colorWithWhite:0.5 alpha:0.5];
+    _actionView.backgroundColor = [UIColor colorWithWhite:0.5 alpha:0.3];
     [self.view addSubview:_actionView];
 
     CGFloat tmpWidth = _actionView.frame.size.width / 2;
@@ -176,17 +184,24 @@
 - (void)_initializeCamera
 {
     if (_smallView == nil) {
-        CGFloat width = 100;
-        CGFloat height = 100;
-        _smallView = [[UIView alloc] initWithFrame:CGRectMake(200, 50, width, height)];
+        
+        //1.大窗口显示层
+        _openGLView = [[OpenGLView20 alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
+        _openGLView.backgroundColor = [UIColor blueColor];
+        [self.view addSubview:_openGLView];
+        
+        //2.小窗口视图
+        CGFloat width = 80;
+        CGFloat height = _openGLView.frame.size.height / _openGLView.frame.size.width * width;
+        _smallView = [[UIView alloc] initWithFrame:CGRectMake(self.view.frame.size.width - 90, CGRectGetMaxY(_statusLabel.frame), width, height)];
         _smallView.backgroundColor = [UIColor redColor];
         [self.view addSubview:_smallView];
         
-        //1.创建会话层
+        //3.创建会话层
         _session = [[AVCaptureSession alloc] init];
-        [_session setSessionPreset:AVCaptureSessionPreset352x288];
+        [_session setSessionPreset:_openGLView.sessionPreset];
         
-        //2.创建、配置输入设备
+        //4.创建、配置输入设备
         AVCaptureDevice *device;
         NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
         for (AVCaptureDevice *tmp in devices)
@@ -202,7 +217,7 @@
         [_session beginConfiguration];
         [_session addInput:captureInput];
         
-        //3.创建、配置输出
+        //5.创建、配置输出
         AVCaptureVideoDataOutput *captureOutput = [[AVCaptureVideoDataOutput alloc] init];
         NSDictionary *settings = [[NSDictionary alloc] initWithObjectsAndKeys:
                                   [NSNumber numberWithUnsignedInt:kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange], kCVPixelBufferPixelFormatTypeKey,
@@ -218,16 +233,11 @@
         [_session addOutput:captureOutput];
         [_session commitConfiguration];
         
-        //4.小窗口显示层
+        //6.小窗口显示层
         _smallCaptureLayer = [AVCaptureVideoPreviewLayer layerWithSession:_session];
         _smallCaptureLayer.frame = CGRectMake(0, 0, width, height);
         _smallCaptureLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
         [_smallView.layer addSublayer:_smallCaptureLayer];
-        
-        //5.大窗口显示层
-        _openGLView = [[OpenGLView20 alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_nameLabel.frame), self.view.frame.size.width, CGRectGetMinY(_actionView.frame) - CGRectGetMaxY(_nameLabel.frame))];
-        _openGLView.backgroundColor = [UIColor blueColor];
-        [self.view addSubview:_openGLView];
     }
 }
 
@@ -321,28 +331,30 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
     if(CVPixelBufferLockBaseAddress(imageBuffer, 0) == kCVReturnSuccess)
     {
-        UInt8 *bufferbasePtr = (UInt8 *)CVPixelBufferGetBaseAddress(imageBuffer);
+//        UInt8 *bufferbasePtr = (UInt8 *)CVPixelBufferGetBaseAddress(imageBuffer);
         UInt8 *bufferPtr = (UInt8 *)CVPixelBufferGetBaseAddressOfPlane(imageBuffer, 0);
         UInt8 *bufferPtr1 = (UInt8 *)CVPixelBufferGetBaseAddressOfPlane(imageBuffer, 1);
-        printf("addr diff1:%d,diff2:%d\n",bufferPtr-bufferbasePtr,bufferPtr1-bufferPtr);
+//        printf("addr diff1:%d,diff2:%d\n",bufferPtr-bufferbasePtr,bufferPtr1-bufferPtr);
         
-        size_t buffeSize = CVPixelBufferGetDataSize(imageBuffer);
+//        size_t buffeSize = CVPixelBufferGetDataSize(imageBuffer);
         size_t width = CVPixelBufferGetWidth(imageBuffer);
         size_t height = CVPixelBufferGetHeight(imageBuffer);
-        size_t bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
+//        size_t bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
         size_t bytesrow0 = CVPixelBufferGetBytesPerRowOfPlane(imageBuffer, 0);
         size_t bytesrow1  = CVPixelBufferGetBytesPerRowOfPlane(imageBuffer, 1);
-        size_t bytesrow2 = CVPixelBufferGetBytesPerRowOfPlane(imageBuffer, 2);
-        printf("buffeSize:%d,width:%d,height:%d,bytesPerRow:%d,bytesrow0 :%d,bytesrow1 :%d,bytesrow2 :%d\n",buffeSize,width,height,bytesPerRow,bytesrow0,bytesrow1,bytesrow2);
+//        size_t bytesrow2 = CVPixelBufferGetBytesPerRowOfPlane(imageBuffer, 2);
+//        printf("buffeSize:%d,width:%d,height:%d,bytesPerRow:%d,bytesrow0 :%d,bytesrow1 :%d,bytesrow2 :%d\n",buffeSize,width,height,bytesPerRow,bytesrow0,bytesrow1,bytesrow2);
 
-        UInt8 *tmp = (UInt8 *)malloc(width * height * 3 / 2);
+        if (_imageDataBuffer == nil) {
+            _imageDataBuffer = (UInt8 *)malloc(width * height * 3 / 2);
+        }
         UInt8 *pY = bufferPtr;
         UInt8 *pUV = bufferPtr1;
-        UInt8 *pU = tmp + width * height;
+        UInt8 *pU = _imageDataBuffer + width * height;
         UInt8 *pV = pU + width * height / 4;
         for(int i =0; i < height; i++)
         {
-            memcpy(tmp + i * width, pY + i * bytesrow0, width);
+            memcpy(_imageDataBuffer + i * width, pY + i * bytesrow0, width);
         }
         
         for(int j = 0; j < height / 2; j++)
@@ -355,8 +367,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             pUV += bytesrow1;
         }
         
-        [[EMSDKFull sharedInstance].callManager processPreviewData:(char *)tmp width:width * height * 3 / 2 height:height];
-        free(tmp);
+        [[EMSDKFull sharedInstance].callManager processPreviewData:(char *)_imageDataBuffer width:width height:height];
         
         /*We unlock the buffer*/
         CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
@@ -428,6 +439,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 - (void)viewTapAction:(UITapGestureRecognizer *)tap
 {
+    _topView.hidden = !_topView.hidden;
     _actionView.hidden = !_actionView.hidden;
 }
 

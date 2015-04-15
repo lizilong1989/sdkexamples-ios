@@ -14,6 +14,7 @@
     NSTimer *_timeTimer;
     AVAudioPlayer *_ringPlayer;
     
+    UIView *_topView;
     UILabel *_statusLabel;
     UILabel *_timeLabel;
     UILabel *_nameLabel;
@@ -39,6 +40,8 @@
     int _timeLength;
     EMCallSession *_callSession;
     UITapGestureRecognizer *_tapRecognizer;
+    
+    UInt8 *_imageDataBuffer;
 }
 
 @property (strong, nonatomic) NSString *chatter;

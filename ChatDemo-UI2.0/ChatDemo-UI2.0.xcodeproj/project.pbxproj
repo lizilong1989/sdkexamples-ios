@@ -144,8 +144,8 @@
 		90F1BED51930495800121AEC /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90F1BED41930495800121AEC /* MobileCoreServices.framework */; };
 		90F3ED471A75F3A4005A0135 /* ChatViewController+Category.m in Sources */ = {isa = PBXBuildFile; fileRef = 90F3ED461A75F3A4005A0135 /* ChatViewController+Category.m */; };
 		EB1975B21ADE0C77002E7E27 /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1975B11ADE0C77002E7E27 /* libc++.dylib */; };
-		EB19768C1ADE463D002E7E27 /* chatBar_colorMore_videoCall.png in Resources */ = {isa = PBXBuildFile; fileRef = EB19768A1ADE463D002E7E27 /* chatBar_colorMore_videoCall.png */; };
-		EB19768D1ADE463D002E7E27 /* chatBar_colorMore_videoCallSelected.png in Resources */ = {isa = PBXBuildFile; fileRef = EB19768B1ADE463D002E7E27 /* chatBar_colorMore_videoCallSelected.png */; };
+		EB19768C1ADE463D002E7E27 /* chatBar_colorMore_videoCall@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EB19768A1ADE463D002E7E27 /* chatBar_colorMore_videoCall@2x.png */; };
+		EB19768D1ADE463D002E7E27 /* chatBar_colorMore_videoCallSelected@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EB19768B1ADE463D002E7E27 /* chatBar_colorMore_videoCallSelected@2x.png */; };
 		EB3CC3A21ACD343D00FB8662 /* callRing.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = EB3CC39F1ACD343D00FB8662 /* callRing.mp3 */; };
 		EBD2AB011A7CDAC000D16528 /* 114.png in Resources */ = {isa = PBXBuildFile; fileRef = EBD2AA361A7CDABF00D16528 /* 114.png */; };
 		EBD2AB021A7CDAC000D16528 /* 120.png in Resources */ = {isa = PBXBuildFile; fileRef = EBD2AA371A7CDABF00D16528 /* 120.png */; };
@@ -613,8 +613,8 @@
 		90F3ED451A75F3A4005A0135 /* ChatViewController+Category.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ChatViewController+Category.h"; sourceTree = "<group>"; };
 		90F3ED461A75F3A4005A0135 /* ChatViewController+Category.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ChatViewController+Category.m"; sourceTree = "<group>"; };
 		EB1975B11ADE0C77002E7E27 /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
-		EB19768A1ADE463D002E7E27 /* chatBar_colorMore_videoCall.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = chatBar_colorMore_videoCall.png; sourceTree = "<group>"; };
-		EB19768B1ADE463D002E7E27 /* chatBar_colorMore_videoCallSelected.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = chatBar_colorMore_videoCallSelected.png; sourceTree = "<group>"; };
+		EB19768A1ADE463D002E7E27 /* chatBar_colorMore_videoCall@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chatBar_colorMore_videoCall@2x.png"; sourceTree = "<group>"; };
+		EB19768B1ADE463D002E7E27 /* chatBar_colorMore_videoCallSelected@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chatBar_colorMore_videoCallSelected@2x.png"; sourceTree = "<group>"; };
 		EB3CC39F1ACD343D00FB8662 /* callRing.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = callRing.mp3; sourceTree = "<group>"; };
 		EBD2AA361A7CDABF00D16528 /* 114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 114.png; sourceTree = "<group>"; };
 		EBD2AA371A7CDABF00D16528 /* 120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 120.png; sourceTree = "<group>"; };
@@ -1632,8 +1632,8 @@
 		EBD2AAA91A7CDABF00D16528 /* Color */ = {
 			isa = PBXGroup;
 			children = (
-				EB19768A1ADE463D002E7E27 /* chatBar_colorMore_videoCall.png */,
-				EB19768B1ADE463D002E7E27 /* chatBar_colorMore_videoCallSelected.png */,
+				EB19768A1ADE463D002E7E27 /* chatBar_colorMore_videoCall@2x.png */,
+				EB19768B1ADE463D002E7E27 /* chatBar_colorMore_videoCallSelected@2x.png */,
 				EBD2AD451A7CEFE100D16528 /* chatBar_colorMore_audioCall@2x.png */,
 				EBD2AD461A7CEFE100D16528 /* chatBar_colorMore_audioCallSelected@2x.png */,
 				EBD2AAAC1A7CDABF00D16528 /* chatBar_colorMore_camera@2x.png */,
@@ -1874,7 +1874,7 @@
 				EBD2AB481A7CDAC000D16528 /* chatBar_more_face@2x.png in Resources */,
 				EBD2AB551A7CDAC000D16528 /* faceDelete.png in Resources */,
 				90EF2CEC192F2B4E00BDC549 /* sr_refresh.png in Resources */,
-				EB19768C1ADE463D002E7E27 /* chatBar_colorMore_videoCall.png in Resources */,
+				EB19768C1ADE463D002E7E27 /* chatBar_colorMore_videoCall@2x.png in Resources */,
 				EBD2AD481A7CEFE100D16528 /* chatBar_colorMore_audioCallSelected@2x.png in Resources */,
 				EBD2AB581A7CDAC000D16528 /* messageSendFail@2x.png in Resources */,
 				EBD2ABB21A7CDAC000D16528 /* tabbar_contacts@2x.png in Resources */,
@@ -1882,7 +1882,7 @@
 				EBD2AB9E1A7CDAC000D16528 /* password.png in Resources */,
 				EBD2AB4B1A7CDAC000D16528 /* chatBar_textBg.png in Resources */,
 				EBD2AB011A7CDAC000D16528 /* 114.png in Resources */,
-				EB19768D1ADE463D002E7E27 /* chatBar_colorMore_videoCallSelected.png in Resources */,
+				EB19768D1ADE463D002E7E27 /* chatBar_colorMore_videoCallSelected@2x.png in Resources */,
 				EBD2AB511A7CDAC000D16528 /* chat_location_detail_disclosureHL.png in Resources */,
 				EBD2AB2A1A7CDAC000D16528 /* VoiceSearchFeedback013@2x.png in Resources */,
 				EBD2ABB71A7CDAC000D16528 /* tabbar_settingHL.png in Resources */,
