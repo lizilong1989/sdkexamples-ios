@@ -23,7 +23,7 @@
 #import "GroupListViewController.h"
 #import "ChatViewController.h"
 
-@interface ContactsViewController ()<UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate, UISearchDisplayDelegate, UIActionSheetDelegate, BaseTableCellDelegate, SRRefreshDelegate>
+@interface ContactsViewController ()<UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate, UISearchDisplayDelegate, UIActionSheetDelegate, BaseTableCellDelegate, SRRefreshDelegate, IChatManagerDelegate>
 {
     NSIndexPath *_currentLongPressIndex;
 }
@@ -51,6 +51,7 @@
         _dataSource = [NSMutableArray array];
         _contactsSource = [NSMutableArray array];
         _sectionTitles = [NSMutableArray array];
+        [[EaseMob sharedInstance].chatManager addDelegate:self delegateQueue:nil];
     }
     return self;
 }
@@ -80,6 +81,10 @@
     [self reloadApplyView];
 }
 
+- (void)dealloc
+{
+    [[EaseMob sharedInstance].chatManager removeDelegate:self];
+}
 #pragma mark - getter
 
 - (UISearchBar *)searchBar
@@ -438,7 +443,7 @@
             [strongSelf hideHud];
             if (!error)
             {
-                //由于加入黑名单成功后会刷新好友列表，所以此处不需要再更改好友列表
+                //由于加入黑名单成功后会刷新黑名单，所以此处不需要再更改好友列表
             }
             else
             {
@@ -548,8 +553,9 @@
     [self.contactsSource removeAllObjects];
     
     NSArray *buddyList = [[EaseMob sharedInstance].chatManager buddyList];
+    NSArray *blockList = [[EaseMob sharedInstance].chatManager blockedList];
     for (EMBuddy *buddy in buddyList) {
-        if (buddy.followState != eEMBuddyFollowState_NotFollowed) {
+        if ((buddy.followState != eEMBuddyFollowState_NotFollowed) && ![blockList containsObject:buddy.username]) {
             [self.contactsSource addObject:buddy];
         }
     }
@@ -602,5 +608,10 @@
     [self.navigationController pushViewController:addController animated:YES];
 }
 
+#pragma mark - EMChatManagerBuddyDelegate
+- (void)didUpdateBlockedList:(NSArray *)blockedList
+{
+    [self reloadDataSource];
+}
 
 @end

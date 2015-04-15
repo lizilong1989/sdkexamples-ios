@@ -776,6 +776,23 @@
 - (void)didFinishedReceiveOfflineMessages:(NSArray *)offlineMessages
 {
     [self loadMoreMessages];
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(_messageQueue, ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [weakSelf scrollViewToBottom:NO];
+        });
+    });
+}
+
+- (void)didReceiveOfflineMessages:(NSArray *)offlineMessages
+{
+    [self loadMoreMessages];
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(_messageQueue, ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [weakSelf scrollViewToBottom:NO];
+        });
+    });
 }
 
 - (void)group:(EMGroup *)group didLeave:(EMGroupLeaveReason)reason error:(EMError *)error
