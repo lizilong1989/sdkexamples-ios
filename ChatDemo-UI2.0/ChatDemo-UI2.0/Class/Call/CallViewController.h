@@ -6,11 +6,11 @@
 //  Copyright (c) 2015年 dhc. All rights reserved.
 //
 
+#import <AVFoundation/AVFoundation.h>
 #import <UIKit/UIKit.h>
 
-@interface CallViewController : UIViewController<UIAlertViewDelegate, EMCallManagerDelegate>
+@interface CallViewController : UIViewController<UIAlertViewDelegate, EMCallManagerDelegate, AVCaptureVideoDataOutputSampleBufferDelegate>
 {
-    BOOL _isSetupSubviews;
     NSTimer *_timeTimer;
     AVAudioPlayer *_ringPlayer;
     
@@ -20,6 +20,7 @@
     UIImageView *_headerImageView;
     
     UIView *_smallView;
+    OpenGLView20 *_openGLView;
     AVCaptureVideoPreviewLayer *_smallCaptureLayer;
     AVCaptureSession *_session;
     
@@ -37,12 +38,14 @@
     BOOL _isIncoming;
     int _timeLength;
     EMCallSession *_callSession;
+    UITapGestureRecognizer *_tapRecognizer;
 }
 
 @property (strong, nonatomic) NSString *chatter;
 @property (strong, nonatomic) UILabel *statusLabel;
+@property (strong, nonatomic) UITapGestureRecognizer *tapRecognizer;
 
-- (void)showWithSession:(EMCallSession *)session
-             isIncoming:(BOOL)isIncoming;
+- (instancetype)initWithSession:(EMCallSession *)session
+                     isIncoming:(BOOL)isIncoming;
 
 @end

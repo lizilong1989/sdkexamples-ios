@@ -12,10 +12,17 @@
 
 @implementation CallViewController
 
-- (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+- (instancetype)initWithSession:(EMCallSession *)session
+                     isIncoming:(BOOL)isIncoming
 {
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    self = [super initWithNibName:nil bundle:nil];
     if (self) {
+        _callSession = session;
+        _isIncoming = isIncoming;
+        _timeLabel.text = @"";
+        _timeLength = 0;
+        _chatter = session.sessionChatter;
+        
         [[EMSDKFull sharedInstance].callManager addDelegate:self delegateQueue:nil];
     }
     
@@ -25,12 +32,28 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)])
-    {
-        [self setEdgesForExtendedLayout:UIRectEdgeNone];
-    }
     
     [self _setupSubviews];
+    
+    _nameLabel.text = _chatter;
+    if (_callSession.type == eCallSessionTypeVideo) {
+        [self _initializeCamera];
+        [_session startRunning];
+        [self.view addGestureRecognizer:self.tapRecognizer];
+        
+#warning 要提前设置视频通话对方图像的显示区域
+        _callSession.displayView = _openGLView;
+    }
+    
+    if (_isIncoming) {
+        _statusLabel.text = @"等待接听...";
+        [_actionView addSubview:_answerButton];
+        [_actionView addSubview:_rejectButton];
+    }
+    else{
+        _statusLabel.text = @"正在建立连接...";
+        [_actionView addSubview:_hangupButton];
+    }
 }
 
 - (void)didReceiveMemoryWarning {
@@ -52,36 +75,25 @@
     _session = nil;
 }
 
-#pragma makr - property 
+#pragma makr - property
 
-- (void)setChatter:(NSString *)chatter
+- (UITapGestureRecognizer *)tapRecognizer
 {
-    _chatter = chatter;
-    _nameLabel.text = _chatter;
-}
-
-- (UILabel *)statusLabel
-{
-    if (_statusLabel == nil) {
-        _statusLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 20, 300, 20)];
-        _statusLabel.font = [UIFont systemFontOfSize:15.0];
-        _statusLabel.backgroundColor = [UIColor clearColor];
-        _statusLabel.textColor = [UIColor whiteColor];
-        _statusLabel.textAlignment = NSTextAlignmentCenter;
+    if (_tapRecognizer == nil) {
+        _tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(viewTapAction:)];
     }
     
-    return _statusLabel;
+    return _tapRecognizer;
 }
 
 #pragma mark - subviews
 
 - (void)_setupSubviews
 {
-    if (_isSetupSubviews) {
-        return;
+    if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)])
+    {
+        [self setEdgesForExtendedLayout:UIRectEdgeNone];
     }
-    
-    _isSetupSubviews = YES;
     self.navigationController.navigationBarHidden = YES;
     self.view.backgroundColor = [UIColor whiteColor];
     
@@ -90,6 +102,11 @@
     bgImageView.image = [UIImage imageNamed:@"callBg.png"];
     [self.view addSubview:bgImageView];
     
+    _statusLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 20, self.view.frame.size.width - 20, 20)];
+    _statusLabel.font = [UIFont systemFontOfSize:15.0];
+    _statusLabel.backgroundColor = [UIColor clearColor];
+    _statusLabel.textColor = [UIColor whiteColor];
+    _statusLabel.textAlignment = NSTextAlignmentCenter;
     [self.view addSubview:self.statusLabel];
     
     _timeLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_statusLabel.frame), self.view.frame.size.width, 15)];
@@ -114,13 +131,12 @@
     _actionView = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height - 180, self.view.frame.size.width, 180)];
     _actionView.backgroundColor = [UIColor colorWithWhite:0.5 alpha:0.5];
     [self.view addSubview:_actionView];
-    
+
     CGFloat tmpWidth = _actionView.frame.size.width / 2;
     _silenceButton = [[UIButton alloc] initWithFrame:CGRectMake((tmpWidth - 40) / 2, 20, 40, 40)];
     [_silenceButton setImage:[UIImage imageNamed:@"call_silence"] forState:UIControlStateNormal];
     [_silenceButton setImage:[UIImage imageNamed:@"call_silence_h"] forState:UIControlStateSelected];
     [_silenceButton addTarget:self action:@selector(silenceAction) forControlEvents:UIControlEventTouchUpInside];
-    [_actionView addSubview:_silenceButton];
     
     _silenceLabel = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMinX(_silenceButton.frame), CGRectGetMaxY(_silenceButton.frame) + 5, 40, 20)];
     _silenceLabel.backgroundColor = [UIColor clearColor];
@@ -128,13 +144,11 @@
     _silenceLabel.font = [UIFont systemFontOfSize:13.0];
     _silenceLabel.textAlignment = NSTextAlignmentCenter;
     _silenceLabel.text = @"静音";
-    [_actionView addSubview:_silenceLabel];
     
     _speakerOutButton = [[UIButton alloc] initWithFrame:CGRectMake(tmpWidth + (tmpWidth - 40) / 2, _silenceButton.frame.origin.y, 40, 40)];
     [_speakerOutButton setImage:[UIImage imageNamed:@"call_out"] forState:UIControlStateNormal];
     [_speakerOutButton setImage:[UIImage imageNamed:@"call_out_h"] forState:UIControlStateSelected];
     [_speakerOutButton addTarget:self action:@selector(speakerOutAction) forControlEvents:UIControlEventTouchUpInside];
-    [_actionView addSubview:_speakerOutButton];
     
     _speakerOutLabel = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMinX(_speakerOutButton.frame), CGRectGetMaxY(_speakerOutButton.frame) + 5, 40, 20)];
     _speakerOutLabel.backgroundColor = [UIColor clearColor];
@@ -142,7 +156,6 @@
     _speakerOutLabel.font = [UIFont systemFontOfSize:13.0];
     _speakerOutLabel.textAlignment = NSTextAlignmentCenter;
     _speakerOutLabel.text = @"免提";
-    [_actionView addSubview:_speakerOutLabel];
     
     _rejectButton = [[UIButton alloc] initWithFrame:CGRectMake((tmpWidth - 100) / 2, CGRectGetMaxY(_speakerOutLabel.frame) + 30, 100, 40)];
     [_rejectButton setTitle:@"拒接" forState:UIControlStateNormal];
@@ -160,13 +173,14 @@
     [_hangupButton addTarget:self action:@selector(hangupAction) forControlEvents:UIControlEventTouchUpInside];
 }
 
-- (void)initializeCamera
+- (void)_initializeCamera
 {
     if (_smallView == nil) {
         CGFloat width = 100;
         CGFloat height = 100;
         _smallView = [[UIView alloc] initWithFrame:CGRectMake(200, 50, width, height)];
         _smallView.backgroundColor = [UIColor redColor];
+        [self.view addSubview:_smallView];
         
         //1.创建会话层
         _session = [[AVCaptureSession alloc] init];
@@ -189,9 +203,18 @@
         [_session addInput:captureInput];
         
         //3.创建、配置输出
-        AVCaptureStillImageOutput *captureOutput = [[AVCaptureStillImageOutput alloc] init];
-        NSDictionary *outputSettings = [[NSDictionary alloc] initWithObjectsAndKeys:AVVideoCodecJPEG,AVVideoCodecKey,nil];
-        [captureOutput setOutputSettings:outputSettings];
+        AVCaptureVideoDataOutput *captureOutput = [[AVCaptureVideoDataOutput alloc] init];
+        NSDictionary *settings = [[NSDictionary alloc] initWithObjectsAndKeys:
+                                  [NSNumber numberWithUnsignedInt:kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange], kCVPixelBufferPixelFormatTypeKey,
+                                  [NSNumber numberWithInt: 352], (id)kCVPixelBufferWidthKey,
+                                  [NSNumber numberWithInt: 288], (id)kCVPixelBufferHeightKey,
+                                  nil];
+        
+        captureOutput.videoSettings = settings;
+        captureOutput.minFrameDuration = CMTimeMake(1, 15);
+        captureOutput.alwaysDiscardsLateVideoFrames = YES;
+        dispatch_queue_t outQueue = dispatch_queue_create("com.gh.cecall", NULL);
+        [captureOutput setSampleBufferDelegate:self queue:outQueue];
         [_session addOutput:captureOutput];
         [_session commitConfiguration];
         
@@ -202,6 +225,9 @@
         [_smallView.layer addSublayer:_smallCaptureLayer];
         
         //5.大窗口显示层
+        _openGLView = [[OpenGLView20 alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_nameLabel.frame), self.view.frame.size.width, CGRectGetMinY(_actionView.frame) - CGRectGetMaxY(_nameLabel.frame))];
+        _openGLView.backgroundColor = [UIColor blueColor];
+        [self.view addSubview:_openGLView];
     }
 }
 
@@ -281,6 +307,63 @@
     }
 }
 
+#pragma mark AVCaptureVideoDataOutputSampleBufferDelegate
+
+- (void)captureOutput:(AVCaptureOutput *)captureOutput
+didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
+       fromConnection:(AVCaptureConnection *)connection
+{
+    if (_callSession.status != eCallSessionStatusAccepted) {
+        return;
+    }
+    
+#warning 捕捉数据输出，根据自己需求可随意更改
+    CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+    if(CVPixelBufferLockBaseAddress(imageBuffer, 0) == kCVReturnSuccess)
+    {
+        UInt8 *bufferbasePtr = (UInt8 *)CVPixelBufferGetBaseAddress(imageBuffer);
+        UInt8 *bufferPtr = (UInt8 *)CVPixelBufferGetBaseAddressOfPlane(imageBuffer, 0);
+        UInt8 *bufferPtr1 = (UInt8 *)CVPixelBufferGetBaseAddressOfPlane(imageBuffer, 1);
+        printf("addr diff1:%d,diff2:%d\n",bufferPtr-bufferbasePtr,bufferPtr1-bufferPtr);
+        
+        size_t buffeSize = CVPixelBufferGetDataSize(imageBuffer);
+        size_t width = CVPixelBufferGetWidth(imageBuffer);
+        size_t height = CVPixelBufferGetHeight(imageBuffer);
+        size_t bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
+        size_t bytesrow0 = CVPixelBufferGetBytesPerRowOfPlane(imageBuffer, 0);
+        size_t bytesrow1  = CVPixelBufferGetBytesPerRowOfPlane(imageBuffer, 1);
+        size_t bytesrow2 = CVPixelBufferGetBytesPerRowOfPlane(imageBuffer, 2);
+        printf("buffeSize:%d,width:%d,height:%d,bytesPerRow:%d,bytesrow0 :%d,bytesrow1 :%d,bytesrow2 :%d\n",buffeSize,width,height,bytesPerRow,bytesrow0,bytesrow1,bytesrow2);
+
+        UInt8 *tmp = (UInt8 *)malloc(width * height * 3 / 2);
+        UInt8 *pY = bufferPtr;
+        UInt8 *pUV = bufferPtr1;
+        UInt8 *pU = tmp + width * height;
+        UInt8 *pV = pU + width * height / 4;
+        for(int i =0; i < height; i++)
+        {
+            memcpy(tmp + i * width, pY + i * bytesrow0, width);
+        }
+        
+        for(int j = 0; j < height / 2; j++)
+        {
+            for(int i = 0; i < width / 2; i++)
+            {
+                *(pU++) = pUV[i<<1];
+                *(pV++) = pUV[(i<<1) + 1];
+            }
+            pUV += bytesrow1;
+        }
+        
+        [[EMSDKFull sharedInstance].callManager processPreviewData:(char *)tmp width:width * height * 3 / 2 height:height];
+        free(tmp);
+        
+        /*We unlock the buffer*/
+        CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
+    }
+}
+
+
 #pragma mark - ICallManagerDelegate
 
 - (void)callSessionStatusChanged:(EMCallSession *)callSession
@@ -341,6 +424,13 @@
     }
 }
 
+#pragma mark - UITapGestureRecognizer
+
+- (void)viewTapAction:(UITapGestureRecognizer *)tap
+{
+    _actionView.hidden = !_actionView.hidden;
+}
+
 #pragma mark - action
 
 - (void)silenceAction
@@ -379,50 +469,6 @@
     
     [[EMSDKFull sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Hangup];
     [self _close];
-}
-
-#pragma mark - public
-
-- (void)showWithSession:(EMCallSession *)session
-             isIncoming:(BOOL)isIncoming
-{
-    [self _setupSubviews];
-    _callSession = session;
-    _isIncoming = isIncoming;
-    _timeLabel.text = @"";
-    _timeLength = 0;
-    self.chatter = session.sessionChatter;
-    
-    if (session.type == eCallSessionTypeAudio) {
-        [_session stopRunning];
-        [_smallView removeFromSuperview];
-    }
-    else if (session.type == eCallSessionTypeVideo){
-        [self initializeCamera];
-        [self.view addSubview:_smallView];
-        [_session startRunning];
-    }
-    
-    if (_isIncoming) {
-        self.statusLabel.text = @"等待接听...";
-        [_silenceButton removeFromSuperview];
-        [_silenceLabel removeFromSuperview];
-        [_speakerOutButton removeFromSuperview];
-        [_speakerOutLabel removeFromSuperview];
-        [_hangupButton removeFromSuperview];
-        [_actionView addSubview:_answerButton];
-        [_actionView addSubview:_rejectButton];
-    }
-    else{
-        self.statusLabel.text = @"正在建立连接...";
-        [_answerButton removeFromSuperview];
-        [_rejectButton removeFromSuperview];
-        [_silenceButton removeFromSuperview];
-        [_silenceLabel removeFromSuperview];
-        [_speakerOutButton removeFromSuperview];
-        [_speakerOutLabel removeFromSuperview];
-        [_actionView addSubview:_hangupButton];
-    }
 }
 
 @end

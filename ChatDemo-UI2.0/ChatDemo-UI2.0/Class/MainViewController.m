@@ -233,20 +233,25 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
 - (void)callOutWithChatter:(NSNotification *)notification
 {
     id object = notification.object;
-    if ([object isKindOfClass:[NSString class]]) {
+    if ([object isKindOfClass:[NSDictionary class]]) {
         EMError *error = nil;
         if (_callSession) {
             error = [EMError errorWithCode:EMErrorServerTooManyOperations andDescription:@"正在进行通话"];
         }
         else{
-            NSString *chatter = (NSString *)object;
-            EMCallSession *callSession = [[EMSDKFull sharedInstance].callManager asyncMakeVoiceCall:chatter timeout:50 error:&error];
+            NSString *chatter = [object objectForKey:@"chatter"];
+            EMCallSessionType type = [[object objectForKey:@"type"] intValue];
+            if (type == eCallSessionTypeAudio) {
+                _callSession = [[EMSDKFull sharedInstance].callManager asyncMakeVoiceCall:chatter timeout:50 error:&error];
+            }
+            else if (type == eCallSessionTypeVideo){
+                _callSession = [[EMSDKFull sharedInstance].callManager asyncMakeVideoCall:chatter timeout:50 error:&error];
+            }
             
-            if (callSession && !error) {
+            if (_callSession && !error) {
                 [[EMSDKFull sharedInstance].callManager removeDelegate:self];
                 
-                CallViewController *callController = [[CallViewController alloc] initWithNibName:nil bundle:nil];
-                [callController showWithSession:callSession isIncoming:NO];
+                CallViewController *callController = [[CallViewController alloc] initWithSession:_callSession isIncoming:NO];
                 [self presentViewController:callController animated:YES completion:nil];
             }
         }
@@ -580,8 +585,8 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
             error = [EMError errorWithCode:EMErrorServerTooManyOperations andDescription:@"正在进行通话"];
         }
         else if (!isShowPicker){
-            CallViewController *callController = [[CallViewController alloc] initWithNibName:nil bundle:nil];
-            [callController showWithSession:callSession isIncoming:YES];
+            _callSession = callSession;
+            CallViewController *callController = [[CallViewController alloc] initWithSession:callSession isIncoming:YES];
             [self presentViewController:callController animated:YES completion:nil];
         }
         
