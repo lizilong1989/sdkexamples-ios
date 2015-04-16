@@ -30,6 +30,7 @@
 "choose" = "选择";
 "accept" = "接受";
 "reject" = "拒绝";
+"wait" = "请等待...";
 
 "sendingApply" = "正在发送申请...";
 "acceptFail" = "接受失败";

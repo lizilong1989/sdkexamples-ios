@@ -30,6 +30,7 @@
 "choose" = "Choose";
 "accept" = "Accept";
 "reject" = "Reject";
+"wait" = "Please wait...";
 
 "sendingApply" = "sending apply...";
 "acceptFail" = "accept failure";
