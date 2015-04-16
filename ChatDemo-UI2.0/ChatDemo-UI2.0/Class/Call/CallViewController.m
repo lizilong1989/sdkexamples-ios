@@ -106,7 +106,7 @@
     bgImageView.image = [UIImage imageNamed:@"callBg.png"];
     [self.view addSubview:bgImageView];
     
-    _topView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 120)];
+    _topView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 150)];
     _topView.backgroundColor = [UIColor colorWithWhite:0.5 alpha:0.3];
     [self.view addSubview:_topView];
     
