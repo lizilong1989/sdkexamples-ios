@@ -762,7 +762,10 @@
 {
     if ([_conversation.chatter isEqualToString:message.conversationChatter]) {
         [self addMessage:message];
-        [self sendHasReadResponseForMessages:@[message]];
+        if (!message.isGroup)
+        {
+            [self sendHasReadResponseForMessages:@[message]];
+        }
     }
 }
 
@@ -1116,7 +1119,7 @@
             for (NSInteger i = 0; i < newMessagesCount; i++)
             {
                 EMMessage *message = messages[i];
-                if (!message.isReadAcked && ![account isEqualToString:message.from])
+                if (!message.isReadAcked && ![account isEqualToString:message.from] && !message.isGroup)
                 {
                     [unreadMessages addObject:message];
                 }
