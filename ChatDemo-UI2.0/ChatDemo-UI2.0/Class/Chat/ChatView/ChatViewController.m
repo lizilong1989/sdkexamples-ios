@@ -808,6 +808,23 @@
 - (void)didFinishedReceiveOfflineMessages:(NSArray *)offlineMessages
 {
     [self loadMoreMessages];
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(_messageQueue, ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [weakSelf scrollViewToBottom:NO];
+        });
+    });
+}
+
+- (void)didReceiveOfflineMessages:(NSArray *)offlineMessages
+{
+    [self loadMoreMessages];
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(_messageQueue, ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [weakSelf scrollViewToBottom:NO];
+        });
+    });
 }
 
 - (void)group:(EMGroup *)group didLeave:(EMGroupLeaveReason)reason error:(EMError *)error
@@ -1116,7 +1133,7 @@
             });
 
             //从数据库导入时重新下载没有下载成功的附件
-            for (NSInteger i = 0; i < currentCount; i++)
+            for (NSInteger i = 0; i < [weakSelf.dataSource count] - currentCount; i++)
             {
                 id obj = weakSelf.dataSource[i];
                 if ([obj isKindOfClass:[MessageModel class]])
