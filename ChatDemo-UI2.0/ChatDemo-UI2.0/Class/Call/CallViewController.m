@@ -187,14 +187,14 @@
         
         //1.大窗口显示层
         _openGLView = [[OpenGLView20 alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
-        _openGLView.backgroundColor = [UIColor blueColor];
+        _openGLView.backgroundColor = [UIColor clearColor];
         [self.view addSubview:_openGLView];
         
         //2.小窗口视图
         CGFloat width = 80;
         CGFloat height = _openGLView.frame.size.height / _openGLView.frame.size.width * width;
         _smallView = [[UIView alloc] initWithFrame:CGRectMake(self.view.frame.size.width - 90, CGRectGetMaxY(_statusLabel.frame), width, height)];
-        _smallView.backgroundColor = [UIColor redColor];
+        _smallView.backgroundColor = [UIColor clearColor];
         [self.view addSubview:_smallView];
         
         //3.创建会话层
@@ -319,6 +319,78 @@
 
 #pragma mark AVCaptureVideoDataOutputSampleBufferDelegate
 
+void YUV420spRotate90(UInt8 *  dst, UInt8* src, int srcWidth, int srcHeight)
+{
+    static int nWidth = 0, nHeight = 0;
+    static int wh = 0;
+    static int uvHeight = 0;
+    if(srcWidth != nWidth || srcHeight != nHeight)
+    {
+        nWidth = srcWidth;
+        nHeight = srcHeight;
+        wh = srcWidth * srcHeight;
+        uvHeight = srcHeight >> 1;//uvHeight = height / 2
+    }
+    
+    //旋转Y
+    int k = 0;
+    for(int i = 0; i < srcWidth; i++) {
+        int nPos = 0;
+        for(int j = 0; j < srcHeight; j++) {
+            dst[k] = src[nPos + i];
+            k++;
+            nPos += srcWidth;
+        }
+    }
+    
+    for(int i = 0; i < srcWidth; i+=2){
+        int nPos = wh;
+        for(int j = 0; j < uvHeight; j++) {
+            dst[k] = src[nPos + i];
+            dst[k + 1] = src[nPos + i + 1];
+            k += 2;
+            nPos += srcWidth;
+        }
+    }
+    return;
+}
+
+void YUV42left2right(UInt8 *dst, const UInt8 *src, int srcWidth, int srcHeight) {
+    // int nWidth = 0, nHeight = 0;
+    int wh = 0;
+    int uvHeight = 0;
+    // if(srcWidth != nWidth || srcHeight != nHeight)
+    {
+        // nWidth = srcWidth;
+        // nHeight = srcHeight;
+        wh = srcWidth * srcHeight;
+        uvHeight = srcHeight >> 1;// uvHeight = height / 2
+    }
+    
+    // 转换Y
+    int k = 0;
+    int nPos = 0;
+    for (int i = 0; i < srcHeight; i++) {
+        nPos += srcWidth;
+        for (int j = 0; j < srcWidth; j++) {
+            dst[k] = src[nPos - j - 1];
+            k++;
+        }
+        
+    }
+    nPos = wh + srcWidth - 1;
+    for (int i = 0; i < uvHeight; i++) {
+        for (int j = 0; j < srcWidth; j += 2) {
+            dst[k] = src[nPos - j - 1];
+            dst[k + 1] = src[nPos - j];
+            k += 2;
+            
+        }
+        nPos += srcWidth;
+    }
+    return;
+}
+
 - (void)captureOutput:(AVCaptureOutput *)captureOutput
 didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
        fromConnection:(AVCaptureConnection *)connection
@@ -367,6 +439,8 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             pUV += bytesrow1;
         }
         
+        YUV420spRotate90(bufferPtr, _imageDataBuffer, width, height);
+        YUV42left2right(_imageDataBuffer, bufferPtr, height, width);
         [[EMSDKFull sharedInstance].callManager processPreviewData:(char *)_imageDataBuffer width:width height:height];
         
         /*We unlock the buffer*/

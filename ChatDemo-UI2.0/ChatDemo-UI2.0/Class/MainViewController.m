@@ -28,8 +28,6 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
     ContactsViewController *_contactsVC;
     SettingsViewController *_settingsVC;
     
-    EMCallSession *_callSession;
-    
     UIBarButtonItem *_addFriendItem;
 }
 
@@ -235,25 +233,21 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
     id object = notification.object;
     if ([object isKindOfClass:[NSDictionary class]]) {
         EMError *error = nil;
-        if (_callSession) {
-            error = [EMError errorWithCode:EMErrorServerTooManyOperations andDescription:@"正在进行通话"];
+        NSString *chatter = [object objectForKey:@"chatter"];
+        EMCallSessionType type = [[object objectForKey:@"type"] intValue];
+        EMCallSession *callSession = nil;
+        if (type == eCallSessionTypeAudio) {
+            callSession = [[EMSDKFull sharedInstance].callManager asyncMakeVoiceCall:chatter timeout:50 error:&error];
         }
-        else{
-            NSString *chatter = [object objectForKey:@"chatter"];
-            EMCallSessionType type = [[object objectForKey:@"type"] intValue];
-            if (type == eCallSessionTypeAudio) {
-                _callSession = [[EMSDKFull sharedInstance].callManager asyncMakeVoiceCall:chatter timeout:50 error:&error];
-            }
-            else if (type == eCallSessionTypeVideo){
-                _callSession = [[EMSDKFull sharedInstance].callManager asyncMakeVideoCall:chatter timeout:50 error:&error];
-            }
+        else if (type == eCallSessionTypeVideo){
+            callSession = [[EMSDKFull sharedInstance].callManager asyncMakeVideoCall:chatter timeout:50 error:&error];
+        }
+        
+        if (callSession && !error) {
+            [[EMSDKFull sharedInstance].callManager removeDelegate:self];
             
-            if (_callSession && !error) {
-                [[EMSDKFull sharedInstance].callManager removeDelegate:self];
-                
-                CallViewController *callController = [[CallViewController alloc] initWithSession:_callSession isIncoming:NO];
-                [self presentViewController:callController animated:YES completion:nil];
-            }
+            CallViewController *callController = [[CallViewController alloc] initWithSession:callSession isIncoming:NO];
+            [self presentViewController:callController animated:YES completion:nil];
         }
         
         if (error) {
@@ -265,7 +259,6 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
 
 - (void)callControllerClose:(NSNotification *)notification
 {
-    _callSession = nil;
     [[EMSDKFull sharedInstance].callManager addDelegate:self delegateQueue:nil];
 }
 
@@ -581,11 +574,7 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
         EMError *error = nil;
         BOOL isShowPicker = [[[NSUserDefaults standardUserDefaults] objectForKey:@"isShowPicker"] boolValue];
         
-        if (_callSession) {
-            error = [EMError errorWithCode:EMErrorServerTooManyOperations andDescription:@"正在进行通话"];
-        }
-        else if (!isShowPicker){
-            _callSession = callSession;
+        if (!isShowPicker){
             CallViewController *callController = [[CallViewController alloc] initWithSession:callSession isIncoming:YES];
             [self presentViewController:callController animated:YES completion:nil];
         }
