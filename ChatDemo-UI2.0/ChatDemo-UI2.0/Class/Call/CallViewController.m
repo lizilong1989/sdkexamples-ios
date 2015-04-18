@@ -319,19 +319,12 @@
 
 #pragma mark AVCaptureVideoDataOutputSampleBufferDelegate
 
-void YUV420spRotate90(UInt8 *  dst, UInt8* src, int srcWidth, int srcHeight)
+void YUV420spRotate90(UInt8 *  dst, UInt8* src, size_t srcWidth, size_t srcHeight)
 {
-    static int nWidth = 0, nHeight = 0;
-    static int wh = 0;
-    static int uvHeight = 0;
-    if(srcWidth != nWidth || srcHeight != nHeight)
-    {
-        nWidth = srcWidth;
-        nHeight = srcHeight;
-        wh = srcWidth * srcHeight;
-        uvHeight = srcHeight >> 1;//uvHeight = height / 2
-    }
-    
+    size_t wh = srcWidth * srcHeight;
+    size_t uvHeight = srcHeight >> 1;//uvHeight = height / 2
+    size_t uvWidth = srcWidth>>1;
+    size_t uvwh = wh>>2;
     //旋转Y
     int k = 0;
     for(int i = 0; i < srcWidth; i++) {
@@ -343,33 +336,28 @@ void YUV420spRotate90(UInt8 *  dst, UInt8* src, int srcWidth, int srcHeight)
         }
     }
     
-    for(int i = 0; i < srcWidth; i+=2){
+    for(int i = 0; i < uvWidth; i++) {
         int nPos = wh;
         for(int j = 0; j < uvHeight; j++) {
             dst[k] = src[nPos + i];
-            dst[k + 1] = src[nPos + i + 1];
-            k += 2;
-            nPos += srcWidth;
+            dst[k+uvwh] = src[nPos + i+uvwh];
+            k++;
+            nPos += uvWidth;
         }
     }
+    
     return;
 }
 
-void YUV42left2right(UInt8 *dst, const UInt8 *src, int srcWidth, int srcHeight) {
-    // int nWidth = 0, nHeight = 0;
-    int wh = 0;
-    int uvHeight = 0;
-    // if(srcWidth != nWidth || srcHeight != nHeight)
-    {
-        // nWidth = srcWidth;
-        // nHeight = srcHeight;
-        wh = srcWidth * srcHeight;
-        uvHeight = srcHeight >> 1;// uvHeight = height / 2
-    }
+void YUV42left2right(UInt8 *dst, const UInt8 *src, size_t srcWidth, size_t srcHeight) {
+    size_t wh = srcWidth * srcHeight;
+    size_t uvHeight = srcHeight >> 1;//uvHeight = height / 2
+    size_t uvWidth = srcWidth>>1;
+    size_t uvwh = wh>>2;
     
     // 转换Y
     int k = 0;
-    int nPos = 0;
+    size_t nPos = 0;
     for (int i = 0; i < srcHeight; i++) {
         nPos += srcWidth;
         for (int j = 0; j < srcWidth; j++) {
@@ -378,17 +366,16 @@ void YUV42left2right(UInt8 *dst, const UInt8 *src, int srcWidth, int srcHeight) 
         }
         
     }
-    nPos = wh + srcWidth - 1;
+    nPos = wh ;
     for (int i = 0; i < uvHeight; i++) {
-        for (int j = 0; j < srcWidth; j += 2) {
+        nPos += uvWidth;
+        for (int j = 0; j < uvWidth; j++) {
             dst[k] = src[nPos - j - 1];
-            dst[k + 1] = src[nPos - j];
-            k += 2;
-            
+            dst[k + uvwh] = src[nPos +uvwh - j - 1];
+            k++;
         }
-        nPos += srcWidth;
-    }
-    return;
+        
+    }    return;
 }
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput
