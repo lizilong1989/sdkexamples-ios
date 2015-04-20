@@ -37,6 +37,7 @@
 		3CBB931C1A14B227007FED9E /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CBB931B1A14B227007FED9E /* libsqlite3.dylib */; };
 		3CBF90C019302F5000AD68AE /* BaseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3CBF90BF19302F5000AD68AE /* BaseViewController.m */; };
 		3CE6293319A1B13700829632 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CE6293219A1B13700829632 /* CoreText.framework */; };
+		90011F921AE4BF090088D549 /* EMAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 90011F911AE4BF090088D549 /* EMAlertView.m */; };
 		9003D8681939D8D000DC38A4 /* ChatListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9003D7791939D8D000DC38A4 /* ChatListCell.m */; };
 		9003D8691939D8D000DC38A4 /* ChatListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9003D77B1939D8D000DC38A4 /* ChatListViewController.m */; };
 		9003D86E1939D8D000DC38A4 /* ChatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9003D7861939D8D000DC38A4 /* ChatViewController.m */; };
@@ -80,7 +81,6 @@
 		909110F0192EEAED008A48AA /* MBProgressHUD+Add.m in Sources */ = {isa = PBXBuildFile; fileRef = 90911086192EEAED008A48AA /* MBProgressHUD+Add.m */; };
 		909110F1192EEAED008A48AA /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 90911088192EEAED008A48AA /* MBProgressHUD.m */; };
 		90911117192EEAED008A48AA /* THProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 909110E0192EEAED008A48AA /* THProgressView.m */; };
-		90911118192EEAED008A48AA /* WCAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 909110E3192EEAED008A48AA /* WCAlertView.m */; };
 		90911119192EEAED008A48AA /* NSDate+Category.m in Sources */ = {isa = PBXBuildFile; fileRef = 909110E6192EEAED008A48AA /* NSDate+Category.m */; };
 		9091111A192EEAED008A48AA /* NSDateFormatter+Category.m in Sources */ = {isa = PBXBuildFile; fileRef = 909110E8192EEAED008A48AA /* NSDateFormatter+Category.m */; };
 		9091111B192EEAED008A48AA /* UIResponder+Router.m in Sources */ = {isa = PBXBuildFile; fileRef = 909110EA192EEAED008A48AA /* UIResponder+Router.m */; };
@@ -399,6 +399,8 @@
 		3CBF90BE19302F5000AD68AE /* BaseViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BaseViewController.h; sourceTree = "<group>"; };
 		3CBF90BF19302F5000AD68AE /* BaseViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BaseViewController.m; sourceTree = "<group>"; };
 		3CE6293219A1B13700829632 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
+		90011F901AE4BF090088D549 /* EMAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EMAlertView.h; sourceTree = "<group>"; };
+		90011F911AE4BF090088D549 /* EMAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EMAlertView.m; sourceTree = "<group>"; };
 		9003D7781939D8D000DC38A4 /* ChatListCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatListCell.h; sourceTree = "<group>"; };
 		9003D7791939D8D000DC38A4 /* ChatListCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChatListCell.m; sourceTree = "<group>"; };
 		9003D77A1939D8D000DC38A4 /* ChatListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatListViewController.h; sourceTree = "<group>"; };
@@ -485,8 +487,6 @@
 		90911088192EEAED008A48AA /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
 		909110DF192EEAED008A48AA /* THProgressView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = THProgressView.h; sourceTree = "<group>"; };
 		909110E0192EEAED008A48AA /* THProgressView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = THProgressView.m; sourceTree = "<group>"; };
-		909110E2192EEAED008A48AA /* WCAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WCAlertView.h; sourceTree = "<group>"; };
-		909110E3192EEAED008A48AA /* WCAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WCAlertView.m; sourceTree = "<group>"; };
 		909110E5192EEAED008A48AA /* NSDate+Category.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+Category.h"; sourceTree = "<group>"; };
 		909110E6192EEAED008A48AA /* NSDate+Category.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+Category.m"; sourceTree = "<group>"; };
 		909110E7192EEAED008A48AA /* NSDateFormatter+Category.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDateFormatter+Category.h"; sourceTree = "<group>"; };
@@ -915,6 +915,15 @@
 			path = ViewController;
 			sourceTree = "<group>";
 		};
+		90011F8F1AE4BF090088D549 /* EMAlertView */ = {
+			isa = PBXGroup;
+			children = (
+				90011F901AE4BF090088D549 /* EMAlertView.h */,
+				90011F911AE4BF090088D549 /* EMAlertView.m */,
+			);
+			path = EMAlertView;
+			sourceTree = "<group>";
+		};
 		9003D7761939D8D000DC38A4 /* Chat */ = {
 			isa = PBXGroup;
 			children = (
@@ -1176,6 +1185,7 @@
 		90911056192EEAED008A48AA /* 3rdparty */ = {
 			isa = PBXGroup;
 			children = (
+				90011F8F1AE4BF090088D549 /* EMAlertView */,
 				90A705A11A8B63B200376154 /* MWPhotoBrowser */,
 				909308B919604821005013BD /* Emoji */,
 				9003D9191939D9C300DC38A4 /* UMeng */,
@@ -1184,7 +1194,6 @@
 				90EF2CE4192F2B4E00BDC549 /* SlimeRefresh */,
 				90911084192EEAED008A48AA /* MBProgressHUD */,
 				909110DE192EEAED008A48AA /* THProgressView */,
-				909110E1192EEAED008A48AA /* WCAlertView */,
 			);
 			path = 3rdparty;
 			sourceTree = "<group>";
@@ -1207,15 +1216,6 @@
 				909110E0192EEAED008A48AA /* THProgressView.m */,
 			);
 			path = THProgressView;
-			sourceTree = "<group>";
-		};
-		909110E1192EEAED008A48AA /* WCAlertView */ = {
-			isa = PBXGroup;
-			children = (
-				909110E2192EEAED008A48AA /* WCAlertView.h */,
-				909110E3192EEAED008A48AA /* WCAlertView.m */,
-			);
-			path = WCAlertView;
 			sourceTree = "<group>";
 		};
 		909110E4192EEAED008A48AA /* Category */ = {
@@ -2050,6 +2050,7 @@
 				9003D8681939D8D000DC38A4 /* ChatListCell.m in Sources */,
 				909308BE19604821005013BD /* Emoji.m in Sources */,
 				905326B519333E8E00F064D7 /* TTGlobalUICommon.m in Sources */,
+				90011F921AE4BF090088D549 /* EMAlertView.m in Sources */,
 				90A705FC1A8B63B200376154 /* MWGridViewController.m in Sources */,
 				90A7060F1A8B63B200376154 /* UIImage+EMWebP.m in Sources */,
 				3C6BBA0619419EBD00A64684 /* EMRemarkImageView.m in Sources */,
@@ -2087,7 +2088,6 @@
 				283403091A9EBB8200B7DE9B /* GroupSubjectChangingViewController.m in Sources */,
 				9003D9151939D8D000DC38A4 /* ApplyFriendCell.m in Sources */,
 				3C6BBA091941A58C00A64684 /* XHMessageTextView.m in Sources */,
-				90911118192EEAED008A48AA /* WCAlertView.m in Sources */,
 				90133E611972D11000C49B56 /* NSString+Valid.m in Sources */,
 				9003D9161939D8D000DC38A4 /* ApplyViewController.m in Sources */,
 				90A706071A8B63B200376154 /* EMSDWebImageDownloaderOperation.m in Sources */,
