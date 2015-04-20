@@ -27,7 +27,6 @@
 #import "LocationViewController.h"
 #import "ChatGroupDetailViewController.h"
 #import "UIViewController+HUD.h"
-#import "WCAlertView.h"
 #import "NSDate+Category.h"
 #import "DXMessageToolBar.h"
 #import "DXChatBarMoreView.h"
@@ -1294,20 +1293,19 @@
     }
     else{
         __weak typeof(self) weakSelf = self;
-        [WCAlertView showAlertWithTitle:NSLocalizedString(@"prompt", @"Prompt")
+        
+        [EMAlertView showAlertWithTitle:NSLocalizedString(@"prompt", @"Prompt")
                                 message:NSLocalizedString(@"sureToDelete", @"please make sure to delete")
-                     customizationBlock:^(WCAlertView *alertView) {
-                         
-                     } completionBlock:
-         ^(NSUInteger buttonIndex, WCAlertView *alertView) {
-             if (buttonIndex == 1) {
-                 [weakSelf.conversation removeAllMessages];
-                 [weakSelf.messages removeAllObjects];
-                 weakSelf.chatTagDate = nil;
-                 [weakSelf.dataSource removeAllObjects];
-                 [weakSelf.tableView reloadData];
-             }
-         } cancelButtonTitle:NSLocalizedString(@"cancel", @"Cancel") otherButtonTitles:NSLocalizedString(@"ok", @"OK"), nil];
+                        completionBlock:^(NSUInteger buttonIndex, EMAlertView *alertView) {
+                            if (buttonIndex == 1) {
+                                [weakSelf.conversation removeAllMessages];
+                                [weakSelf.messages removeAllObjects];
+                                weakSelf.chatTagDate = nil;
+                                [weakSelf.dataSource removeAllObjects];
+                                [weakSelf.tableView reloadData];
+                            }
+                        } cancelButtonTitle:NSLocalizedString(@"cancel", @"Cancel")
+                      otherButtonTitles:NSLocalizedString(@"ok", @"OK"), nil];
     }
 }
 

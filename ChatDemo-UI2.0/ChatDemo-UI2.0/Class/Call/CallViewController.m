@@ -42,9 +42,10 @@
         [self.view addGestureRecognizer:self.tapRecognizer];
         [self.view bringSubviewToFront:_topView];
         [self.view bringSubviewToFront:_actionView];
-        
+        /*
 #warning 要提前设置视频通话对方图像的显示区域
         _callSession.displayView = _openGLView;
+         */
     }
     
     if (_isIncoming) {
@@ -224,7 +225,7 @@
                                   [NSNumber numberWithInt: 352], (id)kCVPixelBufferWidthKey,
                                   [NSNumber numberWithInt: 288], (id)kCVPixelBufferHeightKey,
                                   nil];
-        
+        /*
         captureOutput.videoSettings = settings;
         captureOutput.minFrameDuration = CMTimeMake(1, 15);
         captureOutput.alwaysDiscardsLateVideoFrames = YES;
@@ -238,6 +239,7 @@
         _smallCaptureLayer.frame = CGRectMake(0, 0, width, height);
         _smallCaptureLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
         [_smallView.layer addSublayer:_smallCaptureLayer];
+         */
     }
 }
 

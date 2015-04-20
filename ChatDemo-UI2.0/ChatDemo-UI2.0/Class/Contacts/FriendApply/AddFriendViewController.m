@@ -1,14 +1,14 @@
 /************************************************************
-  *  * EaseMob CONFIDENTIAL 
-  * __________________ 
-  * Copyright (C) 2013-2014 EaseMob Technologies. All rights reserved. 
-  *  
-  * NOTICE: All information contained herein is, and remains 
-  * the property of EaseMob Technologies.
-  * Dissemination of this information or reproduction of this material 
-  * is strictly forbidden unless prior written permission is obtained
-  * from EaseMob Technologies.
-  */
+ *  * EaseMob CONFIDENTIAL
+ * __________________
+ * Copyright (C) 2013-2014 EaseMob Technologies. All rights reserved.
+ *
+ * NOTICE: All information contained herein is, and remains
+ * the property of EaseMob Technologies.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from EaseMob Technologies.
+ */
 
 #import "AddFriendViewController.h"
 
@@ -16,7 +16,6 @@
 #import "UIViewController+HUD.h"
 #import "AddFriendCell.h"
 #import "InvitationManager.h"
-#import "WCAlertView.h"
 
 @interface AddFriendViewController ()<UITextFieldDelegate, UIAlertViewDelegate>
 
@@ -43,7 +42,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view.
+    // Do any additional setup after loading the view.
     if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)])
     {
         [self setEdgesForExtendedLayout:UIRectEdgeNone];
@@ -158,24 +157,23 @@
     NSString *buddyName = [self.dataSource objectAtIndex:indexPath.row];
     if ([self didBuddyExist:buddyName]) {
         NSString *message = [NSString stringWithFormat:NSLocalizedString(@"friend.repeat", @"'%@'has been your friend!"), buddyName];
-        [WCAlertView showAlertWithTitle:message
+        
+        [EMAlertView showAlertWithTitle:message
                                 message:nil
-                     customizationBlock:nil
                         completionBlock:nil
                       cancelButtonTitle:NSLocalizedString(@"ok", @"OK")
-                      otherButtonTitles: nil];
+                      otherButtonTitles:nil];
         
     }
     else if([self hasSendBuddyRequest:buddyName])
     {
         NSString *message = [NSString stringWithFormat:NSLocalizedString(@"friend.repeatApply", @"you have send fridend request to '%@'!"), buddyName];
-        [WCAlertView showAlertWithTitle:message
+        [EMAlertView showAlertWithTitle:message
                                 message:nil
-                     customizationBlock:nil
                         completionBlock:nil
                       cancelButtonTitle:NSLocalizedString(@"ok", @"OK")
-                      otherButtonTitles: nil];
-
+                      otherButtonTitles:nil];
+        
     }else{
         [self showMessageAlertView];
     }
@@ -256,7 +254,11 @@
 
 - (void)showMessageAlertView
 {
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:NSLocalizedString(@"saySomething", @"say somthing") delegate:self cancelButtonTitle:NSLocalizedString(@"cancel", @"Cancel") otherButtonTitles:NSLocalizedString(@"ok", @"OK"), nil];
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil
+                                                    message:NSLocalizedString(@"saySomething", @"say somthing")
+                                                   delegate:self
+                                          cancelButtonTitle:NSLocalizedString(@"cancel", @"Cancel")
+                                          otherButtonTitles:NSLocalizedString(@"ok", @"OK"), nil];
     [alert setAlertViewStyle:UIAlertViewStylePlainTextInput];
     [alert show];
 }

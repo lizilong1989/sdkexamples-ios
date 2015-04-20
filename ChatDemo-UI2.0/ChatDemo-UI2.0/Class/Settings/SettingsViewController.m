@@ -16,7 +16,6 @@
 #import "PushNotificationViewController.h"
 #import "BlackListViewController.h"
 #import "DebugViewController.h"
-#import "WCAlertView.h"
 
 @interface SettingsViewController ()
 
