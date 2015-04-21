@@ -260,6 +260,10 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
 
 - (void)callControllerClose:(NSNotification *)notification
 {
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+    [audioSession setCategory:AVAudioSessionCategoryPlayback error:nil];
+    [audioSession setActive:YES error:nil];
+ 
     [[EMSDKFull sharedInstance].callManager addDelegate:self delegateQueue:nil];
 }
 
