@@ -247,6 +247,7 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
             [[EMSDKFull sharedInstance].callManager removeDelegate:self];
             
             CallViewController *callController = [[CallViewController alloc] initWithSession:callSession isIncoming:NO];
+            callController.modalPresentationStyle = UIModalPresentationOverFullScreen;
             [self presentViewController:callController animated:YES completion:nil];
         }
         
@@ -576,6 +577,7 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
         
         if (!isShowPicker){
             CallViewController *callController = [[CallViewController alloc] initWithSession:callSession isIncoming:YES];
+            callController.modalPresentationStyle = UIModalPresentationOverFullScreen;
             [self presentViewController:callController animated:YES completion:nil];
         }
         
