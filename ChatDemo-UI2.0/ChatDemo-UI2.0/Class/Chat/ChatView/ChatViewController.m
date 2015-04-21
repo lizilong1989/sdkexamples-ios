@@ -906,11 +906,15 @@
 
 - (void)moreViewAudioCallAction:(DXChatBarMoreView *)moreView
 {
+    // 隐藏键盘
+    [self keyBoardHidden];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"callOutWithChatter" object:@{@"chatter":self.chatter, @"type":[NSNumber numberWithInt:eCallSessionTypeAudio]}];
 }
 
 - (void)moreViewVideoCallAction:(DXChatBarMoreView *)moreView
 {
+    // 隐藏键盘
+    [self keyBoardHidden];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"callOutWithChatter" object:@{@"chatter":self.chatter, @"type":[NSNumber numberWithInt:eCallSessionTypeVideo]}];
 }
 

@@ -6,6 +6,8 @@
 //  Copyright (c) 2015年 dhc. All rights reserved.
 //
 
+#import <CoreTelephony/CTCallCenter.h>
+#import <CoreTelephony/CTCall.h>
 #import "CallViewController.h"
 
 #define kAlertViewTag_Close 100
@@ -24,6 +26,21 @@
         _chatter = session.sessionChatter;
         
         [[EMSDKFull sharedInstance].callManager addDelegate:self delegateQueue:nil];
+        
+        g_callCenter = [[CTCallCenter alloc] init];
+        g_callCenter.callEventHandler=^(CTCall* call)
+        {
+            if(call.callState == CTCallStateIncoming)
+            {
+                NSLog(@"Call is incoming");
+                [_timeTimer invalidate];
+                [self _stopRing];
+                
+                [[EMSDKFull sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Hangup];
+                [self _close];
+            }
+        };
+
     }
     
     return self;
@@ -42,10 +59,9 @@
         [self.view addGestureRecognizer:self.tapRecognizer];
         [self.view bringSubviewToFront:_topView];
         [self.view bringSubviewToFront:_actionView];
-        /*
+        
 #warning 要提前设置视频通话对方图像的显示区域
         _callSession.displayView = _openGLView;
-         */
     }
     
     if (_isIncoming) {
@@ -108,7 +124,7 @@
     [self.view addSubview:bgImageView];
     
     _topView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 150)];
-    _topView.backgroundColor = [UIColor colorWithWhite:0.5 alpha:0.3];
+    _topView.backgroundColor = [UIColor clearColor];
     [self.view addSubview:_topView];
     
     _statusLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 20, _topView.frame.size.width - 20, 20)];
@@ -138,7 +154,7 @@
     [_topView addSubview:_nameLabel];
     
     _actionView = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height - 180, self.view.frame.size.width, 180)];
-    _actionView.backgroundColor = [UIColor colorWithWhite:0.5 alpha:0.3];
+    _actionView.backgroundColor = [UIColor clearColor];
     [self.view addSubview:_actionView];
 
     CGFloat tmpWidth = _actionView.frame.size.width / 2;
@@ -225,7 +241,7 @@
                                   [NSNumber numberWithInt: 352], (id)kCVPixelBufferWidthKey,
                                   [NSNumber numberWithInt: 288], (id)kCVPixelBufferHeightKey,
                                   nil];
-        /*
+        
         captureOutput.videoSettings = settings;
         captureOutput.minFrameDuration = CMTimeMake(1, 15);
         captureOutput.alwaysDiscardsLateVideoFrames = YES;
@@ -239,7 +255,6 @@
         _smallCaptureLayer.frame = CGRectMake(0, 0, width, height);
         _smallCaptureLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
         [_smallView.layer addSublayer:_smallCaptureLayer];
-         */
     }
 }
 

@@ -9,6 +9,8 @@
 #import <AVFoundation/AVFoundation.h>
 #import <UIKit/UIKit.h>
 
+static CTCallCenter *g_callCenter;
+
 @interface CallViewController : UIViewController<UIAlertViewDelegate, EMCallManagerDelegate, AVCaptureVideoDataOutputSampleBufferDelegate>
 {
     NSTimer *_timeTimer;

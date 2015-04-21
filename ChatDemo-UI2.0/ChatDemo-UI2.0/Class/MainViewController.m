@@ -17,7 +17,7 @@
 #import "ContactsViewController.h"
 #import "SettingsViewController.h"
 #import "ApplyViewController.h"
-//#import "CallViewController.h"
+#import "CallViewController.h"
 
 //两次提示的默认间隔
 static const CGFloat kDefaultPlaySoundInterval = 3.0;
@@ -245,10 +245,9 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
         
         if (callSession && !error) {
             [[EMSDKFull sharedInstance].callManager removeDelegate:self];
-            /*
+            
             CallViewController *callController = [[CallViewController alloc] initWithSession:callSession isIncoming:NO];
             [self presentViewController:callController animated:YES completion:nil];
-             */
         }
         
         if (error) {
@@ -574,12 +573,12 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
     {
         EMError *error = nil;
         BOOL isShowPicker = [[[NSUserDefaults standardUserDefaults] objectForKey:@"isShowPicker"] boolValue];
-        /*
+        
         if (!isShowPicker){
             CallViewController *callController = [[CallViewController alloc] initWithSession:callSession isIncoming:YES];
             [self presentViewController:callController animated:YES completion:nil];
         }
-        */
+        
         if (error || isShowPicker) {
             EMCallStatusChangedReason reason = error ? eCallReason_Busy : eCallReason_Hangup;
             [[EMSDKFull sharedInstance].callManager asyncEndCall:callSession.sessionId reason:reason];
