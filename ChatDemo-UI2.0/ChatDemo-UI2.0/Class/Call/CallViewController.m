@@ -90,6 +90,10 @@
     [_timeTimer invalidate];
     _timeTimer = nil;
     
+    [_smallCaptureLayer removeFromSuperlayer];
+    _smallCaptureLayer = nil;
+    _smallView = nil;
+    
     [_session stopRunning];
     _session = nil;
     
