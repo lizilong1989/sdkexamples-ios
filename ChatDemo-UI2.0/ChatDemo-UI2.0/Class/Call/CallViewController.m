@@ -315,9 +315,16 @@
 - (void)_close
 {
     [self hideHud];
-    [_session stopRunning];
+    
     [_timeTimer invalidate];
     _timeTimer = nil;
+    
+    [_smallCaptureLayer removeFromSuperlayer];
+    _smallCaptureLayer = nil;
+    _smallView = nil;
+    
+    [_session stopRunning];
+    _session = nil;
     
     [[NSNotificationCenter defaultCenter] postNotificationName:@"callControllerClose" object:nil];
     [self dismissViewControllerAnimated:YES completion:nil];
@@ -498,7 +505,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     {
         _statusLabel.text = @"可以通话了...";
         _timeLength = 0;
-        _timeTimer =  [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(timeTimerAction:) userInfo:nil repeats:YES];
+        _timeTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(timeTimerAction:) userInfo:nil repeats:YES];
 
         if(_isIncoming)
         {
