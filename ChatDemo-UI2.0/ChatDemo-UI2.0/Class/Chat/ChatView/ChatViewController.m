@@ -1127,7 +1127,6 @@
         
         NSArray *messages = [weakSelf.conversation loadNumbersOfMessages:([weakSelf.messages count] + KPageCount) before:timestamp];
         if ([messages count] > 0) {
-            NSInteger newMessagesCount = [messages count] - [weakSelf.messages count];
             weakSelf.messages = [messages mutableCopy];
             
             NSInteger currentCount = [weakSelf.dataSource count];
@@ -1139,7 +1138,7 @@
             });
 
             //从数据库导入时重新下载没有下载成功的附件
-            for (NSInteger i = 0; i < [weakSelf.dataSource count] - currentCount; i++)
+            for (NSInteger i = 0; i < [weakSelf.dataSource count]; i++)
             {
                 id obj = weakSelf.dataSource[i];
                 if ([obj isKindOfClass:[MessageModel class]])
@@ -1150,7 +1149,7 @@
 
             NSString *account = [[EaseMob sharedInstance].chatManager loginInfo][kSDKUsername];
             NSMutableArray *unreadMessages = [NSMutableArray array];
-            for (NSInteger i = 0; i < newMessagesCount; i++)
+            for (NSInteger i = 0; i < [messages count]; i++)
             {
                 EMMessage *message = messages[i];
                 if (!message.isReadAcked && ![account isEqualToString:message.from] && !message.isGroup)
