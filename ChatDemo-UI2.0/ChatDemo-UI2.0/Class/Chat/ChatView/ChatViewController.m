@@ -521,6 +521,11 @@
     
     // 播放音频
     if (model.type == eMessageBodyType_Voice) {
+        //发送已读回执
+        if ([self shouldAckMessage:model.message read:YES])
+        {
+            [self sendHasReadResponseForMessages:@[model.message]];
+        }
         __weak ChatViewController *weakSelf = self;
         BOOL isPrepare = [self.messageReadManager prepareMessageAudioModel:model updateViewCompletion:^(MessageModel *prevAudioModel, MessageModel *currentAudioModel) {
             if (prevAudioModel || currentAudioModel) {
@@ -564,6 +569,11 @@
         NSString *localPath = model.message == nil ? model.localPath : [[model.message.messageBodies firstObject] localPath];
         if (localPath && localPath.length > 0)
         {
+            //发送已读回执
+            if ([self shouldAckMessage:model.message read:YES])
+            {
+                [self sendHasReadResponseForMessages:@[model.message]];
+            }
             [self playVideoWithVideoPath:localPath];
             return;
         }
@@ -575,6 +585,11 @@
     [chatManager asyncFetchMessage:model.message progress:nil completion:^(EMMessage *aMessage, EMError *error) {
         [weakSelf hideHud];
         if (!error) {
+            //发送已读回执
+            if ([weakSelf shouldAckMessage:model.message read:YES])
+            {
+                [weakSelf sendHasReadResponseForMessages:@[model.message]];
+            }
             NSString *localPath = aMessage == nil ? model.localPath : [[aMessage.messageBodies firstObject] localPath];
             if (localPath && localPath.length > 0) {
                 [weakSelf playVideoWithVideoPath:localPath];
@@ -605,6 +620,11 @@
         if (imageBody.thumbnailDownloadStatus == EMAttachmentDownloadSuccessed) {
             if (imageBody.attachmentDownloadStatus == EMAttachmentDownloadSuccessed)
             {
+                //发送已读回执
+                if ([self shouldAckMessage:model.message read:YES])
+                {
+                    [self sendHasReadResponseForMessages:@[model.message]];
+                }
                 NSString *localPath = model.message == nil ? model.localPath : [[model.message.messageBodies firstObject] localPath];
                 if (localPath && localPath.length > 0) {
                     UIImage *image = [UIImage imageWithContentsOfFile:localPath];
@@ -624,6 +644,11 @@
             [chatManager asyncFetchMessage:model.message progress:nil completion:^(EMMessage *aMessage, EMError *error) {
                 [weakSelf hideHud];
                 if (!error) {
+                    //发送已读回执
+                    if ([weakSelf shouldAckMessage:model.message read:YES])
+                    {
+                        [weakSelf sendHasReadResponseForMessages:@[model.message]];
+                    }
                     NSString *localPath = aMessage == nil ? model.localPath : [[aMessage.messageBodies firstObject] localPath];
                     if (localPath && localPath.length > 0) {
                         UIImage *image = [UIImage imageWithContentsOfFile:localPath];
@@ -763,7 +788,7 @@
 {
     if ([_conversation.chatter isEqualToString:message.conversationChatter]) {
         [self addMessage:message];
-        if (!message.isGroup)
+        if ([self shouldAckMessage:message read:NO])
         {
             [self sendHasReadResponseForMessages:@[message]];
         }
@@ -1147,12 +1172,11 @@
                 }
             }
 
-            NSString *account = [[EaseMob sharedInstance].chatManager loginInfo][kSDKUsername];
             NSMutableArray *unreadMessages = [NSMutableArray array];
             for (NSInteger i = 0; i < [messages count]; i++)
             {
                 EMMessage *message = messages[i];
-                if (!message.isReadAcked && ![account isEqualToString:message.from] && !message.isGroup)
+                if ([self shouldAckMessage:message read:NO])
                 {
                     [unreadMessages addObject:message];
                 }
@@ -1359,6 +1383,28 @@
     
     // 设置当前conversation的所有message为已读
     [_conversation markAllMessagesAsRead:YES];
+}
+
+- (BOOL)shouldAckMessage:(EMMessage *)message read:(BOOL)read
+{
+    NSString *account = [[EaseMob sharedInstance].chatManager loginInfo][kSDKUsername];
+    if (message.isGroup || message.isReadAcked || [account isEqualToString:message.from])
+    {
+        return NO;
+    }
+
+    id<IEMMessageBody> body = [message.messageBodies firstObject];
+    if (((body.messageBodyType == eMessageBodyType_Video) ||
+        (body.messageBodyType == eMessageBodyType_Voice) ||
+        (body.messageBodyType == eMessageBodyType_Image)) &&
+        !read)
+    {
+        return NO;
+    }
+    else
+    {
+        return YES;
+    }
 }
 
 #pragma mark - send message

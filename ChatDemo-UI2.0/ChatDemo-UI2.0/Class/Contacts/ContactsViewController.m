@@ -557,7 +557,7 @@
     NSArray *buddyList = [[EaseMob sharedInstance].chatManager buddyList];
     NSArray *blockList = [[EaseMob sharedInstance].chatManager blockedList];
     for (EMBuddy *buddy in buddyList) {
-        if ((buddy.followState != eEMBuddyFollowState_NotFollowed) && ![blockList containsObject:buddy.username]) {
+        if (![blockList containsObject:buddy.username]) {
             [self.contactsSource addObject:buddy];
         }
     }
