@@ -356,54 +356,22 @@ void YUV420spRotate90(UInt8 *  dst, UInt8* src, size_t srcWidth, size_t srcHeigh
     //旋转Y
     int k = 0;
     for(int i = 0; i < srcWidth; i++) {
-        int nPos = 0;
+        int nPos = wh-srcWidth;
         for(int j = 0; j < srcHeight; j++) {
             dst[k] = src[nPos + i];
             k++;
-            nPos += srcWidth;
+            nPos -= srcWidth;
         }
     }
-    
     for(int i = 0; i < uvWidth; i++) {
-        int nPos = wh;
+        int nPos = wh+uvwh-uvWidth;
         for(int j = 0; j < uvHeight; j++) {
             dst[k] = src[nPos + i];
             dst[k+uvwh] = src[nPos + i+uvwh];
             k++;
-            nPos += uvWidth;
+            nPos -= uvWidth;
         }
     }
-    
-    return;
-}
-
-void YUV42left2right(UInt8 *dst, const UInt8 *src, size_t srcWidth, size_t srcHeight) {
-    size_t wh = srcWidth * srcHeight;
-    size_t uvHeight = srcHeight >> 1;//uvHeight = height / 2
-    size_t uvWidth = srcWidth>>1;
-    size_t uvwh = wh>>2;
-    
-    // 转换Y
-    int k = 0;
-    size_t nPos = 0;
-    for (int i = 0; i < srcHeight; i++) {
-        nPos += srcWidth;
-        for (int j = 0; j < srcWidth; j++) {
-            dst[k] = src[nPos - j - 1];
-            k++;
-        }
-        
-    }
-    nPos = wh ;
-    for (int i = 0; i < uvHeight; i++) {
-        nPos += uvWidth;
-        for (int j = 0; j < uvWidth; j++) {
-            dst[k] = src[nPos - j - 1];
-            dst[k + uvwh] = src[nPos +uvwh - j - 1];
-            k++;
-        }
-        
-    }    return;
 }
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput
@@ -455,8 +423,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         }
         
         YUV420spRotate90(bufferPtr, _imageDataBuffer, width, height);
-        YUV42left2right(_imageDataBuffer, bufferPtr, height, width);
-        [[EMSDKFull sharedInstance].callManager processPreviewData:(char *)_imageDataBuffer width:width height:height];
+        [[EMSDKFull sharedInstance].callManager processPreviewData:(char *)bufferPtr width:width height:height];
         
         /*We unlock the buffer*/
         CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
