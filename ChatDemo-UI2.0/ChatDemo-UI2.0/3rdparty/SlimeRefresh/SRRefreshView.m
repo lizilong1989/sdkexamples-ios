@@ -14,7 +14,7 @@
 @interface SRRefreshView()
 
 @property (nonatomic, assign)   BOOL    broken;
-@property (nonatomic, strong)   UIScrollView    *scrollView;
+@property (nonatomic, weak)   UIScrollView    *scrollView;
 
 @end
 

@@ -15,7 +15,7 @@
     #import <Foundation/Foundation.h>
 
     #import "ChatDemoUIDefine.h"
-    #import "WCAlertView.h"
+    #import "EMAlertView.h"
     #import "TTGlobalUICommon.h"
     #import "UIViewController+HUD.h"
     #import "UIViewController+DismissKeyboard.h"

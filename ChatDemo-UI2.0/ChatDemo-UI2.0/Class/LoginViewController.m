@@ -222,12 +222,11 @@
     NSString *password = _passwordTextField.text;
     if (username.length == 0 || password.length == 0) {
         ret = YES;
-        [WCAlertView showAlertWithTitle:NSLocalizedString(@"prompt", @"Prompt")
+        [EMAlertView showAlertWithTitle:NSLocalizedString(@"prompt", @"Prompt")
                                 message:NSLocalizedString(@"login.inputNameAndPswd", @"Please enter username and password")
-                     customizationBlock:nil
                         completionBlock:nil
                       cancelButtonTitle:NSLocalizedString(@"ok", @"OK")
-                      otherButtonTitles: nil];
+                      otherButtonTitles:nil];
     }
     
     return ret;

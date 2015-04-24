@@ -176,21 +176,23 @@
             case 0:
             {
                 needReload = NO;
-                [WCAlertView showAlertWithTitle:NSLocalizedString(@"prompt", @"Prompt")
+                [EMAlertView showAlertWithTitle:NSLocalizedString(@"prompt", @"Prompt")
                                         message:NSLocalizedString(@"setting.sureNotDisturb", @"this setting will cause all day in the don't disturb mode, will no longer receive push messages. Whether or not to continue?")
-                             customizationBlock:^(WCAlertView *alertView) {
-                             } completionBlock:^(NSUInteger buttonIndex, WCAlertView *alertView) {
-                                 switch (buttonIndex) {
-                                     case 0: {
-                                     } break;
-                                     default: {
-                                         self->_noDisturbingStart = 0;
-                                         self->_noDisturbingEnd = 24;
-                                         self->_noDisturbingStatus = ePushNotificationNoDisturbStatusDay;
-                                         [tableView reloadData];
-                                     } break;
-                                 }
-                             } cancelButtonTitle:NSLocalizedString(@"no", @"NO") otherButtonTitles:NSLocalizedString(@"yes", @"YES"), nil];
+                                completionBlock:^(NSUInteger buttonIndex, EMAlertView *alertView) {
+                                    switch (buttonIndex) {
+                                        case 0: {
+                                        } break;
+                                        default: {
+                                            self->_noDisturbingStart = 0;
+                                            self->_noDisturbingEnd = 24;
+                                            self->_noDisturbingStatus = ePushNotificationNoDisturbStatusDay;
+                                            [tableView reloadData];
+                                        } break;
+                                    }
+                                    
+                                } cancelButtonTitle:NSLocalizedString(@"no", @"NO")
+                              otherButtonTitles:NSLocalizedString(@"yes", @"YES"), nil];
+                
             } break;
             case 1:
             {

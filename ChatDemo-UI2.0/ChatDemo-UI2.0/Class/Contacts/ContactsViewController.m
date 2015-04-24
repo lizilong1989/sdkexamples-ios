@@ -23,7 +23,7 @@
 #import "GroupListViewController.h"
 #import "ChatViewController.h"
 
-@interface ContactsViewController ()<UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate, UISearchDisplayDelegate, UIActionSheetDelegate, BaseTableCellDelegate, SRRefreshDelegate>
+@interface ContactsViewController ()<UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate, UISearchDisplayDelegate, UIActionSheetDelegate, BaseTableCellDelegate, SRRefreshDelegate, IChatManagerDelegate>
 {
     NSIndexPath *_currentLongPressIndex;
 }
@@ -51,6 +51,7 @@
         _dataSource = [NSMutableArray array];
         _contactsSource = [NSMutableArray array];
         _sectionTitles = [NSMutableArray array];
+        [[EaseMob sharedInstance].chatManager addDelegate:self delegateQueue:nil];
     }
     return self;
 }
@@ -80,6 +81,10 @@
     [self reloadApplyView];
 }
 
+- (void)dealloc
+{
+    [[EaseMob sharedInstance].chatManager removeDelegate:self];
+}
 #pragma mark - getter
 
 - (UISearchBar *)searchBar
@@ -431,15 +436,23 @@
 {
     if (buttonIndex != actionSheet.cancelButtonIndex && _currentLongPressIndex) {
         EMBuddy *buddy = [[self.dataSource objectAtIndex:(_currentLongPressIndex.section - 1)] objectAtIndex:_currentLongPressIndex.row];
-        [self.tableView beginUpdates];
-        [[self.dataSource objectAtIndex:(_currentLongPressIndex.section - 1)] removeObjectAtIndex:_currentLongPressIndex.row];
-        [self.contactsSource removeObject:buddy];
-        [self.tableView  deleteRowsAtIndexPaths:[NSArray arrayWithObject:_currentLongPressIndex] withRowAnimation:UITableViewRowAnimationFade];
-        [self.tableView  endUpdates];
-        
-        [[EaseMob sharedInstance].chatManager blockBuddy:buddy.username relationship:eRelationshipBoth];
+        [self hideHud];
+        [self showHudInView:self.view hint:NSLocalizedString(@"wait", @"Pleae wait...")];
+
+        __weak typeof(self) weakSelf = self;
+        [[EaseMob sharedInstance].chatManager asyncBlockBuddy:buddy.username relationship:eRelationshipBoth withCompletion:^(NSString *username, EMError *error){
+            typeof(weakSelf) strongSelf = weakSelf;
+            [strongSelf hideHud];
+            if (!error)
+            {
+                //由于加入黑名单成功后会刷新黑名单，所以此处不需要再更改好友列表
+            }
+            else
+            {
+                [strongSelf showHint:error.description];
+            }
+        } onQueue:nil];
     }
-    
     _currentLongPressIndex = nil;
 }
 
@@ -480,7 +493,7 @@
     {
         return;
     }
-    
+
     _currentLongPressIndex = indexPath;
     UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"cancel", @"Cancel") destructiveButtonTitle:NSLocalizedString(@"friend.block", @"join the blacklist") otherButtonTitles:nil, nil];
     [actionSheet showInView:[[UIApplication sharedApplication] keyWindow]];
@@ -542,8 +555,9 @@
     [self.contactsSource removeAllObjects];
     
     NSArray *buddyList = [[EaseMob sharedInstance].chatManager buddyList];
+    NSArray *blockList = [[EaseMob sharedInstance].chatManager blockedList];
     for (EMBuddy *buddy in buddyList) {
-        if (buddy.followState != eEMBuddyFollowState_NotFollowed) {
+        if (![blockList containsObject:buddy.username]) {
             [self.contactsSource addObject:buddy];
         }
     }
@@ -596,5 +610,10 @@
     [self.navigationController pushViewController:addController animated:YES];
 }
 
+#pragma mark - EMChatManagerBuddyDelegate
+- (void)didUpdateBlockedList:(NSArray *)blockedList
+{
+    [self reloadDataSource];
+}
 
 @end
