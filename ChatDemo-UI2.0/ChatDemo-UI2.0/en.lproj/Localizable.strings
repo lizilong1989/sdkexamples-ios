@@ -11,6 +11,7 @@
 "logout" = "Logout";
 "password" = "Password";
 "username" = "Username";
+"confirmpassword"="Confirm password";
 
 "sure" = "OK";
 "yes" = "YES";
@@ -68,6 +69,7 @@
 "register.fail" = "Registration failed";
 "register.success" = "Registered successfully, please log in";
 "register.repeat" = "You registered user already exists!";
+"register.confirmPassword" = "The two input password does not match, please input again";
 
 //apns
 "apns.failToRegisterApns" = "Fail to register apns";
@@ -124,6 +126,8 @@
 "group.create.occupantJoinPermissions" = "members join permissions";
 "group.create.open" = "random join";
 "group.create.needApply" = "you need administrator agreed to join the group";
+"group.create.group" = "Create a group";
+"group.create.join" = "Join public group";
 
 //Group Bans
 "group.ban.removing" = "members are removing from the blacklist...";
@@ -228,6 +232,12 @@
 "setting.sdkVersion" = "SDK version";
 "setting.uploading" = "uploading...";
 "setting.uploadSuccess" = "uploaded successfully";
+"setting.editName" = "Edit NickName";
+"setting.inputName" = "Please input nickname";
+"setting.saveName" = "Save Nickname";
+"setting.namenotempty" = "Name cannot be empty";
+"setting.edittips" = "After setting this nickname, chat with the iOS client demo project, iOS will display this nickname is not a EaseMob ID, if the other party to use the Android client this setting is not effective";
+"setting.iospushname" = "iOS push nickname";
 
 //NSDateCategory
 "NSDateCategory.text1" = "one minute";
