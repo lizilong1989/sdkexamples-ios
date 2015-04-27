@@ -16,6 +16,7 @@
 #import "PushNotificationViewController.h"
 #import "BlackListViewController.h"
 #import "DebugViewController.h"
+#import "EditNicknameViewController.h"
 
 @interface SettingsViewController ()
 
@@ -125,7 +126,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return 6;
+    return 7;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -169,6 +170,9 @@
             cell.accessoryType = UITableViewCellAccessoryNone;
             self.delConversationSwitch.frame = CGRectMake(self.tableView.frame.size.width - (self.delConversationSwitch.frame.size.width + 10), (cell.contentView.frame.size.height - self.delConversationSwitch.frame.size.height) / 2, self.delConversationSwitch.frame.size.width, self.delConversationSwitch.frame.size.height);
             [cell.contentView addSubview:self.delConversationSwitch];
+        } else if (indexPath.row == 6){
+            cell.textLabel.text = NSLocalizedString(@"setting.iospushname", @"iOS push nickname");
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         }
 //        else if (indexPath.row == 3)
 //        {
@@ -208,6 +212,9 @@
     {
         DebugViewController *debugController = [[DebugViewController alloc] initWithStyle:UITableViewStylePlain];
         [self.navigationController pushViewController:debugController animated:YES];
+    } else if (indexPath.row == 6) {
+        EditNicknameViewController *editName = [[EditNicknameViewController alloc] initWithNibName:nil bundle:nil];
+        [self.navigationController pushViewController:editName animated:YES];
     }
 }
 
@@ -224,7 +231,7 @@
         [_footerView addSubview:line];
         
         UIButton *logoutButton = [[UIButton alloc] initWithFrame:CGRectMake(40, 20, _footerView.frame.size.width - 80, 40)];
-        [logoutButton setBackgroundColor:[UIColor colorWithRed:191 / 255.0 green:48 / 255.0 blue:49 / 255.0 alpha:1.0]];
+        [logoutButton setBackgroundColor:RGBACOLOR(0xfe, 0x64, 0x50, 1)];
         NSDictionary *loginInfo = [[EaseMob sharedInstance].chatManager loginInfo];
         NSString *username = [loginInfo objectForKey:kSDKUsername];
         NSString *logoutButtonTitle = [[NSString alloc] initWithFormat:NSLocalizedString(@"setting.loginUser", @"log out(%@)"), username];

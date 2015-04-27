@@ -195,6 +195,7 @@
             
             return;
         }
+        /*
 #if !TARGET_IPHONE_SIMULATOR
         //弹出提示
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:NSLocalizedString(@"login.inputApnsNickname", @"Please enter nickname for apns") delegate:self cancelButtonTitle:NSLocalizedString(@"cancel", @"Cancel") otherButtonTitles:NSLocalizedString(@"ok", @"OK"), nil];
@@ -205,6 +206,8 @@
 #elif TARGET_IPHONE_SIMULATOR
         [self loginWithUsername:_usernameTextField.text password:_passwordTextField.text];
 #endif
+         */
+        [self loginWithUsername:_usernameTextField.text password:_passwordTextField.text];
     }
 }
 

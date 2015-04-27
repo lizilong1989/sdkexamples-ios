@@ -291,7 +291,7 @@
         _tableView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
         _tableView.delegate = self;
         _tableView.dataSource = self;
-        _tableView.backgroundColor = [UIColor lightGrayColor];
+        _tableView.backgroundColor = RGBACOLOR(248, 248, 248, 1);
         _tableView.tableFooterView = [[UIView alloc] init];
         _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
         
@@ -312,7 +312,7 @@
         
         ChatMoreType type = _isChatGroup == YES ? ChatMoreTypeGroupChat : ChatMoreTypeChat;
         _chatToolBar.moreView = [[DXChatBarMoreView alloc] initWithFrame:CGRectMake(0, (kVerticalPadding * 2 + kInputTextViewMinHeight), _chatToolBar.frame.size.width, 80) typw:type];
-        _chatToolBar.moreView.backgroundColor = [UIColor lightGrayColor];
+        _chatToolBar.moreView.backgroundColor = RGBACOLOR(240, 242, 247, 1);
         _chatToolBar.moreView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
     }
     
