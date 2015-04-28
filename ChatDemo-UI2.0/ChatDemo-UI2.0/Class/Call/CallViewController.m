@@ -319,6 +319,7 @@
 
 - (void)_close
 {
+    [[EMSDKFull sharedInstance].callManager removeDelegate:self];
     [self hideHud];
     
     [_timeTimer invalidate];
@@ -466,10 +467,10 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
                 str = @"取消通话";
             }
             else if (reason == eCallReason_Reject){
-                str = @"对方取消通话";
+                str = @"拒接通话";
             }
             else if (reason == eCallReason_Busy){
-                str = @"对方正在通话中";
+                str = @"正在通话中";
             }
         }
         [self _insertMessageWithStr:str];
