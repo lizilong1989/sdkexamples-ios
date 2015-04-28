@@ -25,6 +25,7 @@
         _timeLength = 0;
         _chatter = session.sessionChatter;
         
+//        [[EMSDKFull sharedInstance].callManager removeDelegate:self];
         [[EMSDKFull sharedInstance].callManager addDelegate:self delegateQueue:nil];
         
         g_callCenter = [[CTCallCenter alloc] init];
@@ -82,26 +83,40 @@
 
 - (void)dealloc
 {
-    [[EMSDKFull sharedInstance].callManager removeDelegate:self];
+//    [[EMSDKFull sharedInstance].callManager removeDelegate:self];
     
-    [_session stopRunning];
-    [_session removeInput:_captureInput];
-    [_session removeOutput:_captureOutput];
-    _session = nil;
     
-    [_ringPlayer stop];
-    _ringPlayer = nil;
+    if (_session) {
+        [_session stopRunning];
+        [_session removeInput:_captureInput];
+        [_session removeOutput:_captureOutput];
+        _session = nil;
+    }
     
-    [_timeTimer invalidate];
-    _timeTimer = nil;
+    if (_ringPlayer) {
+        [_ringPlayer stop];
+        _ringPlayer = nil;
+    }
     
-    [_smallCaptureLayer removeFromSuperlayer];
-    _smallCaptureLayer = nil;
-    _smallView = nil;
+    if (_timeTimer) {
+        [_timeTimer invalidate];
+        _timeTimer = nil;
+    }
     
-    _openGLView = nil;
+    if (_smallView) {
+        [_smallCaptureLayer removeFromSuperlayer];
+        _smallCaptureLayer = nil;
+        _smallView = nil;
+    }
     
-    free(_imageDataBuffer);
+    if (_openGLView) {
+        _openGLView = nil;
+    }
+    
+    if (_imageDataBuffer) {
+        free(_imageDataBuffer);
+        _imageDataBuffer = nil;
+    }
 }
 
 #pragma makr - property
@@ -319,7 +334,6 @@
 
 - (void)_close
 {
-    [[EMSDKFull sharedInstance].callManager removeDelegate:self];
     [self hideHud];
     
     [_timeTimer invalidate];
@@ -334,6 +348,7 @@
     _smallCaptureLayer = nil;
     _smallView = nil;
     
+    [[EMSDKFull sharedInstance].callManager removeDelegate:self];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"callControllerClose" object:nil];
     [self dismissViewControllerAnimated:YES completion:nil];
 }
@@ -522,7 +537,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [self showHint:@"拒接通话..."];
     
     [[EMSDKFull sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Reject];
-    [self _close];
+//    [self _close];
 }
 
 - (void)answerAction
@@ -540,7 +555,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [self showHint:@"正在结束通话..."];
     
     [[EMSDKFull sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Hangup];
-    [self _close];
+//    [self _close];
 }
 
 @end
