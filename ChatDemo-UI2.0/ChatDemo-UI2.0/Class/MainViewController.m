@@ -580,7 +580,7 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
         BOOL isShowPicker = [[[NSUserDefaults standardUserDefaults] objectForKey:@"isShowPicker"] boolValue];
         
 #warning 在后台不能进行视频通话
-        if([[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground){
+        if(callSession.type == eCallSessionTypeVideo && [[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground){
             error = [EMError errorWithCode:EMErrorInitFailure andDescription:@"后台不能进行视频通话"];
         }
         else if (!isShowPicker){
