@@ -457,6 +457,16 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
             changedBuddies:(NSArray *)changedBuddies
                      isAdd:(BOOL)isAdd
 {
+    if (!isAdd)
+    {
+        NSMutableArray *deletedBuddies = [NSMutableArray array];
+        for (EMBuddy *buddy in changedBuddies)
+        {
+            [deletedBuddies addObject:buddy.username];
+        }
+        [[EaseMob sharedInstance].chatManager removeConversationsByChatters:deletedBuddies deleteMessages:YES append2Chat:YES];
+        [_chatListVC refreshDataSource];
+    }
     [_contactsVC reloadDataSource];
 }
 
