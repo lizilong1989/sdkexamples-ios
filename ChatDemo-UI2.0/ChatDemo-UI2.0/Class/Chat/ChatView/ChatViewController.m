@@ -880,6 +880,18 @@
     }
 }
 
+#pragma mark - IChatManagerDelegate 登录状态变化
+
+- (void)didLoginFromOtherDevice
+{
+    [self.imagePicker stopVideoCapture];
+}
+
+- (void)didRemovedFromServer
+{
+    [self.imagePicker stopVideoCapture];
+}
+
 #pragma mark - EMChatBarMoreViewDelegate
 
 - (void)moreViewPhotoAction:(DXChatBarMoreView *)moreView

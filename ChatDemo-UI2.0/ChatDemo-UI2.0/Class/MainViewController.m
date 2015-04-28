@@ -579,15 +579,18 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
         EMError *error = nil;
         BOOL isShowPicker = [[[NSUserDefaults standardUserDefaults] objectForKey:@"isShowPicker"] boolValue];
         
-        if (!isShowPicker){
+#warning 在后台不能进行视频通话
+        if([[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground){
+            error = [EMError errorWithCode:EMErrorInitFailure andDescription:@"后台不能进行视频通话"];
+        }
+        else if (!isShowPicker){
             CallViewController *callController = [[CallViewController alloc] initWithSession:callSession isIncoming:YES];
             callController.modalPresentationStyle = UIModalPresentationOverFullScreen;
             [self presentViewController:callController animated:YES completion:nil];
         }
         
         if (error || isShowPicker) {
-            EMCallStatusChangedReason reason = error ? eCallReason_Busy : eCallReason_Hangup;
-            [[EMSDKFull sharedInstance].callManager asyncEndCall:callSession.sessionId reason:reason];
+            [[EMSDKFull sharedInstance].callManager asyncEndCall:callSession.sessionId reason:eCallReason_Hangup];
         }
     }
 }
