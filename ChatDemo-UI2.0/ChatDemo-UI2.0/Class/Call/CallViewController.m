@@ -84,6 +84,11 @@
 {
     [[EMSDKFull sharedInstance].callManager removeDelegate:self];
     
+    [_session stopRunning];
+    [_session removeInput:_captureInput];
+    [_session removeOutput:_captureOutput];
+    _session = nil;
+    
     [_ringPlayer stop];
     _ringPlayer = nil;
     
@@ -94,8 +99,7 @@
     _smallCaptureLayer = nil;
     _smallView = nil;
     
-    [_session stopRunning];
-    _session = nil;
+    _openGLView = nil;
     
     free(_imageDataBuffer);
 }
@@ -204,62 +208,59 @@
 
 - (void)_initializeCamera
 {
-    if (_smallView == nil) {
-        
-        //1.大窗口显示层
-        _openGLView = [[OpenGLView20 alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
-        _openGLView.backgroundColor = [UIColor clearColor];
-        [self.view addSubview:_openGLView];
-        
-        //2.小窗口视图
-        CGFloat width = 80;
-        CGFloat height = _openGLView.frame.size.height / _openGLView.frame.size.width * width;
-        _smallView = [[UIView alloc] initWithFrame:CGRectMake(self.view.frame.size.width - 90, CGRectGetMaxY(_statusLabel.frame), width, height)];
-        _smallView.backgroundColor = [UIColor clearColor];
-        [self.view addSubview:_smallView];
-        
-        //3.创建会话层
-        _session = [[AVCaptureSession alloc] init];
-        [_session setSessionPreset:_openGLView.sessionPreset];
-        
-        //4.创建、配置输入设备
-        AVCaptureDevice *device;
-        NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
-        for (AVCaptureDevice *tmp in devices)
+    //1.大窗口显示层
+    _openGLView = [[OpenGLView20 alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
+    _openGLView.backgroundColor = [UIColor clearColor];
+    [self.view addSubview:_openGLView];
+    
+    //2.小窗口视图
+    CGFloat width = 80;
+    CGFloat height = _openGLView.frame.size.height / _openGLView.frame.size.width * width;
+    _smallView = [[UIView alloc] initWithFrame:CGRectMake(self.view.frame.size.width - 90, CGRectGetMaxY(_statusLabel.frame), width, height)];
+    _smallView.backgroundColor = [UIColor clearColor];
+    [self.view addSubview:_smallView];
+    
+    //3.创建会话层
+    _session = [[AVCaptureSession alloc] init];
+    [_session setSessionPreset:_openGLView.sessionPreset];
+    
+    //4.创建、配置输入设备
+    AVCaptureDevice *device;
+    NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+    for (AVCaptureDevice *tmp in devices)
+    {
+        if (tmp.position == AVCaptureDevicePositionFront)
         {
-            if (tmp.position == AVCaptureDevicePositionFront)
-            {
-                device = tmp;
-                break;
-            }
+            device = tmp;
+            break;
         }
-        
-        AVCaptureDeviceInput *captureInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:nil];
-        [_session beginConfiguration];
-        [_session addInput:captureInput];
-        
-        //5.创建、配置输出
-        AVCaptureVideoDataOutput *captureOutput = [[AVCaptureVideoDataOutput alloc] init];
-        NSDictionary *settings = [[NSDictionary alloc] initWithObjectsAndKeys:
-                                  [NSNumber numberWithUnsignedInt:kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange], kCVPixelBufferPixelFormatTypeKey,
-                                  [NSNumber numberWithInt: 352], (id)kCVPixelBufferWidthKey,
-                                  [NSNumber numberWithInt: 288], (id)kCVPixelBufferHeightKey,
-                                  nil];
-        
-        captureOutput.videoSettings = settings;
-        captureOutput.minFrameDuration = CMTimeMake(1, 15);
-        captureOutput.alwaysDiscardsLateVideoFrames = YES;
-        dispatch_queue_t outQueue = dispatch_queue_create("com.gh.cecall", NULL);
-        [captureOutput setSampleBufferDelegate:self queue:outQueue];
-        [_session addOutput:captureOutput];
-        [_session commitConfiguration];
-        
-        //6.小窗口显示层
-        _smallCaptureLayer = [AVCaptureVideoPreviewLayer layerWithSession:_session];
-        _smallCaptureLayer.frame = CGRectMake(0, 0, width, height);
-        _smallCaptureLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
-        [_smallView.layer addSublayer:_smallCaptureLayer];
     }
+    
+    _captureInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:nil];
+    [_session beginConfiguration];
+    [_session addInput:_captureInput];
+    
+    //5.创建、配置输出
+    _captureOutput = [[AVCaptureVideoDataOutput alloc] init];
+    NSDictionary *settings = [[NSDictionary alloc] initWithObjectsAndKeys:
+                              [NSNumber numberWithUnsignedInt:kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange], kCVPixelBufferPixelFormatTypeKey,
+                              [NSNumber numberWithInt: 352], (id)kCVPixelBufferWidthKey,
+                              [NSNumber numberWithInt: 288], (id)kCVPixelBufferHeightKey,
+                              nil];
+    
+    _captureOutput.videoSettings = settings;
+    _captureOutput.minFrameDuration = CMTimeMake(1, 15);
+    _captureOutput.alwaysDiscardsLateVideoFrames = YES;
+    dispatch_queue_t outQueue = dispatch_queue_create("com.gh.cecall", NULL);
+    [captureOutput setSampleBufferDelegate:self queue:outQueue];
+    [_session addOutput:_captureOutput];
+    [_session commitConfiguration];
+    
+    //6.小窗口显示层
+    _smallCaptureLayer = [AVCaptureVideoPreviewLayer layerWithSession:_session];
+    _smallCaptureLayer.frame = CGRectMake(0, 0, width, height);
+    _smallCaptureLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+    [_smallView.layer addSublayer:_smallCaptureLayer];
 }
 
 #pragma mark - ring
@@ -323,12 +324,14 @@
     [_timeTimer invalidate];
     _timeTimer = nil;
     
+    [_session stopRunning];
+    [_session removeInput:_captureInput];
+    [_session removeOutput:_captureOutput];
+    _session = nil;
+    
     [_smallCaptureLayer removeFromSuperlayer];
     _smallCaptureLayer = nil;
     _smallView = nil;
-    
-    [_session stopRunning];
-    _session = nil;
     
     [[NSNotificationCenter defaultCenter] postNotificationName:@"callControllerClose" object:nil];
     [self dismissViewControllerAnimated:YES completion:nil];

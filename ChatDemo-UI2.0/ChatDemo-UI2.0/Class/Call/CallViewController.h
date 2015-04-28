@@ -26,6 +26,8 @@ static CTCallCenter *g_callCenter;
     OpenGLView20 *_openGLView;
     AVCaptureVideoPreviewLayer *_smallCaptureLayer;
     AVCaptureSession *_session;
+    AVCaptureVideoDataOutput *_captureOutput;
+    AVCaptureDeviceInput *_captureInput;
     
     UIView *_actionView;
     UIButton *_silenceButton;
