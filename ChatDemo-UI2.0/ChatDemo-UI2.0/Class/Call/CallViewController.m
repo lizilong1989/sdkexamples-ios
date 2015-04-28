@@ -252,7 +252,7 @@
     _captureOutput.minFrameDuration = CMTimeMake(1, 15);
     _captureOutput.alwaysDiscardsLateVideoFrames = YES;
     dispatch_queue_t outQueue = dispatch_queue_create("com.gh.cecall", NULL);
-    [captureOutput setSampleBufferDelegate:self queue:outQueue];
+    [_captureOutput setSampleBufferDelegate:self queue:outQueue];
     [_session addOutput:_captureOutput];
     [_session commitConfiguration];
     
