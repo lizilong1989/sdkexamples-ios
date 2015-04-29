@@ -132,7 +132,7 @@
              //设置是否自动登录
              [[EaseMob sharedInstance].chatManager setIsAutoLoginEnabled:YES];
              
-             //将旧版的coredata数据导入新的数据库
+             //将2.1.0版本旧版的coredata数据导入新的数据库
              EMError *error = [[EaseMob sharedInstance].chatManager importDataToNewDatabase];
              if (!error) {
                  error = [[EaseMob sharedInstance].chatManager loadDataFromDatabase];

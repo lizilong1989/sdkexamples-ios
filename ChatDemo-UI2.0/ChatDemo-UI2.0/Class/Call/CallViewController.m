@@ -12,6 +12,12 @@
 
 #define kAlertViewTag_Close 100
 
+@interface CallViewController (){
+    NSString * _audioCategory;
+}
+
+@end
+
 @implementation CallViewController
 
 - (instancetype)initWithSession:(EMCallSession *)session
@@ -25,6 +31,7 @@
         _timeLength = 0;
         _chatter = session.sessionChatter;
         
+//        [[EMSDKFull sharedInstance].callManager removeDelegate:self];
         [[EMSDKFull sharedInstance].callManager addDelegate:self delegateQueue:nil];
         
         g_callCenter = [[CTCallCenter alloc] init];
@@ -82,26 +89,37 @@
 
 - (void)dealloc
 {
-    [[EMSDKFull sharedInstance].callManager removeDelegate:self];
+    if (_session) {
+        [_session stopRunning];
+        [_session removeInput:_captureInput];
+        [_session removeOutput:_captureOutput];
+        _session = nil;
+    }
     
-    [_session stopRunning];
-    [_session removeInput:_captureInput];
-    [_session removeOutput:_captureOutput];
-    _session = nil;
+    if (_ringPlayer) {
+        [_ringPlayer stop];
+        _ringPlayer = nil;
+    }
     
-    [_ringPlayer stop];
-    _ringPlayer = nil;
+    if (_timeTimer) {
+        [_timeTimer invalidate];
+        _timeTimer = nil;
+    }
     
-    [_timeTimer invalidate];
-    _timeTimer = nil;
+    if (_smallView) {
+        [_smallCaptureLayer removeFromSuperlayer];
+        _smallCaptureLayer = nil;
+        _smallView = nil;
+    }
     
-    [_smallCaptureLayer removeFromSuperlayer];
-    _smallCaptureLayer = nil;
-    _smallView = nil;
+    if (_openGLView) {
+        _openGLView = nil;
+    }
     
-    _openGLView = nil;
-    
-    free(_imageDataBuffer);
+    if (_imageDataBuffer) {
+        free(_imageDataBuffer);
+        _imageDataBuffer = nil;
+    }
 }
 
 #pragma makr - property
@@ -319,7 +337,6 @@
 
 - (void)_close
 {
-    [[EMSDKFull sharedInstance].callManager removeDelegate:self];
     [self hideHud];
     
     [_timeTimer invalidate];
@@ -334,6 +351,9 @@
     _smallCaptureLayer = nil;
     _smallView = nil;
     
+    [_openGLView removeFromSuperview];
+    
+    [[EMSDKFull sharedInstance].callManager removeDelegate:self];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"callControllerClose" object:nil];
     [self dismissViewControllerAnimated:YES completion:nil];
 }
@@ -508,10 +528,18 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 - (void)silenceAction
 {
     _silenceButton.selected = !_silenceButton.selected;
+    [[EMSDKFull sharedInstance].callManager markCallSession:_callSession.sessionId asSilence:_silenceButton.selected];
 }
 
 - (void)speakerOutAction
 {
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+    if (_speakerOutButton.selected) {
+        [audioSession overrideOutputAudioPort:AVAudioSessionPortOverrideNone error:nil];
+    }else {
+        [audioSession overrideOutputAudioPort:AVAudioSessionPortOverrideSpeaker error:nil];
+    }
+    [audioSession setActive:YES error:nil];
     _speakerOutButton.selected = !_speakerOutButton.selected;
 }
 
@@ -522,13 +550,17 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [self showHint:@"拒接通话..."];
     
     [[EMSDKFull sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Reject];
-    [self _close];
+//    [self _close];
 }
 
 - (void)answerAction
 {
     [self showHint:@"正在初始化通话..."];
     [self _stopRing];
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+    _audioCategory = audioSession.category;
+    [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+    [audioSession setActive:YES error:nil];
     
     [[EMSDKFull sharedInstance].callManager asyncAnswerCall:_callSession.sessionId];
 }
@@ -538,9 +570,12 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [_timeTimer invalidate];
     [self _stopRing];
     [self showHint:@"正在结束通话..."];
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+    [audioSession setCategory:_audioCategory error:nil];
+    [audioSession setActive:YES error:nil];
     
     [[EMSDKFull sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Hangup];
-    [self _close];
+//    [self _close];
 }
 
 @end

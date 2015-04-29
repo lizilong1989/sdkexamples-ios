@@ -27,6 +27,7 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
     ChatListViewController *_chatListVC;
     ContactsViewController *_contactsVC;
     SettingsViewController *_settingsVC;
+//    __weak CallViewController *_callController;
     
     UIBarButtonItem *_addFriendItem;
 }
@@ -246,9 +247,11 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
         if (callSession && !error) {
             [[EMSDKFull sharedInstance].callManager removeDelegate:self];
             
+//            _callController = nil;
             CallViewController *callController = [[CallViewController alloc] initWithSession:callSession isIncoming:NO];
             callController.modalPresentationStyle = UIModalPresentationOverFullScreen;
-            [self presentViewController:callController animated:YES completion:nil];
+//            _callController = callController;
+            [self presentViewController:callController animated:NO completion:nil];
         }
         
         if (error) {
@@ -260,6 +263,10 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
 
 - (void)callControllerClose:(NSNotification *)notification
 {
+//    [_callController dismissViewControllerAnimated:NO completion:nil];
+//    [[EMSDKFull sharedInstance].callManager removeDelegate:_callController];
+//    _callController = nil;
+    
     AVAudioSession *audioSession = [AVAudioSession sharedInstance];
     [audioSession setCategory:AVAudioSessionCategoryPlayback error:nil];
     [audioSession setActive:YES error:nil];
@@ -589,15 +596,21 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
         EMError *error = nil;
         BOOL isShowPicker = [[[NSUserDefaults standardUserDefaults] objectForKey:@"isShowPicker"] boolValue];
         
-        if (!isShowPicker){
+#warning 在后台不能进行视频通话
+        if(callSession.type == eCallSessionTypeVideo && [[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground){
+            error = [EMError errorWithCode:EMErrorInitFailure andDescription:@"后台不能进行视频通话"];
+        }
+        else if (!isShowPicker){
+            [[EMSDKFull sharedInstance].callManager removeDelegate:self];
+//            _callController = nil;
             CallViewController *callController = [[CallViewController alloc] initWithSession:callSession isIncoming:YES];
             callController.modalPresentationStyle = UIModalPresentationOverFullScreen;
-            [self presentViewController:callController animated:YES completion:nil];
+//            _callController = callController;
+            [self presentViewController:callController animated:NO completion:nil];
         }
         
         if (error || isShowPicker) {
-            EMCallStatusChangedReason reason = error ? eCallReason_Busy : eCallReason_Hangup;
-            [[EMSDKFull sharedInstance].callManager asyncEndCall:callSession.sessionId reason:reason];
+            [[EMSDKFull sharedInstance].callManager asyncEndCall:callSession.sessionId reason:eCallReason_Hangup];
         }
     }
 }

@@ -880,6 +880,22 @@
     }
 }
 
+#pragma mark - IChatManagerDelegate 登录状态变化
+
+- (void)didLoginFromOtherDevice
+{
+    if ([self.imagePicker.mediaTypes count] > 0 && [[self.imagePicker.mediaTypes objectAtIndex:0] isEqualToString:(NSString *)kUTTypeMovie]) {
+        [self.imagePicker stopVideoCapture];
+    }
+}
+
+- (void)didRemovedFromServer
+{
+    if ([self.imagePicker.mediaTypes count] > 0 && [[self.imagePicker.mediaTypes objectAtIndex:0] isEqualToString:(NSString *)kUTTypeMovie]) {
+        [self.imagePicker stopVideoCapture];
+    }
+}
+
 #pragma mark - EMChatBarMoreViewDelegate
 
 - (void)moreViewPhotoAction:(DXChatBarMoreView *)moreView
@@ -1056,6 +1072,8 @@
         }];
         [self sendImageMessage:orgImage];
     }
+    
+    self.imagePicker.mediaTypes = nil;
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
