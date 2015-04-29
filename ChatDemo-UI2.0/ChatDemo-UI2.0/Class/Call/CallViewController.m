@@ -527,6 +527,13 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 - (void)speakerOutAction
 {
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+    if (_speakerOutButton.selected) {
+        [audioSession overrideOutputAudioPort:AVAudioSessionPortOverrideNone error:nil];
+    }else {
+        [audioSession overrideOutputAudioPort:AVAudioSessionPortOverrideSpeaker error:nil];
+    }
+    [audioSession setActive:YES error:nil];
     _speakerOutButton.selected = !_speakerOutButton.selected;
 }
 
@@ -544,6 +551,10 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 {
     [self showHint:@"正在初始化通话..."];
     [self _stopRing];
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+    self.audioCategory = audioSession.category;
+    [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+    [audioSession setActive:YES error:nil];
     
     [[EMSDKFull sharedInstance].callManager asyncAnswerCall:_callSession.sessionId];
 }
@@ -553,6 +564,9 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [_timeTimer invalidate];
     [self _stopRing];
     [self showHint:@"正在结束通话..."];
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+    [audioSession setCategory:self.audioCategory error:nil];
+    [audioSession setActive:YES error:nil];
     
     [[EMSDKFull sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Hangup];
 //    [self _close];
