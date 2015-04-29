@@ -884,12 +884,16 @@
 
 - (void)didLoginFromOtherDevice
 {
-    [self.imagePicker stopVideoCapture];
+    if ([self.imagePicker.mediaTypes count] > 0 && [[self.imagePicker.mediaTypes objectAtIndex:0] isEqualToString:(NSString *)kUTTypeMovie]) {
+        [self.imagePicker stopVideoCapture];
+    }
 }
 
 - (void)didRemovedFromServer
 {
-    [self.imagePicker stopVideoCapture];
+    if ([self.imagePicker.mediaTypes count] > 0 && [[self.imagePicker.mediaTypes objectAtIndex:0] isEqualToString:(NSString *)kUTTypeMovie]) {
+        [self.imagePicker stopVideoCapture];
+    }
 }
 
 #pragma mark - EMChatBarMoreViewDelegate
@@ -1068,6 +1072,8 @@
         }];
         [self sendImageMessage:orgImage];
     }
+    
+    self.imagePicker.mediaTypes = nil;
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
