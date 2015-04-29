@@ -12,6 +12,12 @@
 
 #define kAlertViewTag_Close 100
 
+@interface CallViewController (){
+    NSString * _audioCategory;
+}
+
+@end
+
 @implementation CallViewController
 
 - (instancetype)initWithSession:(EMCallSession *)session
@@ -552,7 +558,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [self showHint:@"正在初始化通话..."];
     [self _stopRing];
     AVAudioSession *audioSession = [AVAudioSession sharedInstance];
-    self.audioCategory = audioSession.category;
+    _audioCategory = audioSession.category;
     [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
     [audioSession setActive:YES error:nil];
     
@@ -565,7 +571,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [self _stopRing];
     [self showHint:@"正在结束通话..."];
     AVAudioSession *audioSession = [AVAudioSession sharedInstance];
-    [audioSession setCategory:self.audioCategory error:nil];
+    [audioSession setCategory:_audioCategory error:nil];
     [audioSession setActive:YES error:nil];
     
     [[EMSDKFull sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Hangup];
