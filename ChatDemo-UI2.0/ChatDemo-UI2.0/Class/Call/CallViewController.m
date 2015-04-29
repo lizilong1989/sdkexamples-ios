@@ -89,9 +89,6 @@
 
 - (void)dealloc
 {
-//    [[EMSDKFull sharedInstance].callManager removeDelegate:self];
-    
-    
     if (_session) {
         [_session stopRunning];
         [_session removeInput:_captureInput];
@@ -354,6 +351,8 @@
     _smallCaptureLayer = nil;
     _smallView = nil;
     
+    [_openGLView removeFromSuperview];
+    
     [[EMSDKFull sharedInstance].callManager removeDelegate:self];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"callControllerClose" object:nil];
     [self dismissViewControllerAnimated:YES completion:nil];
@@ -529,6 +528,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 - (void)silenceAction
 {
     _silenceButton.selected = !_silenceButton.selected;
+    [[EMSDKFull sharedInstance].callManager markCallSession:_callSession.sessionId asSilence:_silenceButton.selected];
 }
 
 - (void)speakerOutAction
