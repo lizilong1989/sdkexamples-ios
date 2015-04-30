@@ -1072,8 +1072,6 @@
         }];
         [self sendImageMessage:orgImage];
     }
-    
-    self.imagePicker.mediaTypes = nil;
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
