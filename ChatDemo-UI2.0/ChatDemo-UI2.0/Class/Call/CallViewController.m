@@ -528,10 +528,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 - (void)silenceAction
 {
     _silenceButton.selected = !_silenceButton.selected;
-#warning 记得改掉, 打开注释啊
-    // todo
-    // commented by jifang@2015/04/30, temporarily skip the line below to avoid build break.
-    //[[EMSDKFull sharedInstance].callManager markCallSession:_callSession.sessionId asSilence:_silenceButton.selected];
+    [[EMSDKFull sharedInstance].callManager markCallSession:_callSession.sessionId asSilence:_silenceButton.selected];
 }
 
 - (void)speakerOutAction
