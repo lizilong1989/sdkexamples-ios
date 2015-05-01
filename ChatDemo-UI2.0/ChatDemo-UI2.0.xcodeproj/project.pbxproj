@@ -2666,7 +2666,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/ChatDemo-UI2.0/3rdparty",
 					"$(PROJECT_DIR)/ChatDemo-UI2.0/3rdparty/UMeng",
-					"$(PROJECT_DIR)/EaseMobSDK/lib",
+					"$(PROJECT_DIR)/../EaseMobSDK/lib",
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";
@@ -2707,7 +2707,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/ChatDemo-UI2.0/3rdparty",
 					"$(PROJECT_DIR)/ChatDemo-UI2.0/3rdparty/UMeng",
-					"$(PROJECT_DIR)/EaseMobSDK/lib",
+					"$(PROJECT_DIR)/../EaseMobSDK/lib",
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";
