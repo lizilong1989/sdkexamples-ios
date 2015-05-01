@@ -42,10 +42,16 @@ cp -r ${TARGET_DIR} ${ROOT}/${PAYLOAD}
 ## make ipa
 zip -r ${ROOT}/${TARGET_NAME}.zip ${ROOT}/${PAYLOAD}
 mv ${ROOT}/${TARGET_NAME}.zip ${ROOT}/${DIST}/${TARGET_NAME}.ipa
-cp -r ${TARGET_DIR}.dSYM ${ROOT}/${DIST}/${TARGET_NAME}.app.dSYM
-# delete Payload directory
+
+## zip dSYM
+cp -r ${TARGET_DIR}.dSYM ${ROOT}/${DIST}/${TARGET_NAME}.dSYM
+zip -r ${ROOT}/${DIST}/${TARGET_NAME}.dSYM.zip ${ROOT}/${DIST}/${TARGET_NAME}.dSYM
+rm -rf ${ROOT}/${DIST}/${TARGET_NAME}.dSYM
+
+## delete Payload directory
 rm -rf ${ROOT}/${PAYLOAD}
-# write version info
+
+## write version info
 GIT_REVISION="`git rev-list HEAD -n 1`"
 GIT_BRANCH="`git rev-parse --abbrev-ref HEAD`"
 VERSION_INFO="`date '+%Y%m%d'`_`date '+%H%M%S'`_${GIT_BRANCH}_${GIT_REVISION}"
