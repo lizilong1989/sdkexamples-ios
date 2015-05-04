@@ -49,7 +49,6 @@
 }
 
 @property (nonatomic) BOOL isChatGroup;
-@property (strong, nonatomic) NSString *chatter;
 
 @property (strong, nonatomic) NSMutableArray *dataSource;//tableView数据源
 @property (strong, nonatomic) SRRefreshView *slimeView;

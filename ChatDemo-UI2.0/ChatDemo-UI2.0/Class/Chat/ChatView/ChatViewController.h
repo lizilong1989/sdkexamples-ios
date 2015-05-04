@@ -13,6 +13,7 @@
 #import <UIKit/UIKit.h>
 
 @interface ChatViewController : UIViewController
+@property (strong, nonatomic, readonly) NSString *chatter;
 
 - (instancetype)initWithChatter:(NSString *)chatter isGroup:(BOOL)isGroup;
 
