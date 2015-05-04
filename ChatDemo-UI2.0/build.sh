@@ -56,4 +56,4 @@ GIT_REVISION="`git rev-list HEAD -n 1`"
 GIT_BRANCH="`git rev-parse --abbrev-ref HEAD`"
 VERSION_INFO="`date '+%Y%m%d'`_`date '+%H%M%S'`_${GIT_BRANCH}_${GIT_REVISION}"
 touch ${ROOT}/${DIST}/${VERSION_INFO}.txt
-
+echo "Version Information: " ${VERSION_INFO}
