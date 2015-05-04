@@ -18,6 +18,7 @@
 #import "SettingsViewController.h"
 #import "ApplyViewController.h"
 #import "CallViewController.h"
+#import "ChatViewController.h"
 
 //两次提示的默认间隔
 static const CGFloat kDefaultPlaySoundInterval = 3.0;
@@ -460,6 +461,29 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
     [_contactsVC reloadApplyView];
 }
 
+- (void)_removeBuddies:(NSArray *)userNames
+{
+    [[EaseMob sharedInstance].chatManager removeConversationsByChatters:userNames deleteMessages:YES append2Chat:YES];
+    [_chatListVC refreshDataSource];
+    
+    NSMutableArray *viewControllers = [NSMutableArray arrayWithArray:self.navigationController.viewControllers];
+    ChatViewController *chatViewContrller = nil;
+    for (id viewController in viewControllers)
+    {
+        if ([viewController isKindOfClass:[ChatViewController class]] && [userNames containsObject:[(ChatViewController *)viewController chatter]])
+        {
+            chatViewContrller = viewController;
+            break;
+        }
+    }
+    if (chatViewContrller)
+    {
+        [viewControllers removeObject:chatViewContrller];
+        [self.navigationController setViewControllers:viewControllers animated:YES];
+    }
+    [self showHint:[NSString stringWithFormat:@"%@ %@", NSLocalizedString(@"delete", @"delete"), userNames[0]]];
+}
+
 - (void)didUpdateBuddyList:(NSArray *)buddyList
             changedBuddies:(NSArray *)changedBuddies
                      isAdd:(BOOL)isAdd
@@ -469,18 +493,24 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
         NSMutableArray *deletedBuddies = [NSMutableArray array];
         for (EMBuddy *buddy in changedBuddies)
         {
-            [deletedBuddies addObject:buddy.username];
+            if (buddy.followState == eEMBuddyFollowState_FollowedBoth)
+            {
+                [deletedBuddies addObject:buddy.username];
+            }
         }
-        [[EaseMob sharedInstance].chatManager removeConversationsByChatters:deletedBuddies deleteMessages:YES append2Chat:YES];
-        [_chatListVC refreshDataSource];
+        if (![deletedBuddies count])
+        {
+            return;
+        }
+        
+        [self _removeBuddies:deletedBuddies];
     }
     [_contactsVC reloadDataSource];
 }
 
 - (void)didRemovedByBuddy:(NSString *)username
 {
-    [[EaseMob sharedInstance].chatManager removeConversationByChatter:username deleteMessages:YES append2Chat:YES];
-    [_chatListVC refreshDataSource];
+    [self _removeBuddies:@[username]];
     [_contactsVC reloadDataSource];
 }
 
