@@ -65,7 +65,7 @@
 @property (strong, nonatomic) NSMutableArray *messages;
 @property (nonatomic) BOOL isScrollToBottom;
 @property (nonatomic) BOOL isPlayingAudio;
-
+@property (nonatomic) BOOL isInvisible;
 @end
 
 @implementation ChatViewController
@@ -126,6 +126,23 @@
     
     //通过会话管理者获取已收发消息
     [self loadMoreMessages];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleCallNotification:) name:@"callOutWithChatter" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleCallNotification:) name:@"callControllerClose" object:nil];
+}
+
+- (void)handleCallNotification:(NSNotification *)notification
+{
+    id object = notification.object;
+    if ([object isKindOfClass:[NSDictionary class]]) {
+        //开始call
+        self.isInvisible = YES;
+    }
+    else
+    {
+        //结束call
+        self.isInvisible = NO;
+    }
 }
 
 - (void)setupBarButtonItem
@@ -166,6 +183,7 @@
     else{
         _isScrollToBottom = YES;
     }
+    self.isInvisible = NO;
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -175,7 +193,7 @@
     // 设置当前conversation的所有message为已读
     [_conversation markAllMessagesAsRead:YES];
     [[EaseMob sharedInstance].deviceManager disableProximitySensor];
-    
+    self.isInvisible = YES;
 }
 
 - (void)dealloc
@@ -196,6 +214,7 @@
 #warning 以下第一行代码必须写，将self从ChatManager的代理中移除
     [[EaseMob sharedInstance].chatManager removeDelegate:self];
     [[[EaseMob sharedInstance] deviceManager] removeDelegate:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)back
@@ -207,6 +226,26 @@
     }
     
     [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (void)setIsInvisible:(BOOL)isInvisible
+{
+    _isInvisible =isInvisible;
+    if (!_isInvisible)
+    {
+        NSMutableArray *unreadMessages = [NSMutableArray array];
+        for (EMMessage *message in self.messages)
+        {
+            if ([self shouldAckMessage:message read:NO])
+            {
+                [unreadMessages addObject:message];
+            }
+        }
+        if ([unreadMessages count])
+        {
+            [self sendHasReadResponseForMessages:unreadMessages];
+        }
+    }
 }
 
 #pragma mark - helper
@@ -458,6 +497,23 @@
     _chatTagDate = nil;
     self.dataSource = [[self formatMessages:self.messages] mutableCopy];
     [self.tableView reloadData];
+    
+    //回到前台时
+    if (!self.isInvisible)
+    {
+        NSMutableArray *unreadMessages = [NSMutableArray array];
+        for (EMMessage *message in self.messages)
+        {
+            if ([self shouldAckMessage:message read:NO])
+            {
+                [unreadMessages addObject:message];
+            }
+        }
+        if ([unreadMessages count])
+        {
+            [self sendHasReadResponseForMessages:unreadMessages];
+        }
+    }
 }
 
 #pragma mark - UIResponder actions
@@ -859,6 +915,7 @@
     self.imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
     self.imagePicker.mediaTypes = @[(NSString *)kUTTypeImage];
     [self presentViewController:self.imagePicker animated:YES completion:NULL];
+    self.isInvisible = YES;
 }
 
 - (void)moreViewTakePicAction:(DXChatBarMoreView *)moreView
@@ -871,6 +928,7 @@
     self.imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
     self.imagePicker.mediaTypes = @[(NSString *)kUTTypeImage];
     [self presentViewController:self.imagePicker animated:YES completion:NULL];
+    self.isInvisible = YES;
 #endif
 }
 
@@ -893,6 +951,7 @@
     self.imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
     self.imagePicker.mediaTypes = @[(NSString *)kUTTypeMovie];
     [self presentViewController:self.imagePicker animated:YES completion:NULL];
+    self.isInvisible = YES;
 #endif
 }
 
@@ -1022,11 +1081,13 @@
         [picker dismissViewControllerAnimated:YES completion:nil];
         [self sendImageMessage:orgImage];
     }
+    self.isInvisible = NO;
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
 {
     [self.imagePicker dismissViewControllerAnimated:YES completion:nil];
+    self.isInvisible = NO;
 }
 
 #pragma mark - MenuItem actions
@@ -1354,7 +1415,7 @@
 - (BOOL)shouldAckMessage:(EMMessage *)message read:(BOOL)read
 {
     NSString *account = [[EaseMob sharedInstance].chatManager loginInfo][kSDKUsername];
-    if (message.isGroup || message.isReadAcked || [account isEqualToString:message.from])
+    if (message.isGroup || message.isReadAcked || [account isEqualToString:message.from] || ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) || self.isInvisible)
     {
         return NO;
     }
