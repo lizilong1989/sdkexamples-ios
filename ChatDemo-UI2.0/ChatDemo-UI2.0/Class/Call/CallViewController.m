@@ -229,6 +229,7 @@
     //1.大窗口显示层
     _openGLView = [[OpenGLView20 alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
     _openGLView.backgroundColor = [UIColor clearColor];
+    _openGLView.sessionPreset = AVCaptureSessionPreset352x288;
     [self.view addSubview:_openGLView];
     
     //2.小窗口视图
@@ -260,14 +261,9 @@
     
     //5.创建、配置输出
     _captureOutput = [[AVCaptureVideoDataOutput alloc] init];
-    NSDictionary *settings = [[NSDictionary alloc] initWithObjectsAndKeys:
-                              [NSNumber numberWithUnsignedInt:kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange], kCVPixelBufferPixelFormatTypeKey,
-                              [NSNumber numberWithInt: 352], (id)kCVPixelBufferWidthKey,
-                              [NSNumber numberWithInt: 288], (id)kCVPixelBufferHeightKey,
-                              nil];
-    
-    _captureOutput.videoSettings = settings;
-    _captureOutput.minFrameDuration = CMTimeMake(1, 15);
+    _captureOutput.videoSettings = _openGLView.outputSettings;
+//    [[_captureOutput connectionWithMediaType:AVMediaTypeVideo] setVideoMinFrameDuration:CMTimeMake(1, 15)];
+    _captureOutput.minFrameDuration = _openGLView.videoMinFrameDuration;
     _captureOutput.alwaysDiscardsLateVideoFrames = YES;
     dispatch_queue_t outQueue = dispatch_queue_create("com.gh.cecall", NULL);
     [_captureOutput setSampleBufferDelegate:self queue:outQueue];

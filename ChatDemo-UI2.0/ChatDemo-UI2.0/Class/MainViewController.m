@@ -248,10 +248,8 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
         if (callSession && !error) {
             [[EMSDKFull sharedInstance].callManager removeDelegate:self];
             
-//            _callController = nil;
             CallViewController *callController = [[CallViewController alloc] initWithSession:callSession isIncoming:NO];
             callController.modalPresentationStyle = UIModalPresentationOverFullScreen;
-//            _callController = callController;
             [self presentViewController:callController animated:NO completion:nil];
         }
         
@@ -264,10 +262,6 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
 
 - (void)callControllerClose:(NSNotification *)notification
 {
-//    [_callController dismissViewControllerAnimated:NO completion:nil];
-//    [[EMSDKFull sharedInstance].callManager removeDelegate:_callController];
-//    _callController = nil;
-    
     AVAudioSession *audioSession = [AVAudioSession sharedInstance];
     [audioSession setCategory:AVAudioSessionCategoryPlayback error:nil];
     [audioSession setActive:YES error:nil];
@@ -595,11 +589,6 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
         [alertView show];
     } onQueue:nil];
 }
-
-//- (void)didConnectionStateChanged:(EMConnectionState)connectionState
-//{
-//    [_chatListVC networkChanged:connectionState];
-//}
 
 #pragma mark - 自动登录回调
 
