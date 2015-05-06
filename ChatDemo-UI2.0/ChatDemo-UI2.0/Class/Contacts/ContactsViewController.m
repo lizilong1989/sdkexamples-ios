@@ -22,6 +22,7 @@
 #import "ApplyViewController.h"
 #import "GroupListViewController.h"
 #import "ChatViewController.h"
+#import "ChatroomListViewController.h"
 
 @interface ContactsViewController ()<UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate, UISearchDisplayDelegate, UIActionSheetDelegate, BaseTableCellDelegate, SRRefreshDelegate, IChatManagerDelegate>
 {
@@ -37,6 +38,7 @@
 @property (strong, nonatomic) EMSearchBar *searchBar;
 @property (strong, nonatomic) SRRefreshView *slimeView;
 @property (strong, nonatomic) GroupListViewController *groupController;
+@property (strong, nonatomic) ChatroomListViewController *chatroomController;
 
 @property (strong, nonatomic) EMSearchDisplayController *searchController;
 
@@ -213,7 +215,7 @@
 {
     // Return the number of rows in the section.
     if (section == 0) {
-        return 2;
+        return 3;
 //        return 1;
     }
     
@@ -247,6 +249,10 @@
         if (indexPath.section == 0 && indexPath.row == 1) {
             cell.imageView.image = [UIImage imageNamed:@"groupPrivateHeader"];
             cell.textLabel.text = NSLocalizedString(@"title.group", @"Group");
+        }
+        else if (indexPath.section == 0 && indexPath.row == 2) {
+            cell.imageView.image = [UIImage imageNamed:@"groupPrivateHeader"];
+            cell.textLabel.text = NSLocalizedString(@"title.chatroom", @"Group");
         }
         else{
             EMBuddy *buddy = [[self.dataSource objectAtIndex:(indexPath.section - 1)] objectAtIndex:indexPath.row];
@@ -369,6 +375,11 @@
                 [_groupController reloadDataSource];
             }
             [self.navigationController pushViewController:_groupController animated:YES];
+        }
+        else if (indexPath.row == 2)
+        {
+            _chatroomController = [[ChatroomListViewController alloc] initWithStyle:UITableViewStylePlain];
+            [self.navigationController pushViewController:_chatroomController animated:YES];
         }
     }
     else{

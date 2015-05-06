@@ -33,7 +33,7 @@
 #import "ChatViewController+Category.h"
 #define KPageCount 20
 
-@interface ChatViewController ()<UITableViewDataSource, UITableViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, SRRefreshDelegate, IChatManagerDelegate, DXChatBarMoreViewDelegate, DXMessageToolBarDelegate, LocationViewDelegate, IDeviceManagerDelegate>
+@interface ChatViewController ()<UITableViewDataSource, UITableViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, SRRefreshDelegate, IChatManagerDelegate, DXChatBarMoreViewDelegate, DXMessageToolBarDelegate, LocationViewDelegate, IDeviceManagerDelegate, EMChatManagerChatroomDelegate>
 {
     UIMenuController *_menuController;
     UIMenuItem *_copyMenuItem;
@@ -49,6 +49,8 @@
 }
 
 @property (nonatomic) BOOL isChatGroup;
+
+@property (nonatomic) EMConversationType conversationType;
 
 @property (strong, nonatomic) NSMutableArray *dataSource;//tableView数据源
 @property (strong, nonatomic) SRRefreshView *slimeView;
@@ -71,19 +73,48 @@
 
 - (instancetype)initWithChatter:(NSString *)chatter isGroup:(BOOL)isGroup
 {
+    EMConversationType type = isGroup ? eConversationTypeGroupChat : eConversationTypeChat;
+    self = [self initWithChatter:chatter conversationType:type];
+    if (self) {
+    }
+    
+    return self;
+}
+
+- (instancetype)initWithChatter:(NSString *)chatter conversationType:(EMConversationType)type
+{
     self = [super initWithNibName:nil bundle:nil];
     if (self) {
         _isPlayingAudio = NO;
         _chatter = chatter;
-        _isChatGroup = isGroup;
+        _conversationType = type;
         _messages = [NSMutableArray array];
         
         //根据接收者的username获取当前会话的管理者
-        _conversation = [[EaseMob sharedInstance].chatManager conversationForChatter:chatter isGroup:_isChatGroup];
+        _conversation = [[EaseMob sharedInstance].chatManager conversationForChatter:chatter conversationType:type];
         [_conversation markAllMessagesAsRead:YES];
+        if (_conversation.conversationType == eConversationTypeChatRoom)
+        {
+            
+            [[EaseMob sharedInstance].chatManager asyncJoinChatroom:chatter completion:^(EMChatroom *chatroom, EMError *error){
+                if (!error)
+                {
+                    [self showHint:[NSString stringWithFormat:@"加入%@", chatter]];
+                }
+                else
+                {
+                    [self showHint:[NSString stringWithFormat:@"加入%@失败", chatter]];
+                }
+            } onQueue:nil];
+        }
     }
     
     return self;
+}
+
+- (BOOL)isChatGroup
+{
+    return _conversationType == eConversationTypeGroupChat;
 }
 
 - (void)viewDidLoad
@@ -152,7 +183,7 @@
     UIBarButtonItem *backItem = [[UIBarButtonItem alloc] initWithCustomView:backButton];
     [self.navigationItem setLeftBarButtonItem:backItem];
     
-    if (_isChatGroup) {
+    if (self.isChatGroup) {
         UIButton *detailButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 60, 44)];
         [detailButton setImage:[UIImage imageNamed:@"group_detail"] forState:UIControlStateNormal];
         [detailButton addTarget:self action:@selector(showRoomContact:) forControlEvents:UIControlEventTouchUpInside];
@@ -217,6 +248,13 @@
     [[EaseMob sharedInstance].chatManager removeDelegate:self];
     [[[EaseMob sharedInstance] deviceManager] removeDelegate:self];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+
+    if (_conversation.conversationType == eConversationTypeChatRoom)
+    {
+        [[EaseMob sharedInstance].chatManager asyncLeaveChatroom:_chatter completion:^(EMChatroom *chatroom, EMError *error){
+            
+        } onQueue:nil];
+    }
 }
 
 - (void)back
@@ -350,7 +388,7 @@
         _chatToolBar.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleRightMargin;
         _chatToolBar.delegate = self;
         
-        ChatMoreType type = _isChatGroup == YES ? ChatMoreTypeGroupChat : ChatMoreTypeChat;
+        ChatMoreType type = self.isChatGroup == YES ? ChatMoreTypeGroupChat : ChatMoreTypeChat;
         _chatToolBar.moreView = [[DXChatBarMoreView alloc] initWithFrame:CGRectMake(0, (kVerticalPadding * 2 + kInputTextViewMinHeight), _chatToolBar.frame.size.width, 80) typw:type];
         _chatToolBar.moreView.backgroundColor = RGBACOLOR(240, 242, 247, 1);
         _chatToolBar.moreView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
@@ -913,7 +951,7 @@
 
 - (void)group:(EMGroup *)group didLeave:(EMGroupLeaveReason)reason error:(EMError *)error
 {
-    if (_isChatGroup && [group.groupId isEqualToString:_chatter]) {
+    if (self.isChatGroup && [group.groupId isEqualToString:_chatter]) {
         [self.navigationController popToViewController:self animated:NO];
         [self.navigationController popViewControllerAnimated:NO];
     }
@@ -931,7 +969,7 @@
 
 - (void)groupDidUpdateInfo:(EMGroup *)group error:(EMError *)error
 {
-    if (!error && _isChatGroup && [_chatter isEqualToString:group.groupId])
+    if (!error && self.isChatGroup && [_chatter isEqualToString:group.groupId])
     {
         self.title = group.groupSubject;
     }
@@ -1026,7 +1064,7 @@
 
 -(void)sendLocationLatitude:(double)latitude longitude:(double)longitude andAddress:(NSString *)address
 {
-    EMMessage *locationMessage = [ChatSendHelper sendLocationLatitude:latitude longitude:longitude address:address toUsername:_conversation.chatter isChatGroup:_isChatGroup requireEncryption:NO ext:nil];
+    EMMessage *locationMessage = [ChatSendHelper sendLocationLatitude:latitude longitude:longitude address:address toUsername:_conversation.chatter messageType:[self messageType] requireEncryption:NO ext:nil];
     [self addMessage:locationMessage];
 }
 
@@ -1375,7 +1413,7 @@
 - (void)showRoomContact:(id)sender
 {
     [self.view endEditing:YES];
-    if (_isChatGroup) {
+    if (self.isChatGroup) {
         ChatGroupDetailViewController *detailController = [[ChatGroupDetailViewController alloc] initWithGroupId:_chatter];
         [self.navigationController pushViewController:detailController animated:YES];
     }
@@ -1390,7 +1428,7 @@
     
     if ([sender isKindOfClass:[NSNotification class]]) {
         NSString *groupId = (NSString *)[(NSNotification *)sender object];
-        if (_isChatGroup && [groupId isEqualToString:_conversation.chatter]) {
+        if (self.isChatGroup && [groupId isEqualToString:_conversation.chatter]) {
             [_conversation removeAllMessages];
             [_messages removeAllObjects];
             _chatTagDate = nil;
@@ -1485,6 +1523,25 @@
     }
 }
 
+- (EMMessageType)messageType
+{
+    EMMessageType type = eMessageTypeChat;
+    switch (_conversationType) {
+        case eConversationTypeChat:
+            type = eMessageTypeChat;
+            break;
+        case eConversationTypeGroupChat:
+            type = eMessageTypeGroupChat;
+            break;
+        case eConversationTypeChatRoom:
+            type = eMessageTypeChatRoom;
+            break;
+        default:
+            break;
+    }
+    return type;
+}
+
 #pragma mark - send message
 
 -(void)sendTextMessage:(NSString *)textMessage
@@ -1505,7 +1562,7 @@
 
     EMMessage *tempMessage = [ChatSendHelper sendTextMessageWithString:textMessage
                                                             toUsername:_conversation.chatter
-                                                           isChatGroup:_isChatGroup
+                                                           messageType:[self messageType]
                                                      requireEncryption:NO
                                                                    ext:nil];
     [self addMessage:tempMessage];
@@ -1515,7 +1572,7 @@
 {
     EMMessage *tempMessage = [ChatSendHelper sendImageMessageWithImage:image
                                                             toUsername:_conversation.chatter
-                                                           isChatGroup:_isChatGroup
+                                                           messageType:[self messageType]
                                                      requireEncryption:NO
                                                                    ext:nil];
     [self addMessage:tempMessage];
@@ -1525,7 +1582,7 @@
 {
     EMMessage *tempMessage = [ChatSendHelper sendVoice:voice
                                             toUsername:_conversation.chatter
-                                           isChatGroup:_isChatGroup
+                                           messageType:[self messageType]
                                      requireEncryption:NO ext:nil];
     [self addMessage:tempMessage];
 }
@@ -1534,7 +1591,7 @@
 {
     EMMessage *tempMessage = [ChatSendHelper sendVideo:video
                                             toUsername:_conversation.chatter
-                                           isChatGroup:_isChatGroup
+                                           messageType:[self messageType]
                                      requireEncryption:NO ext:nil];
     [self addMessage:tempMessage];
 }
@@ -1566,6 +1623,24 @@
     }
 }
 
+#pragma mark - EMChatManagerChatroomDelegate
+
+- (void)chatroom:(EMChatroom *)chatroom occupantDidJoin:(NSString *)username
+{
+    [self showHint:[NSString stringWithFormat:@"%@加入%@", username, chatroom.chatroomId]];
+}
+
+- (void)chatroom:(EMChatroom *)chatroom occupantDidLeave:(NSString *)username
+{
+    [self showHint:[NSString stringWithFormat:@"%@离开%@", username, chatroom.chatroomId]];
+}
+
+- (void)beKickedOutFromChatroom:(EMChatroom *)chatroom
+{
+    [self showHint:[NSString stringWithFormat:@"被踢出%@", chatroom.chatroomId]];
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
 #pragma mark - 创建带附件的消息体和批量导入消息的示例
 //- (void)loadMessage
 //{
@@ -1581,7 +1656,7 @@
 //    image.isReadAcked = YES;
 //    image.deliveryState = eMessageDeliveryState_Delivered;
 //    image.isRead = YES;
-//    image.isGroup = _isChatGroup;
+//    image.isGroup = self.isChatGroup;
 //    image.conversationChatter = @"my_test5";
 //    
 //    NSDictionary *voiceDic = @{EMMessageBodyAttrKeySecret:@"ZTKmSuSxEeS2upsPo9JVK-E7e7W_Ieu6g55uSbYCQikqSmh1",
@@ -1597,7 +1672,7 @@
 //    voice.isReadAcked = YES;
 //    voice.deliveryState = eMessageDeliveryState_Delivered;
 //    voice.isRead = YES;
-//    voice.isGroup = _isChatGroup;
+//    voice.isGroup = isChatGroup;
 //    voice.conversationChatter = @"my_test5";
 //    
 //    NSDictionary *videoDic = @{EMMessageBodyAttrKeySecret:@"ANfQauSzEeSWceXUdNLCzOoCWyafJ0jg5AticaEKlEVCeqD2",
@@ -1616,7 +1691,7 @@
 //    video.isReadAcked = YES;
 //    video.deliveryState = eMessageDeliveryState_Delivered;
 //    video.isRead = YES;
-//    video.isGroup = _isChatGroup;
+//    video.isGroup = isChatGroup;
 //    video.conversationChatter = @"my_test5";
 //    [[EaseMob sharedInstance].chatManager insertMessagesToDB:@[image, voice, video]];
 //    [[EaseMob sharedInstance].chatManager loadAllConversationsFromDatabaseWithAppend2Chat:YES];

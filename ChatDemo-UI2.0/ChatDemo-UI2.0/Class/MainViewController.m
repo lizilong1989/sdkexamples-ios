@@ -310,7 +310,7 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
 // 收到消息回调
 -(void)didReceiveMessage:(EMMessage *)message
 {
-    BOOL needShowNotification = message.isGroup ? [self needShowNotification:message.conversationChatter] : YES;
+    BOOL needShowNotification = (message.messageType != eMessageTypeChat) ? [self needShowNotification:message.conversationChatter] : YES;
     if (needShowNotification) {
 #if !TARGET_IPHONE_SIMULATOR
         
@@ -387,7 +387,7 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
         }
         
         NSString *title = message.from;
-        if (message.isGroup) {
+        if (message.messageType != eMessageTypeChat) {
             NSArray *groupArray = [[EaseMob sharedInstance].chatManager groupList];
             for (EMGroup *group in groupArray) {
                 if ([group.groupId isEqualToString:message.conversationChatter]) {
@@ -498,6 +498,25 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
         }
         
         [self _removeBuddies:deletedBuddies];
+
+        [[EaseMob sharedInstance].chatManager removeConversationsByChatters:deletedBuddies deleteMessages:YES append2Chat:YES];
+        [_chatListVC refreshDataSource];
+
+        NSMutableArray *viewControllers = [NSMutableArray arrayWithArray:self.navigationController.viewControllers];
+        ChatViewController *chatViewController = nil;
+        for (id viewController in viewControllers)
+        {
+            if ([viewController isKindOfClass:[ChatViewController class]] && [deletedBuddies containsObject:[(ChatViewController*)viewController chatter]])
+            {
+                chatViewController = viewController;
+                break;
+            }
+        }
+        if (chatViewController)
+        {
+            [viewControllers removeObject:chatViewController];
+            [self.navigationController setViewControllers:viewControllers animated:YES];
+        }
     }
     [_contactsVC reloadDataSource];
 }

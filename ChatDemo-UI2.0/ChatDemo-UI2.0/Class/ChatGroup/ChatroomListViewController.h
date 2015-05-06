@@ -11,13 +11,7 @@
   */
 
 #import <UIKit/UIKit.h>
-#import "EMChatManagerDefs.h"
 
-@interface ChatViewController : UIViewController
-@property (strong, nonatomic, readonly) NSString *chatter;
-
-- (instancetype)initWithChatter:(NSString *)chatter isGroup:(BOOL)isGroup;
-- (instancetype)initWithChatter:(NSString *)chatter conversationType:(EMConversationType)type;
-- (void)reloadData;
+@interface ChatroomListViewController : UITableViewController
 
 @end

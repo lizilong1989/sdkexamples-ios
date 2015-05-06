@@ -204,6 +204,7 @@
 "title.addressbook" = "AddressBook";
 "title.setting" = "Setting";
 "title.group" = "Group";
+"title.chatroom" = "Chatroom";
 "title.chooseContact" = "select the contact";
 "title.debug" = "Debug";
 "title.groupBlackList" = "Group black list";
