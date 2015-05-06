@@ -194,7 +194,10 @@
     // 设置当前conversation的所有message为已读
     [_conversation markAllMessagesAsRead:YES];
     [[EaseMob sharedInstance].deviceManager disableProximitySensor];
+<<<<<<< HEAD
     self.isInvisible = YES;
+=======
+>>>>>>> 00b59d0... update: 实时通话页面
 }
 
 - (void)dealloc
