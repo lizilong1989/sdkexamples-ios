@@ -75,6 +75,19 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (void)dealloc
+{
+    //由于离开页面时可能有大量聊天室对象需要释放，所以把释放操作放到一个独立线程
+    if ([self.dataSource count])
+    {
+        NSMutableArray *chatrooms = self.dataSource;
+        self.dataSource = nil;
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [chatrooms removeAllObjects];
+        });
+    }
+}
+
 #pragma mark - getter
 
 - (SRRefreshView *)slimeView

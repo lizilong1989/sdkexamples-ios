@@ -38,7 +38,6 @@
 @property (strong, nonatomic) EMSearchBar *searchBar;
 @property (strong, nonatomic) SRRefreshView *slimeView;
 @property (strong, nonatomic) GroupListViewController *groupController;
-@property (strong, nonatomic) ChatroomListViewController *chatroomController;
 
 @property (strong, nonatomic) EMSearchDisplayController *searchController;
 
@@ -378,8 +377,8 @@
         }
         else if (indexPath.row == 2)
         {
-            _chatroomController = [[ChatroomListViewController alloc] initWithStyle:UITableViewStylePlain];
-            [self.navigationController pushViewController:_chatroomController animated:YES];
+            ChatroomListViewController *chatroomController = [[ChatroomListViewController alloc] initWithStyle:UITableViewStylePlain];
+            [self.navigationController pushViewController:chatroomController animated:YES];
         }
     }
     else{
