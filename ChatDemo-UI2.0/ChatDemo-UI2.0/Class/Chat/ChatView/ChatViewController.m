@@ -93,20 +93,6 @@
         //根据接收者的username获取当前会话的管理者
         _conversation = [[EaseMob sharedInstance].chatManager conversationForChatter:chatter conversationType:type];
         [_conversation markAllMessagesAsRead:YES];
-        if (_conversation.conversationType == eConversationTypeChatRoom)
-        {
-            
-            [[EaseMob sharedInstance].chatManager asyncJoinChatroom:chatter completion:^(EMChatroom *chatroom, EMError *error){
-                if (!error)
-                {
-                    [self showHint:[NSString stringWithFormat:@"加入%@", chatter]];
-                }
-                else
-                {
-                    [self showHint:[NSString stringWithFormat:@"加入%@失败", chatter]];
-                }
-            } onQueue:nil];
-        }
     }
     
     return self;
@@ -159,6 +145,29 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleCallNotification:) name:@"callOutWithChatter" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleCallNotification:) name:@"callControllerClose" object:nil];
+
+    if (_conversation.conversationType == eConversationTypeChatRoom)
+    {
+        //加入聊天室
+        [self showHudInView:self.view hint:@""];
+        __weak typeof(self) weakSelf = self;
+        NSString *chatter = _chatter;
+        [[EaseMob sharedInstance].chatManager asyncJoinChatroom:chatter completion:^(EMChatroom *chatroom, EMError *error){
+            if (weakSelf)
+            {
+                ChatViewController *strongSelf = weakSelf;
+                [strongSelf hideHud];
+                if (!error)
+                {
+                    [strongSelf showHint:[NSString stringWithFormat:@"加入%@", chatter]];
+                }
+                else
+                {
+                    [strongSelf showHint:[NSString stringWithFormat:@"加入%@失败", chatter]];
+                }
+            }
+        } onQueue:nil];
+    }
 }
 
 - (void)handleCallNotification:(NSNotification *)notification
@@ -247,13 +256,13 @@
 #warning 以下第一行代码必须写，将self从ChatManager的代理中移除
     [[EaseMob sharedInstance].chatManager removeDelegate:self];
     [[[EaseMob sharedInstance] deviceManager] removeDelegate:self];
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
 
     if (_conversation.conversationType == eConversationTypeChatRoom)
     {
+        //退出聊天室，删除会话
         [[EaseMob sharedInstance].chatManager asyncLeaveChatroom:_chatter completion:^(EMChatroom *chatroom, EMError *error){
-            
         } onQueue:nil];
+        [[EaseMob sharedInstance].chatManager removeConversationByChatter:_chatter deleteMessages:YES append2Chat:YES];
     }
 }
 
