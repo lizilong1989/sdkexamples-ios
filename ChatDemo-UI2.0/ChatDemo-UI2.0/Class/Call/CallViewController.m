@@ -333,6 +333,7 @@
 
 - (void)_close
 {
+    _openGLView.hidden = YES;
     [self hideHud];
     
     [_timeTimer invalidate];
@@ -563,6 +564,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 - (void)hangupAction
 {
+    _openGLView.hidden = YES;
     [_timeTimer invalidate];
     [self _stopRing];
     [self showHint:@"正在结束通话..."];

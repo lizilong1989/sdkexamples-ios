@@ -1511,9 +1511,9 @@
     [self addMessage:tempMessage];
 }
 
--(void)sendImageMessage:(UIImage *)imageMessage
+-(void)sendImageMessage:(UIImage *)image
 {
-    EMMessage *tempMessage = [ChatSendHelper sendImageMessageWithImage:imageMessage
+    EMMessage *tempMessage = [ChatSendHelper sendImageMessageWithImage:image
                                                             toUsername:_conversation.chatter
                                                            isChatGroup:_isChatGroup
                                                      requireEncryption:NO
@@ -1544,7 +1544,7 @@
     dispatch_async(_messageQueue, ^{
         for (EMMessage *message in messages)
         {
-            [[EaseMob sharedInstance].chatManager sendHasReadResponseForMessage:message];
+            [[EaseMob sharedInstance].chatManager sendReadAckForMessage:message];
         }
     });
 }
