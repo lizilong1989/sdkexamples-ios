@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		283403091A9EBB8200B7DE9B /* GroupSubjectChangingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 283403081A9EBB8200B7DE9B /* GroupSubjectChangingViewController.m */; };
+		28C812BE1B00667A0064CCCD /* ChatroomListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28C812BD1B00667A0064CCCD /* ChatroomListViewController.m */; };
 		3C06AAFF194050A00076FF0B /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C06AAFE194050A00076FF0B /* CoreLocation.framework */; };
 		3C06AB0319405D330076FF0B /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C06AB0219405D330076FF0B /* MapKit.framework */; };
 		3C11304E195AFFDD00ED1D0D /* EMChatVideoBubbleView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3C11304D195AFFDD00ED1D0D /* EMChatVideoBubbleView.m */; };
@@ -350,6 +351,8 @@
 /* Begin PBXFileReference section */
 		283403071A9EBB8200B7DE9B /* GroupSubjectChangingViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GroupSubjectChangingViewController.h; sourceTree = "<group>"; };
 		283403081A9EBB8200B7DE9B /* GroupSubjectChangingViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GroupSubjectChangingViewController.m; sourceTree = "<group>"; };
+		28C812BC1B00667A0064CCCD /* ChatroomListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatroomListViewController.h; sourceTree = "<group>"; };
+		28C812BD1B00667A0064CCCD /* ChatroomListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChatroomListViewController.m; sourceTree = "<group>"; };
 		3C06AAFE194050A00076FF0B /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		3C06AB0219405D330076FF0B /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		3C0CE53A193895E200219149 /* macros.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = macros.h; sourceTree = "<group>"; };
@@ -979,6 +982,8 @@
 				3C35365B19A22164003EF79E /* GroupSettingViewController.m */,
 				283403071A9EBB8200B7DE9B /* GroupSubjectChangingViewController.h */,
 				283403081A9EBB8200B7DE9B /* GroupSubjectChangingViewController.m */,
+				28C812BC1B00667A0064CCCD /* ChatroomListViewController.h */,
+				28C812BD1B00667A0064CCCD /* ChatroomListViewController.m */,
 			);
 			path = ChatGroup;
 			sourceTree = "<group>";
@@ -2481,6 +2486,7 @@
 				90A705FB1A8B63B200376154 /* MWGridCell.m in Sources */,
 				90985E481A8A08D400976DD6 /* InvitationManager.m in Sources */,
 				9003D86F1939D8D000DC38A4 /* ChatSendHelper.m in Sources */,
+				28C812BE1B00667A0064CCCD /* ChatroomListViewController.m in Sources */,
 				909308BF19604821005013BD /* EmojiEmoticons.m in Sources */,
 				90A706041A8B63B200376154 /* EMSDWebImageCompat.m in Sources */,
 				9091111C192EEAED008A48AA /* UIViewController+HUD.m in Sources */,
