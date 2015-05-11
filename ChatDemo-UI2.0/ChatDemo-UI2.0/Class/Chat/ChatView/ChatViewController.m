@@ -938,6 +938,11 @@
 
 - (void)didFinishedReceiveOfflineMessages:(NSArray *)offlineMessages
 {
+    if (![offlineMessages count])
+    {
+        return;
+    }
+    _chatTagDate = nil;
     [self loadMoreMessages];
     __weak typeof(self) weakSelf = self;
     dispatch_async(_messageQueue, ^{
@@ -949,6 +954,11 @@
 
 - (void)didReceiveOfflineMessages:(NSArray *)offlineMessages
 {
+    if (![offlineMessages count])
+    {
+        return;
+    }
+    _chatTagDate = nil;
     [self loadMoreMessages];
     __weak typeof(self) weakSelf = self;
     dispatch_async(_messageQueue, ^{

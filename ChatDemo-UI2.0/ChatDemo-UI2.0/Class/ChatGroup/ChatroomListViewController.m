@@ -196,7 +196,7 @@
     
     EMChatroom *chatroom = [self.dataSource objectAtIndex:indexPath.row];
     cell.imageView.image = [UIImage imageNamed:@"groupPublicHeader"];
-    if (0/*[chatroom.chatroomSubject length]*/) {
+    if ([chatroom.chatroomSubject length]) {
         cell.textLabel.text = chatroom.chatroomSubject;
     }
     else {
