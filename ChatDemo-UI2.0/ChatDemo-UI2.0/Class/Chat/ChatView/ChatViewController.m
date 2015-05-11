@@ -157,7 +157,7 @@
             {
                 ChatViewController *strongSelf = weakSelf;
                 [strongSelf hideHud];
-                if (!error)
+                if (!error || (error.errorCode == EMErrorChatroomJoined))
                 {
                     [strongSelf showHint:[NSString stringWithFormat:@"加入%@", chatter]];
                 }

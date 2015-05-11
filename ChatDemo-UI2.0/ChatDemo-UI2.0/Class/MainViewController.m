@@ -588,6 +588,16 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
     [self showHint:message];
 }
 
+#pragma mark - IChatManagerDelegate 收到聊天室邀请
+
+- (void)didReceiveChatroomInvitationFrom:(NSString *)chatroomId
+                              inviter:(NSString *)username
+                              message:(NSString *)message
+{
+    message = [NSString stringWithFormat:@"%@邀请您加入聊天室%@", username, chatroomId];
+    [self showHint:message];
+}
+
 #pragma mark - IChatManagerDelegate 登录状态变化
 
 - (void)didLoginFromOtherDevice
