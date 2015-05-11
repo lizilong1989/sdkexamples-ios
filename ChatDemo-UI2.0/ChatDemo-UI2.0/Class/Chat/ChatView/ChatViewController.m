@@ -1620,7 +1620,7 @@
     dispatch_async(_messageQueue, ^{
         for (EMMessage *message in messages)
         {
-            [[EaseMob sharedInstance].chatManager sendReadAckForMessage:message];
+            [[EaseMob sharedInstance].chatManager sendHasReadResponseForMessage:message];
         }
     });
 }
