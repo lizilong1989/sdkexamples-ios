@@ -4,18 +4,27 @@
 MAKE=make
 MAKE_FLAGS=-j8
 
-
 ## user customizable variables. 
 SDK_VERSION=8.1
 TARGET_NAME=ChatDemo-UI2.0
-CONFIGURATION=Release
 
 ROOT=.
 DIST=dist
 BUILD=build
 PAYLOAD=Payload
 
-BUILD_DIR=${ROOT}/${BUILD}/${CONFIGURATION}-iphoneos
+# ${1}: such as emclient-ios
+# ${2}: such as Debug or Release
+SDK_PROJECT_ROOT_SHORT=${1}
+MODE=${2}
+if [ -z ${SDK_PROJECT_ROOT_SHORT} ]; then
+	SDK_PROJECT_ROOT_SHORT=emclient-ios
+fi
+if [ -z ${MODE} ]; then
+	MODE=Release
+fi
+
+BUILD_DIR=${ROOT}/${BUILD}/${MODE}-iphoneos
 TARGET_DIR=${BUILD_DIR}/${TARGET_NAME}.app
 
 ## clean 
@@ -25,13 +34,13 @@ rm -rf ${ROOT}/${DIST}
 mkdir ${ROOT}/${DIST}
 
 ## prepare sdk directory
-sh ${ROOT}/preparesdk.sh
+sh ${ROOT}/preparesdk.sh ${SDK_PROJECT_ROOT_SHORT} ${MODE}
 
 ## make 
-${MAKE} ${MAKE_FLAGS} target_name=${TARGET_NAME} sdk_version=${SDK_VERSION} configuration=${CONFIGURATION}
+${MAKE} ${MAKE_FLAGS} target_name=${TARGET_NAME} sdk_version=${SDK_VERSION} configuration=${MODE}
 ERROR=$?
 if [ $ERROR -gt 0 ]; then
-	echo 'Failed to build project!' 'target_name='${TARGET_NAME} 'sdk_version='${SDK_VERSION} 'configuration='${CONFIGURATION}
+	echo 'Failed to build project!' 'target_name='${TARGET_NAME} 'sdk_version='${SDK_VERSION} 'configuration='${MODE}
     exit $ERROR
 fi
 
