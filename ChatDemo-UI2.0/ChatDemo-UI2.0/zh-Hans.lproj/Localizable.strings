@@ -154,6 +154,11 @@
 "group.setting.success" = "设置成功";
 "group.setting.fail" = "设置失败";
 
+//Chatroom detail
+"chatroom.id" = "聊天室Id";
+"chatroom.occupantCount" = "聊天室人数";
+"chatroom.description" = "描述";
+
 //message
 "message.image" = "图片";
 "message.location" = "位置";
@@ -203,6 +208,7 @@
 "title.setting" = "设置";
 "title.group" = "群组";
 "title.chatroom" = "聊天室";
+"title.mychatroom" = "我的聊天室";
 "title.chooseContact" = "选择联系人";
 "title.debug" = "诊断";
 "title.groupBlackList" = "群组黑名单";
@@ -214,6 +220,7 @@
 "title.apply" = "申请与通知";
 "title.groupApply" = "群组通知";
 "title.groupSubjectChanging" = "修改群名称";
+"title.chatroomlist" = "聊天室列表";
 
 //setting
 "setting.autoLogin" = "自动登录";

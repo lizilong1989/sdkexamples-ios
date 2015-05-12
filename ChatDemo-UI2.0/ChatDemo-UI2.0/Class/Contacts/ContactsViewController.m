@@ -22,7 +22,7 @@
 #import "ApplyViewController.h"
 #import "GroupListViewController.h"
 #import "ChatViewController.h"
-#import "ChatroomListViewController.h"
+#import "MyChatroomListViewController.h"
 
 @interface ContactsViewController ()<UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate, UISearchDisplayDelegate, UIActionSheetDelegate, BaseTableCellDelegate, SRRefreshDelegate, IChatManagerDelegate>
 {
@@ -250,8 +250,8 @@
             cell.textLabel.text = NSLocalizedString(@"title.group", @"Group");
         }
         else if (indexPath.section == 0 && indexPath.row == 2) {
-            cell.imageView.image = [UIImage imageNamed:@"groupPrivateHeader"];
-            cell.textLabel.text = NSLocalizedString(@"title.chatroom", @"Group");
+            cell.imageView.image = [UIImage imageNamed:@"groupPublicHeader"];
+            cell.textLabel.text = NSLocalizedString(@"title.mychatroom", @"my chatroom");
         }
         else{
             EMBuddy *buddy = [[self.dataSource objectAtIndex:(indexPath.section - 1)] objectAtIndex:indexPath.row];
@@ -377,7 +377,7 @@
         }
         else if (indexPath.row == 2)
         {
-            ChatroomListViewController *chatroomController = [[ChatroomListViewController alloc] initWithStyle:UITableViewStylePlain];
+            MyChatroomListViewController *chatroomController = [[MyChatroomListViewController alloc] initWithStyle:UITableViewStylePlain];
             [self.navigationController pushViewController:chatroomController animated:YES];
         }
     }

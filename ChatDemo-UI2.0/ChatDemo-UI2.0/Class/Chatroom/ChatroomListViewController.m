@@ -50,7 +50,7 @@
     }
     
     // Uncomment the following line to preserve selection between presentations.
-    self.title = NSLocalizedString(@"title.chatroom", @"chatroom");
+    self.title = NSLocalizedString(@"title.chatroomlist",@"chatroom list");
     
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
@@ -221,14 +221,13 @@
     ChatViewController *chatController = [[ChatViewController alloc] initWithChatter:chatroom.chatroomId conversationType:eConversationTypeChatRoom];
     chatController.title = chatroom.chatroomSubject;
     [self.navigationController pushViewController:chatController animated:YES];
-    EMConversation *conversation = [[EaseMob sharedInstance].chatManager conversationForChatter:chatroom.chatroomId conversationType:eConversationTypeChatRoom];
-    if (![conversation.ext objectForKey:@"groupSubject"] || ![conversation.ext objectForKey:@"isPublic"])
-    {
-        NSMutableDictionary *ext = [NSMutableDictionary dictionaryWithDictionary:conversation.ext];
-        [ext setObject:chatroom.chatroomSubject forKey:@"groupSubject"];
-        [ext setObject:[NSNumber numberWithBool:YES] forKey:@"isPublic"];
-        conversation.ext = ext;
-    }
+    
+    NSString *chatroomName = chatroom.chatroomSubject ? chatroom.chatroomSubject : @"";
+    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+    NSMutableDictionary *chatRooms = [NSMutableDictionary dictionaryWithDictionary:[ud objectForKey:@"OnceJoinedChatrooms"]];
+    [chatRooms setObject:chatroomName forKey:chatroom.chatroomId];
+    [ud setObject:chatRooms forKey:@"OnceJoinedChatrooms"];
+    [ud synchronize];
 }
 
 #pragma mark - UISearchBarDelegate

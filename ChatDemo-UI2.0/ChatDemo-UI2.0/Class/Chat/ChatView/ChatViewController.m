@@ -31,6 +31,7 @@
 #import "DXMessageToolBar.h"
 #import "DXChatBarMoreView.h"
 #import "ChatViewController+Category.h"
+#import "ChatroomDetailViewController.h"
 #define KPageCount 20
 
 @interface ChatViewController ()<UITableViewDataSource, UITableViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, SRRefreshDelegate, IChatManagerDelegate, DXChatBarMoreViewDelegate, DXMessageToolBarDelegate, LocationViewDelegate, IDeviceManagerDelegate, EMChatManagerChatroomDelegate>
@@ -100,7 +101,7 @@
 
 - (BOOL)isChatGroup
 {
-    return _conversationType == eConversationTypeGroupChat;
+    return _conversationType != eConversationTypeChat;
 }
 
 - (void)viewDidLoad
@@ -256,14 +257,6 @@
 #warning 以下第一行代码必须写，将self从ChatManager的代理中移除
     [[EaseMob sharedInstance].chatManager removeDelegate:self];
     [[[EaseMob sharedInstance] deviceManager] removeDelegate:self];
-
-    if (_conversation.conversationType == eConversationTypeChatRoom)
-    {
-        //退出聊天室，删除会话
-        [[EaseMob sharedInstance].chatManager asyncLeaveChatroom:_chatter completion:^(EMChatroom *chatroom, EMError *error){
-        } onQueue:nil];
-        [[EaseMob sharedInstance].chatManager removeConversationByChatter:_chatter deleteMessages:YES append2Chat:YES];
-    }
 }
 
 - (void)back
@@ -273,7 +266,13 @@
     if (message == nil) {
         [[EaseMob sharedInstance].chatManager removeConversationByChatter:_conversation.chatter deleteMessages:NO append2Chat:YES];
     }
-    
+    if (_conversation.conversationType == eConversationTypeChatRoom)
+    {
+        //退出聊天室，删除会话
+        [[EaseMob sharedInstance].chatManager asyncLeaveChatroom:_chatter completion:^(EMChatroom *chatroom, EMError *error){
+        } onQueue:nil];
+        [[EaseMob sharedInstance].chatManager removeConversationByChatter:_chatter deleteMessages:YES append2Chat:YES];
+    }
     [self.navigationController popViewControllerAnimated:YES];
 }
 
@@ -1432,8 +1431,13 @@
 - (void)showRoomContact:(id)sender
 {
     [self.view endEditing:YES];
-    if (self.isChatGroup) {
+    if (self.conversationType == eConversationTypeGroupChat) {
         ChatGroupDetailViewController *detailController = [[ChatGroupDetailViewController alloc] initWithGroupId:_chatter];
+        [self.navigationController pushViewController:detailController animated:YES];
+    }
+    else if (self.conversationType == eConversationTypeChatRoom)
+    {
+        ChatroomDetailViewController *detailController = [[ChatroomDetailViewController alloc] initWithChatroomId:_chatter];
         [self.navigationController pushViewController:detailController animated:YES];
     }
 }
