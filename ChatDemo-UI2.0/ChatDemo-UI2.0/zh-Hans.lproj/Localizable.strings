@@ -158,6 +158,7 @@
 "chatroom.id" = "聊天室Id";
 "chatroom.occupantCount" = "聊天室人数";
 "chatroom.description" = "描述";
+"chatroom.joining" = "正在加入...";
 
 //message
 "message.image" = "图片";

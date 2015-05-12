@@ -158,6 +158,7 @@
 "chatroom.id" = "chatroomId";
 "chatroom.occupantCount" = "members count";
 "chatroom.description" = "description";
+"chatroom.joining" = "Joining...";
 
 //message
 "message.image" = "image";
