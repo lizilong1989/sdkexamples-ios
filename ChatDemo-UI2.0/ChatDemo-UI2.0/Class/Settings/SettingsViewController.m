@@ -17,6 +17,7 @@
 #import "BlackListViewController.h"
 #import "DebugViewController.h"
 #import "EditNicknameViewController.h"
+//#import "BackupViewController.h"
 
 @interface SettingsViewController ()
 
@@ -174,15 +175,9 @@
             cell.textLabel.text = NSLocalizedString(@"setting.iospushname", @"iOS push nickname");
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         }
-//        else if (indexPath.row == 3)
-//        {
-//            cell.textLabel.text = @"被邀请人权限";
-//            
-//            self.beInvitedSwitch.frame = CGRectMake(180, (cell.contentView.frame.size.height - self.beInvitedSwitch.frame.size.height) / 2, self.beInvitedSwitch.frame.size.width, self.beInvitedSwitch.frame.size.height);
-//            [cell.contentView addSubview:self.beInvitedSwitch];
-//            
-//            self.beInvitedLabel.frame = CGRectMake(self.beInvitedSwitch.frame.origin.x + self.beInvitedSwitch.frame.size.width + 5, 0, 80, 50);
-//            [cell.contentView addSubview:self.beInvitedLabel];
+//        else if (indexPath.row == 7){
+//            cell.textLabel.text = @"聊天记录备份和恢复";
+//            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 //        }
     }
     
@@ -216,6 +211,10 @@
         EditNicknameViewController *editName = [[EditNicknameViewController alloc] initWithNibName:nil bundle:nil];
         [self.navigationController pushViewController:editName animated:YES];
     }
+//    else if(indexPath.row == 7){
+//        BackupViewController *backupController = [[BackupViewController alloc] initWithNibName:nil bundle:nil];
+//        [self.navigationController pushViewController:backupController animated:YES];
+//    }
 }
 
 #pragma mark - getter
