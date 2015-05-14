@@ -487,7 +487,7 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
         NSMutableArray *deletedBuddies = [NSMutableArray array];
         for (EMBuddy *buddy in changedBuddies)
         {
-            if (buddy.followState == eEMBuddyFollowState_FollowedBoth)
+            if ([buddy.username length])
             {
                 [deletedBuddies addObject:buddy.username];
             }
@@ -498,25 +498,6 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
         }
         
         [self _removeBuddies:deletedBuddies];
-
-        [[EaseMob sharedInstance].chatManager removeConversationsByChatters:deletedBuddies deleteMessages:YES append2Chat:YES];
-        [_chatListVC refreshDataSource];
-
-        NSMutableArray *viewControllers = [NSMutableArray arrayWithArray:self.navigationController.viewControllers];
-        ChatViewController *chatViewController = nil;
-        for (id viewController in viewControllers)
-        {
-            if ([viewController isKindOfClass:[ChatViewController class]] && [deletedBuddies containsObject:[(ChatViewController*)viewController chatter]])
-            {
-                chatViewController = viewController;
-                break;
-            }
-        }
-        if (chatViewController)
-        {
-            [viewControllers removeObject:chatViewController];
-            [self.navigationController setViewControllers:viewControllers animated:YES];
-        }
     }
     [_contactsVC reloadDataSource];
 }
