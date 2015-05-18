@@ -19,7 +19,7 @@
 #import "ApplyViewController.h"
 #import "CallViewController.h"
 #import "ChatViewController.h"
-
+#import "EMCDDeviceManager.h"
 //两次提示的默认间隔
 static const CGFloat kDefaultPlaySoundInterval = 3.0;
 
@@ -342,9 +342,9 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
     self.lastPlaySoundDate = [NSDate date];
     
     // 收到消息时，播放音频
-    [[EaseMob sharedInstance].deviceManager asyncPlayNewMessageSound];
+    [[EMCDDeviceManager sharedInstance] playNewMessageSound];
     // 收到消息时，震动
-    [[EaseMob sharedInstance].deviceManager asyncPlayVibration];
+    [[EMCDDeviceManager sharedInstance] playVibration];
 }
 
 - (void)showNotificationWithMessage:(EMMessage *)message

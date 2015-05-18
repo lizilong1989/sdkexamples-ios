@@ -17,6 +17,7 @@
 #import "BlackListViewController.h"
 #import "DebugViewController.h"
 #import "EditNicknameViewController.h"
+#import "BackupViewController.h"
 
 @interface SettingsViewController ()
 
@@ -25,9 +26,6 @@
 @property (strong, nonatomic) UISwitch *autoLoginSwitch;
 @property (strong, nonatomic) UISwitch *ipSwitch;
 @property (strong, nonatomic) UISwitch *delConversationSwitch;
-
-@property (strong, nonatomic) UISwitch *beInvitedSwitch;
-@property (strong, nonatomic) UILabel *beInvitedLabel;
 
 @end
 
@@ -93,30 +91,6 @@
     return _delConversationSwitch;
 }
 
-- (UISwitch *)beInvitedSwitch
-{
-//    if (_beInvitedSwitch == nil) {
-//        _beInvitedSwitch = [[UISwitch alloc] init];
-//        [_beInvitedSwitch addTarget:self action:@selector(beInvitedChanged:) forControlEvents:UIControlEventValueChanged];
-//        BOOL autoAccept = [[EaseMob sharedInstance].chatManager autoAcceptGroupInvitation];
-//        [_beInvitedSwitch setOn:!autoAccept animated:YES];
-//    }
-    
-    return _beInvitedSwitch;
-}
-
-- (UILabel *)beInvitedLabel
-{
-    if (_beInvitedLabel == nil) {
-        _beInvitedLabel = [[UILabel alloc] init];
-        _beInvitedLabel.backgroundColor = [UIColor clearColor];
-        _beInvitedLabel.font = [UIFont systemFontOfSize:12.0];
-        _beInvitedLabel.textColor = [UIColor grayColor];
-    }
-    
-    return _beInvitedLabel;
-}
-
 #pragma mark - Table view datasource
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -126,7 +100,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return 7;
+    return 8;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -174,16 +148,10 @@
             cell.textLabel.text = NSLocalizedString(@"setting.iospushname", @"iOS push nickname");
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         }
-//        else if (indexPath.row == 3)
-//        {
-//            cell.textLabel.text = @"被邀请人权限";
-//            
-//            self.beInvitedSwitch.frame = CGRectMake(180, (cell.contentView.frame.size.height - self.beInvitedSwitch.frame.size.height) / 2, self.beInvitedSwitch.frame.size.width, self.beInvitedSwitch.frame.size.height);
-//            [cell.contentView addSubview:self.beInvitedSwitch];
-//            
-//            self.beInvitedLabel.frame = CGRectMake(self.beInvitedSwitch.frame.origin.x + self.beInvitedSwitch.frame.size.width + 5, 0, 80, 50);
-//            [cell.contentView addSubview:self.beInvitedLabel];
-//        }
+        else if (indexPath.row == 7){
+            cell.textLabel.text = @"聊天记录备份和恢复";
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+        }
     }
     
     return cell;
@@ -215,6 +183,10 @@
     } else if (indexPath.row == 6) {
         EditNicknameViewController *editName = [[EditNicknameViewController alloc] initWithNibName:nil bundle:nil];
         [self.navigationController pushViewController:editName animated:YES];
+    }
+    else if(indexPath.row == 7){
+        BackupViewController *backupController = [[BackupViewController alloc] initWithNibName:nil bundle:nil];
+        [self.navigationController pushViewController:backupController animated:YES];
     }
 }
 
@@ -260,19 +232,6 @@
 {
     [EaseMob sharedInstance].chatManager.isAutoDeleteConversationWhenLeaveGroup = control.isOn;
 }
-
-- (void)beInvitedChanged:(UISwitch *)beInvitedSwitch
-{
-//    if (beInvitedSwitch.isOn) {
-//        self.beInvitedLabel.text = @"允许选择";
-//    }
-//    else{
-//        self.beInvitedLabel.text = @"自动加入";
-//    }
-//    
-//    [[EaseMob sharedInstance].chatManager setAutoAcceptGroupInvitation:!(beInvitedSwitch.isOn)];
-}
-
 
 - (void)refreshConfig
 {

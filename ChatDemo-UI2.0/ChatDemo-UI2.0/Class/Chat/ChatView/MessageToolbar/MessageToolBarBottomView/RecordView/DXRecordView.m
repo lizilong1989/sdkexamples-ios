@@ -11,7 +11,7 @@
   */
 
 #import "DXRecordView.h"
-
+#import "EMCDDeviceManager.h"
 @interface DXRecordView ()
 {
     NSTimer *_timer;
@@ -99,7 +99,7 @@
 -(void)setVoiceImage {
     _recordAnimationView.image = [UIImage imageNamed:@"VoiceSearchFeedback001"];
     double voiceSound = 0;
-    voiceSound = [[EaseMob sharedInstance].deviceManager peekRecorderVoiceMeter];
+    voiceSound = [[EMCDDeviceManager sharedInstance] emPeekRecorderVoiceMeter];
     if (0 < voiceSound <= 0.05) {
         [_recordAnimationView setImage:[UIImage imageNamed:@"VoiceSearchFeedback001"]];
     }else if (0.05<voiceSound<=0.10) {
