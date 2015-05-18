@@ -10,35 +10,15 @@
   * from EaseMob Technologies.
   */
 
-#import "PublicGroupListViewController.h"
+#import "ChatroomListViewController.h"
 
 #import "EMSearchBar.h"
 #import "SRRefreshView.h"
 #import "EMSearchDisplayController.h"
-#import "PublicGroupDetailViewController.h"
+#import "ChatViewController.h"
 #import "RealtimeSearchUtil.h"
 
-@interface ObjectWeakContainer : NSObject
-@property (nonatomic, weak) id obj;
-+ (instancetype)sharedInstance;
-@end
-
-@implementation ObjectWeakContainer
-+ (instancetype)sharedInstance
-{
-    static dispatch_once_t onceToken;
-    static ObjectWeakContainer *instance = nil;
-    dispatch_once(&onceToken, ^{
-        instance = [[ObjectWeakContainer alloc] init];
-    });
-    return instance;
-}
-@end
-
-
-static BOOL isFetchingPublicGroupList = NO;
-
-@interface PublicGroupListViewController ()<UISearchBarDelegate, UISearchDisplayDelegate, SRRefreshDelegate>
+@interface ChatroomListViewController ()<UISearchBarDelegate, UISearchDisplayDelegate, SRRefreshDelegate>
 
 @property (strong, nonatomic) NSMutableArray *dataSource;
 
@@ -48,7 +28,7 @@ static BOOL isFetchingPublicGroupList = NO;
 
 @end
 
-@implementation PublicGroupListViewController
+@implementation ChatroomListViewController
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -70,7 +50,7 @@ static BOOL isFetchingPublicGroupList = NO;
     }
     
     // Uncomment the following line to preserve selection between presentations.
-    self.title = NSLocalizedString(@"title.publicGroup", @"Public group");
+    self.title = NSLocalizedString(@"title.chatroomlist",@"chatroom list");
     
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
@@ -86,7 +66,6 @@ static BOOL isFetchingPublicGroupList = NO;
     UIBarButtonItem *backItem = [[UIBarButtonItem alloc] initWithCustomView:backButton];
     [self.navigationItem setLeftBarButtonItem:backItem];
 
-    [ObjectWeakContainer sharedInstance].obj = self;
     [self reloadDataSource];
 }
 
@@ -98,12 +77,15 @@ static BOOL isFetchingPublicGroupList = NO;
 
 - (void)dealloc
 {
-    //由于可能有大量公有群在退出页面时需要释放，所以把释放操作放到其它线程避免卡UI
-    NSMutableArray *publicGroups = [self.dataSource mutableCopy];
-    [self.dataSource removeAllObjects];
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [publicGroups removeAllObjects];
-    });
+    //由于离开页面时可能有大量聊天室对象需要释放，所以把释放操作放到一个独立线程
+    if ([self.dataSource count])
+    {
+        NSMutableArray *chatrooms = self.dataSource;
+        self.dataSource = nil;
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [chatrooms removeAllObjects];
+        });
+    }
 }
 
 #pragma mark - getter
@@ -144,7 +126,7 @@ static BOOL isFetchingPublicGroupList = NO;
         _searchController.delegate = self;
         _searchController.searchResultsTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
         
-        __weak PublicGroupListViewController *weakSelf = self;
+        __weak ChatroomListViewController *weakSelf = self;
         [_searchController setCellForRowAtIndexPathCompletion:^UITableViewCell *(UITableView *tableView, NSIndexPath *indexPath) {
             static NSString *CellIdentifier = @"ContactListCell";
             BaseTableViewCell *cell = (BaseTableViewCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
@@ -154,10 +136,10 @@ static BOOL isFetchingPublicGroupList = NO;
                 cell = [[BaseTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
             }
             
-            EMGroup *group = [weakSelf.searchController.resultsSource objectAtIndex:indexPath.row];
-            NSString *imageName = group.isPublic ? @"groupPublicHeader" : @"groupPrivateHeader";
+            EMChatroom *chatroom = [weakSelf.searchController.resultsSource objectAtIndex:indexPath.row];
+            NSString *imageName =  @"groupPublicHeader";
             cell.imageView.image = [UIImage imageNamed:imageName];
-            cell.textLabel.text = group.groupSubject;
+            cell.textLabel.text = chatroom.chatroomSubject;
             
             return cell;
         }];
@@ -170,10 +152,18 @@ static BOOL isFetchingPublicGroupList = NO;
             [tableView deselectRowAtIndexPath:indexPath animated:YES];
             [weakSelf.searchController.searchBar endEditing:YES];
             
-            EMGroup *group = [weakSelf.searchController.resultsSource objectAtIndex:indexPath.row];
-            PublicGroupDetailViewController *detailController = [[PublicGroupDetailViewController alloc] initWithGroupId:group.groupId];
-            detailController.title = group.groupSubject;
-            [weakSelf.navigationController pushViewController:detailController animated:YES];
+            EMChatroom *chatroom = [weakSelf.searchController.resultsSource objectAtIndex:indexPath.row];
+            ChatViewController *chatController = [[ChatViewController alloc] initWithChatter:chatroom.chatroomId conversationType:eConversationTypeChatRoom];
+            chatController.title = chatroom.chatroomSubject;
+            [weakSelf.navigationController pushViewController:chatController animated:YES];
+            EMConversation *conversation = [[EaseMob sharedInstance].chatManager conversationForChatter:chatroom.chatroomId conversationType:eConversationTypeChatRoom];
+            if (![conversation.ext objectForKey:@"groupSubject"] || ![conversation.ext objectForKey:@"isPublic"])
+            {
+                NSMutableDictionary *ext = [NSMutableDictionary dictionaryWithDictionary:conversation.ext];
+                [ext setObject:chatroom.chatroomSubject forKey:@"groupSubject"];
+                [ext setObject:[NSNumber numberWithBool:YES] forKey:@"isPublic"];
+                conversation.ext = ext;
+            }
         }];
     }
     
@@ -204,13 +194,13 @@ static BOOL isFetchingPublicGroupList = NO;
         cell = [[BaseTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
     
-    EMGroup *group = [self.dataSource objectAtIndex:indexPath.row];
+    EMChatroom *chatroom = [self.dataSource objectAtIndex:indexPath.row];
     cell.imageView.image = [UIImage imageNamed:@"groupPublicHeader"];
-    if (group.groupSubject && group.groupSubject.length > 0) {
-        cell.textLabel.text = group.groupSubject;
+    if ([chatroom.chatroomSubject length]) {
+        cell.textLabel.text = chatroom.chatroomSubject;
     }
     else {
-        cell.textLabel.text = group.groupId;
+        cell.textLabel.text = chatroom.chatroomId;
     }
     
     return cell;
@@ -227,10 +217,17 @@ static BOOL isFetchingPublicGroupList = NO;
 {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
-    EMGroup *group = [self.dataSource objectAtIndex:indexPath.row];
-    PublicGroupDetailViewController *detailController = [[PublicGroupDetailViewController alloc] initWithGroupId:group.groupId];
-    detailController.title = group.groupSubject;
-    [self.navigationController pushViewController:detailController animated:YES];
+    EMChatroom *chatroom = [self.dataSource objectAtIndex:indexPath.row];
+    ChatViewController *chatController = [[ChatViewController alloc] initWithChatter:chatroom.chatroomId conversationType:eConversationTypeChatRoom];
+    chatController.title = chatroom.chatroomSubject;
+    [self.navigationController pushViewController:chatController animated:YES];
+    
+    NSString *chatroomName = chatroom.chatroomSubject ? chatroom.chatroomSubject : @"";
+    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+    NSMutableDictionary *chatRooms = [NSMutableDictionary dictionaryWithDictionary:[ud objectForKey:@"OnceJoinedChatrooms"]];
+    [chatRooms setObject:chatroomName forKey:chatroom.chatroomId];
+    [ud setObject:chatRooms forKey:@"OnceJoinedChatrooms"];
+    [ud synchronize];
 }
 
 #pragma mark - UISearchBarDelegate
@@ -244,7 +241,7 @@ static BOOL isFetchingPublicGroupList = NO;
 
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
 {
-    [[RealtimeSearchUtil currentUtil] realtimeSearchWithSource:self.dataSource searchText:(NSString *)searchText collationStringSelector:@selector(groupSubject) resultBlock:^(NSArray *results) {
+    [[RealtimeSearchUtil currentUtil] realtimeSearchWithSource:self.dataSource searchText:(NSString *)searchText collationStringSelector:@selector(chatroomSubject) resultBlock:^(NSArray *results) {
         if (results) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.searchController.resultsSource removeAllObjects];
@@ -305,20 +302,17 @@ static BOOL isFetchingPublicGroupList = NO;
 {
     [self hideHud];
     [self showHudInView:self.view hint:NSLocalizedString(@"loadData", @"Load data...")];
-
-    if (isFetchingPublicGroupList)
-    {
-        return;
-    }
-
-    isFetchingPublicGroupList = YES;
-    [[EaseMob sharedInstance].chatManager asyncFetchAllPublicGroupsWithCompletion:^(NSArray *groups, EMError *error) {
-        PublicGroupListViewController *controller = [ObjectWeakContainer sharedInstance].obj;
-        [controller hideHud];
-        [controller.dataSource removeAllObjects];
-        [controller.dataSource addObjectsFromArray:groups];
-        [controller.tableView reloadData];
-        isFetchingPublicGroupList = NO;
+    
+    __weak typeof(self) weakSelf = self;
+    [[EaseMob sharedInstance].chatManager asyncFetchChatroomsInRange:NSMakeRange(0, 10) withCompletion:^(NSArray *chatrooms, NSRange nextSliceRange, EMError *error) {
+        ChatroomListViewController *strongSelf = weakSelf;
+        if (strongSelf)
+        {
+            [strongSelf hideHud];
+            [strongSelf.dataSource removeAllObjects];
+            [strongSelf.dataSource addObjectsFromArray:chatrooms];
+            [strongSelf.tableView reloadData];
+        }
     } onQueue:nil];
 }
 

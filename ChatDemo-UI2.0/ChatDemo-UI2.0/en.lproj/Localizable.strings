@@ -154,6 +154,12 @@
 "group.setting.success" = "set success";
 "group.setting.fail" = "set failure";
 
+//Chatroom detail
+"chatroom.id" = "chatroomId";
+"chatroom.occupantCount" = "members count";
+"chatroom.description" = "description";
+"chatroom.joining" = "Joining...";
+
 //message
 "message.image" = "image";
 "message.location" = "location";
@@ -204,6 +210,8 @@
 "title.addressbook" = "AddressBook";
 "title.setting" = "Setting";
 "title.group" = "Group";
+"title.chatroom" = "Chatroom";
+"title.mychatroom" = "My Chatroom";
 "title.chooseContact" = "select the contact";
 "title.debug" = "Debug";
 "title.groupBlackList" = "Group black list";
@@ -215,6 +223,7 @@
 "title.apply" = "Application and notification";
 "title.groupApply" = "Group Notification";
 "title.groupSubjectChanging" = "Change group name";
+"title.chatroomlist" = "Chatroom List";
 
 //setting
 "setting.autoLogin" = "automatic login";

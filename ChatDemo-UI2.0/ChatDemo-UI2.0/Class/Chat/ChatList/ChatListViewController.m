@@ -374,17 +374,24 @@
     ChatViewController *chatController;
     NSString *title = conversation.chatter;
     if (conversation.isGroup) {
-        NSArray *groupArray = [[EaseMob sharedInstance].chatManager groupList];
-        for (EMGroup *group in groupArray) {
-            if ([group.groupId isEqualToString:conversation.chatter]) {
-                title = group.groupSubject;
-                break;
+        if ([[conversation.ext objectForKey:@"groupSubject"] length])
+        {
+            title = [conversation.ext objectForKey:@"groupSubject"];
+        }
+        else
+        {
+            NSArray *groupArray = [[EaseMob sharedInstance].chatManager groupList];
+            for (EMGroup *group in groupArray) {
+                if ([group.groupId isEqualToString:conversation.chatter]) {
+                    title = group.groupSubject;
+                    break;
+                }
             }
         }
     }
     
     NSString *chatter = conversation.chatter;
-    chatController = [[ChatViewController alloc] initWithChatter:chatter isGroup:conversation.isGroup];
+    chatController = [[ChatViewController alloc] initWithChatter:chatter conversationType:conversation.conversationType];
     chatController.title = title;
     [self.navigationController pushViewController:chatController animated:YES];
 }

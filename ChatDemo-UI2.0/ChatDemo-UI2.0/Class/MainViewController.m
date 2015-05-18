@@ -310,7 +310,7 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
 // 收到消息回调
 -(void)didReceiveMessage:(EMMessage *)message
 {
-    BOOL needShowNotification = message.isGroup ? [self needShowNotification:message.conversationChatter] : YES;
+    BOOL needShowNotification = (message.messageType != eMessageTypeChat) ? [self needShowNotification:message.conversationChatter] : YES;
     if (needShowNotification) {
 #if !TARGET_IPHONE_SIMULATOR
         
@@ -387,7 +387,7 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
         }
         
         NSString *title = message.from;
-        if (message.isGroup) {
+        if (message.messageType != eMessageTypeChat) {
             NSArray *groupArray = [[EaseMob sharedInstance].chatManager groupList];
             for (EMGroup *group in groupArray) {
                 if ([group.groupId isEqualToString:message.conversationChatter]) {
@@ -487,7 +487,7 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
         NSMutableArray *deletedBuddies = [NSMutableArray array];
         for (EMBuddy *buddy in changedBuddies)
         {
-            if (buddy.followState == eEMBuddyFollowState_FollowedBoth)
+            if ([buddy.username length])
             {
                 [deletedBuddies addObject:buddy.username];
             }
@@ -566,6 +566,16 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
                                groupname:(NSString *)groupname
 {
     NSString *message = [NSString stringWithFormat:NSLocalizedString(@"group.agreedToJoin", @"agreed to join the group of \'%@\'"), groupname];
+    [self showHint:message];
+}
+
+#pragma mark - IChatManagerDelegate 收到聊天室邀请
+
+- (void)didReceiveChatroomInvitationFrom:(NSString *)chatroomId
+                              inviter:(NSString *)username
+                              message:(NSString *)message
+{
+    message = [NSString stringWithFormat:@"%@邀请您加入聊天室%@", username, chatroomId];
     [self showHint:message];
 }
 
