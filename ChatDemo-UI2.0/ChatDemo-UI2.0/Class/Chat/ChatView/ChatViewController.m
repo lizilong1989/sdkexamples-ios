@@ -34,7 +34,7 @@
 #import "ChatroomDetailViewController.h"
 #define KPageCount 20
 
-@interface ChatViewController ()<UITableViewDataSource, UITableViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, SRRefreshDelegate, IChatManagerDelegate, DXChatBarMoreViewDelegate, DXMessageToolBarDelegate, LocationViewDelegate, IDeviceManagerDelegate, EMChatManagerChatroomDelegate, EMCDDeviceManagerDelegate>
+@interface ChatViewController ()<UITableViewDataSource, UITableViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, SRRefreshDelegate, IChatManagerDelegate, DXChatBarMoreViewDelegate, DXMessageToolBarDelegate, LocationViewDelegate, EMChatManagerChatroomDelegate, EMCDDeviceManagerDelegate>
 {
     UIMenuController *_menuController;
     UIMenuItem *_copyMenuItem;
