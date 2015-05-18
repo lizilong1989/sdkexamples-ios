@@ -32,6 +32,8 @@
 #import "DXChatBarMoreView.h"
 #import "ChatViewController+Category.h"
 #import "ChatroomDetailViewController.h"
+#import "EMCDDeviceManager.h"
+#import "EMCDDeviceManagerDelegate.h"
 #define KPageCount 20
 
 @interface ChatViewController ()<UITableViewDataSource, UITableViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, SRRefreshDelegate, IChatManagerDelegate, DXChatBarMoreViewDelegate, DXMessageToolBarDelegate, LocationViewDelegate, EMChatManagerChatroomDelegate, EMCDDeviceManagerDelegate>

@@ -17,7 +17,7 @@
 #import "BlackListViewController.h"
 #import "DebugViewController.h"
 #import "EditNicknameViewController.h"
-#import "BackupViewController.h"
+//#import "BackupViewController.h"
 
 @interface SettingsViewController ()
 
@@ -184,10 +184,10 @@
         EditNicknameViewController *editName = [[EditNicknameViewController alloc] initWithNibName:nil bundle:nil];
         [self.navigationController pushViewController:editName animated:YES];
     }
-    else if(indexPath.row == 7){
-        BackupViewController *backupController = [[BackupViewController alloc] initWithNibName:nil bundle:nil];
-        [self.navigationController pushViewController:backupController animated:YES];
-    }
+//    else if(indexPath.row == 7){
+//        BackupViewController *backupController = [[BackupViewController alloc] initWithNibName:nil bundle:nil];
+//        [self.navigationController pushViewController:backupController animated:YES];
+//    }
 }
 
 #pragma mark - getter
