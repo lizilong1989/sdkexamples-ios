@@ -97,35 +97,17 @@
             switch (status) {
                 case eBackupMessagesStatusFormatting:
                 {
-                    if (!error) {
-                        hud.labelText = @"格式化数据";
-                    }
-                    else{
-                        hud.labelText = @"格式化数据失败";
-                        [hud hide:YES afterDelay:1];
-                    }
+                    hud.labelText = @"格式化数据";
                 }
                     break;
                 case eBackupMessagesStatusCompression:
                 {
-                    if (!error) {
-                        hud.labelText = @"压缩数据";
-                    }
-                    else{
-                        hud.labelText = @"压缩数据失败";
-                        [hud hide:YES afterDelay:1];
-                    }
+                    hud.labelText = @"压缩数据";
                 }
                     break;
                 case eBackupMessagesStatusUploading:
                 {
-                    if (!error) {
-                        hud.labelText = @"上传数据";
-                    }
-                    else{
-                        hud.labelText = @"上传数据失败";
-                        [hud hide:YES afterDelay:1];
-                    }
+                    hud.labelText = @"上传数据";
                 }
                     break;
                 case eBackupMessagesStatusFailure:
@@ -162,13 +144,7 @@
             switch (status) {
                 case eRestoreBackupStatusDownload:
                 {
-                    if (!error) {
-                        hud.labelText = @"下载备份";
-                    }
-                    else{
-                        hud.labelText = @"下载备份失败";
-                        [hud hide:YES afterDelay:1];
-                    }
+                    hud.labelText = @"下载备份";
                 }
                     break;
                 case eRestoreBackupStatusDecompression:
@@ -180,6 +156,7 @@
                     break;
                 case eRestoreBackupStatusFailure:
                     hud.labelText = @"恢复备份失败";
+                    [hud hide:YES afterDelay:2];
                     break;
                 case eRestoreBackupStatusSucceed:
                     hud.labelText = @"恢复备份成功";

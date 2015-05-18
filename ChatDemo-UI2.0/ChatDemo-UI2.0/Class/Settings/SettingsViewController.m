@@ -27,9 +27,6 @@
 @property (strong, nonatomic) UISwitch *ipSwitch;
 @property (strong, nonatomic) UISwitch *delConversationSwitch;
 
-@property (strong, nonatomic) UISwitch *beInvitedSwitch;
-@property (strong, nonatomic) UILabel *beInvitedLabel;
-
 @end
 
 @implementation SettingsViewController
@@ -92,30 +89,6 @@
         [_delConversationSwitch addTarget:self action:@selector(delConversationChanged:) forControlEvents:UIControlEventValueChanged];
     }
     return _delConversationSwitch;
-}
-
-- (UISwitch *)beInvitedSwitch
-{
-//    if (_beInvitedSwitch == nil) {
-//        _beInvitedSwitch = [[UISwitch alloc] init];
-//        [_beInvitedSwitch addTarget:self action:@selector(beInvitedChanged:) forControlEvents:UIControlEventValueChanged];
-//        BOOL autoAccept = [[EaseMob sharedInstance].chatManager autoAcceptGroupInvitation];
-//        [_beInvitedSwitch setOn:!autoAccept animated:YES];
-//    }
-    
-    return _beInvitedSwitch;
-}
-
-- (UILabel *)beInvitedLabel
-{
-    if (_beInvitedLabel == nil) {
-        _beInvitedLabel = [[UILabel alloc] init];
-        _beInvitedLabel.backgroundColor = [UIColor clearColor];
-        _beInvitedLabel.font = [UIFont systemFontOfSize:12.0];
-        _beInvitedLabel.textColor = [UIColor grayColor];
-    }
-    
-    return _beInvitedLabel;
 }
 
 #pragma mark - Table view datasource
@@ -259,19 +232,6 @@
 {
     [EaseMob sharedInstance].chatManager.isAutoDeleteConversationWhenLeaveGroup = control.isOn;
 }
-
-- (void)beInvitedChanged:(UISwitch *)beInvitedSwitch
-{
-//    if (beInvitedSwitch.isOn) {
-//        self.beInvitedLabel.text = @"允许选择";
-//    }
-//    else{
-//        self.beInvitedLabel.text = @"自动加入";
-//    }
-//    
-//    [[EaseMob sharedInstance].chatManager setAutoAcceptGroupInvitation:!(beInvitedSwitch.isOn)];
-}
-
 
 - (void)refreshConfig
 {
