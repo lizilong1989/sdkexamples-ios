@@ -118,6 +118,10 @@
                     hud.labelText = @"上传数据成功";
                     [hud hide:YES afterDelay:2];
                     break;
+                case eBackupMessagesStatusCancel:
+                    hud.labelText = @"取消备份操作";
+                    [hud hide:YES afterDelay:2];
+                    break;
                     
                 default:
                     break;
@@ -127,7 +131,7 @@
                 [[[UIAlertView alloc] initWithTitle:@"错误" message:error.description delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil] show];
             }
         });
-    } progressCompletion:^(unsigned long long uploadSize, unsigned long long totalSize) {
+    } uploadProgressCompletion:^(unsigned long long uploadSize, unsigned long long totalSize) {
         //
     }];
 }
@@ -163,6 +167,10 @@
                     [hud hide:YES afterDelay:2];
                     [[EaseMob sharedInstance].chatManager loadAllConversationsFromDatabaseWithAppend2Chat:YES];
                     break;
+                case eRestoreBackupStatusCancel:
+                    hud.labelText = @"取消恢复备份操作";
+                    [hud hide:YES afterDelay:2];
+                    break;
                     
                 default:
                     break;
@@ -173,7 +181,7 @@
             }
         });
 
-    } progressCompletion:^(unsigned long long uploadSize, unsigned long long totalSize) {
+    } downloadProgressCompletion:^(unsigned long long uploadSize, unsigned long long totalSize) {
         //
     }];
 }
