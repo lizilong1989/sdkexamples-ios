@@ -1283,14 +1283,19 @@
 {
     __weak typeof(self) weakSelf = self;
     dispatch_async(_messageQueue, ^{
-        long long timestamp = [[NSDate date] timeIntervalSince1970] * 1000 + 1;
-        
-        NSArray *messages = [weakSelf.conversation loadNumbersOfMessages:([weakSelf.messages count] + KPageCount) before:timestamp];
-        if ([messages count] > 0) {
-            weakSelf.messages = [messages mutableCopy];
+        EMMessage *tmpMessage = [weakSelf.messages firstObject];
+        NSArray *moreMessages = [weakSelf.conversation loadNumbersOfMessages:KPageCount withMessageId:tmpMessage.messageId];
+//        long long timestamp = [[NSDate date] timeIntervalSince1970] * 1000 + 1;
+//        NSArray *messages = [weakSelf.conversation loadNumbersOfMessages:([weakSelf.messages count] + KPageCount) before:timestamp];
+        if ([moreMessages count] > 0) {
+            NSIndexSet *indexSet = [[NSIndexSet alloc] initWithIndexesInRange:NSMakeRange(0, moreMessages.count)];
+            [weakSelf.messages insertObjects:moreMessages atIndexes:indexSet];
             
             NSInteger currentCount = [weakSelf.dataSource count];
-            weakSelf.dataSource = [[weakSelf formatMessages:messages] mutableCopy];
+            NSArray *formatMessages = [weakSelf formatMessages:moreMessages];
+            indexSet = [[NSIndexSet alloc] initWithIndexesInRange:NSMakeRange(0, formatMessages.count)];
+            [weakSelf.dataSource insertObjects:formatMessages atIndexes:indexSet];
+            
             dispatch_async(dispatch_get_main_queue(), ^{
                 [weakSelf.tableView reloadData];
                 
@@ -1308,9 +1313,9 @@
             }
             
             NSMutableArray *unreadMessages = [NSMutableArray array];
-            for (NSInteger i = 0; i < [messages count]; i++)
+            for (NSInteger i = 0; i < [moreMessages count]; i++)
             {
-                EMMessage *message = messages[i];
+                EMMessage *message = moreMessages[i];
                 if ([self shouldAckMessage:message read:NO])
                 {
                     [unreadMessages addObject:message];
