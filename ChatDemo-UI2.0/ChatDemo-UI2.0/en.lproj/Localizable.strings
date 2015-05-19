@@ -53,6 +53,7 @@
 //error des
 "error.connectServerFail" = "Connect to the server failed!";
 "error.connectServerTimeout" = "Connect to the server timed out!";
+"error.connectNetworkFail" = "No network connection!";
 
 //login
 "login.beginAutoLogin" = "Start automatic login...";

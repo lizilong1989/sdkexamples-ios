@@ -103,6 +103,9 @@
                      case EMErrorServerDuplicatedAccount:
                          TTAlertNoTitle(NSLocalizedString(@"register.repeat", @"You registered user already exists!"));
                          break;
+                     case EMErrorNetworkNotConnected:
+                         TTAlertNoTitle(NSLocalizedString(@"error.connectNetworkFail", @"No network connection!"));
+                         break;
                      case EMErrorServerTimeout:
                          TTAlertNoTitle(NSLocalizedString(@"error.connectServerTimeout", @"Connect to the server timed out!"));
                          break;
@@ -146,6 +149,9 @@
          {
              switch (error.errorCode)
              {
+                 case EMErrorNetworkNotConnected:
+                     TTAlertNoTitle(NSLocalizedString(@"error.connectNetworkFail", @"No network connection!"));
+                     break;
                  case EMErrorServerNotReachable:
                      TTAlertNoTitle(NSLocalizedString(@"error.connectServerFail", @"Connect to the server failed!"));
                      break;
