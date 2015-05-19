@@ -492,8 +492,8 @@
 
 - (void)cellImageViewLongPressAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (indexPath.section == 0 && indexPath.row == 1) {
-        // 群组
+    if (indexPath.section == 0 && indexPath.row >= 1) {
+        // 群组，聊天室
         return;
     }
     NSDictionary *loginInfo = [[[EaseMob sharedInstance] chatManager] loginInfo];
