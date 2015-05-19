@@ -159,6 +159,7 @@
 "chatroom.occupantCount" = "members count";
 "chatroom.description" = "description";
 "chatroom.joining" = "Joining...";
+"chatroom.fetchInfoFail" = "Failed to get the chatroom details";
 
 //message
 "message.image" = "image";

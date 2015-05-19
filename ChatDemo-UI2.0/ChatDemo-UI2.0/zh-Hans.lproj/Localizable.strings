@@ -159,6 +159,7 @@
 "chatroom.occupantCount" = "聊天室人数";
 "chatroom.description" = "描述";
 "chatroom.joining" = "正在加入...";
+"chatroom.fetchInfoFail" = "获取聊天室详情失败";
 
 //message
 "message.image" = "图片";

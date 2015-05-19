@@ -161,7 +161,7 @@
             [weakSelf reloadDataSource];
             if (error)
             {
-                [weakSelf showHint:NSLocalizedString(@"group.fetchInfoFail", @"failed to get the group details, please try again later")];
+                [weakSelf showHint:NSLocalizedString(@"chatroom.fetchInfoFail", @"failed to get the chatroom details, please try again later")];
             }
         });
     });
