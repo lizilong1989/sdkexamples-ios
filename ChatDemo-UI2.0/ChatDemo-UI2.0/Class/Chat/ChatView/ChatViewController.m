@@ -1303,9 +1303,9 @@
             });
             
             //从数据库导入时重新下载没有下载成功的附件
-            for (NSInteger i = 0; i < [weakSelf.dataSource count]; i++)
+            for (NSInteger i = 0; i < [formatMessages count]; i++)
             {
-                id obj = weakSelf.dataSource[i];
+                id obj = formatMessages[i];
                 if ([obj isKindOfClass:[MessageModel class]])
                 {
                     [weakSelf downloadMessageAttachments:obj];
@@ -1575,20 +1575,6 @@
 
 -(void)sendTextMessage:(NSString *)textMessage
 {
-    //test code
-    //    for (int i = 0; i < 500; i++) {
-    //        NSString *sender = [NSString stringWithFormat:@"sender%i", i];
-    //        for (int j = 0; j < 10; j++) {
-    //            NSString *str = [NSString stringWithFormat:@"text%i_%i", i, j];
-    //            EMChatText *text = [[EMChatText alloc] initWithText:str];
-    //            EMTextMessageBody *body = [[EMTextMessageBody alloc] initWithChatObject:text];
-    //            EMMessage *retureMsg = [[EMMessage alloc] initWithReceiver:@"899" sender:sender bodies:[NSArray arrayWithObject:body]];
-    //            retureMsg.requireEncryption = NO;
-    //            retureMsg.isGroup = NO;
-    //            [[EaseMob sharedInstance].chatManager asyncSendMessage:retureMsg progress:nil];
-    //        }
-    //    }
-    
     EMMessage *tempMessage = [ChatSendHelper sendTextMessageWithString:textMessage
                                                             toUsername:_conversation.chatter
                                                            messageType:[self messageType]
