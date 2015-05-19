@@ -262,8 +262,8 @@
     //5.创建、配置输出
     _captureOutput = [[AVCaptureVideoDataOutput alloc] init];
     _captureOutput.videoSettings = _openGLView.outputSettings;
-//    [[_captureOutput connectionWithMediaType:AVMediaTypeVideo] setVideoMinFrameDuration:CMTimeMake(1, 15)];
-    _captureOutput.minFrameDuration = _openGLView.videoMinFrameDuration;
+    [[_captureOutput connectionWithMediaType:AVMediaTypeVideo] setVideoMinFrameDuration:CMTimeMake(1, 15)];
+//    _captureOutput.minFrameDuration = _openGLView.videoMinFrameDuration;
     _captureOutput.alwaysDiscardsLateVideoFrames = YES;
     dispatch_queue_t outQueue = dispatch_queue_create("com.gh.cecall", NULL);
     [_captureOutput setSampleBufferDelegate:self queue:outQueue];
