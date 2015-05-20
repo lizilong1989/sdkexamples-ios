@@ -10,7 +10,7 @@
 
 #import "MBProgressHUD.h"
 
-@interface BackupViewController ()
+@interface BackupViewController ()<IEMChatProgressDelegate>
 {
     UIProgressView *_progressView;
     UIButton *_pauseBackupButton;
@@ -21,6 +21,8 @@
 @property (strong, nonatomic) UIView *backupView;
 
 @property (strong, nonatomic) UIView *restoreView;
+
+@property (strong, nonatomic) __block MBProgressHUD *hud;
 
 @end
 
@@ -81,46 +83,57 @@
     // Dispose of any resources that can be recreated.
 }
 
+#pragma mark - IEMChatProgressDelegate
+
+- (void)setProgress:(float)progress
+{
+    [self.hud showAnimated:YES whileExecutingBlock:^{
+        self.hud.progress = progress;
+    } completionBlock:nil];
+}
+
 #pragma mark - action
 
 - (void)backupAction
 {
     [_restoreView removeFromSuperview];
     
-    __block MBProgressHUD *hud = [[MBProgressHUD alloc] initWithView:self.view];
-    hud.labelText = @"加载数据";
-    [self.view addSubview:hud];
-    [hud show:YES];
+    _hud = [[MBProgressHUD alloc] initWithView:self.view];
+    _hud.labelText = @"加载数据";
+    [self.view addSubview:_hud];
+    [_hud show:YES];
     
-    [[EaseMob sharedInstance].chatManager asyncBackupMessagesWithStatusCompletion:^void(EMBackupMessagesStatus status, EMError *error) {
+    [[EaseMob sharedInstance].chatManager asyncBackupMessagesWithProgress:self
+                                                         statusCompletion:^void(EMBackupMessagesStatus status, EMError *error) {
         dispatch_sync(dispatch_get_main_queue(), ^{
             switch (status) {
                 case eBackupMessagesStatusFormatting:
                 {
-                    hud.labelText = @"格式化数据";
+                    self.hud.labelText = @"格式化数据";
                 }
                     break;
                 case eBackupMessagesStatusCompression:
                 {
-                    hud.labelText = @"压缩数据";
+                    self.hud.labelText = @"压缩数据";
                 }
                     break;
                 case eBackupMessagesStatusUploading:
                 {
-                    hud.labelText = @"上传数据";
+                    self.hud.mode = MBProgressHUDModeDeterminate;
+                    self.hud.labelText = @"上传数据";
                 }
                     break;
                 case eBackupMessagesStatusFailure:
-                    hud.labelText = @"备份数据失败";
-                    [hud hide:YES afterDelay:1];
+                    self.hud.labelText = @"备份数据失败";
+                    [self.hud hide:YES afterDelay:1];
                     break;
                 case eBackupMessagesStatusSucceed:
-                    hud.labelText = @"上传数据成功";
-                    [hud hide:YES afterDelay:2];
+                    self.hud.labelText = @"上传数据成功";
+                    [self.hud hide:YES afterDelay:2];
                     break;
                 case eBackupMessagesStatusCancel:
-                    hud.labelText = @"取消备份操作";
-                    [hud hide:YES afterDelay:2];
+                    self.hud.labelText = @"取消备份操作";
+                    [self.hud hide:YES afterDelay:2];
                     break;
                     
                 default:
@@ -131,45 +144,48 @@
                 [[[UIAlertView alloc] initWithTitle:@"错误" message:error.description delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil] show];
             }
         });
-    } uploadProgressCompletion:^(unsigned long long uploadSize, unsigned long long totalSize) {
-        //
     }];
 }
 
 - (void)restoreAction
 {
-    __block MBProgressHUD *hud = [[MBProgressHUD alloc] initWithView:self.view];
-    hud.labelText = @"恢复备份";
-    [self.view addSubview:hud];
-    [hud show:YES];
+    _hud = [[MBProgressHUD alloc] initWithView:self.view];
+    _hud.labelText = @"恢复备份";
+    _hud.mode = MBProgressHUDModeDeterminate;
+    [self.view addSubview:_hud];
+    [_hud show:YES];
     
-    [[EaseMob sharedInstance].chatManager asyncRestoreBackupsWithStatusCompletion:^(EMRestoreBackupStatus status, EMError *error) {
+    [[EaseMob sharedInstance].chatManager asyncRestoreBackupsWithProgress:self
+                                                         statusCompletion:^(EMRestoreBackupStatus status, EMError *error) {
         dispatch_sync(dispatch_get_main_queue(), ^{
             switch (status) {
                 case eRestoreBackupStatusDownload:
                 {
-                    hud.labelText = @"下载备份";
+                    self.hud.labelText = @"下载备份";
                 }
                     break;
                 case eRestoreBackupStatusDecompression:
-                    hud.labelText = @"解压数据";
+                {
+                    self.hud.mode = MBProgressHUDModeIndeterminate;
+                    self.hud.labelText = @"解压数据";
+                }
                     break;
                 case eRestoreBackupStatusIntegration:
-                    hud.labelText = @"导入备份";
-                    [hud hide:YES afterDelay:2];
+                    self.hud.labelText = @"导入备份";
+                    [self.hud hide:YES afterDelay:2];
                     break;
                 case eRestoreBackupStatusFailure:
-                    hud.labelText = @"恢复备份失败";
-                    [hud hide:YES afterDelay:2];
+                    self.hud.labelText = @"恢复备份失败";
+                    [self.hud hide:YES afterDelay:2];
                     break;
                 case eRestoreBackupStatusSucceed:
-                    hud.labelText = @"恢复备份成功";
-                    [hud hide:YES afterDelay:2];
+                    self.hud.labelText = @"恢复备份成功";
+                    [self.hud hide:YES afterDelay:2];
                     [[EaseMob sharedInstance].chatManager loadAllConversationsFromDatabaseWithAppend2Chat:YES];
                     break;
                 case eRestoreBackupStatusCancel:
-                    hud.labelText = @"取消恢复备份操作";
-                    [hud hide:YES afterDelay:2];
+                    self.hud.labelText = @"取消恢复备份操作";
+                    [self.hud hide:YES afterDelay:2];
                     break;
                     
                 default:
@@ -181,8 +197,6 @@
             }
         });
 
-    } downloadProgressCompletion:^(unsigned long long uploadSize, unsigned long long totalSize) {
-        //
     }];
 }
 
