@@ -247,6 +247,10 @@
                 }
             }
         }
+        else
+        {
+            [[EaseMob sharedInstance].chatManager asyncLeaveChatroom:myChatroom.chatroomId completion:nil onQueue:nil];
+        }
     } onQueue:nil];
 }
 
