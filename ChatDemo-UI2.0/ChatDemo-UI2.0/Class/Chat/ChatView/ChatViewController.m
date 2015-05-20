@@ -35,6 +35,7 @@
 #import "EMCDDeviceManager.h"
 #import "EMCDDeviceManagerDelegate.h"
 #define KPageCount 20
+#define KHintAdjustY    50
 
 @interface ChatViewController ()<UITableViewDataSource, UITableViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, SRRefreshDelegate, IChatManagerDelegate, DXChatBarMoreViewDelegate, DXMessageToolBarDelegate, LocationViewDelegate, EMChatManagerChatroomDelegate, EMCDDeviceManagerDelegate>
 {
@@ -1630,17 +1631,20 @@
 
 - (void)chatroom:(EMChatroom *)chatroom occupantDidJoin:(NSString *)username
 {
-    [self showHint:[NSString stringWithFormat:@"%@加入%@", username, chatroom.chatroomId]];
+    CGRect frame = self.chatToolBar.frame;
+    [self showHint:[NSString stringWithFormat:@"%@加入%@", username, chatroom.chatroomId] yOffset:-frame.size.height + KHintAdjustY];
 }
 
 - (void)chatroom:(EMChatroom *)chatroom occupantDidLeave:(NSString *)username
 {
-    [self showHint:[NSString stringWithFormat:@"%@离开%@", username, chatroom.chatroomId]];
+    CGRect frame = self.chatToolBar.frame;
+    [self showHint:[NSString stringWithFormat:@"%@加入%@", username, chatroom.chatroomId] yOffset:-frame.size.height + KHintAdjustY];
 }
 
 - (void)beKickedOutFromChatroom:(EMChatroom *)chatroom
 {
-    [self showHint:[NSString stringWithFormat:@"被踢出%@", chatroom.chatroomId]];
+    CGRect frame = self.chatToolBar.frame;
+    [self showHint:[NSString stringWithFormat:@"被踢出%@", chatroom.chatroomId] yOffset:-frame.size.height + KHintAdjustY];
     [self.navigationController popViewControllerAnimated:YES];
 }
 
