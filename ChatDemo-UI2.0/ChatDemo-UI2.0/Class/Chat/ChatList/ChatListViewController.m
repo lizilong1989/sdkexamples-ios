@@ -47,6 +47,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    [[EaseMob sharedInstance].chatManager loadAllConversationsFromDatabaseWithAppend2Chat:NO];
     [self removeEmptyConversationsFromDB];
 
     [self.view addSubview:self.searchBar];
@@ -81,7 +82,28 @@
     NSArray *conversations = [[EaseMob sharedInstance].chatManager conversations];
     NSMutableArray *needRemoveConversations;
     for (EMConversation *conversation in conversations) {
-        if (!conversation.latestMessage) {
+        if (!conversation.latestMessage || (conversation.conversationType == eConversationTypeChatRoom)) {
+            if (!needRemoveConversations) {
+                needRemoveConversations = [[NSMutableArray alloc] initWithCapacity:0];
+            }
+            
+            [needRemoveConversations addObject:conversation.chatter];
+        }
+    }
+    
+    if (needRemoveConversations && needRemoveConversations.count > 0) {
+        [[EaseMob sharedInstance].chatManager removeConversationsByChatters:needRemoveConversations
+                                                             deleteMessages:YES
+                                                                append2Chat:NO];
+    }
+}
+
+- (void)removeChatroomConversationsFromDB
+{
+    NSArray *conversations = [[EaseMob sharedInstance].chatManager conversations];
+    NSMutableArray *needRemoveConversations;
+    for (EMConversation *conversation in conversations) {
+        if (conversation.conversationType == eConversationTypeChatRoom) {
             if (!needRemoveConversations) {
                 needRemoveConversations = [[NSMutableArray alloc] initWithCapacity:0];
             }

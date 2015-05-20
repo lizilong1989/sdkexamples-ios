@@ -38,7 +38,7 @@
 }
 @end
 
-static NSString *kOnceJoinedChatrooms = @"OnceJoinedChatrooms";
+static NSString *kOnceJoinedChatroomsPattern = @"OnceJoinedChatrooms_%@";
 
 @interface MyChatroomListViewController ()<UISearchBarDelegate, UISearchDisplayDelegate, IChatManagerDelegate, SRRefreshDelegate>
 
@@ -262,9 +262,10 @@ static NSString *kOnceJoinedChatrooms = @"OnceJoinedChatrooms";
         [tableView reloadData];
         
         NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
-        NSMutableDictionary *chatRooms = [NSMutableDictionary dictionaryWithDictionary:[ud objectForKey:kOnceJoinedChatrooms]];
+        NSString *key = [NSString stringWithFormat:kOnceJoinedChatroomsPattern, [[[EaseMob sharedInstance].chatManager loginInfo] objectForKey:@"username" ]];
+        NSMutableDictionary *chatRooms = [NSMutableDictionary dictionaryWithDictionary:[ud objectForKey:key]];
         [chatRooms removeObjectForKey:chatroom.chatroomId];
-        [ud setObject:chatRooms forKey:kOnceJoinedChatrooms];
+        [ud setObject:chatRooms forKey:key];
         [ud synchronize];
     }
 }
@@ -282,10 +283,26 @@ static NSString *kOnceJoinedChatrooms = @"OnceJoinedChatrooms";
                 break;
         }
     } else {
-        MyChatroom *chatroom = [self.dataSource objectAtIndex:indexPath.row];
-        ChatViewController *chatController = [[ChatViewController alloc] initWithChatter:chatroom.chatroomId conversationType:eConversationTypeChatRoom];
-        chatController.title = chatroom.chatroomName;
-        [self.navigationController pushViewController:chatController animated:YES];
+        MyChatroom *myChatroom = [self.dataSource objectAtIndex:indexPath.row];
+        [self showHudInView:self.view hint:NSLocalizedString(@"chatroom.joining",@"Joining the chatroom")];
+        __weak typeof(self) weakSelf = self;
+        [[EaseMob sharedInstance].chatManager asyncJoinChatroom:myChatroom.chatroomId completion:^(EMChatroom *chatroom, EMError *error){
+            if (weakSelf)
+            {
+                MyChatroomListViewController *strongSelf = weakSelf;
+                [strongSelf hideHud];
+                if (error && (error.errorCode != EMErrorChatroomJoined))
+                {
+                    [strongSelf showHint:[NSString stringWithFormat:@"加入%@失败", myChatroom.chatroomId]];
+                }
+                else
+                {
+                    ChatViewController *chatController = [[ChatViewController alloc] initWithChatter:chatroom.chatroomId conversationType:eConversationTypeChatRoom];
+                    chatController.title = chatroom.chatroomSubject;
+                    [self.navigationController pushViewController:chatController animated:YES];
+                }
+            }
+        } onQueue:nil];
     }
 }
 
@@ -376,12 +393,18 @@ static NSString *kOnceJoinedChatrooms = @"OnceJoinedChatrooms";
     [self.dataSource removeAllObjects];
     
     NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
-    NSDictionary *chatRooms = [ud objectForKey:@"OnceJoinedChatrooms"];
+    NSString *key = [NSString stringWithFormat:kOnceJoinedChatroomsPattern, [[[EaseMob sharedInstance].chatManager loginInfo] objectForKey:@"username" ]];
+    NSDictionary *chatRooms = [ud objectForKey:key];
     for (NSString *chatroomId in [chatRooms allKeys])
     {
         MyChatroom *chatroom = [MyChatroom chatroomWithId:chatroomId andName:chatRooms[chatroomId]];
         [self.dataSource addObject:chatroom];
     }
+    NSComparator cmptr = ^(MyChatroom *obj1, MyChatroom *obj2)
+    {
+        return [obj1.chatroomName caseInsensitiveCompare:obj2.chatroomName];
+    };
+    [self.dataSource sortUsingComparator:cmptr];
     
     [self.tableView reloadData];
 }
