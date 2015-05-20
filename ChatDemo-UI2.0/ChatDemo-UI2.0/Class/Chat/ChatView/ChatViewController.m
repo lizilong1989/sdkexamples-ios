@@ -148,25 +148,6 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleCallNotification:) name:@"callOutWithChatter" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleCallNotification:) name:@"callControllerClose" object:nil];
-
-    if (_conversation.conversationType == eConversationTypeChatRoom)
-    {
-        //加入聊天室
-        [self showHudInView:self.view hint:NSLocalizedString(@"chatroom.joining",@"Joining the chatroom")];
-        __weak typeof(self) weakSelf = self;
-        NSString *chatter = _chatter;
-        [[EaseMob sharedInstance].chatManager asyncJoinChatroom:chatter completion:^(EMChatroom *chatroom, EMError *error){
-            if (weakSelf)
-            {
-                ChatViewController *strongSelf = weakSelf;
-                [strongSelf hideHud];
-                if (error && (error.errorCode != EMErrorChatroomJoined))
-                {
-                    [strongSelf showHint:[NSString stringWithFormat:@"加入%@失败", chatter]];
-                }
-            }
-        } onQueue:nil];
-    }
 }
 
 - (void)handleCallNotification:(NSNotification *)notification

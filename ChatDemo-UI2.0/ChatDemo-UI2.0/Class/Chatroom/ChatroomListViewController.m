@@ -217,17 +217,36 @@
 {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
-    EMChatroom *chatroom = [self.dataSource objectAtIndex:indexPath.row];
-    ChatViewController *chatController = [[ChatViewController alloc] initWithChatter:chatroom.chatroomId conversationType:eConversationTypeChatRoom];
-    chatController.title = chatroom.chatroomSubject;
-    [self.navigationController pushViewController:chatController animated:YES];
-    
-    NSString *chatroomName = chatroom.chatroomSubject ? chatroom.chatroomSubject : @"";
-    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
-    NSMutableDictionary *chatRooms = [NSMutableDictionary dictionaryWithDictionary:[ud objectForKey:@"OnceJoinedChatrooms"]];
-    [chatRooms setObject:chatroomName forKey:chatroom.chatroomId];
-    [ud setObject:chatRooms forKey:@"OnceJoinedChatrooms"];
-    [ud synchronize];
+    EMChatroom *myChatroom = [self.dataSource objectAtIndex:indexPath.row];
+    [self showHudInView:self.view hint:NSLocalizedString(@"chatroom.joining",@"Joining the chatroom")];
+    __weak typeof(self) weakSelf = self;
+    [[EaseMob sharedInstance].chatManager asyncJoinChatroom:myChatroom.chatroomId completion:^(EMChatroom *chatroom, EMError *error){
+        if (weakSelf)
+        {
+            ChatroomListViewController *strongSelf = weakSelf;
+            [strongSelf hideHud];
+            if (error && (error.errorCode != EMErrorChatroomJoined))
+            {
+                [strongSelf showHint:[NSString stringWithFormat:@"加入%@失败", myChatroom.chatroomId]];
+            }
+            else
+            {
+                ChatViewController *chatController = [[ChatViewController alloc] initWithChatter:chatroom.chatroomId conversationType:eConversationTypeChatRoom];
+                chatController.title = chatroom.chatroomSubject;
+                [self.navigationController pushViewController:chatController animated:YES];
+                
+                NSString *chatroomName = chatroom.chatroomSubject ? chatroom.chatroomSubject : @"";
+                NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+                NSMutableDictionary *chatRooms = [NSMutableDictionary dictionaryWithDictionary:[ud objectForKey:@"OnceJoinedChatrooms"]];
+                if (![chatRooms objectForKey:chatroom.chatroomId])
+                {
+                    [chatRooms setObject:chatroomName forKey:chatroom.chatroomId];
+                    [ud setObject:chatRooms forKey:@"OnceJoinedChatrooms"];
+                    [ud synchronize];
+                }
+            }
+        }
+    } onQueue:nil];
 }
 
 #pragma mark - UISearchBarDelegate
