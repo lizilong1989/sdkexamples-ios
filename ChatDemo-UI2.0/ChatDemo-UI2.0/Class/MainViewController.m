@@ -130,13 +130,13 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
     [self unregisterNotifications];
     
     [[EaseMob sharedInstance].chatManager addDelegate:self delegateQueue:nil];
-    [[EMSDKFull sharedInstance].callManager addDelegate:self delegateQueue:nil];
+    [[EaseMob sharedInstance].callManager addDelegate:self delegateQueue:nil];
 }
 
 -(void)unregisterNotifications
 {
     [[EaseMob sharedInstance].chatManager removeDelegate:self];
-    [[EMSDKFull sharedInstance].callManager removeDelegate:self];
+    [[EaseMob sharedInstance].callManager removeDelegate:self];
 }
 
 - (void)setupSubviews
@@ -239,14 +239,14 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
         EMCallSessionType type = [[object objectForKey:@"type"] intValue];
         EMCallSession *callSession = nil;
         if (type == eCallSessionTypeAudio) {
-            callSession = [[EMSDKFull sharedInstance].callManager asyncMakeVoiceCall:chatter timeout:50 error:&error];
+            callSession = [[EaseMob sharedInstance].callManager asyncMakeVoiceCall:chatter timeout:50 error:&error];
         }
         else if (type == eCallSessionTypeVideo){
-            callSession = [[EMSDKFull sharedInstance].callManager asyncMakeVideoCall:chatter timeout:50 error:&error];
+            callSession = [[EaseMob sharedInstance].callManager asyncMakeVideoCall:chatter timeout:50 error:&error];
         }
         
         if (callSession && !error) {
-            [[EMSDKFull sharedInstance].callManager removeDelegate:self];
+            [[EaseMob sharedInstance].callManager removeDelegate:self];
             
             CallViewController *callController = [[CallViewController alloc] initWithSession:callSession isIncoming:NO];
             callController.modalPresentationStyle = UIModalPresentationOverFullScreen;
@@ -266,7 +266,7 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
     [audioSession setCategory:AVAudioSessionCategoryPlayback error:nil];
     [audioSession setActive:YES error:nil];
  
-    [[EMSDKFull sharedInstance].callManager addDelegate:self delegateQueue:nil];
+    [[EaseMob sharedInstance].callManager addDelegate:self delegateQueue:nil];
 }
 
 #pragma mark - IChatManagerDelegate 消息变化
@@ -630,7 +630,7 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
             error = [EMError errorWithCode:EMErrorInitFailure andDescription:@"后台不能进行视频通话"];
         }
         else if (!isShowPicker){
-            [[EMSDKFull sharedInstance].callManager removeDelegate:self];
+            [[EaseMob sharedInstance].callManager removeDelegate:self];
 //            _callController = nil;
             CallViewController *callController = [[CallViewController alloc] initWithSession:callSession isIncoming:YES];
             callController.modalPresentationStyle = UIModalPresentationOverFullScreen;
@@ -639,7 +639,7 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
         }
         
         if (error || isShowPicker) {
-            [[EMSDKFull sharedInstance].callManager asyncEndCall:callSession.sessionId reason:eCallReason_Hangup];
+            [[EaseMob sharedInstance].callManager asyncEndCall:callSession.sessionId reason:eCallReason_Hangup];
         }
     }
 }

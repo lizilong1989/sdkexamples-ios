@@ -22,6 +22,5 @@
     #import "NSString+Valid.h"
 
     #import "EaseMob.h"
-    #import "EMSDKFull.h"
 
 #endif

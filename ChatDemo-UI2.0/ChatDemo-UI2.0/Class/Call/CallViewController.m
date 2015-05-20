@@ -31,8 +31,8 @@
         _timeLength = 0;
         _chatter = session.sessionChatter;
         
-//        [[EMSDKFull sharedInstance].callManager removeDelegate:self];
-        [[EMSDKFull sharedInstance].callManager addDelegate:self delegateQueue:nil];
+//        [[EaseMob sharedInstance].callManager removeDelegate:self];
+        [[EaseMob sharedInstance].callManager addDelegate:self delegateQueue:nil];
         
         g_callCenter = [[CTCallCenter alloc] init];
         g_callCenter.callEventHandler=^(CTCall* call)
@@ -43,7 +43,7 @@
                 [_timeTimer invalidate];
                 [self _stopRing];
                 
-                [[EMSDKFull sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Hangup];
+                [[EaseMob sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Hangup];
                 [self _close];
             }
         };
@@ -350,7 +350,7 @@
     
     [_openGLView removeFromSuperview];
     
-    [[EMSDKFull sharedInstance].callManager removeDelegate:self];
+    [[EaseMob sharedInstance].callManager removeDelegate:self];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"callControllerClose" object:nil];
     [self dismissViewControllerAnimated:YES completion:nil];
 }
@@ -361,7 +361,7 @@
 {
     if (alertView.tag == kAlertViewTag_Close)
     {
-        [[EMSDKFull sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Null];
+        [[EaseMob sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Null];
         [self _close];
     }
 }
@@ -444,7 +444,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         }
         
         YUV420spRotate90(bufferPtr, _imageDataBuffer, width, height);
-        [[EMSDKFull sharedInstance].callManager processPreviewData:(char *)bufferPtr width:width height:height];
+        [[EaseMob sharedInstance].callManager processPreviewData:(char *)bufferPtr width:width height:height];
         
         /*We unlock the buffer*/
         CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
@@ -525,7 +525,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 - (void)silenceAction
 {
     _silenceButton.selected = !_silenceButton.selected;
-    [[EMSDKFull sharedInstance].callManager markCallSession:_callSession.sessionId asSilence:_silenceButton.selected];
+    [[EaseMob sharedInstance].callManager markCallSession:_callSession.sessionId asSilence:_silenceButton.selected];
 }
 
 - (void)speakerOutAction
@@ -546,7 +546,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [self _stopRing];
     [self showHint:@"拒接通话..."];
     
-    [[EMSDKFull sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Reject];
+    [[EaseMob sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Reject];
 //    [self _close];
 }
 
@@ -559,7 +559,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
     [audioSession setActive:YES error:nil];
     
-    [[EMSDKFull sharedInstance].callManager asyncAnswerCall:_callSession.sessionId];
+    [[EaseMob sharedInstance].callManager asyncAnswerCall:_callSession.sessionId];
 }
 
 - (void)hangupAction
@@ -572,7 +572,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [audioSession setCategory:_audioCategory error:nil];
     [audioSession setActive:YES error:nil];
     
-    [[EMSDKFull sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Hangup];
+    [[EaseMob sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Hangup];
 //    [self _close];
 }
 
