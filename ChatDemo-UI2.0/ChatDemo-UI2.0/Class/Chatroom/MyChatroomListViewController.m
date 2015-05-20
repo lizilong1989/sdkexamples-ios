@@ -297,8 +297,8 @@ static NSString *kOnceJoinedChatroomsPattern = @"OnceJoinedChatrooms_%@";
                 }
                 else
                 {
-                    ChatViewController *chatController = [[ChatViewController alloc] initWithChatter:chatroom.chatroomId conversationType:eConversationTypeChatRoom];
-                    chatController.title = chatroom.chatroomSubject;
+                    ChatViewController *chatController = [[ChatViewController alloc] initWithChatter:myChatroom.chatroomId conversationType:eConversationTypeChatRoom];
+                    chatController.title = myChatroom.chatroomName;
                     [self.navigationController pushViewController:chatController animated:YES];
                 }
             }
