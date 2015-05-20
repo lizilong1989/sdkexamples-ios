@@ -1638,7 +1638,7 @@
 - (void)chatroom:(EMChatroom *)chatroom occupantDidLeave:(NSString *)username
 {
     CGRect frame = self.chatToolBar.frame;
-    [self showHint:[NSString stringWithFormat:@"%@加入%@", username, chatroom.chatroomId] yOffset:-frame.size.height + KHintAdjustY];
+    [self showHint:[NSString stringWithFormat:@"%@离开%@", username, chatroom.chatroomId] yOffset:-frame.size.height + KHintAdjustY];
 }
 
 - (void)beKickedOutFromChatroom:(EMChatroom *)chatroom
