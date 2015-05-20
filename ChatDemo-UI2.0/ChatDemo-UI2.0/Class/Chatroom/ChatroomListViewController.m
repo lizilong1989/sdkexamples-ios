@@ -237,11 +237,12 @@
                 
                 NSString *chatroomName = chatroom.chatroomSubject ? chatroom.chatroomSubject : @"";
                 NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
-                NSMutableDictionary *chatRooms = [NSMutableDictionary dictionaryWithDictionary:[ud objectForKey:@"OnceJoinedChatrooms"]];
+                NSString *key = [NSString stringWithFormat:@"OnceJoinedChatrooms_%@", [[[EaseMob sharedInstance].chatManager loginInfo] objectForKey:@"username" ]];
+                NSMutableDictionary *chatRooms = [NSMutableDictionary dictionaryWithDictionary:[ud objectForKey:key]];
                 if (![chatRooms objectForKey:chatroom.chatroomId])
                 {
                     [chatRooms setObject:chatroomName forKey:chatroom.chatroomId];
-                    [ud setObject:chatRooms forKey:@"OnceJoinedChatrooms"];
+                    [ud setObject:chatRooms forKey:key];
                     [ud synchronize];
                 }
             }

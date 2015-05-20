@@ -38,7 +38,7 @@
 }
 @end
 
-static NSString *kOnceJoinedChatrooms = @"OnceJoinedChatrooms";
+static NSString *kOnceJoinedChatroomsPattern = @"OnceJoinedChatrooms_%@";
 
 @interface MyChatroomListViewController ()<UISearchBarDelegate, UISearchDisplayDelegate, IChatManagerDelegate, SRRefreshDelegate>
 
@@ -262,9 +262,10 @@ static NSString *kOnceJoinedChatrooms = @"OnceJoinedChatrooms";
         [tableView reloadData];
         
         NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
-        NSMutableDictionary *chatRooms = [NSMutableDictionary dictionaryWithDictionary:[ud objectForKey:kOnceJoinedChatrooms]];
+        NSString *key = [NSString stringWithFormat:kOnceJoinedChatroomsPattern, [[[EaseMob sharedInstance].chatManager loginInfo] objectForKey:@"username" ]];
+        NSMutableDictionary *chatRooms = [NSMutableDictionary dictionaryWithDictionary:[ud objectForKey:key]];
         [chatRooms removeObjectForKey:chatroom.chatroomId];
-        [ud setObject:chatRooms forKey:kOnceJoinedChatrooms];
+        [ud setObject:chatRooms forKey:key];
         [ud synchronize];
     }
 }
@@ -392,7 +393,8 @@ static NSString *kOnceJoinedChatrooms = @"OnceJoinedChatrooms";
     [self.dataSource removeAllObjects];
     
     NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
-    NSDictionary *chatRooms = [ud objectForKey:@"OnceJoinedChatrooms"];
+    NSString *key = [NSString stringWithFormat:kOnceJoinedChatroomsPattern, [[[EaseMob sharedInstance].chatManager loginInfo] objectForKey:@"username" ]];
+    NSDictionary *chatRooms = [ud objectForKey:key];
     for (NSString *chatroomId in [chatRooms allKeys])
     {
         MyChatroom *chatroom = [MyChatroom chatroomWithId:chatroomId andName:chatRooms[chatroomId]];
