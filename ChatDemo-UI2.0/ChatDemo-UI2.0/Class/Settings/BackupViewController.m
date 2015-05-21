@@ -87,9 +87,7 @@
 
 - (void)setProgress:(float)progress
 {
-    [self.hud showAnimated:YES whileExecutingBlock:^{
-        self.hud.progress = progress;
-    } completionBlock:nil];
+    self.hud.progress = progress;
 }
 
 #pragma mark - action
@@ -112,7 +110,7 @@
                     self.hud.labelText = @"格式化数据";
                 }
                     break;
-                case eBackupMessagesStatusCompression:
+                case eBackupMessagesStatusCompressing:
                 {
                     self.hud.labelText = @"压缩数据";
                 }
@@ -123,15 +121,15 @@
                     self.hud.labelText = @"上传数据";
                 }
                     break;
-                case eBackupMessagesStatusFailure:
+                case eBackupMessagesStatusFailed:
                     self.hud.labelText = @"备份数据失败";
                     [self.hud hide:YES afterDelay:1];
                     break;
-                case eBackupMessagesStatusSucceed:
+                case eBackupMessagesStatusSucceeded:
                     self.hud.labelText = @"上传数据成功";
                     [self.hud hide:YES afterDelay:2];
                     break;
-                case eBackupMessagesStatusCancel:
+                case eBackupMessagesStatusCancelled:
                     self.hud.labelText = @"取消备份操作";
                     [self.hud hide:YES afterDelay:2];
                     break;
@@ -159,31 +157,31 @@
                                                          statusCompletion:^(EMRestoreBackupStatus status, EMError *error) {
         dispatch_sync(dispatch_get_main_queue(), ^{
             switch (status) {
-                case eRestoreBackupStatusDownload:
+                case eRestoreBackupStatusDownloading:
                 {
                     self.hud.labelText = @"下载备份";
                 }
                     break;
-                case eRestoreBackupStatusDecompression:
+                case eRestoreBackupStatusDecompressing:
                 {
                     self.hud.mode = MBProgressHUDModeIndeterminate;
                     self.hud.labelText = @"解压数据";
                 }
                     break;
-                case eRestoreBackupStatusIntegration:
+                case eRestoreBackupStatusImporting:
                     self.hud.labelText = @"导入备份";
                     [self.hud hide:YES afterDelay:2];
                     break;
-                case eRestoreBackupStatusFailure:
+                case eRestoreBackupStatusFailed:
                     self.hud.labelText = @"恢复备份失败";
                     [self.hud hide:YES afterDelay:2];
                     break;
-                case eRestoreBackupStatusSucceed:
+                case eRestoreBackupStatusSucceeded:
                     self.hud.labelText = @"恢复备份成功";
                     [self.hud hide:YES afterDelay:2];
                     [[EaseMob sharedInstance].chatManager loadAllConversationsFromDatabaseWithAppend2Chat:YES];
                     break;
-                case eRestoreBackupStatusCancel:
+                case eRestoreBackupStatusCancelled:
                     self.hud.labelText = @"取消恢复备份操作";
                     [self.hud hide:YES afterDelay:2];
                     break;
