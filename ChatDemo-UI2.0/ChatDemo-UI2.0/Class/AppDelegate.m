@@ -64,7 +64,7 @@
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification
 {
     if (_mainController) {
-        [_mainController jumpToChatList];
+        [_mainController didReceiveLocalNotification:notification];
     }
 }
 

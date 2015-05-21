@@ -235,6 +235,23 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 #warning 以下第一行代码必须写，将self从ChatManager的代理中移除
     [[EaseMob sharedInstance].chatManager removeDelegate:self];
+    
+    if (_conversation.conversationType == eConversationTypeChatRoom)
+    {
+        //退出聊天室，删除会话
+        UINavigationController *navigationController = self.navigationController;
+        NSString *chatter = [_chatter copy];
+        [[EaseMob sharedInstance].chatManager asyncLeaveChatroom:chatter completion:^(EMChatroom *chatroom, EMError *error){
+            if (error)
+            {
+                [navigationController.topViewController showHint:[NSString stringWithFormat:@"离开%@失败", chatter]];
+            }
+            else
+            {
+                [[EaseMob sharedInstance].chatManager removeConversationByChatter:chatter deleteMessages:YES append2Chat:YES];
+            }
+        } onQueue:nil];
+    }
 }
 
 - (void)back
@@ -244,13 +261,7 @@
     if (message == nil) {
         [[EaseMob sharedInstance].chatManager removeConversationByChatter:_conversation.chatter deleteMessages:NO append2Chat:YES];
     }
-    if (_conversation.conversationType == eConversationTypeChatRoom)
-    {
-        //退出聊天室，删除会话
-        [[EaseMob sharedInstance].chatManager asyncLeaveChatroom:_chatter completion:^(EMChatroom *chatroom, EMError *error){
-        } onQueue:nil];
-        [[EaseMob sharedInstance].chatManager removeConversationByChatter:_chatter deleteMessages:YES append2Chat:YES];
-    }
+    
     [self.navigationController popViewControllerAnimated:YES];
 }
 
@@ -271,6 +282,8 @@
         {
             [self sendHasReadResponseForMessages:unreadMessages];
         }
+        
+        [_conversation markAllMessagesAsRead:YES];
     }
 }
 
@@ -540,6 +553,8 @@
         {
             [self sendHasReadResponseForMessages:unreadMessages];
         }
+        
+        [_conversation markAllMessagesAsRead:YES];
     }
 }
 
@@ -871,6 +886,10 @@
         {
             [self sendHasReadResponseForMessages:@[message]];
         }
+        if ([self shouldMarkMessageAsRead])
+        {
+            [self markMessagesAsRead:@[message]];
+        }
     }
 }
 
@@ -917,6 +936,10 @@
     {
         return;
     }
+    if ([self shouldMarkMessageAsRead])
+    {
+        [self markMessagesAsRead:offlineMessages];
+    }
     _chatTagDate = nil;
     [self loadMoreMessages];
     __weak typeof(self) weakSelf = self;
@@ -932,6 +955,10 @@
     if (![offlineMessages count])
     {
         return;
+    }
+    if ([self shouldMarkMessageAsRead])
+    {
+        [self markMessagesAsRead:offlineMessages];
     }
     _chatTagDate = nil;
     [self loadMoreMessages];
@@ -1534,6 +1561,16 @@
     }
 }
 
+- (BOOL)shouldMarkMessageAsRead
+{
+    if (([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) || self.isInvisible)
+    {
+        return NO;
+    }
+    
+    return YES;
+}
+
 - (EMMessageType)messageType
 {
     EMMessageType type = eMessageTypeChat;
@@ -1598,7 +1635,18 @@
     dispatch_async(_messageQueue, ^{
         for (EMMessage *message in messages)
         {
-            [[EaseMob sharedInstance].chatManager sendHasReadResponseForMessage:message];
+            [[EaseMob sharedInstance].chatManager sendReadAckForMessage:message];
+        }
+    });
+}
+
+- (void)markMessagesAsRead:(NSArray*)messages
+{
+    EMConversation *conversation = _conversation;
+    dispatch_async(_messageQueue, ^{
+        for (EMMessage *message in messages)
+        {
+            [conversation markMessageWithId:message.messageId asRead:YES];
         }
     });
 }

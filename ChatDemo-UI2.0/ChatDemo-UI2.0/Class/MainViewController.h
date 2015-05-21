@@ -23,4 +23,6 @@
 
 - (void)networkChanged:(EMConnectionState)connectionState;
 
+- (void)didReceiveLocalNotification:(UILocalNotification *)notification;
+
 @end

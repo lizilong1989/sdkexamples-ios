@@ -174,9 +174,8 @@ static NSString *kOnceJoinedChatroomsPattern = @"OnceJoinedChatrooms_%@";
             [tableView deselectRowAtIndexPath:indexPath animated:YES];
             [weakSelf.searchController.searchBar endEditing:YES];
             
-            EMGroup *group = [weakSelf.searchController.resultsSource objectAtIndex:indexPath.row];
-            ChatViewController *chatVC = [[ChatViewController alloc] initWithChatter:group.groupId isGroup:YES];
-            [weakSelf.navigationController pushViewController:chatVC animated:YES];
+            MyChatroom *myChatroom = [weakSelf.searchController.resultsSource objectAtIndex:indexPath.row];
+            [weakSelf joinChatroom:myChatroom fromVC:weakSelf];
         }];
     }
     
@@ -284,31 +283,8 @@ static NSString *kOnceJoinedChatroomsPattern = @"OnceJoinedChatrooms_%@";
         }
     } else {
         MyChatroom *myChatroom = [self.dataSource objectAtIndex:indexPath.row];
-        [self showHudInView:self.view hint:NSLocalizedString(@"chatroom.joining",@"Joining the chatroom")];
-        __weak typeof(self) weakSelf = self;
-        [[EaseMob sharedInstance].chatManager asyncJoinChatroom:myChatroom.chatroomId completion:^(EMChatroom *chatroom, EMError *error){
-            if (weakSelf)
-            {
-                MyChatroomListViewController *strongSelf = weakSelf;
-                [strongSelf hideHud];
-                if (error && (error.errorCode != EMErrorChatroomJoined))
-                {
-                    [strongSelf showHint:[NSString stringWithFormat:@"加入%@失败", myChatroom.chatroomId]];
-                }
-                else
-                {
-                    ChatViewController *chatController = [[ChatViewController alloc] initWithChatter:myChatroom.chatroomId conversationType:eConversationTypeChatRoom];
-                    chatController.title = myChatroom.chatroomName;
-                    [strongSelf.navigationController pushViewController:chatController animated:YES];
-                }
-            }
-            else
-            {
-                [[EaseMob sharedInstance].chatManager asyncLeaveChatroom:myChatroom.chatroomId completion:^(EMChatroom *chatroom, EMError *error){
-                    [[EaseMob sharedInstance].chatManager removeConversationByChatter:myChatroom.chatroomId deleteMessages:YES append2Chat:YES];
-                } onQueue:nil];
-            }
-        } onQueue:nil];
+        __weak MyChatroomListViewController *weakSelf = self;
+        [self joinChatroom:myChatroom fromVC:weakSelf];
     }
 }
 
@@ -421,6 +397,53 @@ static NSString *kOnceJoinedChatroomsPattern = @"OnceJoinedChatrooms_%@";
 {
     ChatroomListViewController *controller = [[ChatroomListViewController alloc] initWithStyle:UITableViewStylePlain];
     [self.navigationController pushViewController:controller animated:YES];
+}
+
+- (void)joinChatroom:(MyChatroom *)myChatroom fromVC:(__weak MyChatroomListViewController *)weakSelf
+{
+    [weakSelf showHudInView:weakSelf.view hint:NSLocalizedString(@"chatroom.joining",@"Joining the chatroom")];
+    UINavigationController *navigationController = weakSelf.navigationController;
+    [[EaseMob sharedInstance].chatManager asyncJoinChatroom:myChatroom.chatroomId completion:^(EMChatroom *chatroom, EMError *error){
+        if (weakSelf)
+        {
+            MyChatroomListViewController *strongSelf = weakSelf;
+            [strongSelf hideHud];
+            if (error && (error.errorCode != EMErrorChatroomJoined))
+            {
+                [strongSelf showHint:[NSString stringWithFormat:@"加入%@失败", myChatroom.chatroomId]];
+            }
+            else
+            {
+                ChatViewController *chatController = [[ChatViewController alloc] initWithChatter:myChatroom.chatroomId conversationType:eConversationTypeChatRoom];
+                chatController.title = myChatroom.chatroomName;
+                [navigationController pushViewController:chatController animated:YES];
+            }
+        }
+        else
+        {
+            if (!error || (error.errorCode == EMErrorChatroomJoined))
+            {
+                [[EaseMob sharedInstance].chatManager asyncLeaveChatroom:myChatroom.chatroomId completion:^(EMChatroom *chatroom, EMError *error){
+                    if (error)
+                    {
+                        //leave 聊天室失败，进入聊天室会话
+                        ChatViewController *chatController = [[ChatViewController alloc] initWithChatter:myChatroom.chatroomId conversationType:eConversationTypeChatRoom];
+                        chatController.title = myChatroom.chatroomName;
+                        [navigationController pushViewController:chatController animated:YES];
+                        [chatController showHint:[NSString stringWithFormat:@"离开%@失败", myChatroom.chatroomId]];
+                    }
+                    else
+                    {
+                        [[EaseMob sharedInstance].chatManager removeConversationByChatter:myChatroom.chatroomId deleteMessages:YES append2Chat:YES];
+                    }
+                } onQueue:nil];
+            }
+            else
+            {
+                [navigationController.topViewController showHint:[NSString stringWithFormat:@"加入%@失败", myChatroom.chatroomId]];
+            }
+        }
+    } onQueue:nil];
 }
 
 @end

@@ -22,6 +22,9 @@
 #import "EMCDDeviceManager.h"
 //两次提示的默认间隔
 static const CGFloat kDefaultPlaySoundInterval = 3.0;
+static NSString *kMessageType = @"MessageType";
+static NSString *kConversationChatter = @"ConversationChatter";
+static NSString *kGroupName = @"GroupName";
 
 @interface MainViewController () <UIAlertViewDelegate, IChatManagerDelegate, EMCallManagerDelegate>
 {
@@ -409,6 +412,12 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
     notification.alertAction = NSLocalizedString(@"open", @"Open");
     notification.timeZone = [NSTimeZone defaultTimeZone];
     notification.soundName = UILocalNotificationDefaultSoundName;
+    
+    NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+    [userInfo setObject:[NSNumber numberWithInt:message.messageType] forKey:kMessageType];
+    [userInfo setObject:message.conversationChatter forKey:kConversationChatter];
+    notification.userInfo = userInfo;
+    
     //发送通知
     [[UIApplication sharedApplication] scheduleLocalNotification:notification];
 //    UIApplication *application = [UIApplication sharedApplication];
@@ -647,6 +656,101 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
 - (void)jumpToChatList
 {
     if(_chatListVC)
+    {
+        [self.navigationController popToViewController:self animated:NO];
+        [self setSelectedViewController:_chatListVC];
+    }
+}
+
+- (EMConversationType)conversationTypeFromMessageType:(EMMessageType)type
+{
+    EMConversationType conversatinType = eConversationTypeChat;
+    switch (type) {
+        case eMessageTypeChat:
+            conversatinType = eConversationTypeChat;
+            break;
+        case eMessageTypeGroupChat:
+            conversatinType = eConversationTypeGroupChat;
+            break;
+        case eMessageTypeChatRoom:
+            conversatinType = eConversationTypeChatRoom;
+            break;
+        default:
+            break;
+    }
+    return conversatinType;
+}
+
+- (void)didReceiveLocalNotification:(UILocalNotification *)notification
+{
+    NSDictionary *userInfo = notification.userInfo;
+    if (userInfo)
+    {
+        NSArray *viewControllers = self.navigationController.viewControllers;
+        [viewControllers enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id obj, NSUInteger idx, BOOL *stop){
+            if (obj != self)
+            {
+                if (![obj isKindOfClass:[ChatViewController class]])
+                {
+                    [self.navigationController popViewControllerAnimated:NO];
+                }
+                else
+                {
+                    NSString *conversationChatter = userInfo[kConversationChatter];
+                    ChatViewController *chatViewController = (ChatViewController *)obj;
+                    if (![chatViewController.chatter isEqualToString:conversationChatter])
+                    {
+                        [self.navigationController popViewControllerAnimated:NO];
+                        EMMessageType messageType = [userInfo[kMessageType] intValue];
+                        chatViewController = [[ChatViewController alloc] initWithChatter:conversationChatter conversationType:[self conversationTypeFromMessageType:messageType]];
+                        switch (messageType) {
+                            case eMessageTypeGroupChat:
+                                {
+                                    NSArray *groupArray = [[EaseMob sharedInstance].chatManager groupList];
+                                    for (EMGroup *group in groupArray) {
+                                        if ([group.groupId isEqualToString:conversationChatter]) {
+                                            chatViewController.title = group.groupSubject;
+                                            break;
+                                        }
+                                    }
+                                }
+                                break;
+                            default:
+                                chatViewController.title = conversationChatter;
+                                break;
+                        }
+                        [self.navigationController pushViewController:chatViewController animated:NO];
+                    }
+                    *stop= YES;
+                }
+            }
+            else
+            {
+                ChatViewController *chatViewController = (ChatViewController *)obj;
+                NSString *conversationChatter = userInfo[kConversationChatter];
+                EMMessageType messageType = [userInfo[kMessageType] intValue];
+                chatViewController = [[ChatViewController alloc] initWithChatter:conversationChatter conversationType:[self conversationTypeFromMessageType:messageType]];
+                switch (messageType) {
+                    case eMessageTypeGroupChat:
+                    {
+                        NSArray *groupArray = [[EaseMob sharedInstance].chatManager groupList];
+                        for (EMGroup *group in groupArray) {
+                            if ([group.groupId isEqualToString:conversationChatter]) {
+                                chatViewController.title = group.groupSubject;
+                                break;
+                            }
+                        }
+                    }
+                        break;
+                    default:
+                        chatViewController.title = conversationChatter;
+                        break;
+                }
+                [self.navigationController pushViewController:chatViewController animated:NO];
+            }
+        }];
+    }
+    else if (_chatListVC)
     {
         [self.navigationController popToViewController:self animated:NO];
         [self setSelectedViewController:_chatListVC];
