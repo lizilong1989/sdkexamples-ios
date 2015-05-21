@@ -233,7 +233,7 @@
             {
                 ChatViewController *chatController = [[ChatViewController alloc] initWithChatter:chatroom.chatroomId conversationType:eConversationTypeChatRoom];
                 chatController.title = chatroom.chatroomSubject;
-                [self.navigationController pushViewController:chatController animated:YES];
+                [strongSelf.navigationController pushViewController:chatController animated:YES];
                 
                 NSString *chatroomName = chatroom.chatroomSubject ? chatroom.chatroomSubject : @"";
                 NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
@@ -249,7 +249,9 @@
         }
         else
         {
-            [[EaseMob sharedInstance].chatManager asyncLeaveChatroom:myChatroom.chatroomId completion:nil onQueue:nil];
+            [[EaseMob sharedInstance].chatManager asyncLeaveChatroom:myChatroom.chatroomId completion:^(EMChatroom *chatroom, EMError *error){
+                [[EaseMob sharedInstance].chatManager removeConversationByChatter:myChatroom.chatroomId deleteMessages:YES append2Chat:YES];
+            } onQueue:nil];
         }
     } onQueue:nil];
 }

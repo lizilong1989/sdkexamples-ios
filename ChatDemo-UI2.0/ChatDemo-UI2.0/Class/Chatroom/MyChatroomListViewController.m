@@ -299,12 +299,14 @@ static NSString *kOnceJoinedChatroomsPattern = @"OnceJoinedChatrooms_%@";
                 {
                     ChatViewController *chatController = [[ChatViewController alloc] initWithChatter:myChatroom.chatroomId conversationType:eConversationTypeChatRoom];
                     chatController.title = myChatroom.chatroomName;
-                    [self.navigationController pushViewController:chatController animated:YES];
+                    [strongSelf.navigationController pushViewController:chatController animated:YES];
                 }
             }
             else
             {
-                [[EaseMob sharedInstance].chatManager asyncLeaveChatroom:myChatroom.chatroomId completion:nil onQueue:nil];
+                [[EaseMob sharedInstance].chatManager asyncLeaveChatroom:myChatroom.chatroomId completion:^(EMChatroom *chatroom, EMError *error){
+                    [[EaseMob sharedInstance].chatManager removeConversationByChatter:myChatroom.chatroomId deleteMessages:YES append2Chat:YES];
+                } onQueue:nil];
             }
         } onQueue:nil];
     }
