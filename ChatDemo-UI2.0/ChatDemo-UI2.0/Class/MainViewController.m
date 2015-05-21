@@ -631,10 +631,8 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
         }
         else if (!isShowPicker){
             [[EaseMob sharedInstance].callManager removeDelegate:self];
-//            _callController = nil;
             CallViewController *callController = [[CallViewController alloc] initWithSession:callSession isIncoming:YES];
             callController.modalPresentationStyle = UIModalPresentationOverFullScreen;
-//            _callController = callController;
             [self presentViewController:callController animated:NO completion:nil];
         }
         
