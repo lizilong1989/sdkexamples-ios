@@ -1296,19 +1296,14 @@
 {
     __weak typeof(self) weakSelf = self;
     dispatch_async(_messageQueue, ^{
-        EMMessage *tmpMessage = [weakSelf.messages firstObject];
-        NSArray *moreMessages = [weakSelf.conversation loadNumbersOfMessages:KPageCount withMessageId:tmpMessage.messageId];
-//        long long timestamp = [[NSDate date] timeIntervalSince1970] * 1000 + 1;
-//        NSArray *messages = [weakSelf.conversation loadNumbersOfMessages:([weakSelf.messages count] + KPageCount) before:timestamp];
-        if ([moreMessages count] > 0) {
-            NSIndexSet *indexSet = [[NSIndexSet alloc] initWithIndexesInRange:NSMakeRange(0, moreMessages.count)];
-            [weakSelf.messages insertObjects:moreMessages atIndexes:indexSet];
+        long long timestamp = [[NSDate date] timeIntervalSince1970] * 1000 + 1;
+        
+        NSArray *messages = [weakSelf.conversation loadNumbersOfMessages:([weakSelf.messages count] + KPageCount) before:timestamp];
+        if ([messages count] > 0) {
+            weakSelf.messages = [messages mutableCopy];
             
             NSInteger currentCount = [weakSelf.dataSource count];
-            NSArray *formatMessages = [weakSelf formatMessages:moreMessages];
-            indexSet = [[NSIndexSet alloc] initWithIndexesInRange:NSMakeRange(0, formatMessages.count)];
-            [weakSelf.dataSource insertObjects:formatMessages atIndexes:indexSet];
-            
+            weakSelf.dataSource = [[weakSelf formatMessages:messages] mutableCopy];
             dispatch_async(dispatch_get_main_queue(), ^{
                 [weakSelf.tableView reloadData];
                 
@@ -1316,9 +1311,9 @@
             });
             
             //从数据库导入时重新下载没有下载成功的附件
-            for (NSInteger i = 0; i < [formatMessages count]; i++)
+            for (NSInteger i = 0; i < [weakSelf.dataSource count]; i++)
             {
-                id obj = formatMessages[i];
+                id obj = weakSelf.dataSource[i];
                 if ([obj isKindOfClass:[MessageModel class]])
                 {
                     [weakSelf downloadMessageAttachments:obj];
@@ -1326,9 +1321,9 @@
             }
             
             NSMutableArray *unreadMessages = [NSMutableArray array];
-            for (NSInteger i = 0; i < [moreMessages count]; i++)
+            for (NSInteger i = 0; i < [messages count]; i++)
             {
-                EMMessage *message = moreMessages[i];
+                EMMessage *message = messages[i];
                 if ([self shouldAckMessage:message read:NO])
                 {
                     [unreadMessages addObject:message];
