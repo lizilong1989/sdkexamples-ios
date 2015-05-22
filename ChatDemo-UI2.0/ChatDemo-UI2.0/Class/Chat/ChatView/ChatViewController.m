@@ -578,13 +578,17 @@
     else if([eventName isEqualToString:kResendButtonTapEventName]){
         EMChatViewCell *resendCell = [userInfo objectForKey:kShouldResendCell];
         MessageModel *messageModel = resendCell.messageModel;
+        if ((messageModel.status != eMessageDeliveryState_Failure) && (messageModel.status != eMessageDeliveryState_Pending))
+        {
+            return;
+        }
+        id <IChatManager> chatManager = [[EaseMob sharedInstance] chatManager];
+        [chatManager asyncResendMessage:messageModel.message progress:nil];
         NSIndexPath *indexPath = [self.tableView indexPathForCell:resendCell];
         [self.tableView beginUpdates];
         [self.tableView reloadRowsAtIndexPaths:@[indexPath]
                               withRowAnimation:UITableViewRowAnimationNone];
         [self.tableView endUpdates];
-        id <IChatManager> chatManager = [[EaseMob sharedInstance] chatManager];
-        [chatManager asyncResendMessage:messageModel.message progress:nil];
     }else if([eventName isEqualToString:kRouterEventChatCellVideoTapEventName]){
         [self chatVideoCellPressed:model];
     }
