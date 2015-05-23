@@ -242,14 +242,7 @@
         UINavigationController *navigationController = self.navigationController;
         NSString *chatter = [_chatter copy];
         [[EaseMob sharedInstance].chatManager asyncLeaveChatroom:chatter completion:^(EMChatroom *chatroom, EMError *error){
-            if (error)
-            {
-                [navigationController.topViewController showHint:[NSString stringWithFormat:@"离开%@失败", chatter]];
-            }
-            else
-            {
-                [[EaseMob sharedInstance].chatManager removeConversationByChatter:chatter deleteMessages:YES append2Chat:YES];
-            }
+            [[EaseMob sharedInstance].chatManager removeConversationByChatter:chatter deleteMessages:YES append2Chat:YES];
         } onQueue:nil];
     }
 }
