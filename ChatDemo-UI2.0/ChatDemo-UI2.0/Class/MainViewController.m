@@ -655,7 +655,7 @@ static NSString *kGroupName = @"GroupName";
 
 - (void)jumpToChatList
 {
-    if(_chatListVC)
+    if(_chatListVC && ![self.navigationController.topViewController isKindOfClass:[ChatViewController class]])
     {
         [self.navigationController popToViewController:self animated:NO];
         [self setSelectedViewController:_chatListVC];
