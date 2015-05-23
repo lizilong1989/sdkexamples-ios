@@ -18,7 +18,7 @@
 #import "ChatViewController.h"
 #import "RealtimeSearchUtil.h"
 
-@interface ChatroomListViewController ()<UISearchBarDelegate, UISearchDisplayDelegate, SRRefreshDelegate>
+@interface ChatroomListViewController ()<UISearchBarDelegate, UISearchDisplayDelegate, SRRefreshDelegate, EMChatManagerDelegate>
 
 @property (strong, nonatomic) NSMutableArray *dataSource;
 
@@ -48,7 +48,7 @@
     {
         [self setEdgesForExtendedLayout:UIRectEdgeNone];
     }
-    
+    [[EaseMob sharedInstance].chatManager addDelegate:self delegateQueue:nil];
     // Uncomment the following line to preserve selection between presentations.
     self.title = NSLocalizedString(@"title.chatroomlist",@"chatroom list");
     
@@ -86,6 +86,7 @@
             [chatrooms removeAllObjects];
         });
     }
+    [[EaseMob sharedInstance].chatManager removeDelegate:self];
 }
 
 #pragma mark - getter
@@ -354,6 +355,18 @@
             }
         }
     } onQueue:nil];
+}
+
+- (void)beKickedOutFromChatroom:(EMChatroom *)leavedChatroom
+{
+    [self.dataSource enumerateObjectsUsingBlock:^(EMChatroom *chatroom, NSUInteger idx, BOOL *stop){
+        if ([leavedChatroom.chatroomId isEqualToString:chatroom.chatroomId])
+        {
+            [self.dataSource removeObjectAtIndex:idx];
+            *stop = YES;
+        }
+    }];
+    [self.tableView reloadData];
 }
 
 @end

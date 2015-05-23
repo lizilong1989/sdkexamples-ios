@@ -446,4 +446,32 @@ static NSString *kOnceJoinedChatroomsPattern = @"OnceJoinedChatrooms_%@";
     } onQueue:nil];
 }
 
+- (void)beKickedOutFromChatroom:(EMChatroom *)leavedChatroom
+{
+    MyChatroom *myChatroom = nil;
+    for (MyChatroom *chatroom in self.dataSource)
+    {
+        if ([chatroom.chatroomId isEqualToString:leavedChatroom.chatroomId])
+        {
+            myChatroom = chatroom;
+            break;
+        }
+    }
+    
+    if (!myChatroom)
+    {
+        return;
+    }
+    
+    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+    NSString *key = [NSString stringWithFormat:kOnceJoinedChatroomsPattern, [[[EaseMob sharedInstance].chatManager loginInfo] objectForKey:@"username" ]];
+    NSMutableDictionary *chatRooms = [NSMutableDictionary dictionaryWithDictionary:[ud objectForKey:key]];
+    [chatRooms removeObjectForKey:myChatroom.chatroomId];
+    [ud setObject:chatRooms forKey:key];
+    [ud synchronize];
+    
+    [self.dataSource removeObject:myChatroom];
+    [self.tableView reloadData];
+}
+
 @end
