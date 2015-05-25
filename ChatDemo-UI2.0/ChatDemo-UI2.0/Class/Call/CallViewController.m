@@ -255,9 +255,16 @@
         }
     }
     
-    _captureInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:nil];
+    NSError *error = nil;
+    _captureInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:&error];
     [_session beginConfiguration];
-    [_session addInput:_captureInput];
+    if(!error){
+        [_session addInput:_captureInput];
+    }
+    else{
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"错误" message:error.localizedFailureReason delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+        [alertView show];
+    }
     
     //5.创建、配置输出
     _captureOutput = [[AVCaptureVideoDataOutput alloc] init];
@@ -574,6 +581,19 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     
     [[EaseMob sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Hangup];
 //    [self _close];
+}
+
++ (BOOL)canVideo
+{
+    if([[[UIDevice currentDevice] systemVersion] compare:@"7.0"] != NSOrderedAscending){
+        if(!([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] == AVAuthorizationStatusAuthorized)){\
+            UIAlertView * alt = [[UIAlertView alloc] initWithTitle:@"未获得授权使用摄像头" message:@"请在iOS\"设置中\"-\"隐私\"-\"相机\"中打开" delegate:self cancelButtonTitle:nil otherButtonTitles:@"知道了", nil];
+            [alt show];
+            return NO;
+        }
+    }
+    
+    return YES;
 }
 
 @end

@@ -235,6 +235,10 @@ static NSString *kGroupName = @"GroupName";
 
 - (void)callOutWithChatter:(NSNotification *)notification
 {
+    if (![CallViewController canVideo]) {
+        return;
+    }
+    
     id object = notification.object;
     if ([object isKindOfClass:[NSDictionary class]]) {
         EMError *error = nil;
@@ -634,6 +638,11 @@ static NSString *kGroupName = @"GroupName";
         EMError *error = nil;
         BOOL isShowPicker = [[[NSUserDefaults standardUserDefaults] objectForKey:@"isShowPicker"] boolValue];
         
+        if (error || isShowPicker || ![CallViewController canVideo]) {
+            [[EaseMob sharedInstance].callManager asyncEndCall:callSession.sessionId reason:eCallReason_Hangup];
+            return;
+        }
+        
 #warning 在后台不能进行视频通话
         if(callSession.type == eCallSessionTypeVideo && [[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground){
             error = [EMError errorWithCode:EMErrorInitFailure andDescription:@"后台不能进行视频通话"];
@@ -643,10 +652,6 @@ static NSString *kGroupName = @"GroupName";
             CallViewController *callController = [[CallViewController alloc] initWithSession:callSession isIncoming:YES];
             callController.modalPresentationStyle = UIModalPresentationOverFullScreen;
             [self presentViewController:callController animated:NO completion:nil];
-        }
-        
-        if (error || isShowPicker) {
-            [[EaseMob sharedInstance].callManager asyncEndCall:callSession.sessionId reason:eCallReason_Hangup];
         }
     }
 }
