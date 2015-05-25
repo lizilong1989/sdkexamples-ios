@@ -214,6 +214,7 @@
     [super viewWillDisappear:animated];
     
     // 设置当前conversation的所有message为已读
+    [self stopAudioPlaying];
     [_conversation markAllMessagesAsRead:YES];
     [[EMCDDeviceManager sharedInstance] disableProximitySensor];
     self.isInvisible = YES;

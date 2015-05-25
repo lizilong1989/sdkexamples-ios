@@ -238,9 +238,9 @@ static NSString *kGroupName = @"GroupName";
 - (BOOL)canRecord
 {
     __block BOOL bCanRecord = YES;
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
     if ([[[UIDevice currentDevice] systemVersion] compare:@"7.0"] != NSOrderedAscending)
     {
-        AVAudioSession *audioSession = [AVAudioSession sharedInstance];
         if ([audioSession respondsToSelector:@selector(requestRecordPermission:)]) {
             [audioSession performSelector:@selector(requestRecordPermission:) withObject:^(BOOL granted) {
                 bCanRecord = granted;
@@ -252,18 +252,22 @@ static NSString *kGroupName = @"GroupName";
         UIAlertView * alt = [[UIAlertView alloc] initWithTitle:@"未获得授权使用麦克风" message:@"请在iOS\"设置中\"-\"隐私\"-\"麦克风\"中打开" delegate:self cancelButtonTitle:nil otherButtonTitles:@"知道了", nil];
         [alt show];
     }
+    else{
+        [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+        [audioSession setActive:YES error:nil];
+    }
     
     return bCanRecord;
 }
 
 - (void)callOutWithChatter:(NSNotification *)notification
 {
-    if (![self canRecord]) {
-        return;
-    }
-    
     id object = notification.object;
     if ([object isKindOfClass:[NSDictionary class]]) {
+        if (![self canRecord]) {
+            return;
+        }
+        
         EMError *error = nil;
         NSString *chatter = [object objectForKey:@"chatter"];
         EMCallSessionType type = [[object objectForKey:@"type"] intValue];
