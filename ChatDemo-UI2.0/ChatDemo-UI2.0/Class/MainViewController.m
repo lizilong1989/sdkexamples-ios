@@ -420,13 +420,24 @@ static NSString *kGroupName = @"GroupName";
         }
         
         NSString *title = message.from;
-        if (message.messageType != eMessageTypeChat) {
+        if (message.messageType == eMessageTypeGroupChat) {
             NSArray *groupArray = [[EaseMob sharedInstance].chatManager groupList];
             for (EMGroup *group in groupArray) {
                 if ([group.groupId isEqualToString:message.conversationChatter]) {
                     title = [NSString stringWithFormat:@"%@(%@)", message.groupSenderName, group.groupSubject];
                     break;
                 }
+            }
+        }
+        else if (message.messageType == eMessageTypeChatRoom)
+        {
+            NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+            NSString *key = [NSString stringWithFormat:@"OnceJoinedChatrooms_%@", [[[EaseMob sharedInstance].chatManager loginInfo] objectForKey:@"username" ]];
+            NSMutableDictionary *chatrooms = [NSMutableDictionary dictionaryWithDictionary:[ud objectForKey:key]];
+            NSString *chatroomName = [chatrooms objectForKey:message.conversationChatter];
+            if (chatroomName)
+            {
+                title = [NSString stringWithFormat:@"%@(%@)", message.groupSenderName, chatroomName];
             }
         }
         
