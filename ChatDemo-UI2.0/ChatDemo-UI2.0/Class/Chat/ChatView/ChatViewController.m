@@ -930,13 +930,13 @@
 
 - (void)didFinishedReceiveOfflineMessages:(NSArray *)offlineMessages
 {
+    if ([self shouldMarkMessageAsRead])
+    {
+        [_conversation markAllMessagesAsRead:YES];
+    }
     if (![offlineMessages count])
     {
         return;
-    }
-    if ([self shouldMarkMessageAsRead])
-    {
-        [self markMessagesAsRead:offlineMessages];
     }
     _chatTagDate = nil;
     [self loadMoreMessages];
@@ -956,7 +956,7 @@
     }
     if ([self shouldMarkMessageAsRead])
     {
-        [self markMessagesAsRead:offlineMessages];
+        [_conversation markAllMessagesAsRead:YES];
     }
     _chatTagDate = nil;
     [self loadMoreMessages];
