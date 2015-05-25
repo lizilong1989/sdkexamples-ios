@@ -1386,6 +1386,14 @@
             }
             
             MessageModel *model = [MessageModelManager modelWithMessage:message];
+            if ([_delelgate respondsToSelector:@selector(nickNameWithChatter:)]) {
+                model.nickName = [_delelgate nickNameWithChatter:model.username];
+            }
+            
+            if ([_delelgate respondsToSelector:@selector(avatarWithChatter:)]) {
+                model.headImageURL = [NSURL URLWithString:[_delelgate avatarWithChatter:model.username]];
+            }
+            
             if (model) {
                 [formatArray addObject:model];
             }
@@ -1406,6 +1414,15 @@
     }
     
     MessageModel *model = [MessageModelManager modelWithMessage:message];
+    if ([_delelgate respondsToSelector:@selector(nickNameWithChatter:)]) {
+        NSString *showName = [_delelgate nickNameWithChatter:model.username];
+        model.nickName = showName?showName:model.username;
+    }
+    
+    if ([_delelgate respondsToSelector:@selector(avatarWithChatter:)]) {
+        model.headImageURL = [NSURL URLWithString:[_delelgate avatarWithChatter:model.username]];
+    }
+
     if (model) {
         [ret addObject:model];
     }

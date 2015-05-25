@@ -13,11 +13,20 @@
 #import <UIKit/UIKit.h>
 #import "EMChatManagerDefs.h"
 
+@protocol ChatViewControllerDelegate <NSObject>
+
+- (NSString *)avatarWithChatter:(NSString *)chatter;
+- (NSString *)nickNameWithChatter:(NSString *)chatter;
+
+@end
+
 @interface ChatViewController : UIViewController
 @property (strong, nonatomic, readonly) NSString *chatter;
+@property (nonatomic, assign) id <ChatViewControllerDelegate> delelgate;
 
 - (instancetype)initWithChatter:(NSString *)chatter isGroup:(BOOL)isGroup;
 - (instancetype)initWithChatter:(NSString *)chatter conversationType:(EMConversationType)type;
+
 - (void)reloadData;
 
 - (void)hideImagePicker;

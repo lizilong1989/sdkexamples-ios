@@ -20,7 +20,7 @@
 #import "EMSearchDisplayController.h"
 #import "ConvertToCommonEmoticonsHelper.h"
 
-@interface ChatListViewController ()<UITableViewDelegate,UITableViewDataSource, UISearchDisplayDelegate,SRRefreshDelegate, UISearchBarDelegate, IChatManagerDelegate>
+@interface ChatListViewController ()<UITableViewDelegate,UITableViewDataSource, UISearchDisplayDelegate,SRRefreshDelegate, UISearchBarDelegate, IChatManagerDelegate,ChatViewControllerDelegate>
 
 @property (strong, nonatomic) NSMutableArray        *dataSource;
 
@@ -341,7 +341,7 @@
     }
     EMConversation *conversation = [self.dataSource objectAtIndex:indexPath.row];
     cell.name = conversation.chatter;
-    if (!conversation.isGroup) {
+    if (conversation.conversationType == eConversationTypeChat) {
         cell.placeholderImage = [UIImage imageNamed:@"chatListCellHead.png"];
     }
     else{
@@ -395,7 +395,7 @@
     
     ChatViewController *chatController;
     NSString *title = conversation.chatter;
-    if (conversation.isGroup) {
+    if (conversation.conversationType != eConversationTypeChat) {
         if ([[conversation.ext objectForKey:@"groupSubject"] length])
         {
             title = [conversation.ext objectForKey:@"groupSubject"];
@@ -414,6 +414,7 @@
     
     NSString *chatter = conversation.chatter;
     chatController = [[ChatViewController alloc] initWithChatter:chatter conversationType:conversation.conversationType];
+    chatController.delelgate = self;
     chatController.title = title;
     [self.navigationController pushViewController:chatController animated:YES];
 }
@@ -559,6 +560,18 @@
 - (void)didFinishedReceiveOfflineMessages:(NSArray *)offlineMessages{
     NSLog(NSLocalizedString(@"message.endReceiveOffine", @"End to receive offline messages"));
     [self refreshDataSource];
+}
+
+#pragma mark - ChatViewControllerDelegate
+
+// 根据环信id得到要显示头像路径，如果返回nil，则显示默认头像
+- (NSString *)avatarWithChatter:(NSString *)chatter{
+    return @"http://img0.bdstatic.com/img/image/shouye/jianbihua0525.jpg";
+}
+
+// 根据环信id得到要显示用户名，如果返回nil，则默认显示环信id
+- (NSString *)nickNameWithChatter:(NSString *)chatter{
+    return chatter;
 }
 
 @end
