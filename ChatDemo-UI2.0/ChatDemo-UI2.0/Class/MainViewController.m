@@ -714,7 +714,11 @@ static NSString *kGroupName = @"GroupName";
 
 - (void)jumpToChatList
 {
-    if(_chatListVC && ![self.navigationController.topViewController isKindOfClass:[ChatViewController class]])
+    if ([self.navigationController.topViewController isKindOfClass:[ChatViewController class]]) {
+        ChatViewController *chatController = (ChatViewController *)self.navigationController.topViewController;
+        [chatController hideImagePicker];
+    }
+    else if(_chatListVC)
     {
         [self.navigationController popToViewController:self animated:NO];
         [self setSelectedViewController:_chatListVC];
@@ -745,6 +749,11 @@ static NSString *kGroupName = @"GroupName";
     NSDictionary *userInfo = notification.userInfo;
     if (userInfo)
     {
+        if ([self.navigationController.topViewController isKindOfClass:[ChatViewController class]]) {
+            ChatViewController *chatController = (ChatViewController *)self.navigationController.topViewController;
+            [chatController hideImagePicker];
+        }
+        
         NSArray *viewControllers = self.navigationController.viewControllers;
         [viewControllers enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id obj, NSUInteger idx, BOOL *stop){
             if (obj != self)

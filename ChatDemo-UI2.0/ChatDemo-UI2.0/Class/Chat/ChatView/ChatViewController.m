@@ -1536,7 +1536,7 @@
 - (BOOL)shouldAckMessage:(EMMessage *)message read:(BOOL)read
 {
     NSString *account = [[EaseMob sharedInstance].chatManager loginInfo][kSDKUsername];
-    if (message.isGroup || message.isReadAcked || [account isEqualToString:message.from] || ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) || self.isInvisible)
+    if (message.messageType != eMessageTypeChat || message.isReadAcked || [account isEqualToString:message.from] || ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) || self.isInvisible)
     {
         return NO;
     }
@@ -1582,6 +1582,14 @@
             break;
     }
     return type;
+}
+
+#pragma mark - public
+
+- (void)hideImagePicker
+{
+    [self.imagePicker dismissViewControllerAnimated:YES completion:nil];
+    self.isInvisible = NO;
 }
 
 #pragma mark - send message

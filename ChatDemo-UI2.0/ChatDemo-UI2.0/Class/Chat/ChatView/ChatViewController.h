@@ -20,4 +20,6 @@
 - (instancetype)initWithChatter:(NSString *)chatter conversationType:(EMConversationType)type;
 - (void)reloadData;
 
+- (void)hideImagePicker;
+
 @end
