@@ -71,6 +71,7 @@
 @property (nonatomic) BOOL isScrollToBottom;
 @property (nonatomic) BOOL isPlayingAudio;
 @property (nonatomic) BOOL isInvisible;
+@property (nonatomic) BOOL isKicked;
 @end
 
 @implementation ChatViewController
@@ -236,7 +237,7 @@
 #warning 以下第一行代码必须写，将self从ChatManager的代理中移除
     [[EaseMob sharedInstance].chatManager removeDelegate:self];
     
-    if (_conversation.conversationType == eConversationTypeChatRoom)
+    if (_conversation.conversationType == eConversationTypeChatRoom && !_isKicked)
     {
         //退出聊天室，删除会话
         UINavigationController *navigationController = self.navigationController;
@@ -1672,11 +1673,15 @@
     [self showHint:[NSString stringWithFormat:@"%@离开%@", username, chatroom.chatroomId] yOffset:-frame.size.height + KHintAdjustY];
 }
 
-- (void)beKickedOutFromChatroom:(EMChatroom *)chatroom
+- (void)beKickedOutFromChatroom:(EMChatroom *)chatroom reason:(EMChatroomBeKickedReason)reason
 {
-    CGRect frame = self.chatToolBar.frame;
-    [self showHint:[NSString stringWithFormat:@"被踢出%@", chatroom.chatroomId] yOffset:-frame.size.height + KHintAdjustY];
-    [self.navigationController popViewControllerAnimated:YES];
+    if ([_chatter isEqualToString:chatroom.chatroomId])
+    {
+        _isKicked = YES;
+        CGRect frame = self.chatToolBar.frame;
+        [self showHint:[NSString stringWithFormat:@"被踢出%@", chatroom.chatroomId] yOffset:-frame.size.height + KHintAdjustY];
+        [self.navigationController popViewControllerAnimated:YES];
+    }
 }
 
 #pragma mark - 创建带附件的消息体和批量导入消息的示例
