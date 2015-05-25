@@ -233,9 +233,32 @@ static NSString *kGroupName = @"GroupName";
     [_chatListVC networkChanged:connectionState];
 }
 
+#pragma mark - call
+
+- (BOOL)canRecord
+{
+    __block BOOL bCanRecord = YES;
+    if ([[[UIDevice currentDevice] systemVersion] compare:@"7.0"] != NSOrderedAscending)
+    {
+        AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+        if ([audioSession respondsToSelector:@selector(requestRecordPermission:)]) {
+            [audioSession performSelector:@selector(requestRecordPermission:) withObject:^(BOOL granted) {
+                bCanRecord = granted;
+            }];
+        }
+    }
+    
+    if (!bCanRecord) {
+        UIAlertView * alt = [[UIAlertView alloc] initWithTitle:@"未获得授权使用麦克风" message:@"请在iOS\"设置中\"-\"隐私\"-\"麦克风\"中打开" delegate:self cancelButtonTitle:nil otherButtonTitles:@"知道了", nil];
+        [alt show];
+    }
+    
+    return bCanRecord;
+}
+
 - (void)callOutWithChatter:(NSNotification *)notification
 {
-    if (![CallViewController canVideo]) {
+    if (![self canRecord]) {
         return;
     }
     
@@ -249,6 +272,9 @@ static NSString *kGroupName = @"GroupName";
             callSession = [[EaseMob sharedInstance].callManager asyncMakeVoiceCall:chatter timeout:50 error:&error];
         }
         else if (type == eCallSessionTypeVideo){
+            if (![CallViewController canVideo]) {
+                return;
+            }
             callSession = [[EaseMob sharedInstance].callManager asyncMakeVideoCall:chatter timeout:50 error:&error];
         }
         
@@ -636,20 +662,33 @@ static NSString *kGroupName = @"GroupName";
     if (callSession.status == eCallSessionStatusConnected)
     {
         EMError *error = nil;
-        BOOL isShowPicker = [[[NSUserDefaults standardUserDefaults] objectForKey:@"isShowPicker"] boolValue];
-        
+        do {
+            BOOL isShowPicker = [[[NSUserDefaults standardUserDefaults] objectForKey:@"isShowPicker"] boolValue];
+            if (isShowPicker) {
+                error = [EMError errorWithCode:EMErrorInitFailure andDescription:@"不能进行通话"];
+                break;
+            }
+            
+            if (![self canRecord]) {
+                error = [EMError errorWithCode:EMErrorInitFailure andDescription:@"不能进行通话"];
+                break;
+            }
+            
 #warning 在后台不能进行视频通话
-        if(callSession.type == eCallSessionTypeVideo && ([[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground || ![CallViewController canVideo])){
-            error = [EMError errorWithCode:EMErrorInitFailure andDescription:@"不能进行视频通话"];
-        }
-        else if (!isShowPicker){
-            [[EaseMob sharedInstance].callManager removeDelegate:self];
-            CallViewController *callController = [[CallViewController alloc] initWithSession:callSession isIncoming:YES];
-            callController.modalPresentationStyle = UIModalPresentationOverFullScreen;
-            [self presentViewController:callController animated:NO completion:nil];
-        }
-        
-        if (error || isShowPicker) {
+            if(callSession.type == eCallSessionTypeVideo && ([[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground || ![CallViewController canVideo])){
+                error = [EMError errorWithCode:EMErrorInitFailure andDescription:@"不能进行视频通话"];
+                break;
+            }
+            
+            if (!isShowPicker){
+                [[EaseMob sharedInstance].callManager removeDelegate:self];
+                CallViewController *callController = [[CallViewController alloc] initWithSession:callSession isIncoming:YES];
+                callController.modalPresentationStyle = UIModalPresentationOverFullScreen;
+                [self presentViewController:callController animated:NO completion:nil];
+            }
+        } while (0);
+
+        if (error) {
             [[EaseMob sharedInstance].callManager asyncEndCall:callSession.sessionId reason:eCallReason_Hangup];
             return;
         }

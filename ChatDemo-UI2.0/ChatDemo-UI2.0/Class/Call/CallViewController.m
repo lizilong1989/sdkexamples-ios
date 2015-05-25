@@ -369,6 +369,7 @@
     if (alertView.tag == kAlertViewTag_Close)
     {
         [[EaseMob sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Null];
+        _callSession = nil;
         [self _close];
     }
 }
