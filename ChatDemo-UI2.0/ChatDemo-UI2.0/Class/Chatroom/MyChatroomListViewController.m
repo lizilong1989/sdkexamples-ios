@@ -446,7 +446,7 @@ static NSString *kOnceJoinedChatroomsPattern = @"OnceJoinedChatrooms_%@";
     } onQueue:nil];
 }
 
-- (void)beKickedOutFromChatroom:(EMChatroom *)leavedChatroom
+- (void)beKickedOutFromChatroom:(EMChatroom *)leavedChatroom reason:(EMChatroomBeKickedReason)reason
 {
     MyChatroom *myChatroom = nil;
     for (MyChatroom *chatroom in self.dataSource)

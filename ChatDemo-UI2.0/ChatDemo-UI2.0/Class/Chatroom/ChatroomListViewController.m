@@ -357,8 +357,13 @@
     } onQueue:nil];
 }
 
-- (void)beKickedOutFromChatroom:(EMChatroom *)leavedChatroom
+- (void)beKickedOutFromChatroom:(EMChatroom *)leavedChatroom reason:(EMChatroomBeKickedReason)reason
 {
+    if (reason != eChatroomBeKickedReason_Destroyed)
+    {
+        return;
+    }
+    
     [self.dataSource enumerateObjectsUsingBlock:^(EMChatroom *chatroom, NSUInteger idx, BOOL *stop){
         if ([leavedChatroom.chatroomId isEqualToString:chatroom.chatroomId])
         {
