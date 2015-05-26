@@ -70,7 +70,6 @@
 @property (strong, nonatomic) NSMutableArray *messages;
 @property (nonatomic) BOOL isScrollToBottom;
 @property (nonatomic) BOOL isPlayingAudio;
-@property (nonatomic) BOOL isInvisible;
 @property (nonatomic) BOOL isKicked;
 @end
 

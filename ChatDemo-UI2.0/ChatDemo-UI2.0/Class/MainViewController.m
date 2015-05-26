@@ -700,9 +700,14 @@ static NSString *kGroupName = @"GroupName";
                 CallViewController *callController = [[CallViewController alloc] initWithSession:callSession isIncoming:YES];
                 callController.modalPresentationStyle = UIModalPresentationOverFullScreen;
                 [self presentViewController:callController animated:NO completion:nil];
+                if ([self.navigationController.topViewController isKindOfClass:[ChatViewController class]])
+                {
+                    ChatViewController *chatVc = (ChatViewController *)self.navigationController.topViewController;
+                    chatVc.isInvisible = YES;
+                }
             }
         } while (0);
-
+        
         if (error) {
             [[EaseMob sharedInstance].callManager asyncEndCall:callSession.sessionId reason:eCallReason_Hangup];
             return;
