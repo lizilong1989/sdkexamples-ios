@@ -108,6 +108,50 @@
     return _conversationType != eConversationTypeChat;
 }
 
+- (void)saveChatroom:(EMChatroom *)chatroom
+{
+    NSString *chatroomName = chatroom.chatroomSubject ? chatroom.chatroomSubject : @"";
+    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+    NSString *key = [NSString stringWithFormat:@"OnceJoinedChatrooms_%@", [[[EaseMob sharedInstance].chatManager loginInfo] objectForKey:@"username" ]];
+    NSMutableDictionary *chatRooms = [NSMutableDictionary dictionaryWithDictionary:[ud objectForKey:key]];
+    if (![chatRooms objectForKey:chatroom.chatroomId])
+    {
+        [chatRooms setObject:chatroomName forKey:chatroom.chatroomId];
+        [ud setObject:chatRooms forKey:key];
+        [ud synchronize];
+    }
+}
+
+- (void)joinChatroom:(NSString *)chatroomId
+{
+    [self showHudInView:self.view hint:NSLocalizedString(@"chatroom.joining",@"Joining the chatroom")];
+    __weak typeof(self) weakSelf = self;
+    [[EaseMob sharedInstance].chatManager asyncJoinChatroom:chatroomId completion:^(EMChatroom *chatroom, EMError *error){
+        if (weakSelf)
+        {
+            ChatViewController *strongSelf = weakSelf;
+            [strongSelf hideHud];
+            if (error && (error.errorCode != EMErrorChatroomJoined))
+            {
+                [strongSelf showHint:[NSString stringWithFormat:@"加入%@失败", chatroomId]];
+            }
+            else
+            {
+                [strongSelf saveChatroom:chatroom];
+            }
+        }
+        else
+        {
+            if (!error || (error.errorCode == EMErrorChatroomJoined))
+            {
+                [[EaseMob sharedInstance].chatManager asyncLeaveChatroom:chatroomId completion:^(EMChatroom *chatroom, EMError *error){
+                    [[EaseMob sharedInstance].chatManager removeConversationByChatter:chatroomId deleteMessages:YES append2Chat:YES];
+                }];
+            }
+        }
+    }];
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -154,6 +198,11 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleCallNotification:) name:@"callOutWithChatter" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleCallNotification:) name:@"callControllerClose" object:nil];
+    
+    if (_conversationType == eConversationTypeChatRoom)
+    {
+        [self joinChatroom:_chatter];
+    }
 }
 
 - (void)handleCallNotification:(NSNotification *)notification
