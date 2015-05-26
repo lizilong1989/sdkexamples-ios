@@ -175,7 +175,9 @@ static NSString *kOnceJoinedChatroomsPattern = @"OnceJoinedChatrooms_%@";
             [weakSelf.searchController.searchBar endEditing:YES];
             
             MyChatroom *myChatroom = [weakSelf.searchController.resultsSource objectAtIndex:indexPath.row];
-            [weakSelf joinChatroom:myChatroom fromVC:weakSelf];
+            ChatViewController *chatController = [[ChatViewController alloc] initWithChatter:myChatroom.chatroomId conversationType:eConversationTypeChatRoom];
+            chatController.title = myChatroom.chatroomName;
+            [weakSelf.navigationController pushViewController:chatController animated:YES];
         }];
     }
     
@@ -283,8 +285,9 @@ static NSString *kOnceJoinedChatroomsPattern = @"OnceJoinedChatrooms_%@";
         }
     } else {
         MyChatroom *myChatroom = [self.dataSource objectAtIndex:indexPath.row];
-        __weak MyChatroomListViewController *weakSelf = self;
-        [self joinChatroom:myChatroom fromVC:weakSelf];
+        ChatViewController *chatController = [[ChatViewController alloc] initWithChatter:myChatroom.chatroomId conversationType:eConversationTypeChatRoom];
+        chatController.title = myChatroom.chatroomName;
+        [self.navigationController pushViewController:chatController animated:YES];
     }
 }
 
@@ -397,53 +400,6 @@ static NSString *kOnceJoinedChatroomsPattern = @"OnceJoinedChatrooms_%@";
 {
     ChatroomListViewController *controller = [[ChatroomListViewController alloc] initWithStyle:UITableViewStylePlain];
     [self.navigationController pushViewController:controller animated:YES];
-}
-
-- (void)joinChatroom:(MyChatroom *)myChatroom fromVC:(__weak MyChatroomListViewController *)weakSelf
-{
-    [weakSelf showHudInView:weakSelf.view hint:NSLocalizedString(@"chatroom.joining",@"Joining the chatroom")];
-    UINavigationController *navigationController = weakSelf.navigationController;
-    [[EaseMob sharedInstance].chatManager asyncJoinChatroom:myChatroom.chatroomId completion:^(EMChatroom *chatroom, EMError *error){
-        if (weakSelf)
-        {
-            MyChatroomListViewController *strongSelf = weakSelf;
-            [strongSelf hideHud];
-            if (error && (error.errorCode != EMErrorChatroomJoined))
-            {
-                [strongSelf showHint:[NSString stringWithFormat:@"加入%@失败", myChatroom.chatroomId]];
-            }
-            else
-            {
-                ChatViewController *chatController = [[ChatViewController alloc] initWithChatter:myChatroom.chatroomId conversationType:eConversationTypeChatRoom];
-                chatController.title = myChatroom.chatroomName;
-                [navigationController pushViewController:chatController animated:YES];
-            }
-        }
-        else
-        {
-            if (!error || (error.errorCode == EMErrorChatroomJoined))
-            {
-                [[EaseMob sharedInstance].chatManager asyncLeaveChatroom:myChatroom.chatroomId completion:^(EMChatroom *chatroom, EMError *error){
-                    if (error)
-                    {
-                        //leave 聊天室失败，进入聊天室会话
-                        ChatViewController *chatController = [[ChatViewController alloc] initWithChatter:myChatroom.chatroomId conversationType:eConversationTypeChatRoom];
-                        chatController.title = myChatroom.chatroomName;
-                        [navigationController pushViewController:chatController animated:YES];
-                        [chatController showHint:[NSString stringWithFormat:@"离开%@失败", myChatroom.chatroomId]];
-                    }
-                    else
-                    {
-                        [[EaseMob sharedInstance].chatManager removeConversationByChatter:myChatroom.chatroomId deleteMessages:YES append2Chat:YES];
-                    }
-                }];
-            }
-            else
-            {
-                [navigationController.topViewController showHint:[NSString stringWithFormat:@"加入%@失败", myChatroom.chatroomId]];
-            }
-        }
-    }];
 }
 
 - (void)beKickedOutFromChatroom:(EMChatroom *)leavedChatroom reason:(EMChatroomBeKickedReason)reason
