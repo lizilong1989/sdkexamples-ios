@@ -37,7 +37,7 @@
 #define KPageCount 20
 #define KHintAdjustY    50
 
-@interface ChatViewController ()<UITableViewDataSource, UITableViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, SRRefreshDelegate, IChatManagerDelegate, DXChatBarMoreViewDelegate, DXMessageToolBarDelegate, LocationViewDelegate, EMCDDeviceManagerDelegate>
+@interface ChatViewController ()<UITableViewDataSource, UITableViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, SRRefreshDelegate, IChatManagerDelegate, DXChatBarMoreViewDelegate, DXMessageToolBarDelegate, LocationViewDelegate, EMCDDeviceManagerDelegate,EMCallManagerDelegate>
 {
     UIMenuController *_menuController;
     UIMenuItem *_copyMenuItem;
@@ -123,6 +123,10 @@
     [[EaseMob sharedInstance].chatManager removeDelegate:self];
     //注册为SDK的ChatManager的delegate
     [[EaseMob sharedInstance].chatManager addDelegate:self delegateQueue:nil];
+    
+    [[EaseMob sharedInstance].callManager removeDelegate:self];
+    // 注册为Call的Delegate
+    [[EaseMob sharedInstance].callManager addDelegate:self delegateQueue:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(removeAllMessages:) name:@"RemoveAllMessages" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(exitGroup) name:@"ExitGroup" object:nil];
@@ -214,7 +218,6 @@
     [super viewWillDisappear:animated];
     
     // 设置当前conversation的所有message为已读
-    [self stopAudioPlayingWithChangeCategory:NO];
     [_conversation markAllMessagesAsRead:YES];
     [[EMCDDeviceManager sharedInstance] disableProximitySensor];
     self.isInvisible = YES;
@@ -237,7 +240,7 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 #warning 以下第一行代码必须写，将self从ChatManager的代理中移除
     [[EaseMob sharedInstance].chatManager removeDelegate:self];
-    
+    [[EaseMob sharedInstance].callManager removeDelegate:self];
     if (_conversation.conversationType == eConversationTypeChatRoom && !_isKicked)
     {
         //退出聊天室，删除会话
@@ -1269,7 +1272,8 @@
 - (void)stopAudioPlayingWithChangeCategory:(BOOL)isChange
 {
     //停止音频播放及播放动画
-    [[EMCDDeviceManager sharedInstance] stopPlayingWithChangeCategory:isChange];
+//    [[EMCDDeviceManager sharedInstance] stopPlayingWithChangeCategory:isChange];
+    [[EMCDDeviceManager sharedInstance] stopPlaying];
     MessageModel *playingModel = [self.messageReadManager stopMessageAudioModel];
     
     NSIndexPath *indexPath = nil;
@@ -1711,6 +1715,16 @@
         CGRect frame = self.chatToolBar.frame;
         [self showHint:[NSString stringWithFormat:@"被踢出%@", chatroom.chatroomId] yOffset:-frame.size.height + KHintAdjustY];
         [self.navigationController popViewControllerAnimated:YES];
+    }
+}
+
+#pragma mark - ICallManagerDelegate
+
+- (void)callSessionStatusChanged:(EMCallSession *)callSession changeReason:(EMCallStatusChangedReason)reason error:(EMError *)error{
+    if (reason == eCallReason_Null) {
+        if ([[EMCDDeviceManager sharedInstance] isPlaying]) {
+            [self stopAudioPlayingWithChangeCategory:NO];
+        }
     }
 }
 
