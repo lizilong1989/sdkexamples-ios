@@ -66,6 +66,14 @@ typedef NS_ENUM(NSInteger, EMAudioSession){
                            isActive:NO];
 }
 
+- (void)stopPlayingWithChangeCategory:(BOOL)isChange{
+    [EMAudioPlayerUtil stopCurrentPlaying];
+    if (isChange) {
+        [self setupAudioSessionCategory:EM_DEFAULT
+                               isActive:NO];
+    }
+}
+
 // 获取播放状态
 - (BOOL)isPlaying{
     return [EMAudioPlayerUtil isPlaying];

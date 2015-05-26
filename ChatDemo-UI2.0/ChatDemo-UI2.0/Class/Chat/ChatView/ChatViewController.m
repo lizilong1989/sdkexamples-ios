@@ -214,7 +214,7 @@
     [super viewWillDisappear:animated];
     
     // 设置当前conversation的所有message为已读
-    [self stopAudioPlaying];
+    [self stopAudioPlayingWithChangeCategory:NO];
     [_conversation markAllMessagesAsRead:YES];
     [[EMCDDeviceManager sharedInstance] disableProximitySensor];
     self.isInvisible = YES;
@@ -984,7 +984,7 @@
     // 设置当前conversation的所有message为已读
     [_conversation markAllMessagesAsRead:YES];
     
-    [self stopAudioPlaying];
+    [self stopAudioPlayingWithChangeCategory:YES];
 }
 
 - (void)groupDidUpdateInfo:(EMGroup *)group error:(EMError *)error
@@ -1267,10 +1267,10 @@
     return bCanRecord;
 }
 
-- (void)stopAudioPlaying
+- (void)stopAudioPlayingWithChangeCategory:(BOOL)isChange
 {
     //停止音频播放及播放动画
-    [[EMCDDeviceManager sharedInstance] stopPlaying];
+    [[EMCDDeviceManager sharedInstance] stopPlayingWithChangeCategory:isChange];
     MessageModel *playingModel = [self.messageReadManager stopMessageAudioModel];
     
     NSIndexPath *indexPath = nil;
