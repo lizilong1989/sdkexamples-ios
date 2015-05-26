@@ -101,6 +101,9 @@ NSString *const kShouldResendCell = @"kShouldResendCell";
     }
     else{
         bubbleFrame.origin.x = HEAD_PADDING * 2 + HEAD_SIZE;
+        if (self.messageModel.isChatGroup) {
+            bubbleFrame.origin.y = NAME_LABEL_HEIGHT + NAME_LABEL_PADDING;
+        }
         _bubbleView.frame = bubbleFrame;
     }
 }
@@ -252,7 +255,7 @@ NSString *const kShouldResendCell = @"kShouldResendCell";
     if (model.isChatGroup && !model.isSender) {
         headHeight += NAME_LABEL_HEIGHT;
     }
-    return MAX(headHeight, bubbleHeight) + CELLPADDING;
+    return MAX(headHeight, bubbleHeight + NAME_LABEL_HEIGHT + NAME_LABEL_PADDING) + CELLPADDING;
 }
 
 
