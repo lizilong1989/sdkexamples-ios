@@ -107,6 +107,7 @@ typedef NS_ENUM(NSInteger, GettingMoreFooterViewState){
 @property (strong, nonatomic) EMSearchDisplayController *searchController;
 @property (strong, nonatomic) GettingMoreFooterView *footerView;
 @property (nonatomic) NSRange range;
+@property (nonatomic) BOOL isGettingMore;
 @end
 
 @implementation PublicGroupListViewController
@@ -305,14 +306,16 @@ typedef NS_ENUM(NSInteger, GettingMoreFooterViewState){
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (indexPath.row == ([self.dataSource count] - 1) && _range.location)
+    if (!_isGettingMore && indexPath.row == ([self.dataSource count] - 1) && _range.location)
     {
         __weak typeof(self) weakSelf = self;
         self.footerView.state = eGettingMoreFooterViewStateGetting;
+        _isGettingMore = YES;
         [[EaseMob sharedInstance].chatManager asyncFetchPublicGroupsInRange:_range withCompletion:^(NSArray *publicGroups, NSRange nextSliceRange, EMError *error){
             if (weakSelf)
             {
                 PublicGroupListViewController *strongSelf = weakSelf;
+                strongSelf.isGettingMore = NO;
                 if (!error)
                 {
                     [strongSelf.dataSource addObjectsFromArray:publicGroups];
