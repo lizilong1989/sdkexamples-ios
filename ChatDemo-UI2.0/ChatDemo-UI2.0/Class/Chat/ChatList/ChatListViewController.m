@@ -566,7 +566,8 @@
 
 // 根据环信id得到要显示头像路径，如果返回nil，则显示默认头像
 - (NSString *)avatarWithChatter:(NSString *)chatter{
-    return @"http://img0.bdstatic.com/img/image/shouye/jianbihua0525.jpg";
+//    return @"http://img0.bdstatic.com/img/image/shouye/jianbihua0525.jpg";
+    return nil;
 }
 
 // 根据环信id得到要显示用户名，如果返回nil，则默认显示环信id
