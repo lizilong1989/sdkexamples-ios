@@ -213,6 +213,7 @@
     [super viewWillDisappear:animated];
     
     // 设置当前conversation的所有message为已读
+    [self stopAudioPlayingWithChangeCategory:NO];
     [_conversation markAllMessagesAsRead:YES];
     [[EMCDDeviceManager sharedInstance] disableProximitySensor];
     self.isInvisible = YES;
@@ -982,7 +983,7 @@
     // 设置当前conversation的所有message为已读
     [_conversation markAllMessagesAsRead:YES];
     
-    [self stopAudioPlaying];
+    [self stopAudioPlayingWithChangeCategory:YES];
 }
 
 - (void)groupDidUpdateInfo:(EMGroup *)group error:(EMError *)error
@@ -1265,10 +1266,10 @@
     return bCanRecord;
 }
 
-- (void)stopAudioPlaying
+- (void)stopAudioPlayingWithChangeCategory:(BOOL)isChange
 {
     //停止音频播放及播放动画
-    [[EMCDDeviceManager sharedInstance] stopPlaying];
+    [[EMCDDeviceManager sharedInstance] stopPlayingWithChangeCategory:isChange];
     MessageModel *playingModel = [self.messageReadManager stopMessageAudioModel];
     
     NSIndexPath *indexPath = nil;
@@ -1384,6 +1385,14 @@
             }
             
             MessageModel *model = [MessageModelManager modelWithMessage:message];
+            if ([_delelgate respondsToSelector:@selector(nickNameWithChatter:)]) {
+                model.nickName = [_delelgate nickNameWithChatter:model.username];
+            }
+            
+            if ([_delelgate respondsToSelector:@selector(avatarWithChatter:)]) {
+                model.headImageURL = [NSURL URLWithString:[_delelgate avatarWithChatter:model.username]];
+            }
+            
             if (model) {
                 [formatArray addObject:model];
             }
@@ -1404,6 +1413,15 @@
     }
     
     MessageModel *model = [MessageModelManager modelWithMessage:message];
+    if ([_delelgate respondsToSelector:@selector(nickNameWithChatter:)]) {
+        NSString *showName = [_delelgate nickNameWithChatter:model.username];
+        model.nickName = showName?showName:model.username;
+    }
+    
+    if ([_delelgate respondsToSelector:@selector(avatarWithChatter:)]) {
+        model.headImageURL = [NSURL URLWithString:[_delelgate avatarWithChatter:model.username]];
+    }
+
     if (model) {
         [ret addObject:model];
     }
@@ -1580,6 +1598,14 @@
             break;
     }
     return type;
+}
+
+#pragma mark - public
+
+- (void)hideImagePicker
+{
+    [self.imagePicker dismissViewControllerAnimated:YES completion:nil];
+    self.isInvisible = NO;
 }
 
 #pragma mark - send message

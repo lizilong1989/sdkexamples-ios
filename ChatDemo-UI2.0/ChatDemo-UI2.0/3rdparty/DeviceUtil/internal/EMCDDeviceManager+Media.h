@@ -17,6 +17,8 @@
 // 停止播放
 - (void)stopPlaying;
 
+- (void)stopPlayingWithChangeCategory:(BOOL)isChange;
+
 // 当前是否正在播放
 -(BOOL)isPlaying;
 

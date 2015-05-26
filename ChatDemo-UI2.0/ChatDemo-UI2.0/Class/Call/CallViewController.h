@@ -56,4 +56,6 @@ static CTCallCenter *g_callCenter;
 - (instancetype)initWithSession:(EMCallSession *)session
                      isIncoming:(BOOL)isIncoming;
 
++ (BOOL)canVideo;
+
 @end

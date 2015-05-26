@@ -38,13 +38,15 @@
     else{
         model.username = message.from;
     }
-    
+
+    /*
     if (isSender) {
         model.headImageURL = nil;
     }
     else{
         model.headImageURL = nil;
     }
+     */
     
     switch (messageBody.messageBodyType) {
         case eMessageBodyType_Text:

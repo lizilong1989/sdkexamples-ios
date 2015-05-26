@@ -233,10 +233,41 @@ static NSString *kGroupName = @"GroupName";
     [_chatListVC networkChanged:connectionState];
 }
 
+#pragma mark - call
+
+- (BOOL)canRecord
+{
+    __block BOOL bCanRecord = YES;
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+    if ([[[UIDevice currentDevice] systemVersion] compare:@"7.0"] != NSOrderedAscending)
+    {
+        if ([audioSession respondsToSelector:@selector(requestRecordPermission:)]) {
+            [audioSession performSelector:@selector(requestRecordPermission:) withObject:^(BOOL granted) {
+                bCanRecord = granted;
+            }];
+        }
+    }
+    
+    if (!bCanRecord) {
+        UIAlertView * alt = [[UIAlertView alloc] initWithTitle:@"未获得授权使用麦克风" message:@"请在iOS\"设置中\"-\"隐私\"-\"麦克风\"中打开" delegate:self cancelButtonTitle:nil otherButtonTitles:@"知道了", nil];
+        [alt show];
+    }
+    else{
+        [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+        [audioSession setActive:YES error:nil];
+    }
+    
+    return bCanRecord;
+}
+
 - (void)callOutWithChatter:(NSNotification *)notification
 {
     id object = notification.object;
     if ([object isKindOfClass:[NSDictionary class]]) {
+        if (![self canRecord]) {
+            return;
+        }
+        
         EMError *error = nil;
         NSString *chatter = [object objectForKey:@"chatter"];
         EMCallSessionType type = [[object objectForKey:@"type"] intValue];
@@ -245,6 +276,9 @@ static NSString *kGroupName = @"GroupName";
             callSession = [[EaseMob sharedInstance].callManager asyncMakeVoiceCall:chatter timeout:50 error:&error];
         }
         else if (type == eCallSessionTypeVideo){
+            if (![CallViewController canVideo]) {
+                return;
+            }
             callSession = [[EaseMob sharedInstance].callManager asyncMakeVideoCall:chatter timeout:50 error:&error];
         }
         
@@ -643,26 +677,40 @@ static NSString *kGroupName = @"GroupName";
     if (callSession.status == eCallSessionStatusConnected)
     {
         EMError *error = nil;
-        BOOL isShowPicker = [[[NSUserDefaults standardUserDefaults] objectForKey:@"isShowPicker"] boolValue];
-        
-#warning 在后台不能进行视频通话
-        if(callSession.type == eCallSessionTypeVideo && [[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground){
-            error = [EMError errorWithCode:EMErrorInitFailure andDescription:@"后台不能进行视频通话"];
-        }
-        else if (!isShowPicker){
-            [[EaseMob sharedInstance].callManager removeDelegate:self];
-            CallViewController *callController = [[CallViewController alloc] initWithSession:callSession isIncoming:YES];
-            callController.modalPresentationStyle = UIModalPresentationOverFullScreen;
-            [self presentViewController:callController animated:NO completion:nil];
-            if ([self.navigationController.topViewController isKindOfClass:[ChatViewController class]])
-            {
-                ChatViewController *chatVC = (ChatViewController *)self.navigationController.topViewController;
-                chatVC.isInvisible = YES;
+        do {
+            BOOL isShowPicker = [[[NSUserDefaults standardUserDefaults] objectForKey:@"isShowPicker"] boolValue];
+            if (isShowPicker) {
+                error = [EMError errorWithCode:EMErrorInitFailure andDescription:@"不能进行通话"];
+                break;
             }
-        }
+            
+            if (![self canRecord]) {
+                error = [EMError errorWithCode:EMErrorInitFailure andDescription:@"不能进行通话"];
+                break;
+            }
+            
+#warning 在后台不能进行视频通话
+            if(callSession.type == eCallSessionTypeVideo && ([[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground || ![CallViewController canVideo])){
+                error = [EMError errorWithCode:EMErrorInitFailure andDescription:@"不能进行视频通话"];
+                break;
+            }
+            
+            if (!isShowPicker){
+                [[EaseMob sharedInstance].callManager removeDelegate:self];
+                CallViewController *callController = [[CallViewController alloc] initWithSession:callSession isIncoming:YES];
+                callController.modalPresentationStyle = UIModalPresentationOverFullScreen;
+                [self presentViewController:callController animated:NO completion:nil];
+                if ([self.navigationController.topViewController isKindOfClass:[ChatViewController class]])
+                {
+                    ChatViewController *chatVc = (ChatViewController *)self.navigationController.topViewController;
+                    chatVc.isInvisible = YES;
+                }
+            }
+        } while (0);
         
-        if (error || isShowPicker) {
+        if (error) {
             [[EaseMob sharedInstance].callManager asyncEndCall:callSession.sessionId reason:eCallReason_Hangup];
+            return;
         }
     }
 }
@@ -671,7 +719,11 @@ static NSString *kGroupName = @"GroupName";
 
 - (void)jumpToChatList
 {
-    if(_chatListVC && ![self.navigationController.topViewController isKindOfClass:[ChatViewController class]])
+    if ([self.navigationController.topViewController isKindOfClass:[ChatViewController class]]) {
+        ChatViewController *chatController = (ChatViewController *)self.navigationController.topViewController;
+        [chatController hideImagePicker];
+    }
+    else if(_chatListVC)
     {
         [self.navigationController popToViewController:self animated:NO];
         [self setSelectedViewController:_chatListVC];
@@ -702,6 +754,11 @@ static NSString *kGroupName = @"GroupName";
     NSDictionary *userInfo = notification.userInfo;
     if (userInfo)
     {
+        if ([self.navigationController.topViewController isKindOfClass:[ChatViewController class]]) {
+            ChatViewController *chatController = (ChatViewController *)self.navigationController.topViewController;
+            [chatController hideImagePicker];
+        }
+        
         NSArray *viewControllers = self.navigationController.viewControllers;
         [viewControllers enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id obj, NSUInteger idx, BOOL *stop){
             if (obj != self)
