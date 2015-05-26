@@ -15,6 +15,7 @@
 
 @interface ChatViewController : UIViewController
 @property (strong, nonatomic, readonly) NSString *chatter;
+@property (nonatomic) BOOL isInvisible;
 
 - (instancetype)initWithChatter:(NSString *)chatter isGroup:(BOOL)isGroup;
 - (instancetype)initWithChatter:(NSString *)chatter conversationType:(EMConversationType)type;

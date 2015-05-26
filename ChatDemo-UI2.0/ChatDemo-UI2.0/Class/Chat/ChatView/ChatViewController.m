@@ -70,7 +70,6 @@
 @property (strong, nonatomic) NSMutableArray *messages;
 @property (nonatomic) BOOL isScrollToBottom;
 @property (nonatomic) BOOL isPlayingAudio;
-@property (nonatomic) BOOL isInvisible;
 @property (nonatomic) BOOL isKicked;
 @end
 
@@ -1535,7 +1534,7 @@
 - (BOOL)shouldAckMessage:(EMMessage *)message read:(BOOL)read
 {
     NSString *account = [[EaseMob sharedInstance].chatManager loginInfo][kSDKUsername];
-    if (message.isGroup || message.isReadAcked || [account isEqualToString:message.from] || ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) || self.isInvisible)
+    if (message.messageType != eMessageTypeChat || message.isReadAcked || [account isEqualToString:message.from] || ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) || self.isInvisible)
     {
         return NO;
     }

@@ -654,6 +654,11 @@ static NSString *kGroupName = @"GroupName";
             CallViewController *callController = [[CallViewController alloc] initWithSession:callSession isIncoming:YES];
             callController.modalPresentationStyle = UIModalPresentationOverFullScreen;
             [self presentViewController:callController animated:NO completion:nil];
+            if ([self.navigationController.topViewController isKindOfClass:[ChatViewController class]])
+            {
+                ChatViewController *chatVC = (ChatViewController *)self.navigationController.topViewController;
+                chatVC.isInvisible = YES;
+            }
         }
         
         if (error || isShowPicker) {
