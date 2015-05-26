@@ -101,7 +101,7 @@ NSString *const kShouldResendCell = @"kShouldResendCell";
     }
     else{
         bubbleFrame.origin.x = HEAD_PADDING * 2 + HEAD_SIZE;
-        if (self.messageModel.isChatGroup) {
+        if (self.messageModel.messageType != eMessageTypeChat) {
             bubbleFrame.origin.y = NAME_LABEL_HEIGHT + NAME_LABEL_PADDING;
         }
         _bubbleView.frame = bubbleFrame;
@@ -112,7 +112,7 @@ NSString *const kShouldResendCell = @"kShouldResendCell";
 {
     [super setMessageModel:model];
     
-    if (model.isChatGroup) {
+    if (model.messageType != eMessageTypeChat) {
         _nameLabel.text = model.nickName;
         _nameLabel.hidden = model.isSender;
     }
@@ -252,7 +252,7 @@ NSString *const kShouldResendCell = @"kShouldResendCell";
 {
     NSInteger bubbleHeight = [self bubbleViewHeightForMessageModel:model];
     NSInteger headHeight = HEAD_PADDING * 2 + HEAD_SIZE;
-    if (model.isChatGroup && !model.isSender) {
+    if ((model.messageType != eMessageTypeChat) && !model.isSender) {
         headHeight += NAME_LABEL_HEIGHT;
     }
     return MAX(headHeight, bubbleHeight + NAME_LABEL_HEIGHT + NAME_LABEL_PADDING) + CELLPADDING;

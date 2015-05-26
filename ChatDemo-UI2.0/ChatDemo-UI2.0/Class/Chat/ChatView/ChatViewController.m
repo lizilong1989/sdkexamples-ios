@@ -95,7 +95,8 @@
         _messages = [NSMutableArray array];
         
         //根据接收者的username获取当前会话的管理者
-        _conversation = [[EaseMob sharedInstance].chatManager conversationForChatter:chatter conversationType:type];
+        _conversation = [[EaseMob sharedInstance].chatManager conversationForChatter:chatter
+                                                                    conversationType:type];
         [_conversation markAllMessagesAsRead:YES];
     }
     
@@ -1385,7 +1386,10 @@
             
             MessageModel *model = [MessageModelManager modelWithMessage:message];
             if ([_delelgate respondsToSelector:@selector(nickNameWithChatter:)]) {
-                model.nickName = [_delelgate nickNameWithChatter:model.username];
+                NSString *showName = [_delelgate nickNameWithChatter:model.username];
+                model.nickName = showName?showName:model.username;
+            }else {
+                model.nickName = model.username;
             }
             
             if ([_delelgate respondsToSelector:@selector(avatarWithChatter:)]) {
@@ -1415,6 +1419,8 @@
     if ([_delelgate respondsToSelector:@selector(nickNameWithChatter:)]) {
         NSString *showName = [_delelgate nickNameWithChatter:model.username];
         model.nickName = showName?showName:model.username;
+    }else {
+        model.nickName = model.username;
     }
     
     if ([_delelgate respondsToSelector:@selector(avatarWithChatter:)]) {

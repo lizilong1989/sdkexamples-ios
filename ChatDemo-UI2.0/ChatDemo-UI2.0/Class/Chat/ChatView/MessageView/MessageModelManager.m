@@ -31,8 +31,8 @@
     model.type = messageBody.messageBodyType;
     model.isSender = isSender;
     model.isPlaying = NO;
-    model.isChatGroup = message.messageType != eMessageTypeChat;
-    if (model.isChatGroup) {
+    model.messageType = message.messageType;
+    if (model.messageType != eMessageTypeChat) {
         model.username = message.groupSenderName;
     }
     else{
