@@ -17,6 +17,7 @@
 #import "EMSearchDisplayController.h"
 #import "ChatViewController.h"
 #import "RealtimeSearchUtil.h"
+#import "EMCursorResult.h"
 
 @interface ChatroomListViewController ()<UISearchBarDelegate, UISearchDisplayDelegate, SRRefreshDelegate, EMChatManagerDelegate>
 
@@ -287,16 +288,16 @@
     [self showHudInView:self.view hint:NSLocalizedString(@"loadData", @"Load data...")];
     
     __weak typeof(self) weakSelf = self;
-    [[EaseMob sharedInstance].chatManager asyncFetchChatroomsInRange:NSMakeRange(0, 10) withCompletion:^(NSArray *chatrooms, NSRange nextSliceRange, EMError *error) {
+    [[EaseMob sharedInstance].chatManager asyncFetchChatroomsFromServerWithCursor:nil pageSize:-1 andCompletion:^(EMCursorResult *result, EMError *error) {
         ChatroomListViewController *strongSelf = weakSelf;
         if (strongSelf)
         {
             [strongSelf hideHud];
             [strongSelf.dataSource removeAllObjects];
-            [strongSelf.dataSource addObjectsFromArray:chatrooms];
+            [strongSelf.dataSource addObjectsFromArray:result.list];
             [strongSelf.tableView reloadData];
         }
-    } onQueue:nil];
+    }];
 }
 
 - (void)joinChatroom:(EMChatroom *)myChatroom fromVC:(__weak ChatroomListViewController *)weakSelf
@@ -347,14 +348,14 @@
                     {
                         [[EaseMob sharedInstance].chatManager removeConversationByChatter:myChatroom.chatroomId deleteMessages:YES append2Chat:YES];
                     }
-                } onQueue:nil];
+                }];
             }
             else
             {
                 [navigationController.topViewController showHint:[NSString stringWithFormat:@"加入%@失败", myChatroom.chatroomId]];
             }
         }
-    } onQueue:nil];
+    }];
 }
 
 - (void)beKickedOutFromChatroom:(EMChatroom *)leavedChatroom reason:(EMChatroomBeKickedReason)reason

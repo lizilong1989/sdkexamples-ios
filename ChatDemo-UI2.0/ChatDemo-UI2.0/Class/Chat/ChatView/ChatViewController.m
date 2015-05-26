@@ -243,7 +243,7 @@
         NSString *chatter = [_chatter copy];
         [[EaseMob sharedInstance].chatManager asyncLeaveChatroom:chatter completion:^(EMChatroom *chatroom, EMError *error){
             [[EaseMob sharedInstance].chatManager removeConversationByChatter:chatter deleteMessages:YES append2Chat:YES];
-        } onQueue:nil];
+        }];
     }
 }
 
