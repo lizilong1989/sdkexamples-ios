@@ -252,10 +252,6 @@ static NSString *kGroupName = @"GroupName";
         UIAlertView * alt = [[UIAlertView alloc] initWithTitle:@"未获得授权使用麦克风" message:@"请在iOS\"设置中\"-\"隐私\"-\"麦克风\"中打开" delegate:self cancelButtonTitle:nil otherButtonTitles:@"知道了", nil];
         [alt show];
     }
-    else{
-        [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
-        [audioSession setActive:YES error:nil];
-    }
     
     return bCanRecord;
 }
@@ -299,9 +295,9 @@ static NSString *kGroupName = @"GroupName";
 
 - (void)callControllerClose:(NSNotification *)notification
 {
-    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
-    [audioSession setCategory:AVAudioSessionCategoryPlayback error:nil];
-    [audioSession setActive:YES error:nil];
+//    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+//    [audioSession setCategory:AVAudioSessionCategoryPlayback error:nil];
+//    [audioSession setActive:YES error:nil];
  
     [[EaseMob sharedInstance].callManager addDelegate:self delegateQueue:nil];
 }

@@ -564,8 +564,11 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [self _stopRing];
     AVAudioSession *audioSession = [AVAudioSession sharedInstance];
     _audioCategory = audioSession.category;
-    [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
-    [audioSession setActive:YES error:nil];
+    if(![_audioCategory isEqualToString:AVAudioSessionCategoryPlayAndRecord]){
+        [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+        [audioSession setActive:YES error:nil];
+        NSLog(@"xieyajie===========2");
+    }
     
     [[EaseMob sharedInstance].callManager asyncAnswerCall:_callSession.sessionId];
 }
