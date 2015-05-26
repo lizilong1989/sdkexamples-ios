@@ -412,7 +412,7 @@ typedef NS_ENUM(NSInteger, GettingMoreFooterViewState){
 {
     [self hideHud];
     [self showHudInView:self.view hint:NSLocalizedString(@"loadData", @"Load data...")];
-    _range = NSMakeRange(0, 50);
+    _range = NSMakeRange(0, 1000);
     
     __weak typeof(self) weakSelf = self;
     [[EaseMob sharedInstance].chatManager asyncFetchPublicGroupsInRange:_range withCompletion:^(NSArray *publicGroups, NSRange nextSliceRange, EMError *error){
