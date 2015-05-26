@@ -13,7 +13,7 @@
 #import "ChatroomDetailViewController.h"
 #import "EMChatroom.h"
 #import "ContactView.h"
-
+#import "EMCursorResult.h"
 
 #pragma mark - ChatGroupDetailViewController
 
@@ -144,19 +144,18 @@
     [self showHudInView:self.view hint:NSLocalizedString(@"loadData", @"Load data...")];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(){
         EMError *error = nil;
-        NSArray *occupants = nil;
+        EMCursorResult *result = nil;
         EMChatroom *chatroom = [[EaseMob sharedInstance].chatManager fetchChatroomInfo:weakSelf.chatroom.chatroomId error:&error];
         if (!error)
         {
-            NSRange range = NSMakeRange(0, 10);
-            occupants = [[EaseMob sharedInstance].chatManager fetchOccupantsForChatroom:weakSelf.chatroom.chatroomId inSliceRange:&range error:&error];
+            result = [[EaseMob sharedInstance].chatManager fetchOccupantsForChatroom:chatroom.chatroomId cursor:nil pageSize:-1 andError:&error];
         }
         dispatch_async(dispatch_get_main_queue(), ^{
             if (!error)
             {
                 weakSelf.chatroom = chatroom;
                 weakSelf.title = chatroom.chatroomSubject;
-                weakSelf.occupants = occupants;
+                weakSelf.occupants = result.list;
             }
             [weakSelf reloadDataSource];
             if (error)

@@ -436,14 +436,14 @@ static NSString *kOnceJoinedChatroomsPattern = @"OnceJoinedChatrooms_%@";
                     {
                         [[EaseMob sharedInstance].chatManager removeConversationByChatter:myChatroom.chatroomId deleteMessages:YES append2Chat:YES];
                     }
-                } onQueue:nil];
+                }];
             }
             else
             {
                 [navigationController.topViewController showHint:[NSString stringWithFormat:@"加入%@失败", myChatroom.chatroomId]];
             }
         }
-    } onQueue:nil];
+    }];
 }
 
 - (void)beKickedOutFromChatroom:(EMChatroom *)leavedChatroom reason:(EMChatroomBeKickedReason)reason
