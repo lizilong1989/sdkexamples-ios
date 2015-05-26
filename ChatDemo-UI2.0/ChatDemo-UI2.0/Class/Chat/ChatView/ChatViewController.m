@@ -1272,10 +1272,10 @@
 - (void)stopAudioPlayingWithChangeCategory:(BOOL)isChange
 {
     //停止音频播放及播放动画
-//    [[EMCDDeviceManager sharedInstance] stopPlayingWithChangeCategory:isChange];
     [[EMCDDeviceManager sharedInstance] stopPlaying];
+    [[EMCDDeviceManager sharedInstance] disableProximitySensor];
+    [EMCDDeviceManager sharedInstance].delegate = nil;
     MessageModel *playingModel = [self.messageReadManager stopMessageAudioModel];
-    
     NSIndexPath *indexPath = nil;
     if (playingModel) {
         indexPath = [NSIndexPath indexPathForRow:[self.dataSource indexOfObject:playingModel] inSection:0];
