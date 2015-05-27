@@ -149,6 +149,9 @@
          {
              switch (error.errorCode)
              {
+                 case EMErrorNotFound:
+                     TTAlertNoTitle(error.description);
+                     break;
                  case EMErrorNetworkNotConnected:
                      TTAlertNoTitle(NSLocalizedString(@"error.connectNetworkFail", @"No network connection!"));
                      break;
