@@ -165,7 +165,7 @@
                      TTAlertNoTitle(NSLocalizedString(@"error.connectServerTimeout", @"Connect to the server timed out!"));
                      break;
                  default:
-                     TTAlertNoTitle(NSLocalizedString(@"login.fail", @"Logon failure"));
+                     TTAlertNoTitle(NSLocalizedString(@"login.fail", @"Login failure"));
                      break;
              }
          }
