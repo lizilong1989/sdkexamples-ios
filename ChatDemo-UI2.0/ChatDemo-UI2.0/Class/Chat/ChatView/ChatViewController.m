@@ -1096,7 +1096,7 @@
     [self showHint:NSLocalizedString(@"message.simulatorNotSupportCamera", @"simulator does not support taking picture")];
 #elif TARGET_OS_IPHONE
     self.imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
-    self.imagePicker.mediaTypes = @[(NSString *)kUTTypeImage];
+    self.imagePicker.mediaTypes = @[(NSString *)kUTTypeImage,(NSString *)kUTTypeMovie];
     [self presentViewController:self.imagePicker animated:YES completion:NULL];
     self.isInvisible = YES;
 #endif
@@ -1110,21 +1110,6 @@
     LocationViewController *locationController = [[LocationViewController alloc] initWithNibName:nil bundle:nil];
     locationController.delegate = self;
     [self.navigationController pushViewController:locationController animated:YES];
-}
-
-- (void)moreViewVideoAction:(DXChatBarMoreView *)moreView
-{
-    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:YES] forKey:@"isShowPicker"];
-    [self keyBoardHidden];
-    
-#if TARGET_IPHONE_SIMULATOR
-    [self showHint:NSLocalizedString(@"message.simulatorNotSupportVideo", @"simulator does not support vidio")];
-#elif TARGET_OS_IPHONE
-    self.imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
-    self.imagePicker.mediaTypes = @[(NSString *)kUTTypeMovie];
-    [self presentViewController:self.imagePicker animated:YES completion:NULL];
-    self.isInvisible = YES;
-#endif
 }
 
 - (void)moreViewAudioCallAction:(DXChatBarMoreView *)moreView
