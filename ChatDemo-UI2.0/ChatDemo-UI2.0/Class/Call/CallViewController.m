@@ -357,7 +357,7 @@
     _smallView = nil;
     
     [_openGLView removeFromSuperview];
-    
+    [[AVAudioSession sharedInstance] setActive:NO error:nil];
     [[EaseMob sharedInstance].callManager removeDelegate:self];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"callControllerClose" object:nil];
     [self dismissViewControllerAnimated:YES completion:nil];
