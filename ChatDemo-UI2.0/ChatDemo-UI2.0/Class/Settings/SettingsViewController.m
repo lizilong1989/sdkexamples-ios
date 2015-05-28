@@ -100,7 +100,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return 8;
+    return 7;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -148,10 +148,10 @@
             cell.textLabel.text = NSLocalizedString(@"setting.iospushname", @"iOS push nickname");
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         }
-        else if (indexPath.row == 7){
-            cell.textLabel.text = @"聊天记录备份和恢复";
-            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-        }
+//        else if (indexPath.row == 7){
+//            cell.textLabel.text = @"聊天记录备份和恢复";
+//            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+//        }
     }
     
     return cell;
