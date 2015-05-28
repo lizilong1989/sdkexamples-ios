@@ -22,6 +22,8 @@
 #import "ApplyViewController.h"
 #import "GroupListViewController.h"
 #import "ChatViewController.h"
+#import "MyChatroomListViewController.h"
+#import "ChatroomListViewController.h"
 
 @interface ContactsViewController ()<UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate, UISearchDisplayDelegate, UIActionSheetDelegate, BaseTableCellDelegate, SRRefreshDelegate, IChatManagerDelegate>
 {
@@ -67,6 +69,8 @@
     self.tableView.frame = CGRectMake(0, self.searchBar.frame.size.height, self.view.frame.size.width, self.view.frame.size.height - self.searchBar.frame.size.height);
     [self.view addSubview:self.tableView];
     [self.tableView addSubview:self.slimeView];
+    
+    [self reloadDataSource];
 }
 
 - (void)didReceiveMemoryWarning
@@ -213,7 +217,7 @@
 {
     // Return the number of rows in the section.
     if (section == 0) {
-        return 2;
+        return 3;
 //        return 1;
     }
     
@@ -247,6 +251,10 @@
         if (indexPath.section == 0 && indexPath.row == 1) {
             cell.imageView.image = [UIImage imageNamed:@"groupPrivateHeader"];
             cell.textLabel.text = NSLocalizedString(@"title.group", @"Group");
+        }
+        else if (indexPath.section == 0 && indexPath.row == 2) {
+            cell.imageView.image = [UIImage imageNamed:@"groupPublicHeader"];
+            cell.textLabel.text = NSLocalizedString(@"title.chatroomlist",@"chatroom list");
         }
         else{
             EMBuddy *buddy = [[self.dataSource objectAtIndex:(indexPath.section - 1)] objectAtIndex:indexPath.row];
@@ -370,6 +378,11 @@
             }
             [self.navigationController pushViewController:_groupController animated:YES];
         }
+        else if (indexPath.row == 2)
+        {
+            ChatroomListViewController *controller = [[ChatroomListViewController alloc] initWithStyle:UITableViewStylePlain];
+            [self.navigationController pushViewController:controller animated:YES];
+        }
     }
     else{
         EMBuddy *buddy = [[self.dataSource objectAtIndex:(indexPath.section - 1)] objectAtIndex:indexPath.row];
@@ -401,12 +414,13 @@
 
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
 {
+    __weak typeof(self) weakSelf = self;
     [[RealtimeSearchUtil currentUtil] realtimeSearchWithSource:self.contactsSource searchText:(NSString *)searchText collationStringSelector:@selector(username) resultBlock:^(NSArray *results) {
         if (results) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self.searchController.resultsSource removeAllObjects];
-                [self.searchController.resultsSource addObjectsFromArray:results];
-                [self.searchController.searchResultsTableView reloadData];
+                [weakSelf.searchController.resultsSource removeAllObjects];
+                [weakSelf.searchController.resultsSource addObjectsFromArray:results];
+                [weakSelf.searchController.searchResultsTableView reloadData];
             });
         }
     }];
@@ -482,8 +496,8 @@
 
 - (void)cellImageViewLongPressAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (indexPath.section == 0 && indexPath.row == 1) {
-        // 群组
+    if (indexPath.section == 0 && indexPath.row >= 1) {
+        // 群组，聊天室
         return;
     }
     NSDictionary *loginInfo = [[[EaseMob sharedInstance] chatManager] loginInfo];

@@ -12,6 +12,12 @@
 
 #define kAlertViewTag_Close 100
 
+@interface CallViewController (){
+    NSString * _audioCategory;
+}
+
+@end
+
 @implementation CallViewController
 
 - (instancetype)initWithSession:(EMCallSession *)session
@@ -25,7 +31,8 @@
         _timeLength = 0;
         _chatter = session.sessionChatter;
         
-        [[EMSDKFull sharedInstance].callManager addDelegate:self delegateQueue:nil];
+//        [[EaseMob sharedInstance].callManager removeDelegate:self];
+        [[EaseMob sharedInstance].callManager addDelegate:self delegateQueue:nil];
         
         g_callCenter = [[CTCallCenter alloc] init];
         g_callCenter.callEventHandler=^(CTCall* call)
@@ -36,7 +43,7 @@
                 [_timeTimer invalidate];
                 [self _stopRing];
                 
-                [[EMSDKFull sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Hangup];
+                [[EaseMob sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Hangup];
                 [self _close];
             }
         };
@@ -82,22 +89,37 @@
 
 - (void)dealloc
 {
-    [[EMSDKFull sharedInstance].callManager removeDelegate:self];
+    if (_session) {
+        [_session stopRunning];
+        [_session removeInput:_captureInput];
+        [_session removeOutput:_captureOutput];
+        _session = nil;
+    }
     
-    [_ringPlayer stop];
-    _ringPlayer = nil;
+    if (_ringPlayer) {
+        [_ringPlayer stop];
+        _ringPlayer = nil;
+    }
     
-    [_timeTimer invalidate];
-    _timeTimer = nil;
+    if (_timeTimer) {
+        [_timeTimer invalidate];
+        _timeTimer = nil;
+    }
     
-    [_smallCaptureLayer removeFromSuperlayer];
-    _smallCaptureLayer = nil;
-    _smallView = nil;
+    if (_smallView) {
+        [_smallCaptureLayer removeFromSuperlayer];
+        _smallCaptureLayer = nil;
+        _smallView = nil;
+    }
     
-    [_session stopRunning];
-    _session = nil;
+    if (_openGLView) {
+        _openGLView = nil;
+    }
     
-    free(_imageDataBuffer);
+    if (_imageDataBuffer) {
+        free(_imageDataBuffer);
+        _imageDataBuffer = nil;
+    }
 }
 
 #pragma makr - property
@@ -204,62 +226,63 @@
 
 - (void)_initializeCamera
 {
-    if (_smallView == nil) {
-        
-        //1.大窗口显示层
-        _openGLView = [[OpenGLView20 alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
-        _openGLView.backgroundColor = [UIColor clearColor];
-        [self.view addSubview:_openGLView];
-        
-        //2.小窗口视图
-        CGFloat width = 80;
-        CGFloat height = _openGLView.frame.size.height / _openGLView.frame.size.width * width;
-        _smallView = [[UIView alloc] initWithFrame:CGRectMake(self.view.frame.size.width - 90, CGRectGetMaxY(_statusLabel.frame), width, height)];
-        _smallView.backgroundColor = [UIColor clearColor];
-        [self.view addSubview:_smallView];
-        
-        //3.创建会话层
-        _session = [[AVCaptureSession alloc] init];
-        [_session setSessionPreset:_openGLView.sessionPreset];
-        
-        //4.创建、配置输入设备
-        AVCaptureDevice *device;
-        NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
-        for (AVCaptureDevice *tmp in devices)
+    //1.大窗口显示层
+    _openGLView = [[OpenGLView20 alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
+    _openGLView.backgroundColor = [UIColor clearColor];
+    _openGLView.sessionPreset = AVCaptureSessionPreset352x288;
+    [self.view addSubview:_openGLView];
+    
+    //2.小窗口视图
+    CGFloat width = 80;
+    CGFloat height = _openGLView.frame.size.height / _openGLView.frame.size.width * width;
+    _smallView = [[UIView alloc] initWithFrame:CGRectMake(self.view.frame.size.width - 90, CGRectGetMaxY(_statusLabel.frame), width, height)];
+    _smallView.backgroundColor = [UIColor clearColor];
+    [self.view addSubview:_smallView];
+    
+    //3.创建会话层
+    _session = [[AVCaptureSession alloc] init];
+    [_session setSessionPreset:_openGLView.sessionPreset];
+    
+    //4.创建、配置输入设备
+    AVCaptureDevice *device;
+    NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+    for (AVCaptureDevice *tmp in devices)
+    {
+        if (tmp.position == AVCaptureDevicePositionFront)
         {
-            if (tmp.position == AVCaptureDevicePositionFront)
-            {
-                device = tmp;
-                break;
-            }
+            device = tmp;
+            break;
         }
-        
-        AVCaptureDeviceInput *captureInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:nil];
-        [_session beginConfiguration];
-        [_session addInput:captureInput];
-        
-        //5.创建、配置输出
-        AVCaptureVideoDataOutput *captureOutput = [[AVCaptureVideoDataOutput alloc] init];
-        NSDictionary *settings = [[NSDictionary alloc] initWithObjectsAndKeys:
-                                  [NSNumber numberWithUnsignedInt:kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange], kCVPixelBufferPixelFormatTypeKey,
-                                  [NSNumber numberWithInt: 352], (id)kCVPixelBufferWidthKey,
-                                  [NSNumber numberWithInt: 288], (id)kCVPixelBufferHeightKey,
-                                  nil];
-        
-        captureOutput.videoSettings = settings;
-        captureOutput.minFrameDuration = CMTimeMake(1, 15);
-        captureOutput.alwaysDiscardsLateVideoFrames = YES;
-        dispatch_queue_t outQueue = dispatch_queue_create("com.gh.cecall", NULL);
-        [captureOutput setSampleBufferDelegate:self queue:outQueue];
-        [_session addOutput:captureOutput];
-        [_session commitConfiguration];
-        
-        //6.小窗口显示层
-        _smallCaptureLayer = [AVCaptureVideoPreviewLayer layerWithSession:_session];
-        _smallCaptureLayer.frame = CGRectMake(0, 0, width, height);
-        _smallCaptureLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
-        [_smallView.layer addSublayer:_smallCaptureLayer];
     }
+    
+    NSError *error = nil;
+    _captureInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:&error];
+    [_session beginConfiguration];
+    if(!error){
+        [_session addInput:_captureInput];
+    }
+    else{
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"错误" message:error.localizedFailureReason delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+        [alertView show];
+    }
+    
+    //5.创建、配置输出
+    _captureOutput = [[AVCaptureVideoDataOutput alloc] init];
+    _captureOutput.videoSettings = _openGLView.outputSettings;
+//    [[_captureOutput connectionWithMediaType:AVMediaTypeVideo] setVideoMinFrameDuration:CMTimeMake(1, 15)];
+    _captureOutput.minFrameDuration = CMTimeMake(1, 15);
+//    _captureOutput.minFrameDuration = _openGLView.videoMinFrameDuration;
+    _captureOutput.alwaysDiscardsLateVideoFrames = YES;
+    dispatch_queue_t outQueue = dispatch_queue_create("com.gh.cecall", NULL);
+    [_captureOutput setSampleBufferDelegate:self queue:outQueue];
+    [_session addOutput:_captureOutput];
+    [_session commitConfiguration];
+    
+    //6.小窗口显示层
+    _smallCaptureLayer = [AVCaptureVideoPreviewLayer layerWithSession:_session];
+    _smallCaptureLayer.frame = CGRectMake(0, 0, width, height);
+    _smallCaptureLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+    [_smallView.layer addSublayer:_smallCaptureLayer];
 }
 
 #pragma mark - ring
@@ -318,20 +341,30 @@
 
 - (void)_close
 {
+    _callSession = nil;
+    _openGLView.hidden = YES;
     [self hideHud];
     
     [_timeTimer invalidate];
     _timeTimer = nil;
     
+    [_session stopRunning];
+    [_session removeInput:_captureInput];
+    [_session removeOutput:_captureOutput];
+    _session = nil;
+    
     [_smallCaptureLayer removeFromSuperlayer];
     _smallCaptureLayer = nil;
     _smallView = nil;
     
-    [_session stopRunning];
-    _session = nil;
+    [_openGLView removeFromSuperview];
     
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"callControllerClose" object:nil];
-    [self dismissViewControllerAnimated:YES completion:nil];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[AVAudioSession sharedInstance] setActive:NO error:nil];
+        [[EaseMob sharedInstance].callManager removeDelegate:self];
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"callControllerClose" object:nil];
+        [self dismissViewControllerAnimated:YES completion:nil];
+    });
 }
 
 #pragma mark - UIAlertViewDelegate
@@ -340,7 +373,8 @@
 {
     if (alertView.tag == kAlertViewTag_Close)
     {
-        [[EMSDKFull sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Null];
+        [[EaseMob sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Null];
+        _callSession = nil;
         [self _close];
     }
 }
@@ -423,7 +457,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         }
         
         YUV420spRotate90(bufferPtr, _imageDataBuffer, width, height);
-        [[EMSDKFull sharedInstance].callManager processPreviewData:(char *)bufferPtr width:width height:height];
+        [[EaseMob sharedInstance].callManager processPreviewData:(char *)bufferPtr width:width height:height];
         
         /*We unlock the buffer*/
         CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
@@ -455,6 +489,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     }
     
     if (callSession.status == eCallSessionStatusDisconnected) {
+        NSLog(@"callSession.status == eCallSessionStatusDisconnected");
         _statusLabel.text = @"通话已挂断";
         NSString *str = @"通话结束";
         if(_timeLength == 0)
@@ -463,10 +498,10 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
                 str = @"取消通话";
             }
             else if (reason == eCallReason_Reject){
-                str = @"对方取消通话";
+                str = @"拒接通话";
             }
             else if (reason == eCallReason_Busy){
-                str = @"对方正在通话中";
+                str = @"正在通话中";
             }
         }
         [self _insertMessageWithStr:str];
@@ -504,10 +539,18 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 - (void)silenceAction
 {
     _silenceButton.selected = !_silenceButton.selected;
+    [[EaseMob sharedInstance].callManager markCallSession:_callSession.sessionId asSilence:_silenceButton.selected];
 }
 
 - (void)speakerOutAction
 {
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+    if (_speakerOutButton.selected) {
+        [audioSession overrideOutputAudioPort:AVAudioSessionPortOverrideNone error:nil];
+    }else {
+        [audioSession overrideOutputAudioPort:AVAudioSessionPortOverrideSpeaker error:nil];
+    }
+    [audioSession setActive:YES error:nil];
     _speakerOutButton.selected = !_speakerOutButton.selected;
 }
 
@@ -517,26 +560,48 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [self _stopRing];
     [self showHint:@"拒接通话..."];
     
-    [[EMSDKFull sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Reject];
-    [self _close];
+    [[EaseMob sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Reject];
 }
 
 - (void)answerAction
 {
     [self showHint:@"正在初始化通话..."];
     [self _stopRing];
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+    _audioCategory = audioSession.category;
+    if(![_audioCategory isEqualToString:AVAudioSessionCategoryPlayAndRecord]){
+        [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+        [audioSession setActive:YES error:nil];
+        NSLog(@"xieyajie===========2");
+    }
     
-    [[EMSDKFull sharedInstance].callManager asyncAnswerCall:_callSession.sessionId];
+    [[EaseMob sharedInstance].callManager asyncAnswerCall:_callSession.sessionId];
 }
 
 - (void)hangupAction
 {
+    _openGLView.hidden = YES;
     [_timeTimer invalidate];
     [self _stopRing];
     [self showHint:@"正在结束通话..."];
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+    [audioSession setCategory:_audioCategory error:nil];
+    [audioSession setActive:YES error:nil];
     
-    [[EMSDKFull sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Hangup];
-    [self _close];
+    [[EaseMob sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Hangup];
+}
+
++ (BOOL)canVideo
+{
+    if([[[UIDevice currentDevice] systemVersion] compare:@"7.0"] != NSOrderedAscending){
+        if(!([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] == AVAuthorizationStatusAuthorized)){\
+            UIAlertView * alt = [[UIAlertView alloc] initWithTitle:@"未获得授权使用摄像头" message:@"请在iOS\"设置中\"-\"隐私\"-\"相机\"中打开" delegate:self cancelButtonTitle:nil otherButtonTitles:@"知道了", nil];
+            [alt show];
+            return NO;
+        }
+    }
+    
+    return YES;
 }
 
 @end

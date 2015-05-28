@@ -19,7 +19,7 @@
         NSDictionary*userInfo = [launchOptions objectForKey:@"UIApplicationLaunchOptionsRemoteNotificationKey"];
         if(userInfo)
         {
-            [self didReiveceRemoteNotificatison:userInfo];
+            [self didReceiveRemoteNotification:userInfo];
         }
     }
     
@@ -38,6 +38,7 @@
     [[EaseMob sharedInstance] registerSDKWithAppKey:@"easemob-demo#chatdemoui"
                                        apnsCertName:apnsCertName
                                         otherConfig:@{kSDKConfigEnableConsoleLogger:[NSNumber numberWithBool:YES]}];
+    
     
     // 登录成功后，自动去取好友列表
     // SDK获取结束后，会回调
@@ -216,6 +217,12 @@
     }
     else{
         alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:NSLocalizedString(@"login.beginAutoLogin", @"Start automatic login...") delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
+        
+        //将旧版的coredata数据导入新的数据库
+        EMError *error = [[EaseMob sharedInstance].chatManager importDataToNewDatabase];
+        if (!error) {
+            error = [[EaseMob sharedInstance].chatManager loadDataFromDatabase];
+        }
     }
     
     [alertView show];
@@ -361,7 +368,8 @@
 }
 
 // 打印收到的apns信息
--(void)didReiveceRemoteNotificatison:(NSDictionary *)userInfo{
+-(void)didReceiveRemoteNotification:(NSDictionary *)userInfo
+{
     NSError *parseError = nil;
     NSData  *jsonData = [NSJSONSerialization dataWithJSONObject:userInfo
                                                         options:NSJSONWritingPrettyPrinted error:&parseError];

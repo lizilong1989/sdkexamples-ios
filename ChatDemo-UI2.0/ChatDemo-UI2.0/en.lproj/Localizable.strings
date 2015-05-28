@@ -11,6 +11,7 @@
 "logout" = "Logout";
 "password" = "Password";
 "username" = "Username";
+"confirmpassword"="Confirm password";
 
 "sure" = "OK";
 "yes" = "YES";
@@ -52,6 +53,7 @@
 //error des
 "error.connectServerFail" = "Connect to the server failed!";
 "error.connectServerTimeout" = "Connect to the server timed out!";
+"error.connectNetworkFail" = "No network connection!";
 
 //login
 "login.beginAutoLogin" = "Start automatic login...";
@@ -68,6 +70,7 @@
 "register.fail" = "Registration failed";
 "register.success" = "Registered successfully, please log in";
 "register.repeat" = "You registered user already exists!";
+"register.confirmPassword" = "The two input password does not match, please input again";
 
 //apns
 "apns.failToRegisterApns" = "Fail to register apns";
@@ -124,6 +127,8 @@
 "group.create.occupantJoinPermissions" = "members join permissions";
 "group.create.open" = "random join";
 "group.create.needApply" = "you need administrator agreed to join the group";
+"group.create.group" = "Create a group";
+"group.create.join" = "Join public group";
 
 //Group Bans
 "group.ban.removing" = "members are removing from the blacklist...";
@@ -149,6 +154,13 @@
 "group.setting.save" = "set properties";
 "group.setting.success" = "set success";
 "group.setting.fail" = "set failure";
+
+//Chatroom detail
+"chatroom.id" = "chatroomId";
+"chatroom.occupantCount" = "members count";
+"chatroom.description" = "description";
+"chatroom.joining" = "Joining...";
+"chatroom.fetchInfoFail" = "Failed to get the chatroom details";
 
 //message
 "message.image" = "image";
@@ -200,6 +212,8 @@
 "title.addressbook" = "AddressBook";
 "title.setting" = "Setting";
 "title.group" = "Group";
+"title.chatroom" = "Chatroom";
+"title.mychatroom" = "My Chatroom";
 "title.chooseContact" = "select the contact";
 "title.debug" = "Debug";
 "title.groupBlackList" = "Group black list";
@@ -211,6 +225,7 @@
 "title.apply" = "Application and notification";
 "title.groupApply" = "Group Notification";
 "title.groupSubjectChanging" = "Change group name";
+"title.chatroomlist" = "Chatroom List";
 
 //setting
 "setting.autoLogin" = "automatic login";
@@ -228,6 +243,12 @@
 "setting.sdkVersion" = "SDK version";
 "setting.uploading" = "uploading...";
 "setting.uploadSuccess" = "uploaded successfully";
+"setting.editName" = "Edit NickName";
+"setting.inputName" = "Please input nickname";
+"setting.saveName" = "Save Nickname";
+"setting.namenotempty" = "Name cannot be empty";
+"setting.edittips" = "After setting this nickname, chat with the iOS client demo project, iOS will display this nickname is not a EaseMob ID, if the other party to use the Android client this setting is not effective";
+"setting.iospushname" = "iOS push nickname";
 
 //NSDateCategory
 "NSDateCategory.text1" = "one minute";

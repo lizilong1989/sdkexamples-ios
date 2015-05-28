@@ -12,7 +12,7 @@
 
 #import "DXChatBarMoreView.h"
 
-#define CHAT_BUTTON_SIZE 60
+#define CHAT_BUTTON_SIZE 50
 #define INSETS 8
 
 @implementation DXChatBarMoreView
@@ -52,27 +52,19 @@
     [_takePicButton setImage:[UIImage imageNamed:@"chatBar_colorMore_cameraSelected"] forState:UIControlStateHighlighted];
     [_takePicButton addTarget:self action:@selector(takePicAction) forControlEvents:UIControlEventTouchUpInside];
     [self addSubview:_takePicButton];
-    
-    _videoButton =[UIButton buttonWithType:UIButtonTypeCustom];
-    [_videoButton setFrame:CGRectMake(insets * 4 + CHAT_BUTTON_SIZE * 3, 10, CHAT_BUTTON_SIZE , CHAT_BUTTON_SIZE)];
-    [_videoButton setImage:[UIImage imageNamed:@"chatBar_colorMore_video"] forState:UIControlStateNormal];
-    [_videoButton setImage:[UIImage imageNamed:@"chatBar_colorMore_videoSelected"] forState:UIControlStateHighlighted];
-    [_videoButton addTarget:self action:@selector(takeVideoAction) forControlEvents:UIControlEventTouchUpInside];
-    [self addSubview:_videoButton];
-    
+
     CGRect frame = self.frame;
     if (type == ChatMoreTypeChat) {
         frame.size.height = 150;
-        
         _audioCallButton =[UIButton buttonWithType:UIButtonTypeCustom];
-        [_audioCallButton setFrame:CGRectMake(insets, 10 * 2 + CHAT_BUTTON_SIZE, CHAT_BUTTON_SIZE , CHAT_BUTTON_SIZE)];
+        [_audioCallButton setFrame:CGRectMake(insets * 4 + CHAT_BUTTON_SIZE * 3, 10, CHAT_BUTTON_SIZE , CHAT_BUTTON_SIZE)];
         [_audioCallButton setImage:[UIImage imageNamed:@"chatBar_colorMore_audioCall"] forState:UIControlStateNormal];
         [_audioCallButton setImage:[UIImage imageNamed:@"chatBar_colorMore_audioCallSelected"] forState:UIControlStateHighlighted];
         [_audioCallButton addTarget:self action:@selector(takeAudioCallAction) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:_audioCallButton];
         
         _videoCallButton =[UIButton buttonWithType:UIButtonTypeCustom];
-        [_videoCallButton setFrame:CGRectMake(insets * 2 + CHAT_BUTTON_SIZE, 10 * 2 + CHAT_BUTTON_SIZE, CHAT_BUTTON_SIZE , CHAT_BUTTON_SIZE)];
+        [_videoCallButton setFrame:CGRectMake(insets, 10 * 2 + CHAT_BUTTON_SIZE + 10, CHAT_BUTTON_SIZE , CHAT_BUTTON_SIZE)];
         [_videoCallButton setImage:[UIImage imageNamed:@"chatBar_colorMore_videoCall"] forState:UIControlStateNormal];
         [_videoCallButton setImage:[UIImage imageNamed:@"chatBar_colorMore_videoCallSelected"] forState:UIControlStateHighlighted];
         [_videoCallButton addTarget:self action:@selector(takeVideoCallAction) forControlEvents:UIControlEventTouchUpInside];
@@ -104,12 +96,6 @@
 {
     if (_delegate && [_delegate respondsToSelector:@selector(moreViewLocationAction:)]) {
         [_delegate moreViewLocationAction:self];
-    }
-}
-
-- (void)takeVideoAction{
-    if (_delegate && [_delegate respondsToSelector:@selector(moreViewLocationAction:)]) {
-        [_delegate moreViewVideoAction:self];
     }
 }
 

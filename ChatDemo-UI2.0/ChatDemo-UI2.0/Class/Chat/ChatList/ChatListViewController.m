@@ -20,7 +20,7 @@
 #import "EMSearchDisplayController.h"
 #import "ConvertToCommonEmoticonsHelper.h"
 
-@interface ChatListViewController ()<UITableViewDelegate,UITableViewDataSource, UISearchDisplayDelegate,SRRefreshDelegate, UISearchBarDelegate, IChatManagerDelegate>
+@interface ChatListViewController ()<UITableViewDelegate,UITableViewDataSource, UISearchDisplayDelegate,SRRefreshDelegate, UISearchBarDelegate, IChatManagerDelegate,ChatViewControllerDelegate>
 
 @property (strong, nonatomic) NSMutableArray        *dataSource;
 
@@ -47,6 +47,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    [[EaseMob sharedInstance].chatManager loadAllConversationsFromDatabaseWithAppend2Chat:NO];
     [self removeEmptyConversationsFromDB];
 
     [self.view addSubview:self.searchBar];
@@ -81,7 +82,28 @@
     NSArray *conversations = [[EaseMob sharedInstance].chatManager conversations];
     NSMutableArray *needRemoveConversations;
     for (EMConversation *conversation in conversations) {
-        if (!conversation.latestMessage) {
+        if (!conversation.latestMessage || (conversation.conversationType == eConversationTypeChatRoom)) {
+            if (!needRemoveConversations) {
+                needRemoveConversations = [[NSMutableArray alloc] initWithCapacity:0];
+            }
+            
+            [needRemoveConversations addObject:conversation.chatter];
+        }
+    }
+    
+    if (needRemoveConversations && needRemoveConversations.count > 0) {
+        [[EaseMob sharedInstance].chatManager removeConversationsByChatters:needRemoveConversations
+                                                             deleteMessages:YES
+                                                                append2Chat:NO];
+    }
+}
+
+- (void)removeChatroomConversationsFromDB
+{
+    NSArray *conversations = [[EaseMob sharedInstance].chatManager conversations];
+    NSMutableArray *needRemoveConversations;
+    for (EMConversation *conversation in conversations) {
+        if (conversation.conversationType == eConversationTypeChatRoom) {
             if (!needRemoveConversations) {
                 needRemoveConversations = [[NSMutableArray alloc] initWithCapacity:0];
             }
@@ -164,7 +186,7 @@
             
             EMConversation *conversation = [weakSelf.searchController.resultsSource objectAtIndex:indexPath.row];
             cell.name = conversation.chatter;
-            if (!conversation.isGroup) {
+            if (conversation.conversationType != eConversationTypeChat) {
                 cell.placeholderImage = [UIImage imageNamed:@"chatListCellHead.png"];
             }
             else{
@@ -199,7 +221,7 @@
             [weakSelf.searchController.searchBar endEditing:YES];
             
             EMConversation *conversation = [weakSelf.searchController.resultsSource objectAtIndex:indexPath.row];
-            ChatViewController *chatVC = [[ChatViewController alloc] initWithChatter:conversation.chatter isGroup:conversation.isGroup];
+            ChatViewController *chatVC = [[ChatViewController alloc] initWithChatter:conversation.chatter conversationType:conversation.conversationType];
             chatVC.title = conversation.chatter;
             [weakSelf.navigationController pushViewController:chatVC animated:YES];
         }];
@@ -319,7 +341,7 @@
     }
     EMConversation *conversation = [self.dataSource objectAtIndex:indexPath.row];
     cell.name = conversation.chatter;
-    if (!conversation.isGroup) {
+    if (conversation.conversationType == eConversationTypeChat) {
         cell.placeholderImage = [UIImage imageNamed:@"chatListCellHead.png"];
     }
     else{
@@ -373,18 +395,26 @@
     
     ChatViewController *chatController;
     NSString *title = conversation.chatter;
-    if (conversation.isGroup) {
-        NSArray *groupArray = [[EaseMob sharedInstance].chatManager groupList];
-        for (EMGroup *group in groupArray) {
-            if ([group.groupId isEqualToString:conversation.chatter]) {
-                title = group.groupSubject;
-                break;
+    if (conversation.conversationType != eConversationTypeChat) {
+        if ([[conversation.ext objectForKey:@"groupSubject"] length])
+        {
+            title = [conversation.ext objectForKey:@"groupSubject"];
+        }
+        else
+        {
+            NSArray *groupArray = [[EaseMob sharedInstance].chatManager groupList];
+            for (EMGroup *group in groupArray) {
+                if ([group.groupId isEqualToString:conversation.chatter]) {
+                    title = group.groupSubject;
+                    break;
+                }
             }
         }
     }
     
     NSString *chatter = conversation.chatter;
-    chatController = [[ChatViewController alloc] initWithChatter:chatter isGroup:conversation.isGroup];
+    chatController = [[ChatViewController alloc] initWithChatter:chatter conversationType:conversation.conversationType];
+    chatController.delelgate = self;
     chatController.title = title;
     [self.navigationController pushViewController:chatController animated:YES];
 }
@@ -415,12 +445,13 @@
 
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
 {
+    __weak typeof(self) weakSelf = self;
     [[RealtimeSearchUtil currentUtil] realtimeSearchWithSource:self.dataSource searchText:(NSString *)searchText collationStringSelector:@selector(chatter) resultBlock:^(NSArray *results) {
         if (results) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self.searchController.resultsSource removeAllObjects];
-                [self.searchController.resultsSource addObjectsFromArray:results];
-                [self.searchController.searchResultsTableView reloadData];
+                [weakSelf.searchController.resultsSource removeAllObjects];
+                [weakSelf.searchController.resultsSource addObjectsFromArray:results];
+                [weakSelf.searchController.searchResultsTableView reloadData];
             });
         }
     }];
@@ -530,6 +561,19 @@
 - (void)didFinishedReceiveOfflineMessages:(NSArray *)offlineMessages{
     NSLog(NSLocalizedString(@"message.endReceiveOffine", @"End to receive offline messages"));
     [self refreshDataSource];
+}
+
+#pragma mark - ChatViewControllerDelegate
+
+// 根据环信id得到要显示头像路径，如果返回nil，则显示默认头像
+- (NSString *)avatarWithChatter:(NSString *)chatter{
+//    return @"http://img0.bdstatic.com/img/image/shouye/jianbihua0525.jpg";
+    return nil;
+}
+
+// 根据环信id得到要显示用户名，如果返回nil，则默认显示环信id
+- (NSString *)nickNameWithChatter:(NSString *)chatter{
+    return chatter;
 }
 
 @end

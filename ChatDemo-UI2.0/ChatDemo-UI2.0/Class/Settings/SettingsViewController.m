@@ -16,6 +16,8 @@
 #import "PushNotificationViewController.h"
 #import "BlackListViewController.h"
 #import "DebugViewController.h"
+#import "EditNicknameViewController.h"
+//#import "BackupViewController.h"
 
 @interface SettingsViewController ()
 
@@ -24,9 +26,6 @@
 @property (strong, nonatomic) UISwitch *autoLoginSwitch;
 @property (strong, nonatomic) UISwitch *ipSwitch;
 @property (strong, nonatomic) UISwitch *delConversationSwitch;
-
-@property (strong, nonatomic) UISwitch *beInvitedSwitch;
-@property (strong, nonatomic) UILabel *beInvitedLabel;
 
 @end
 
@@ -92,30 +91,6 @@
     return _delConversationSwitch;
 }
 
-- (UISwitch *)beInvitedSwitch
-{
-//    if (_beInvitedSwitch == nil) {
-//        _beInvitedSwitch = [[UISwitch alloc] init];
-//        [_beInvitedSwitch addTarget:self action:@selector(beInvitedChanged:) forControlEvents:UIControlEventValueChanged];
-//        BOOL autoAccept = [[EaseMob sharedInstance].chatManager autoAcceptGroupInvitation];
-//        [_beInvitedSwitch setOn:!autoAccept animated:YES];
-//    }
-    
-    return _beInvitedSwitch;
-}
-
-- (UILabel *)beInvitedLabel
-{
-    if (_beInvitedLabel == nil) {
-        _beInvitedLabel = [[UILabel alloc] init];
-        _beInvitedLabel.backgroundColor = [UIColor clearColor];
-        _beInvitedLabel.font = [UIFont systemFontOfSize:12.0];
-        _beInvitedLabel.textColor = [UIColor grayColor];
-    }
-    
-    return _beInvitedLabel;
-}
-
 #pragma mark - Table view datasource
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -125,7 +100,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return 6;
+    return 7;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -169,16 +144,13 @@
             cell.accessoryType = UITableViewCellAccessoryNone;
             self.delConversationSwitch.frame = CGRectMake(self.tableView.frame.size.width - (self.delConversationSwitch.frame.size.width + 10), (cell.contentView.frame.size.height - self.delConversationSwitch.frame.size.height) / 2, self.delConversationSwitch.frame.size.width, self.delConversationSwitch.frame.size.height);
             [cell.contentView addSubview:self.delConversationSwitch];
+        } else if (indexPath.row == 6){
+            cell.textLabel.text = NSLocalizedString(@"setting.iospushname", @"iOS push nickname");
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         }
-//        else if (indexPath.row == 3)
-//        {
-//            cell.textLabel.text = @"被邀请人权限";
-//            
-//            self.beInvitedSwitch.frame = CGRectMake(180, (cell.contentView.frame.size.height - self.beInvitedSwitch.frame.size.height) / 2, self.beInvitedSwitch.frame.size.width, self.beInvitedSwitch.frame.size.height);
-//            [cell.contentView addSubview:self.beInvitedSwitch];
-//            
-//            self.beInvitedLabel.frame = CGRectMake(self.beInvitedSwitch.frame.origin.x + self.beInvitedSwitch.frame.size.width + 5, 0, 80, 50);
-//            [cell.contentView addSubview:self.beInvitedLabel];
+//        else if (indexPath.row == 7){
+//            cell.textLabel.text = @"聊天记录备份和恢复";
+//            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 //        }
     }
     
@@ -208,7 +180,14 @@
     {
         DebugViewController *debugController = [[DebugViewController alloc] initWithStyle:UITableViewStylePlain];
         [self.navigationController pushViewController:debugController animated:YES];
+    } else if (indexPath.row == 6) {
+        EditNicknameViewController *editName = [[EditNicknameViewController alloc] initWithNibName:nil bundle:nil];
+        [self.navigationController pushViewController:editName animated:YES];
     }
+//    else if(indexPath.row == 7){
+//        BackupViewController *backupController = [[BackupViewController alloc] initWithNibName:nil bundle:nil];
+//        [self.navigationController pushViewController:backupController animated:YES];
+//    }
 }
 
 #pragma mark - getter
@@ -224,7 +203,7 @@
         [_footerView addSubview:line];
         
         UIButton *logoutButton = [[UIButton alloc] initWithFrame:CGRectMake(40, 20, _footerView.frame.size.width - 80, 40)];
-        [logoutButton setBackgroundColor:[UIColor colorWithRed:191 / 255.0 green:48 / 255.0 blue:49 / 255.0 alpha:1.0]];
+        [logoutButton setBackgroundColor:RGBACOLOR(0xfe, 0x64, 0x50, 1)];
         NSDictionary *loginInfo = [[EaseMob sharedInstance].chatManager loginInfo];
         NSString *username = [loginInfo objectForKey:kSDKUsername];
         NSString *logoutButtonTitle = [[NSString alloc] initWithFormat:NSLocalizedString(@"setting.loginUser", @"log out(%@)"), username];
@@ -253,19 +232,6 @@
 {
     [EaseMob sharedInstance].chatManager.isAutoDeleteConversationWhenLeaveGroup = control.isOn;
 }
-
-- (void)beInvitedChanged:(UISwitch *)beInvitedSwitch
-{
-//    if (beInvitedSwitch.isOn) {
-//        self.beInvitedLabel.text = @"允许选择";
-//    }
-//    else{
-//        self.beInvitedLabel.text = @"自动加入";
-//    }
-//    
-//    [[EaseMob sharedInstance].chatManager setAutoAcceptGroupInvitation:!(beInvitedSwitch.isOn)];
-}
-
 
 - (void)refreshConfig
 {

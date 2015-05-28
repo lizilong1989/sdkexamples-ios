@@ -7,6 +7,7 @@
 //
 
 #import <AVFoundation/AVFoundation.h>
+#import <CoreTelephony/CTCallCenter.h>
 #import <UIKit/UIKit.h>
 
 static CTCallCenter *g_callCenter;
@@ -26,6 +27,8 @@ static CTCallCenter *g_callCenter;
     OpenGLView20 *_openGLView;
     AVCaptureVideoPreviewLayer *_smallCaptureLayer;
     AVCaptureSession *_session;
+    AVCaptureVideoDataOutput *_captureOutput;
+    AVCaptureDeviceInput *_captureInput;
     
     UIView *_actionView;
     UIButton *_silenceButton;
@@ -52,5 +55,7 @@ static CTCallCenter *g_callCenter;
 
 - (instancetype)initWithSession:(EMCallSession *)session
                      isIncoming:(BOOL)isIncoming;
+
++ (BOOL)canVideo;
 
 @end

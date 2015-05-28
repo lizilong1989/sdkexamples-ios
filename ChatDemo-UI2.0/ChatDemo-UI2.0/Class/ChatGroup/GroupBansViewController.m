@@ -198,23 +198,18 @@
 
 - (void)fetchGroupBans
 {
-    if ([_group.bans count] == 0) {
-        __weak typeof(self) weakSelf = self;
-        [self showHudInView:weakSelf.view hint:NSLocalizedString(@"group.ban.fetching", @"getting group blacklist...")];
-        [[EaseMob sharedInstance].chatManager asyncFetchGroupBansList:_group.groupId completion:^(NSArray *groupBans, EMError *error) {
-            [weakSelf hideHud];
-            if (!error) {
-                [weakSelf refreshScrollView];
-            }
-            else{
-                NSString *errorStr = [NSString stringWithFormat:NSLocalizedString(@"group.ban.fetchFail", @"fail to get blacklist: %@"), error.description];
-                [weakSelf showHint:errorStr];
-            }
-        } onQueue:nil];
-    }
-    else{
-        [self refreshScrollView];
-    }
+    __weak typeof(self) weakSelf = self;
+    [self showHudInView:weakSelf.view hint:NSLocalizedString(@"group.ban.fetching", @"getting group blacklist...")];
+    [[EaseMob sharedInstance].chatManager asyncFetchGroupBansList:_group.groupId completion:^(NSArray *groupBans, EMError *error) {
+        [weakSelf hideHud];
+        if (!error) {
+            [weakSelf refreshScrollView];
+        }
+        else{
+            NSString *errorStr = [NSString stringWithFormat:NSLocalizedString(@"group.ban.fetchFail", @"fail to get blacklist: %@"), error.description];
+            [weakSelf showHint:errorStr];
+        }
+    } onQueue:nil];
 }
 
 @end

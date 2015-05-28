@@ -32,7 +32,6 @@
 @property (strong, nonatomic) UIButton *styleChangeButton;
 @property (strong, nonatomic) UIButton *moreButton;
 @property (strong, nonatomic) UIButton *faceButton;
-@property (strong, nonatomic) UIButton *recordButton;
 
 /**
  *  底部扩展页面
