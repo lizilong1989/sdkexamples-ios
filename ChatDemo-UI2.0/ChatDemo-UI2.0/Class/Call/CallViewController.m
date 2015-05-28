@@ -341,6 +341,7 @@
 
 - (void)_close
 {
+    _callSession = nil;
     _openGLView.hidden = YES;
     [self hideHud];
     
@@ -357,10 +358,13 @@
     _smallView = nil;
     
     [_openGLView removeFromSuperview];
-    [[AVAudioSession sharedInstance] setActive:NO error:nil];
-    [[EaseMob sharedInstance].callManager removeDelegate:self];
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"callControllerClose" object:nil];
-    [self dismissViewControllerAnimated:YES completion:nil];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[AVAudioSession sharedInstance] setActive:NO error:nil];
+        [[EaseMob sharedInstance].callManager removeDelegate:self];
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"callControllerClose" object:nil];
+        [self dismissViewControllerAnimated:YES completion:nil];
+    });
 }
 
 #pragma mark - UIAlertViewDelegate
@@ -485,6 +489,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     }
     
     if (callSession.status == eCallSessionStatusDisconnected) {
+        NSLog(@"callSession.status == eCallSessionStatusDisconnected");
         _statusLabel.text = @"通话已挂断";
         NSString *str = @"通话结束";
         if(_timeLength == 0)
@@ -556,7 +561,6 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [self showHint:@"拒接通话..."];
     
     [[EaseMob sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Reject];
-//    [self _close];
 }
 
 - (void)answerAction
@@ -585,7 +589,6 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [audioSession setActive:YES error:nil];
     
     [[EaseMob sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Hangup];
-//    [self _close];
 }
 
 + (BOOL)canVideo
