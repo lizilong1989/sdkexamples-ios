@@ -43,7 +43,7 @@
                 [_timeTimer invalidate];
                 [self _stopRing];
                 
-                [[EaseMob sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Hangup];
+                [[EaseMob sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReasonHangup];
                 [self _close];
             }
         };
@@ -373,7 +373,7 @@
 {
     if (alertView.tag == kAlertViewTag_Close)
     {
-        [[EaseMob sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Null];
+        [[EaseMob sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReasonNull];
         _callSession = nil;
         [self _close];
     }
@@ -494,13 +494,13 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         NSString *str = @"通话结束";
         if(_timeLength == 0)
         {
-            if (reason == eCallReason_Hangup) {
+            if (reason == eCallReasonHangup) {
                 str = @"取消通话";
             }
-            else if (reason == eCallReason_Reject){
+            else if (reason == eCallReasonReject){
                 str = @"拒接通话";
             }
-            else if (reason == eCallReason_Busy){
+            else if (reason == eCallReasonBusy){
                 str = @"正在通话中";
             }
         }
@@ -509,7 +509,15 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     }
     else if (callSession.status == eCallSessionStatusAccepted)
     {
-        _statusLabel.text = @"可以通话了...";
+        if (callSession.connectType == eCallConnectTypeRelay) {
+            _statusLabel.text = @"可以通话了...Relay";
+        }
+        else if (callSession.connectType == eCallConnectTypeDirect){
+            _statusLabel.text = @"可以通话了...Direct";
+        }
+        else{
+            _statusLabel.text = @"可以通话了...";
+        }
         _timeLength = 0;
         _timeTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(timeTimerAction:) userInfo:nil repeats:YES];
 
@@ -560,7 +568,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [self _stopRing];
     [self showHint:@"拒接通话..."];
     
-    [[EaseMob sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Reject];
+    [[EaseMob sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReasonReject];
 }
 
 - (void)answerAction
@@ -588,7 +596,10 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [audioSession setCategory:_audioCategory error:nil];
     [audioSession setActive:YES error:nil];
     
-    [[EaseMob sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Hangup];
+    EMError *error = [[EaseMob sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReasonHangup];
+    if (error) {
+        [self _close];
+    }
 }
 
 + (BOOL)canVideo

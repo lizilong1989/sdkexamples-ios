@@ -1764,8 +1764,9 @@
 
 #pragma mark - ICallManagerDelegate
 
-- (void)callSessionStatusChanged:(EMCallSession *)callSession changeReason:(EMCallStatusChangedReason)reason error:(EMError *)error{
-    if (reason == eCallReason_Null) {
+- (void)callSessionStatusChanged:(EMCallSession *)callSession changeReason:(EMCallStatusChangedReason)reason error:(EMError *)error
+{
+    if (reason == eCallReasonNull) {
         if ([[EMCDDeviceManager sharedInstance] isPlaying]) {
             [self stopAudioPlayingWithChangeCategory:NO];
         }

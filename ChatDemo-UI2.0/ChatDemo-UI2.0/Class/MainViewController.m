@@ -705,7 +705,7 @@ static NSString *kGroupName = @"GroupName";
         } while (0);
         
         if (error) {
-            [[EaseMob sharedInstance].callManager asyncEndCall:callSession.sessionId reason:eCallReason_Hangup];
+            [[EaseMob sharedInstance].callManager asyncEndCall:callSession.sessionId reason:eCallReasonHangup];
             return;
         }
     }
