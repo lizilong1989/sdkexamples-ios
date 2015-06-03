@@ -335,6 +335,13 @@
         if (!error) {
             [weakSelf reloadDataSource];
         }
+        else
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self hideHud];
+                [weakSelf showHint:NSLocalizedString(@"group.addOccupantFail", @"Failed to add group member, please try again later")];
+            });
+        }
     });
 }
 

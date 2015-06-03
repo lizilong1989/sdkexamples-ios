@@ -146,6 +146,7 @@
 "group.removingOccupant" = "deleting member...";
 "group.destroyFail" = "dissolution of group failure";
 "group.leaveFail" = "exit the group failure";
+"group.addOccupantFail" = "Failed to add group member, please try again later";
 
 //Group Setting
 "group.setting.receiveAndPrompt" = "receive and prompt group of messages";
