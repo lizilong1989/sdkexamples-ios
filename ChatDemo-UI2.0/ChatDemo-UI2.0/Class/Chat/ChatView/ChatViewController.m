@@ -194,7 +194,8 @@
     [self.view addGestureRecognizer:tap];
     
     //通过会话管理者获取已收发消息
-    [self loadMoreMessages];
+    long long timestamp = [[NSDate date] timeIntervalSince1970] * 1000 + 1;
+    [self loadMoreMessagesFrom:timestamp count:KPageCount append:NO];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleCallNotification:) name:@"callOutWithChatter" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleCallNotification:) name:@"callControllerClose" object:nil];
@@ -552,7 +553,11 @@
 - (void)slimeRefreshStartRefresh:(SRRefreshView *)refreshView
 {
     _chatTagDate = nil;
-    [self loadMoreMessages];
+    EMMessage *firstMessage = [self.messages firstObject];
+    if (firstMessage)
+    {
+        [self loadMoreMessagesFrom:firstMessage.timestamp count:KPageCount append:YES];
+    }
     [_slimeView endRefresh];
 }
 
@@ -1001,13 +1006,8 @@
         return;
     }
     _chatTagDate = nil;
-    [self loadMoreMessages];
-    __weak typeof(self) weakSelf = self;
-    dispatch_async(_messageQueue, ^{
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [weakSelf scrollViewToBottom:NO];
-        });
-    });
+    long long timestamp = [[NSDate date] timeIntervalSince1970] * 1000 + 1;
+    [self loadMoreMessagesFrom:timestamp count:[self.messages count] + [offlineMessages count] append:NO];
 }
 
 - (void)didReceiveOfflineMessages:(NSArray *)offlineMessages
@@ -1021,13 +1021,8 @@
         [_conversation markAllMessagesAsRead:YES];
     }
     _chatTagDate = nil;
-    [self loadMoreMessages];
-    __weak typeof(self) weakSelf = self;
-    dispatch_async(_messageQueue, ^{
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [weakSelf scrollViewToBottom:NO];
-        });
-    });
+    long long timestamp = [[NSDate date] timeIntervalSince1970] * 1000 + 1;
+    [self loadMoreMessagesFrom:timestamp count:[self.messages count] + [offlineMessages count] append:NO];
 }
 
 - (void)group:(EMGroup *)group didLeave:(EMGroupLeaveReason)reason error:(EMError *)error
@@ -1334,18 +1329,40 @@
     }
 }
 
-- (void)loadMoreMessages
+- (void)loadMoreMessagesFrom:(long long)timestamp count:(NSInteger)count append:(BOOL)append
 {
     __weak typeof(self) weakSelf = self;
     dispatch_async(_messageQueue, ^{
-        long long timestamp = [[NSDate date] timeIntervalSince1970] * 1000 + 1;
-        
-        NSArray *messages = [weakSelf.conversation loadNumbersOfMessages:([weakSelf.messages count] + KPageCount) before:timestamp];
+        NSArray *messages = [weakSelf.conversation loadNumbersOfMessages:count before:timestamp];
         if ([messages count] > 0) {
-            weakSelf.messages = [messages mutableCopy];
-            
-            NSInteger currentCount = [weakSelf.dataSource count];
-            weakSelf.dataSource = [[weakSelf formatMessages:messages] mutableCopy];
+            NSInteger currentCount = 0;
+            if (append)
+            {
+                [weakSelf.messages insertObjects:messages atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [messages count])]];
+                NSArray *formated = [weakSelf formatMessages:messages];
+                id model = [weakSelf.dataSource firstObject];
+                if ([model isKindOfClass:[NSString class]])
+                {
+                    NSString *timestamp = model;
+                    [formated enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id model, NSUInteger idx, BOOL *stop) {
+                        if ([model isKindOfClass:[NSString class]] && [timestamp isEqualToString:model])
+                        {
+                            [weakSelf.dataSource removeObjectAtIndex:0];
+                            *stop = YES;
+                        }
+                    }];
+                }
+                currentCount = [weakSelf.dataSource count];
+                [weakSelf.dataSource insertObjects:formated atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [formated count])]];
+                
+                EMMessage *latest = [weakSelf.messages lastObject];
+                weakSelf.chatTagDate = [NSDate dateWithTimeIntervalInMilliSecondSince1970:(NSTimeInterval)latest.timestamp];
+            }
+            else
+            {
+                weakSelf.messages = [messages mutableCopy];
+                weakSelf.dataSource = [[weakSelf formatMessages:messages] mutableCopy];
+            }
             dispatch_async(dispatch_get_main_queue(), ^{
                 [weakSelf.tableView reloadData];
                 
@@ -1353,13 +1370,9 @@
             });
             
             //从数据库导入时重新下载没有下载成功的附件
-            for (NSInteger i = 0; i < [weakSelf.dataSource count]; i++)
+            for (EMMessage *message in messages)
             {
-                id obj = weakSelf.dataSource[i];
-                if ([obj isKindOfClass:[MessageModel class]])
-                {
-                    [weakSelf downloadMessageAttachments:obj];
-                }
+                [weakSelf downloadMessageAttachments:message];
             }
             
             NSMutableArray *unreadMessages = [NSMutableArray array];
@@ -1379,43 +1392,45 @@
     });
 }
 
-- (void)downloadMessageAttachments:(MessageModel *)model
+- (void)downloadMessageAttachments:(EMMessage *)message
 {
+    __weak typeof(self) weakSelf = self;
     void (^completion)(EMMessage *aMessage, EMError *error) = ^(EMMessage *aMessage, EMError *error) {
         if (!error)
         {
-            [self reloadTableViewDataWithMessage:model.message];
+            [weakSelf reloadTableViewDataWithMessage:message];
         }
         else
         {
-            [self showHint:NSLocalizedString(@"message.thumImageFail", @"thumbnail for failure!")];
+            [weakSelf showHint:NSLocalizedString(@"message.thumImageFail", @"thumbnail for failure!")];
         }
     };
     
-    if ([model.messageBody messageBodyType] == eMessageBodyType_Image) {
-        EMImageMessageBody *imageBody = (EMImageMessageBody *)model.messageBody;
-        if (imageBody.thumbnailDownloadStatus != EMAttachmentDownloadSuccessed)
+    id<IEMMessageBody> messageBody = [message.messageBodies firstObject];
+    if ([messageBody messageBodyType] == eMessageBodyType_Image) {
+        EMImageMessageBody *imageBody = (EMImageMessageBody *)messageBody;
+        if (imageBody.thumbnailDownloadStatus > EMAttachmentDownloadSuccessed)
         {
             //下载缩略图
-            [[[EaseMob sharedInstance] chatManager] asyncFetchMessageThumbnail:model.message progress:nil completion:completion onQueue:nil];
+            [[[EaseMob sharedInstance] chatManager] asyncFetchMessageThumbnail:message progress:nil completion:completion onQueue:nil];
         }
     }
-    else if ([model.messageBody messageBodyType] == eMessageBodyType_Video)
+    else if ([messageBody messageBodyType] == eMessageBodyType_Video)
     {
-        EMVideoMessageBody *videoBody = (EMVideoMessageBody *)model.messageBody;
-        if (videoBody.thumbnailDownloadStatus != EMAttachmentDownloadSuccessed)
+        EMVideoMessageBody *videoBody = (EMVideoMessageBody *)messageBody;
+        if (videoBody.thumbnailDownloadStatus > EMAttachmentDownloadSuccessed)
         {
             //下载缩略图
-            [[[EaseMob sharedInstance] chatManager] asyncFetchMessageThumbnail:model.message progress:nil completion:completion onQueue:nil];
+            [[[EaseMob sharedInstance] chatManager] asyncFetchMessageThumbnail:message progress:nil completion:completion onQueue:nil];
         }
     }
-    else if ([model.messageBody messageBodyType] == eMessageBodyType_Voice)
+    else if ([messageBody messageBodyType] == eMessageBodyType_Voice)
     {
-        EMVoiceMessageBody *voiceBody = (EMVoiceMessageBody*)model.messageBody;
-        if (voiceBody.attachmentDownloadStatus != EMAttachmentDownloadSuccessed)
+        EMVoiceMessageBody *voiceBody = (EMVoiceMessageBody*)messageBody;
+        if (voiceBody.attachmentDownloadStatus > EMAttachmentDownloadSuccessed)
         {
             //下载语言
-            [[EaseMob sharedInstance].chatManager asyncFetchMessage:model.message progress:nil];
+            [[EaseMob sharedInstance].chatManager asyncFetchMessage:message progress:nil];
         }
     }
 }

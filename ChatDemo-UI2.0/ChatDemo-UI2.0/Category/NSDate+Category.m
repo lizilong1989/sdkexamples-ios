@@ -60,13 +60,8 @@
 	}
 }
 
-
-
 /*标准时间日期描述*/
 -(NSString *)formattedTime{
-    
-    
-    
     NSDateFormatter* formatter = [[NSDateFormatter alloc]init];
     [formatter setDateFormat:@"YYYY-MM-dd"];
     NSString * dateNow = [formatter stringFromDate:[NSDate date]];
@@ -77,7 +72,6 @@
     NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
     NSDate *date = [gregorian dateFromComponents:components]; //今天 0点时间
  
-    
     NSInteger hour = [self hoursAfterDate:date];
     NSDateFormatter *dateFormatter = nil;
     NSString *ret = @"";
@@ -93,7 +87,7 @@
         }else if (hour < 0 && hour >= -24) {
             dateFormatter = [NSDateFormatter dateFormatterWithFormat:NSLocalizedString(@"NSDateCategory.text8", @"")];
         }else {
-            dateFormatter = [NSDateFormatter dateFormatterWithFormat:@"yyyy-MM-dd"];
+            dateFormatter = [NSDateFormatter dateFormatterWithFormat:@"yyyy-MM-dd HH:mm"];
         }
     }else {
         if (hour >= 0 && hour <= 6) {
@@ -107,15 +101,13 @@
         }else if (hour < 0 && hour >= -24){
             dateFormatter = [NSDateFormatter dateFormatterWithFormat:NSLocalizedString(@"NSDateCategory.text13", @"")];
         }else  {
-            dateFormatter = [NSDateFormatter dateFormatterWithFormat:@"yyyy-MM-dd"];
+            dateFormatter = [NSDateFormatter dateFormatterWithFormat:@"yyyy-MM-dd HH:mm"];
         }
-        
     }
     
     ret = [dateFormatter stringFromDate:self];
     return ret;
 }
-
 
 /*格式化日期描述*/
 - (NSString *)formattedDateDescription
