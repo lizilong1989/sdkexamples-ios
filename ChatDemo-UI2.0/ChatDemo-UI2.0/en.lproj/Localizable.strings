@@ -60,6 +60,14 @@
 "error.connectServerFail" = "Connect to the server failed!";
 "error.connectServerTimeout" = "Connect to the server timed out!";
 "error.connectNetworkFail" = "No network connection!";
+"error.notFound" = "File path not exist";
+"error.initPlayerFail" = "Failed to initialize AVAudioPlayer!";
+"error.palyFail" = "Play failure!";
+"error.initRecorderFail" = "Failed to initialize AVAudioRecorder";
+"error.initRecorderFail" = "File format conversion failed";
+"error.recordStoping" = "Record voice is not over yet";
+"error.recordNotBegin" = "Recording has not yet begun";
+"error.recordTooShort" = "Recording time is too short";
 
 //login
 "login.beginAutoLogin" = "Start automatic login...";
