@@ -19,6 +19,7 @@
 "no" = "NO";
 
 "search" = "Search";
+"searching" = "Searching";
 "error" = "Error";
 "delete" = "Delete";
 "copy" = "Copy";
@@ -38,6 +39,7 @@
 "rejectFail" = "reject failure";
 "refreshData" = "Refresh data...";
 "loadData" = "Load data...";
+"loadDataFailed" = "Load more failed";
 "saySomething" = "Say somthing";
 "searchResults" = "The search results";
 "doneWithCount" = "Done(%i)";
@@ -46,6 +48,10 @@
 "receiveMessage" = "you have a new message";
 "loginAtOtherDevice" = "your login account has been in other places";
 "loginUserRemoveFromServer" = "your account has been removed from the server side";
+"deleteFailed" = "Delete failed:%@";
+"notFound" = "Can't found";
+"noMore" = "No more data";
+"hasRead" = "Read";
 
 //app
 "AppName" = "EaseMobDemo";
@@ -75,6 +81,7 @@
 //apns
 "apns.failToRegisterApns" = "Fail to register apns";
 "apns.failToBindDeviceToken" = "Fail to bind device token";
+"apns.content" = "Apns content";
 
 //friend
 "friend.add" = "add friend";
@@ -132,6 +139,7 @@
 
 //Group Bans
 "group.ban.removing" = "members are removing from the blacklist...";
+"group.ban.adding" = "Adding to black list...";
 "group.ban.fetching" = "getting group blacklist...";
 "group.ban.fetchFail" = "fail to get blacklist: %@";
 
@@ -155,13 +163,39 @@
 "group.setting.save" = "set properties";
 "group.setting.success" = "set success";
 "group.setting.fail" = "set failure";
+"group.setting.subject" = "Please input group name";
 
 //Chatroom detail
+"chatroom.somebodyInvite" = "%@ invite you to join chatroom \'%@\'";
 "chatroom.id" = "chatroomId";
 "chatroom.occupantCount" = "members count";
 "chatroom.description" = "description";
 "chatroom.joining" = "Joining...";
 "chatroom.fetchInfoFail" = "Failed to get the chatroom details";
+"chatroom.joinFailed" = "join chatroom \'%@\' failed";
+"chatroom.join" = "\'%@\'join chatroom\'%@\'";
+"chatroom.leave" = "\'%@\'leave chatroom\'%@\'";
+"chatroom.remove" = "be removed from chatroom\'%@\'";
+
+//call
+"call.initFailed"="Establish call failure";
+"call.waiting"="Waiting to answer...";
+"call.connecting"="Connecting...";
+"call.silence"="Silence";
+"call.speaker"="Speaker";
+"call.reject"="Reject";
+"call.answer"="Answer";
+"call.hangup"="Hangup";
+"call.connectFailed"="Connect failed";
+"call.failed"="Call failed";
+"call.suspended"="Call has been suspended";
+"call.over"="Call end";
+"call.cancel"="Cancel the call";
+"call.rejected"="Reject the call";
+"call.in"="In the call...";
+"call.speak"="Can speak...";
+"call.init"="Is init the call...";
+"call.dealloc"="Is hanging up the call...";
 
 //message
 "message.image" = "image";
@@ -192,6 +226,9 @@
 "message.simulatorNotSupportVideo" = "simulator does not support vidio";
 "message.startRecordFail" = "failure to start recording";
 "message.noMessage" = "no messages";
+
+//media
+"media.timeShort" = "The recording time is too short";
 
 //network
 "network.disconnection" = "Network disconnection";
@@ -250,6 +287,12 @@
 "setting.namenotempty" = "Name cannot be empty";
 "setting.edittips" = "After setting this nickname, chat with the iOS client demo project, iOS will display this nickname is not a EaseMob ID, if the other party to use the Android client this setting is not effective";
 "setting.iospushname" = "iOS push nickname";
+"setting.useIp" = "Use IP";
+"setting.deleteConWhenLeave" = "Delete conversation when leave a group";
+"setting.microphoneNoAuthority" = "No microphone permissions";
+"setting.microphoneAuthority" = "Please open in \"Setting\"-\"Privacy\"-\"Microphone\".";
+"setting.cameraNoAuthority" = "No camera permissions";
+"setting.cameraAuthority" = "Please open in \"Setting\"-\"Privacy\"-\"Camera\".";
 
 //NSDateCategory
 "NSDateCategory.text1" = "one minute";

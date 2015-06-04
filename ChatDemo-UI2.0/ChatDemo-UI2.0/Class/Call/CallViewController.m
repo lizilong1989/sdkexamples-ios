@@ -72,12 +72,12 @@
     }
     
     if (_isIncoming) {
-        _statusLabel.text = @"等待接听...";
+        _statusLabel.text = NSLocalizedString(@"call.waiting", @"Waiting to answer...");
         [_actionView addSubview:_answerButton];
         [_actionView addSubview:_rejectButton];
     }
     else{
-        _statusLabel.text = @"正在建立连接...";
+        _statusLabel.text = NSLocalizedString(@"call.connecting", @"Connecting...");
         [_actionView addSubview:_hangupButton];
     }
 }
@@ -194,7 +194,7 @@
     _silenceLabel.textColor = [UIColor whiteColor];
     _silenceLabel.font = [UIFont systemFontOfSize:13.0];
     _silenceLabel.textAlignment = NSTextAlignmentCenter;
-    _silenceLabel.text = @"静音";
+    _silenceLabel.text = NSLocalizedString(@"call.silence", @"Silence");
     
     _speakerOutButton = [[UIButton alloc] initWithFrame:CGRectMake(tmpWidth + (tmpWidth - 40) / 2, _silenceButton.frame.origin.y, 40, 40)];
     [_speakerOutButton setImage:[UIImage imageNamed:@"call_out"] forState:UIControlStateNormal];
@@ -206,20 +206,20 @@
     _speakerOutLabel.textColor = [UIColor whiteColor];
     _speakerOutLabel.font = [UIFont systemFontOfSize:13.0];
     _speakerOutLabel.textAlignment = NSTextAlignmentCenter;
-    _speakerOutLabel.text = @"免提";
+    _speakerOutLabel.text = NSLocalizedString(@"call.speaker", @"Speaker");
     
     _rejectButton = [[UIButton alloc] initWithFrame:CGRectMake((tmpWidth - 100) / 2, CGRectGetMaxY(_speakerOutLabel.frame) + 30, 100, 40)];
-    [_rejectButton setTitle:@"拒接" forState:UIControlStateNormal];
+    [_rejectButton setTitle:NSLocalizedString(@"call.reject", @"Reject") forState:UIControlStateNormal];
     [_rejectButton setBackgroundColor:[UIColor colorWithRed:191 / 255.0 green:48 / 255.0 blue:49 / 255.0 alpha:1.0]];;
     [_rejectButton addTarget:self action:@selector(rejectAction) forControlEvents:UIControlEventTouchUpInside];
     
     _answerButton = [[UIButton alloc] initWithFrame:CGRectMake(tmpWidth + (tmpWidth - 100) / 2, _rejectButton.frame.origin.y, 100, 40)];
-    [_answerButton setTitle:@"接听" forState:UIControlStateNormal];
+    [_answerButton setTitle:NSLocalizedString(@"call.answer", @"Answer") forState:UIControlStateNormal];
     [_answerButton setBackgroundColor:[UIColor colorWithRed:191 / 255.0 green:48 / 255.0 blue:49 / 255.0 alpha:1.0]];;
     [_answerButton addTarget:self action:@selector(answerAction) forControlEvents:UIControlEventTouchUpInside];
     
     _hangupButton = [[UIButton alloc] initWithFrame:CGRectMake((self.view.frame.size.width - 200) / 2, _rejectButton.frame.origin.y, 200, 40)];
-    [_hangupButton setTitle:@"挂断" forState:UIControlStateNormal];
+    [_hangupButton setTitle:NSLocalizedString(@"call.hangup", @"Hangup") forState:UIControlStateNormal];
     [_hangupButton setBackgroundColor:[UIColor colorWithRed:191 / 255.0 green:48 / 255.0 blue:49 / 255.0 alpha:1.0]];;
     [_hangupButton addTarget:self action:@selector(hangupAction) forControlEvents:UIControlEventTouchUpInside];
 }
@@ -262,7 +262,7 @@
         [_session addInput:_captureInput];
     }
     else{
-        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"错误" message:error.localizedFailureReason delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"error", @"Error") message:error.localizedFailureReason delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
         [alertView show];
     }
     
@@ -478,8 +478,8 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [self hideHud];
     [self _stopRing];
     if(error){
-        _statusLabel.text = @"连接失败";
-        [self _insertMessageWithStr:@"通话失败"];
+        _statusLabel.text = NSLocalizedString(@"call.connectFailed", @"Connect failed");
+        [self _insertMessageWithStr:NSLocalizedString(@"call.failed", @"Call failed")];
         
         UIAlertView *errorAlert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"error", @"Error") message:error.description delegate:self cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
         errorAlert.tag = kAlertViewTag_Close;
@@ -489,19 +489,18 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     }
     
     if (callSession.status == eCallSessionStatusDisconnected) {
-        NSLog(@"callSession.status == eCallSessionStatusDisconnected");
-        _statusLabel.text = @"通话已挂断";
-        NSString *str = @"通话结束";
+        _statusLabel.text = NSLocalizedString(@"call.suspended", @"Call has been suspended");
+        NSString *str = NSLocalizedString(@"call.over", @"Call end");
         if(_timeLength == 0)
         {
             if (reason == eCallReason_Hangup) {
-                str = @"取消通话";
+                str = NSLocalizedString(@"call.cancel", @"Cancel the call");
             }
             else if (reason == eCallReason_Reject){
-                str = @"拒接通话";
+                str = NSLocalizedString(@"call.rejected", @"Reject the call");
             }
             else if (reason == eCallReason_Busy){
-                str = @"正在通话中";
+                str = NSLocalizedString(@"call.in", @"In the call...");
             }
         }
         [self _insertMessageWithStr:str];
@@ -509,7 +508,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     }
     else if (callSession.status == eCallSessionStatusAccepted)
     {
-        _statusLabel.text = @"可以通话了...";
+        _statusLabel.text = NSLocalizedString(@"call.speak", @"Can speak...");
         _timeLength = 0;
         _timeTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(timeTimerAction:) userInfo:nil repeats:YES];
 
@@ -558,21 +557,20 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 {
     [_timeTimer invalidate];
     [self _stopRing];
-    [self showHint:@"拒接通话..."];
+    [self showHint:NSLocalizedString(@"call.rejected", @"Reject the call")];
     
     [[EaseMob sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Reject];
 }
 
 - (void)answerAction
 {
-    [self showHint:@"正在初始化通话..."];
+    [self showHint:NSLocalizedString(@"call.init", @"Is init the call...")];
     [self _stopRing];
     AVAudioSession *audioSession = [AVAudioSession sharedInstance];
     _audioCategory = audioSession.category;
     if(![_audioCategory isEqualToString:AVAudioSessionCategoryPlayAndRecord]){
         [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
         [audioSession setActive:YES error:nil];
-        NSLog(@"xieyajie===========2");
     }
     
     [[EaseMob sharedInstance].callManager asyncAnswerCall:_callSession.sessionId];
@@ -583,7 +581,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     _openGLView.hidden = YES;
     [_timeTimer invalidate];
     [self _stopRing];
-    [self showHint:@"正在结束通话..."];
+    [self showHint:NSLocalizedString(@"call.dealloc", @"Is hanging up the call...")];
     AVAudioSession *audioSession = [AVAudioSession sharedInstance];
     [audioSession setCategory:_audioCategory error:nil];
     [audioSession setActive:YES error:nil];
@@ -595,7 +593,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 {
     if([[[UIDevice currentDevice] systemVersion] compare:@"7.0"] != NSOrderedAscending){
         if(!([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] == AVAuthorizationStatusAuthorized)){\
-            UIAlertView * alt = [[UIAlertView alloc] initWithTitle:@"未获得授权使用摄像头" message:@"请在iOS\"设置中\"-\"隐私\"-\"相机\"中打开" delegate:self cancelButtonTitle:nil otherButtonTitles:@"知道了", nil];
+            UIAlertView * alt = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"setting.cameraNoAuthority", @"No camera permissions") message:NSLocalizedString(@"setting.cameraAuthority", @"Please open in \"Setting\"-\"Privacy\"-\"Camera\".") delegate:self cancelButtonTitle:nil otherButtonTitles:NSLocalizedString(@"ok", @"OK"), nil];
             [alt show];
             return NO;
         }
