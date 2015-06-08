@@ -650,6 +650,16 @@ static NSString *kGroupName = @"GroupName";
     } onQueue:nil];
 }
 
+- (void)didServersChanged
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATION_LOGINCHANGE object:@NO];
+}
+
+- (void)didAppkeyChanged
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATION_LOGINCHANGE object:@NO];
+}
+
 #pragma mark - 自动登录回调
 
 - (void)willAutoReconnect{
