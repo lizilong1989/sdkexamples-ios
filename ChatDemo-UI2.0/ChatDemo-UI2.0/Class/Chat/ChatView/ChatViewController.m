@@ -988,6 +988,11 @@
                         
                     });
                     
+                    if (error && error.errorCode == EMErrorMessageContainSensitiveWords)
+                    {
+                        CGRect frame = self.chatToolBar.frame;
+                        [self showHint:NSLocalizedString(@"message.forbiddenWords", @"Your message contains forbidden words") yOffset:-frame.size.height + KHintAdjustY];
+                    }
                     break;
                 }
             }

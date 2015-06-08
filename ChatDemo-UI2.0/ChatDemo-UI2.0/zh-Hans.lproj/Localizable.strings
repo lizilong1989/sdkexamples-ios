@@ -190,6 +190,7 @@
 "message.simulatorNotSupportVideo" = "模拟器不支持录像";
 "message.startRecordFail" = "开始录音失败";
 "message.noMessage" = "消息已经清空";
+"message.forbiddenWords" = "你的消息包含不当言论";
 
 //network
 "network.disconnection" = "当前网络连接失败";

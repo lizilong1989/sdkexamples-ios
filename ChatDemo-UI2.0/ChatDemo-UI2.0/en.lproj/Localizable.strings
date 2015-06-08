@@ -192,6 +192,7 @@
 "message.simulatorNotSupportVideo" = "simulator does not support vidio";
 "message.startRecordFail" = "failure to start recording";
 "message.noMessage" = "no messages";
+"message.forbiddenWords" = "Your message contains forbidden words";
 
 //network
 "network.disconnection" = "Network disconnection";
