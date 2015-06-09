@@ -355,6 +355,14 @@ static NSString *kOnceJoinedChatroomsPattern = @"OnceJoinedChatrooms_%@";
     [searchBar setShowsCancelButton:NO animated:YES];
 }
 
+#pragma mark - UISearchDisplayDelegate
+
+- (void)searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
+{
+    self.tableView.tableHeaderView = nil;
+    self.tableView.tableHeaderView = self.searchBar;
+}
+
 #pragma mark - SRRefreshDelegate
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
