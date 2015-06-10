@@ -249,7 +249,7 @@ static NSString *kGroupName = @"GroupName";
     }
     
     if (!bCanRecord) {
-        UIAlertView * alt = [[UIAlertView alloc] initWithTitle:@"未获得授权使用麦克风" message:@"请在iOS\"设置中\"-\"隐私\"-\"麦克风\"中打开" delegate:self cancelButtonTitle:nil otherButtonTitles:@"知道了", nil];
+        UIAlertView * alt = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"setting.microphoneNoAuthority", @"No microphone permissions") message:NSLocalizedString(@"setting.microphoneAuthority", @"Please open in \"Setting\"-\"Privacy\"-\"Microphone\".") delegate:self cancelButtonTitle:nil otherButtonTitles:NSLocalizedString(@"ok", @"OK"), nil];
         [alt show];
     }
     
@@ -625,7 +625,7 @@ static NSString *kGroupName = @"GroupName";
                               inviter:(NSString *)username
                               message:(NSString *)message
 {
-    message = [NSString stringWithFormat:@"%@邀请您加入聊天室%@", username, chatroomId];
+    message = [NSString stringWithFormat:NSLocalizedString(@"chatroom.somebodyInvite", @"%@ invite you to join chatroom \'%@\'"), username, chatroomId];
     [self showHint:message];
 }
 
@@ -648,6 +648,16 @@ static NSString *kGroupName = @"GroupName";
         alertView.tag = 101;
         [alertView show];
     } onQueue:nil];
+}
+
+- (void)didServersChanged
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATION_LOGINCHANGE object:@NO];
+}
+
+- (void)didAppkeyChanged
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATION_LOGINCHANGE object:@NO];
 }
 
 #pragma mark - 自动登录回调
@@ -676,18 +686,18 @@ static NSString *kGroupName = @"GroupName";
         do {
             BOOL isShowPicker = [[[NSUserDefaults standardUserDefaults] objectForKey:@"isShowPicker"] boolValue];
             if (isShowPicker) {
-                error = [EMError errorWithCode:EMErrorInitFailure andDescription:@"不能进行通话"];
+                error = [EMError errorWithCode:EMErrorInitFailure andDescription:NSLocalizedString(@"call.initFailed", @"Establish call failure")];
                 break;
             }
             
             if (![self canRecord]) {
-                error = [EMError errorWithCode:EMErrorInitFailure andDescription:@"不能进行通话"];
+                error = [EMError errorWithCode:EMErrorInitFailure andDescription:NSLocalizedString(@"call.initFailed", @"Establish call failure")];
                 break;
             }
             
 #warning 在后台不能进行视频通话
             if(callSession.type == eCallSessionTypeVideo && ([[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground || ![CallViewController canVideo])){
-                error = [EMError errorWithCode:EMErrorInitFailure andDescription:@"不能进行视频通话"];
+                error = [EMError errorWithCode:EMErrorInitFailure andDescription:NSLocalizedString(@"call.initFailed", @"Establish call failure")];
                 break;
             }
             

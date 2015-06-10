@@ -45,7 +45,7 @@ typedef NS_ENUM(NSInteger, GettingMoreFooterViewState){
         
         _label = [[UILabel alloc] init];
         _label.textAlignment = NSTextAlignmentCenter;
-        _label.text = @"No more data";
+        _label.text = NSLocalizedString(@"noMore", @"No more data");
         _label.hidden = YES;
         [self addSubview:_label];
         
@@ -85,12 +85,12 @@ typedef NS_ENUM(NSInteger, GettingMoreFooterViewState){
         case eGettingMoreFooterViewStateComplete:
             _activity.hidden = YES;
             _label.hidden = NO;
-            _label.text = @"No more data";
+            _label.text = NSLocalizedString(@"noMore", @"No more data");
             break;
         case eGettingMoreFooterViewStateFailed:
             _activity.hidden = YES;
             _label.hidden = NO;
-            _label.text = @"Getting more failed";
+            _label.text = NSLocalizedString(@"loadDataFailed", @"Load more failed");
             break;
         default:
             break;
@@ -398,7 +398,7 @@ typedef NS_ENUM(NSInteger, GettingMoreFooterViewState){
         else
         {
             __weak typeof(self) weakSelf = self;
-            [self showHudInView:self.view hint:@"Searching"];
+            [self showHudInView:self.view hint:NSLocalizedString(@"searching", @"Searching")];
             [[EaseMob sharedInstance].chatManager asyncSearchPublicGroupWithGroupId:searchBar.text completion:^(EMGroup *group, EMError *error) {
                 if (weakSelf)
                 {
@@ -411,7 +411,7 @@ typedef NS_ENUM(NSInteger, GettingMoreFooterViewState){
                     }
                     else
                     {
-                        [strongSelf showHint:@"Can't found"];
+                        [strongSelf showHint:NSLocalizedString(@"notFound", @"Can't found")];
                     }
                 }
             } onQueue:nil];

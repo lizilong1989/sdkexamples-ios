@@ -56,7 +56,7 @@
     _subjectField = [[UITextField alloc] initWithFrame:frame];
     _subjectField.layer.cornerRadius = 5.0;
     _subjectField.layer.borderWidth = 1.0;
-    _subjectField.placeholder = @"Please input group name";
+    _subjectField.placeholder = NSLocalizedString(@"group.setting.subject", @"Please input group name");
     _subjectField.text = _group.groupSubject;
     if (!_isOwner)
     {
