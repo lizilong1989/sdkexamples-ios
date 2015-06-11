@@ -493,13 +493,13 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         NSString *str = NSLocalizedString(@"call.over", @"Call end");
         if(_timeLength == 0)
         {
-            if (reason == eCallReason_Hangup) {
+            if (reason == eCallReasonHangup) {
                 str = NSLocalizedString(@"call.cancel", @"Cancel the call");
             }
-            else if (reason == eCallReason_Reject){
+            else if (reason == eCallReasonReject){
                 str = NSLocalizedString(@"call.rejected", @"Reject the call");
             }
-            else if (reason == eCallReason_Busy){
+            else if (reason == eCallReasonBusy){
                 str = NSLocalizedString(@"call.in", @"In the call...");
             }
         }
