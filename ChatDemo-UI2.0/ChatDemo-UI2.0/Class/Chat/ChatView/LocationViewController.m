@@ -144,7 +144,7 @@ static LocationViewController *defaultLocation = nil;
         UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil
                                                             message:[error.userInfo objectForKey:NSLocalizedRecoverySuggestionErrorKey]
                                                            delegate:nil
-                                                  cancelButtonTitle:@"确定"
+                                                  cancelButtonTitle:NSLocalizedString(@"ok", @"OK")
                                                   otherButtonTitles:nil, nil];
         [alertView show];
     }

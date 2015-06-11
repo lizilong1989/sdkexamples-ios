@@ -429,7 +429,7 @@ static NSString *kOnceJoinedChatroomsPattern = @"OnceJoinedChatrooms_%@";
     }
     
     NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
-    NSString *key = [NSString stringWithFormat:kOnceJoinedChatroomsPattern, [[[EaseMob sharedInstance].chatManager loginInfo] objectForKey:@"username" ]];
+    NSString *key = [NSString stringWithFormat:kOnceJoinedChatroomsPattern, [[[EaseMob sharedInstance].chatManager loginInfo] objectForKey:@"username"]];
     NSMutableDictionary *chatRooms = [NSMutableDictionary dictionaryWithDictionary:[ud objectForKey:key]];
     [chatRooms removeObjectForKey:myChatroom.chatroomId];
     [ud setObject:chatRooms forKey:key];

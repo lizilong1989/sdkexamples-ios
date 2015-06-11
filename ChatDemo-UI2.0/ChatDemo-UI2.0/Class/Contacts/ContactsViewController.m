@@ -303,7 +303,7 @@
             [tableView  endUpdates];
         }
         else{
-            [self showHint:[NSString stringWithFormat:@"删除失败：%@", error.description]];
+            [self showHint:[NSString stringWithFormat:NSLocalizedString(@"deleteFailed", @"Delete failed:%@"), error.description]];
             [tableView reloadData];
         }
     }

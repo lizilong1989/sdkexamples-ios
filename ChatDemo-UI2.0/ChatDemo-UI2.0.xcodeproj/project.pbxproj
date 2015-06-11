@@ -680,6 +680,7 @@
 		EB1975B11ADE0C77002E7E27 /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
 		EB19768A1ADE463D002E7E27 /* chatBar_colorMore_videoCall@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chatBar_colorMore_videoCall@2x.png"; sourceTree = "<group>"; };
 		EB19768B1ADE463D002E7E27 /* chatBar_colorMore_videoCallSelected@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chatBar_colorMore_videoCallSelected@2x.png"; sourceTree = "<group>"; };
+		EB30A5BE1B20705B00FD223F /* DemoErrorCode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoErrorCode.h; sourceTree = "<group>"; };
 		EB3CC39F1ACD343D00FB8662 /* callRing.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = callRing.mp3; sourceTree = "<group>"; };
 		EBD2AA361A7CDABF00D16528 /* 114.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 114.png; sourceTree = "<group>"; };
 		EBD2AA371A7CDABF00D16528 /* 120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 120.png; sourceTree = "<group>"; };
@@ -1542,6 +1543,7 @@
 				90C6414D1B09ACFD00E1E6C9 /* EMCDDeviceManager.h */,
 				90C6414E1B09ACFD00E1E6C9 /* EMCDDeviceManagerBase.h */,
 				90C6414F1B09ACFD00E1E6C9 /* EMCDDeviceManagerBase.m */,
+				EB30A5BE1B20705B00FD223F /* DemoErrorCode.h */,
 			);
 			path = internal;
 			sourceTree = "<group>";

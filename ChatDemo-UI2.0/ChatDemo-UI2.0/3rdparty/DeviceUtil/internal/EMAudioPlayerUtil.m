@@ -8,6 +8,7 @@
 
 #import "EMAudioPlayerUtil.h"
 #import <AVFoundation/AVFoundation.h>
+
 static EMAudioPlayerUtil *audioPlayerUtil = nil;
 
 @interface EMAudioPlayerUtil () <AVAudioPlayerDelegate> {
@@ -72,7 +73,7 @@ static EMAudioPlayerUtil *audioPlayerUtil = nil;
     NSError *error = nil;
     NSFileManager *fm = [NSFileManager defaultManager];
     if (![fm fileExistsAtPath:aFilePath]) {
-        error = [NSError errorWithDomain:@"File path not exist"
+        error = [NSError errorWithDomain:NSLocalizedString(@"error.notFound", @"File path not exist")
                                     code:EMErrorAttachmentNotFound
                                 userInfo:nil];
         if (playFinish) {
@@ -87,7 +88,7 @@ static EMAudioPlayerUtil *audioPlayerUtil = nil;
     _player = [[AVAudioPlayer alloc] initWithContentsOfURL:wavUrl error:&error];
     if (error || !_player) {
         _player = nil;
-        error = [NSError errorWithDomain:@"Failed to initialize AVAudioPlayer"
+        error = [NSError errorWithDomain:NSLocalizedString(@"error.initPlayerFail", @"Failed to initialize AVAudioPlayer")
                                     code:EMErrorInitFailure
                                 userInfo:nil];
         if (playFinish) {
@@ -139,7 +140,7 @@ static EMAudioPlayerUtil *audioPlayerUtil = nil;
 - (void)audioPlayerDecodeErrorDidOccur:(AVAudioPlayer *)player
                                  error:(NSError *)error{
     if (playFinish) {
-        NSError *error = [NSError errorWithDomain:@"Play failure"
+        NSError *error = [NSError errorWithDomain:NSLocalizedString(@"error.palyFail", @"Play failure")
                                              code:EMErrorFailure
                                          userInfo:nil];
         playFinish(error);

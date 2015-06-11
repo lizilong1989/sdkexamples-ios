@@ -19,6 +19,7 @@
 "no" = "否";
 
 "search" = "搜索";
+"searching" = "正在搜索";
 "error" = "错误";
 "delete" = "删除";
 "copy" = "复制";
@@ -38,6 +39,7 @@
 "rejectFail" = "拒绝失败";
 "refreshData" = "刷新数据...";
 "loadData" = "加载数据...";
+"loadDataFailed" = "加载数据失败";
 "saySomething" = "说点啥子吧";
 "searchResults" = "搜索结果";
 "doneWithCount" = "确定(%i)";
@@ -46,6 +48,10 @@
 "receiveMessage" = "您有一条新消息";
 "loginAtOtherDevice" = "你的账号已在其他地方登录";
 "loginUserRemoveFromServer" = "你的账号已被从服务器端移除";
+"deleteFailed" = "删除失败:%@";
+"notFound" = "没有找到";
+"noMore" = "没有更多数据了";
+"hasRead" = "已读";
 
 //app
 "AppName" = "环信Demo";
@@ -54,6 +60,14 @@
 "error.connectServerFail" = "连接服务器失败!";
 "error.connectServerTimeout" = "连接服务器超时!";
 "error.connectNetworkFail" = "网络未连接!";
+"error.notFound" = "文件路径不存在";
+"error.initPlayerFail" = "初始化AVAudioPlayer失败!";
+"error.palyFail" = "播放失败!";
+"error.conversionFail" = "初始化AVAudioRecorder失败";
+"error.initRecorderFail" = "文件格式转换失败";
+"error.recordStoping" = "语音录制还没有结束";
+"error.recordNotBegin" = "还没有开始语音录制";
+"error.recordTooShort" = "录制时间过短";
 
 //login
 "login.beginAutoLogin" = "自动登录开始...";
@@ -75,6 +89,7 @@
 //apns
 "apns.failToRegisterApns" = "注册推送失败";
 "apns.failToBindDeviceToken" = "消息推送与设备绑定失败";
+"apns.content" = "推送内容";
 
 //friend
 "friend.add" = "添加好友";
@@ -132,6 +147,7 @@
 
 //Group Bans
 "group.ban.removing" = "正在将成员移出黑名单...";
+"group.ban.adding" = "正在将成员加入黑名单...";
 "group.ban.fetching" = "获取群组黑名单...";
 "group.ban.fetchFail" = "获取黑名单失败: %@";
 
@@ -155,13 +171,41 @@
 "group.setting.save" = "设置属性";
 "group.setting.success" = "设置成功";
 "group.setting.fail" = "设置失败";
+"group.setting.subject" = "请输入群组名称";
 
 //Chatroom detail
+"chatroom.somebodyInvite" = "%@ 邀请你加入聊天室\'%@\'";
 "chatroom.id" = "聊天室Id";
 "chatroom.occupantCount" = "聊天室人数";
 "chatroom.description" = "描述";
 "chatroom.joining" = "正在加入...";
 "chatroom.fetchInfoFail" = "获取聊天室详情失败";
+"chatroom.joinFailed" = "加入聊天室\'%@\'失败";
+"chatroom.join" = "\'%@\'加入聊天室\'%@\'";
+"chatroom.leave" = "\'%@\'离开聊天室\'%@\'";
+"chatroom.remove" = "被踢出聊天室\'%@\'";
+
+//call
+"call.initFailed"="通话建立失败";
+"call.waiting"="等待接听...";
+"call.connecting"="正在建立连接...";
+"call.silence"="静音";
+"call.speaker"="免提";
+"call.reject"="拒接";
+"call.answer"="接听";
+"call.hangup"="挂断";
+"call.connectFailed"="建立连接失败";
+"call.failed"="通话失败";
+"call.suspended"="通话已挂断";
+"call.over"="通话结束";
+"call.cancel"="取消通话";
+"call.rejected"="拒接通话";
+"call.in"="正在通话中...";
+"call.speak"="可以说话了...";
+"call.speak.relay"="可以说话了...Relay";
+"call.speak.direct"="可以说话了...Direct";
+"call.init"="正在初始化通话...";
+"call.dealloc"="正在结束通话...";
 
 //message
 "message.image" = "图片";
@@ -191,6 +235,9 @@
 "message.startRecordFail" = "开始录音失败";
 "message.noMessage" = "消息已经清空";
 "message.forbiddenWords" = "你的消息包含不当言论";
+
+//media
+"media.timeShort" = "录音时间太短了";
 
 //network
 "network.disconnection" = "当前网络连接失败";
@@ -249,6 +296,12 @@
 "setting.namenotempty" = "昵称不能为空";
 "setting.edittips" = "设置此昵称以后,在与iOS客户端demo聊天工程中,iOS一侧会显示此昵称而不是环信ID,如果对方使用安卓客户端则此设置不生效";
 "setting.iospushname" = "iOS离线推送昵称";
+"setting.useIp" = "使用IP";
+"setting.deleteConWhenLeave" = "退群时删除会话";
+"setting.microphoneNoAuthority" = "未获得授权使用麦克风";
+"setting.microphoneAuthority" = "请在iOS\"设置中\"-\"隐私\"-\"麦克风\"中打开";
+"setting.cameraNoAuthority" = "未获得授权使用相机";
+"setting.cameraAuthority" = "请在iOS\"设置中\"-\"隐私\"-\"相机\"中打开";
 
 //NSDateCategory
 "NSDateCategory.text1" = "1分钟内";

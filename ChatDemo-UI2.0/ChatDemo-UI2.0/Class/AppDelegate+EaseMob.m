@@ -375,7 +375,7 @@
                                                         options:NSJSONWritingPrettyPrinted error:&parseError];
     NSString *str =  [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"推送内容"
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"apns.content", @"Apns content")
                                                     message:str
                                                    delegate:nil
                                           cancelButtonTitle:NSLocalizedString(@"ok", @"OK")

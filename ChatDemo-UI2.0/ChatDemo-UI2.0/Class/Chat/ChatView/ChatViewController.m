@@ -133,7 +133,7 @@
             [strongSelf hideHud];
             if (error && (error.errorCode != EMErrorChatroomJoined))
             {
-                [strongSelf showHint:[NSString stringWithFormat:@"加入%@失败", chatroomId]];
+                [strongSelf showHint:[NSString stringWithFormat:NSLocalizedString(@"chatroom.joinFailed",@"join chatroom \'%@\' failed"), chatroomId]];
             }
             else
             {
@@ -1202,7 +1202,7 @@
             voice.duration = aDuration;
             [weakSelf sendAudioMessage:voice];
         }else {
-            [weakSelf showHudInView:self.view hint:@"录音时间太短了"];
+            [weakSelf showHudInView:self.view hint:NSLocalizedString(@"media.timeShort", @"The recording time is too short")];
             weakSelf.chatToolBar.recordButton.enabled = NO;
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 [weakSelf hideHud];
@@ -1762,13 +1762,13 @@
 - (void)chatroom:(EMChatroom *)chatroom occupantDidJoin:(NSString *)username
 {
     CGRect frame = self.chatToolBar.frame;
-    [self showHint:[NSString stringWithFormat:@"%@加入%@", username, chatroom.chatroomId] yOffset:-frame.size.height + KHintAdjustY];
+    [self showHint:[NSString stringWithFormat:NSLocalizedString(@"chatroom.join", @"\'%@\'join chatroom\'%@\'"), username, chatroom.chatroomId] yOffset:-frame.size.height + KHintAdjustY];
 }
 
 - (void)chatroom:(EMChatroom *)chatroom occupantDidLeave:(NSString *)username
 {
     CGRect frame = self.chatToolBar.frame;
-    [self showHint:[NSString stringWithFormat:@"%@离开%@", username, chatroom.chatroomId] yOffset:-frame.size.height + KHintAdjustY];
+    [self showHint:[NSString stringWithFormat:NSLocalizedString(@"chatroom.leave", @"\'%@\'leave chatroom\'%@\'"), username, chatroom.chatroomId] yOffset:-frame.size.height + KHintAdjustY];
 }
 
 - (void)beKickedOutFromChatroom:(EMChatroom *)chatroom reason:(EMChatroomBeKickedReason)reason
@@ -1777,15 +1777,16 @@
     {
         _isKicked = YES;
         CGRect frame = self.chatToolBar.frame;
-        [self showHint:[NSString stringWithFormat:@"被踢出%@", chatroom.chatroomId] yOffset:-frame.size.height + KHintAdjustY];
+        [self showHint:[NSString stringWithFormat:NSLocalizedString(@"chatroom.remove", @"be removed from chatroom\'%@\'"), chatroom.chatroomId] yOffset:-frame.size.height + KHintAdjustY];
         [self.navigationController popViewControllerAnimated:YES];
     }
 }
 
 #pragma mark - ICallManagerDelegate
 
-- (void)callSessionStatusChanged:(EMCallSession *)callSession changeReason:(EMCallStatusChangedReason)reason error:(EMError *)error{
-    if (reason == eCallReason_Null) {
+- (void)callSessionStatusChanged:(EMCallSession *)callSession changeReason:(EMCallStatusChangedReason)reason error:(EMError *)error
+{
+    if (reason == eCallReasonNull) {
         if ([[EMCDDeviceManager sharedInstance] isPlaying]) {
             [self stopAudioPlayingWithChangeCategory:NO];
         }

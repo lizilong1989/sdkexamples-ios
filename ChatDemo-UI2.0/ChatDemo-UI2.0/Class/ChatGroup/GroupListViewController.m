@@ -357,10 +357,6 @@
         }
     } onQueue:nil];
     
-//    [[EaseMob sharedInstance].chatManager asyncFetchAllPrivateGroupsWithCompletion:^(NSArray *groups, EMError *error) {
-//        
-//    } onQueue:nil];
-    
     [_slimeView endRefresh];
 }
 
