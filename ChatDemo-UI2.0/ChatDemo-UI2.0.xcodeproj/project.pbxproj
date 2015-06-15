@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		283403091A9EBB8200B7DE9B /* GroupSubjectChangingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 283403081A9EBB8200B7DE9B /* GroupSubjectChangingViewController.m */; };
+		28BB9D1C1B2AFB2900AB7BA2 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 28BB9D1B1B2AFB2900AB7BA2 /* Settings.bundle */; };
 		28BFD6361B01D40500D0ADEC /* ChatroomDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28BFD6311B01D40500D0ADEC /* ChatroomDetailViewController.m */; };
 		28BFD6371B01D40500D0ADEC /* ChatroomListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28BFD6331B01D40500D0ADEC /* ChatroomListViewController.m */; };
 		28BFD6381B01D40500D0ADEC /* MyChatroomListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28BFD6351B01D40500D0ADEC /* MyChatroomListViewController.m */; };
@@ -365,6 +366,7 @@
 /* Begin PBXFileReference section */
 		283403071A9EBB8200B7DE9B /* GroupSubjectChangingViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GroupSubjectChangingViewController.h; sourceTree = "<group>"; };
 		283403081A9EBB8200B7DE9B /* GroupSubjectChangingViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GroupSubjectChangingViewController.m; sourceTree = "<group>"; };
+		28BB9D1B1B2AFB2900AB7BA2 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		28BFD6301B01D40500D0ADEC /* ChatroomDetailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatroomDetailViewController.h; sourceTree = "<group>"; };
 		28BFD6311B01D40500D0ADEC /* ChatroomDetailViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChatroomDetailViewController.m; sourceTree = "<group>"; };
 		28BFD6321B01D40500D0ADEC /* ChatroomListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatroomListViewController.h; sourceTree = "<group>"; };
@@ -1263,6 +1265,7 @@
 				90911035192EEA70008A48AA /* ChatDemo-UI2.0-Prefix.pch */,
 				90911133192EEC59008A48AA /* ChatDemoUIDefine.h */,
 				3C3D2D1E1A6E5A760099EF88 /* Localizable.strings */,
+				28BB9D1B1B2AFB2900AB7BA2 /* Settings.bundle */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -2168,6 +2171,7 @@
 				EBD2AB451A7CDAC000D16528 /* chatBar_more_cardSelected.png in Resources */,
 				EBD2AB361A7CDAC000D16528 /* VoiceSearchFeedback019@2x.png in Resources */,
 				EBD2AB3A1A7CDAC000D16528 /* call_out@2x.png in Resources */,
+				28BB9D1C1B2AFB2900AB7BA2 /* Settings.bundle in Resources */,
 				EBD2AB571A7CDAC000D16528 /* imageDownloadFail@2x.png in Resources */,
 				EBD2AB931A7CDAC000D16528 /* chat_sender_audio_playing_001@2x.png in Resources */,
 				EBD2AB391A7CDAC000D16528 /* call_out.png in Resources */,

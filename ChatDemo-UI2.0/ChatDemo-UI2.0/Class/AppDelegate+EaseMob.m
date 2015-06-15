@@ -27,6 +27,39 @@
     
     [self registerRemoteNotification];
     
+    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+    NSString *appkey = [ud stringForKey:@"identifier_appkey"];
+    if (!appkey)
+    {
+        appkey = @"easemob-demo#chatdemoui";
+        [ud setObject:appkey forKey:@"identifier_appkey"];
+    }
+    NSNumber *specifyServer = [ud objectForKey:@"identifier_enable"];
+    if (!specifyServer)
+    {
+        specifyServer = [NSNumber numberWithBool:NO];
+        [ud setObject:specifyServer forKey:@"identifier_enable"];
+    }
+    NSString *imServer = [ud stringForKey:@"identifier_imserver"];
+    if (!imServer)
+    {
+        imServer = @"im1.easemob.com";
+        [ud setObject:imServer forKey:@"identifier_imserver"];
+    }
+    NSString *imPort = [ud stringForKey:@"identifier_import"];
+    if (!imPort)
+    {
+        imPort = @"443";
+        [ud setObject:imPort forKey:@"identifier_import"];
+    }
+    NSString *restServer = [ud stringForKey:@"identifier_restserver"];
+    if (!restServer)
+    {
+        restServer = @"a1.easemob.com";
+        [ud setObject:restServer forKey:@"identifier_restserver"];
+    }
+    [ud synchronize];
+    
 #warning SDK注册 APNS文件的名字, 需要与后台上传证书时的名字一一对应
     NSString *apnsCertName = nil;
 #if DEBUG
@@ -35,10 +68,26 @@
     apnsCertName = @"chatdemoui";
 #endif
 
-    [[EaseMob sharedInstance] registerSDKWithAppKey:@"easemob-demo#chatdemoui"
-                                       apnsCertName:apnsCertName
-                                        otherConfig:@{kSDKConfigEnableConsoleLogger:[NSNumber numberWithBool:YES]}];
-    
+    if (![specifyServer boolValue])
+    {
+        [[EaseMob sharedInstance] registerSDKWithAppKey:appkey
+                                           apnsCertName:apnsCertName
+                                            otherConfig:@{kSDKConfigEnableConsoleLogger:[NSNumber numberWithBool:YES]}];
+    }
+    else
+    {
+        //Only for internal use to test
+        NSDictionary *dic = @{kSDKAppKey:appkey,
+                              kSDKApnsCertName:apnsCertName,
+                              kSDKServerApi:restServer,
+                              kSDKServerChat:imServer,
+                              kSDKServerGroupDomain:@"conference.easemob.com",
+                              kSDKServerChatDomain:@"easemob.com",
+                              kSDKServerChatPort:imPort};
+        id easemob = [EaseMob sharedInstance];
+        SEL selector = @selector(registerPrivateServerWithParams:);
+        [easemob performSelector:selector withObject:dic];
+    }
     
     // 登录成功后，自动去取好友列表
     // SDK获取结束后，会回调
