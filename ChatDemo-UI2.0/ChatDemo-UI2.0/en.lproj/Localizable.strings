@@ -46,7 +46,7 @@
 "sureToDelete" = "please make sure to delete";
 "receiveCmd" = "receive cmd message";
 "receiveMessage" = "you have a new message";
-"loginAtOtherDevice" = "your login account has been in other places";
+"loginAtOtherDevice" = "your login account has been logged in other places";
 "loginUserRemoveFromServer" = "your account has been removed from the server side";
 "deleteFailed" = "Delete failed:%@";
 "notFound" = "Can't found";
@@ -107,7 +107,7 @@
 "friend.black" = "Black List";
 "friend.notChatSelf" = "can't talk to yourself";
 "friend.notDeleteSelf" = "can't delete self";
-"friend.block" = "join the blacklist";
+"friend.block" = "Move to blacklist";
 
 //group
 "group.somebodyInvite" = "%@ invite you to join group \'%@\'";
@@ -152,22 +152,22 @@
 "group.ban.fetchFail" = "fail to get blacklist: %@";
 
 //Group Detail
-"group.removeAllMessages" = "remove all messages";
-"group.destroy" = "dissolution of the group";
+"group.removeAllMessages" = "clear all messages";
+"group.destroy" = "dismiss group";
 "group.leave" = "quit the group";
 "group.id" = "groupID";
 "group.occupantCount" = "members count";
 "group.addingOccupant" = "add a group member...";
 "group.fetchInfoFail" = "failed to get the group details, please try again later";
 "group.removingOccupant" = "deleting member...";
-"group.destroyFail" = "dissolution of group failure";
+"group.destroyFail" = "dessolve group failed";
 "group.leaveFail" = "exit the group failure";
 "group.addOccupantFail" = "Failed to add group member, please try again later";
 
 //Group Setting
-"group.setting.receiveAndPrompt" = "receive and prompt group of messages";
-"group.setting.receiveAndUnprompt" = "receive not only hint of messages";
-"group.setting.blockMessage" = "shielding of the message";
+"group.setting.receiveAndPrompt" = "rec and notifi group messages";
+"group.setting.receiveAndUnprompt" = "receive message without notifi";
+"group.setting.blockMessage" = "block message";
 "group.setting.save" = "set properties";
 "group.setting.success" = "set success";
 "group.setting.fail" = "set failure";
@@ -219,8 +219,8 @@
 "message.beginReceiveOffine" = "begin to receive offline messages";
 "message.endReceiveOffine" = "end to receive offline messages";
 "message.toolBar.inputPlaceHolder" = "input a new message";
-"message.toolBar.record.upCancel" = " Fingers up slide, cancel sending ";
-"message.toolBar.record.loosenCancel" = " loosen the fingers, to cancel sending ";
+"message.toolBar.record.upCancel" = "slide up";
+"message.toolBar.record.loosenCancel" = "release the fingers, to cancel sending";
 "message.toolBar.record.touch" = "hold down to talk";
 "message.toolBar.record.send" = "loosen to send";
 "DXMessageToolBarDelegate.record" = "hold down to talk";
@@ -235,7 +235,7 @@
 "message.simulatorNotSupportCamera" = "simulator does not support taking picture";
 "message.simulatorNotSupportVideo" = "simulator does not support vidio";
 "message.startRecordFail" = "failure to start recording";
-"message.noMessage" = "no messages";
+"message.noMessage" = "All messages cleared";
 "message.forbiddenWords" = "Your message contains forbidden words";
 
 //media
@@ -282,7 +282,7 @@
 "setting.logoutOngoing" = "loging out...";
 
 "setting.notDisturb" = "No disturbing";
-"setting.showDetail" = "notify the display messages";
+"setting.showDetail" = "display message details in notifi";
 "setting.open" = "open";
 "setting.nightOpen" = "only open at night (22:00 - 7:00)";
 "setting.close" = "close";

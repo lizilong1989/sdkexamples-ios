@@ -615,7 +615,7 @@ static NSString *kGroupName = @"GroupName";
 - (void)didReceiveAcceptApplyToJoinGroup:(NSString *)groupId
                                groupname:(NSString *)groupname
 {
-    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"group.agreedToJoin", @"agreed to join the group of \'%@\'"), groupname];
+    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"group.agreedAndJoined", @"agreed to join the group of \'%@\'"), groupname];
     [self showHint:message];
 }
 
@@ -696,7 +696,7 @@ static NSString *kGroupName = @"GroupName";
             }
             
 #warning 在后台不能进行视频通话
-            if(callSession.type == eCallSessionTypeVideo && ([[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground || ![CallViewController canVideo])){
+            if(callSession.type == eCallSessionTypeVideo && ([[UIApplication sharedApplication] applicationState] != UIApplicationStateActive || ![CallViewController canVideo])){
                 error = [EMError errorWithCode:EMErrorInitFailure andDescription:NSLocalizedString(@"call.initFailed", @"Establish call failure")];
                 break;
             }
