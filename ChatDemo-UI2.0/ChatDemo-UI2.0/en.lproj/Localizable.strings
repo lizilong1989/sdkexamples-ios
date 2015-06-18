@@ -140,7 +140,7 @@
 "group.create.fail" = "Failed to create a group, please operate again";
 "group.create.public" = "public group";
 "group.create.occupantJoinPermissions" = "members join permissions";
-"group.create.open" = "random join";
+"group.create.open" = "freely join";
 "group.create.needApply" = "you need administrator agreed to join the group";
 "group.create.group" = "Create a group";
 "group.create.join" = "Join public group";
@@ -165,8 +165,8 @@
 "group.addOccupantFail" = "Failed to add group member, please try again later";
 
 //Group Setting
-"group.setting.receiveAndPrompt" = "rec and notifi group messages";
-"group.setting.receiveAndUnprompt" = "receive message without notifi";
+"group.setting.receiveAndPrompt" = "recv and notification group messages";
+"group.setting.receiveAndUnprompt" = "receive message without apns";
 "group.setting.blockMessage" = "block message";
 "group.setting.save" = "set properties";
 "group.setting.success" = "set success";
@@ -219,7 +219,7 @@
 "message.beginReceiveOffine" = "begin to receive offline messages";
 "message.endReceiveOffine" = "end to receive offline messages";
 "message.toolBar.inputPlaceHolder" = "input a new message";
-"message.toolBar.record.upCancel" = "slide up";
+"message.toolBar.record.upCancel" = "slide up to cancel sending";
 "message.toolBar.record.loosenCancel" = "release the fingers, to cancel sending";
 "message.toolBar.record.touch" = "hold down to talk";
 "message.toolBar.record.send" = "loosen to send";
@@ -282,7 +282,7 @@
 "setting.logoutOngoing" = "loging out...";
 
 "setting.notDisturb" = "No disturbing";
-"setting.showDetail" = "display message details in notifi";
+"setting.showDetail" = "display message details in apns";
 "setting.open" = "open";
 "setting.nightOpen" = "only open at night (22:00 - 7:00)";
 "setting.close" = "close";

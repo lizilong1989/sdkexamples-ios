@@ -132,6 +132,7 @@
         UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, oY, 100, 35)];
         label.backgroundColor = [UIColor clearColor];
         label.font = [UIFont systemFontOfSize:14.0];
+        label.numberOfLines = 2;
         label.text = NSLocalizedString(@"group.create.groupPermission", @"group permission");
         [_switchView addSubview:label];
         
@@ -144,6 +145,7 @@
         _groupTypeLabel.font = [UIFont systemFontOfSize:12.0];
         _groupTypeLabel.textColor = [UIColor grayColor];
         _groupTypeLabel.text = NSLocalizedString(@"group.create.private", @"private group");
+        _groupTypeLabel.numberOfLines = 2;
         [_switchView addSubview:_groupTypeLabel];
         
         oY += (35 + 20);
@@ -151,6 +153,7 @@
         _groupMemberTitleLabel.font = [UIFont systemFontOfSize:14.0];
         _groupMemberTitleLabel.backgroundColor = [UIColor clearColor];
         _groupMemberTitleLabel.text = NSLocalizedString(@"group.create.occupantPermissions", @"members invite permissions");
+        _groupMemberTitleLabel.numberOfLines = 2;
         [_switchView addSubview:_groupMemberTitleLabel];
         
         _groupMemberSwitch = [[UISwitch alloc] initWithFrame:CGRectMake(100, oY, 50, 35)];
@@ -161,6 +164,7 @@
         _groupMemberLabel.backgroundColor = [UIColor clearColor];
         _groupMemberLabel.font = [UIFont systemFontOfSize:12.0];
         _groupMemberLabel.textColor = [UIColor grayColor];
+        _groupMemberLabel.numberOfLines = 2;
         _groupMemberLabel.text = NSLocalizedString(@"group.create.unallowedOccupantInvite", @"don't allow group members to invite others");
         [_switchView addSubview:_groupMemberLabel];
     }
