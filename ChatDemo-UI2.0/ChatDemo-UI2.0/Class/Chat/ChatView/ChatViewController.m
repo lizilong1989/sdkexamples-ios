@@ -1273,6 +1273,7 @@
         MessageModel *model = [self.dataSource objectAtIndex:_longPressIndexPath.row];
         NSMutableIndexSet *indexs = [NSMutableIndexSet indexSetWithIndex:_longPressIndexPath.row];
         [_conversation removeMessage:model.message];
+        [self.messages removeObject:model.message];
         NSMutableArray *indexPaths = [NSMutableArray arrayWithObjects:_longPressIndexPath, nil];;
         if (_longPressIndexPath.row - 1 >= 0) {
             id nextMessage = nil;
