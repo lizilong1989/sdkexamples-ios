@@ -299,6 +299,11 @@
             [[EaseMob sharedInstance].chatManager removeConversationByChatter:chatter deleteMessages:YES append2Chat:YES];
         }];
     }
+    
+    if (_imagePicker)
+    {
+        [_imagePicker dismissViewControllerAnimated:NO completion:nil];
+    }
 }
 
 - (void)back
