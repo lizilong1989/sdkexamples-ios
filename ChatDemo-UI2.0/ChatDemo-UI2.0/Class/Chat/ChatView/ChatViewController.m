@@ -1611,6 +1611,7 @@
     if (object) {
         EMMessage *message = (EMMessage *)object;
         [self addMessage:message];
+        [[EaseMob sharedInstance].chatManager insertMessageToDB:message append2Chat:YES];
     }
 }
 

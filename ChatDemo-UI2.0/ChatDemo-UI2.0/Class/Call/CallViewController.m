@@ -335,7 +335,6 @@
     EMMessage *message = [[EMMessage alloc] initWithReceiver:_callSession.sessionChatter bodies:@[textBody]];
     message.isRead = YES;
     message.deliveryState = eMessageDeliveryState_Delivered;
-    [[EaseMob sharedInstance].chatManager insertMessageToDB:message append2Chat:YES];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"insertCallMessage" object:message];
 }
 
@@ -345,19 +344,27 @@
     _openGLView.hidden = YES;
     [self hideHud];
     
-    [_timeTimer invalidate];
-    _timeTimer = nil;
+    if (_timeTimer) {
+        [_timeTimer invalidate];
+        _timeTimer = nil;
+    }
     
-    [_session stopRunning];
-    [_session removeInput:_captureInput];
-    [_session removeOutput:_captureOutput];
-    _session = nil;
+    if (_session) {
+        [_session stopRunning];
+        [_session removeInput:_captureInput];
+        [_session removeOutput:_captureOutput];
+        _session = nil;
+    }
     
-    [_smallCaptureLayer removeFromSuperlayer];
-    _smallCaptureLayer = nil;
-    _smallView = nil;
+    if (_smallCaptureLayer) {
+        [_smallCaptureLayer removeFromSuperlayer];
+        _smallCaptureLayer = nil;
+        _smallView = nil;
+    }
     
-    [_openGLView removeFromSuperview];
+    if (_openGLView) {
+        [_openGLView removeFromSuperview];
+    }
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [[AVAudioSession sharedInstance] setActive:NO error:nil];
@@ -567,7 +574,10 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [self _stopRing];
     [self showHint:NSLocalizedString(@"call.rejected", @"Reject the call")];
     
-    [[EaseMob sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReasonReject];
+    EMError *error = [[EaseMob sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReasonReject];
+    if (error) {
+        [self _close];
+    }
 }
 
 - (void)answerAction
