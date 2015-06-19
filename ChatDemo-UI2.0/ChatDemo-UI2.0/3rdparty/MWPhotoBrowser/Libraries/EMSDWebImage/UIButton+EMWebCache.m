@@ -188,7 +188,7 @@ static char imageURLStorageKey;
     [self sd_setImageWithURL:url forState:state placeholderImage:placeholder options:options completed:nil];
 }
 
-- (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state completed:(SDWebImageCompletedBlock)completedBlock {
+- (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state completed:(EMSDWebImageCompletedBlock)completedBlock {
     [self sd_setImageWithURL:url forState:state placeholderImage:nil options:0 completed:^(UIImage *image, NSError *error, EMSDImageCacheType cacheType, NSURL *imageURL) {
         if (completedBlock) {
             completedBlock(image, error, cacheType);
@@ -196,7 +196,7 @@ static char imageURLStorageKey;
     }];
 }
 
-- (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletedBlock)completedBlock {
+- (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder completed:(EMSDWebImageCompletedBlock)completedBlock {
     [self sd_setImageWithURL:url forState:state placeholderImage:placeholder options:0 completed:^(UIImage *image, NSError *error, EMSDImageCacheType cacheType, NSURL *imageURL) {
         if (completedBlock) {
             completedBlock(image, error, cacheType);
@@ -204,7 +204,7 @@ static char imageURLStorageKey;
     }];
 }
 
-- (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(EMSDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock {
+- (void)setImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(EMSDWebImageOptions)options completed:(EMSDWebImageCompletedBlock)completedBlock {
     [self sd_setImageWithURL:url forState:state placeholderImage:placeholder options:options completed:^(UIImage *image, NSError *error, EMSDImageCacheType cacheType, NSURL *imageURL) {
         if (completedBlock) {
             completedBlock(image, error, cacheType);
@@ -224,7 +224,7 @@ static char imageURLStorageKey;
     [self sd_setBackgroundImageWithURL:url forState:state placeholderImage:placeholder options:options completed:nil];
 }
 
-- (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state completed:(SDWebImageCompletedBlock)completedBlock {
+- (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state completed:(EMSDWebImageCompletedBlock)completedBlock {
     [self sd_setBackgroundImageWithURL:url forState:state placeholderImage:nil options:0 completed:^(UIImage *image, NSError *error, EMSDImageCacheType cacheType, NSURL *imageURL) {
         if (completedBlock) {
             completedBlock(image, error, cacheType);
@@ -232,7 +232,7 @@ static char imageURLStorageKey;
     }];
 }
 
-- (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletedBlock)completedBlock {
+- (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder completed:(EMSDWebImageCompletedBlock)completedBlock {
     [self sd_setBackgroundImageWithURL:url forState:state placeholderImage:placeholder options:0 completed:^(UIImage *image, NSError *error, EMSDImageCacheType cacheType, NSURL *imageURL) {
         if (completedBlock) {
             completedBlock(image, error, cacheType);
@@ -240,7 +240,7 @@ static char imageURLStorageKey;
     }];
 }
 
-- (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(EMSDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock {
+- (void)setBackgroundImageWithURL:(NSURL *)url forState:(UIControlState)state placeholderImage:(UIImage *)placeholder options:(EMSDWebImageOptions)options completed:(EMSDWebImageCompletedBlock)completedBlock {
     [self sd_setBackgroundImageWithURL:url forState:state placeholderImage:placeholder options:options completed:^(UIImage *image, NSError *error, EMSDImageCacheType cacheType, NSURL *imageURL) {
         if (completedBlock) {
             completedBlock(image, error, cacheType);

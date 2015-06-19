@@ -138,7 +138,7 @@ typedef void(^EMSDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger t
  * @param key             The unique image cache key
  * @param completionBlock An block that should be executed after the image has been removed (optional)
  */
-- (void)removeImageForKey:(NSString *)key withCompletion:(SDWebImageNoParamsBlock)completion;
+- (void)removeImageForKey:(NSString *)key withCompletion:(EMSDWebImageNoParamsBlock)completion;
 
 /**
  * Remove the image from memory and optionally disk cache synchronously
@@ -155,7 +155,7 @@ typedef void(^EMSDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger t
  * @param fromDisk        Also remove cache entry from disk if YES
  * @param completionBlock An block that should be executed after the image has been removed (optional)
  */
-- (void)removeImageForKey:(NSString *)key fromDisk:(BOOL)fromDisk withCompletion:(SDWebImageNoParamsBlock)completion;
+- (void)removeImageForKey:(NSString *)key fromDisk:(BOOL)fromDisk withCompletion:(EMSDWebImageNoParamsBlock)completion;
 
 /**
  * Clear all memory cached images
@@ -166,7 +166,7 @@ typedef void(^EMSDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger t
  * Clear all disk cached images. Non-blocking method - returns immediately.
  * @param completionBlock An block that should be executed after cache expiration completes (optional)
  */
-- (void)clearDiskOnCompletion:(SDWebImageNoParamsBlock)completion;
+- (void)clearDiskOnCompletion:(EMSDWebImageNoParamsBlock)completion;
 
 /**
  * Clear all disk cached images
@@ -178,7 +178,7 @@ typedef void(^EMSDWebImageCalculateSizeBlock)(NSUInteger fileCount, NSUInteger t
  * Remove all expired cached image from disk. Non-blocking method - returns immediately.
  * @param completionBlock An block that should be executed after cache expiration completes (optional)
  */
-- (void)cleanDiskWithCompletionBlock:(SDWebImageNoParamsBlock)completionBlock;
+- (void)cleanDiskWithCompletionBlock:(EMSDWebImageNoParamsBlock)completionBlock;
 
 /**
  * Remove all expired cached image from disk
