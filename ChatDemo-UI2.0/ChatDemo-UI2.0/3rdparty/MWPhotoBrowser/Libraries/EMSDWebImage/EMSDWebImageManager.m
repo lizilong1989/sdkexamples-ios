@@ -12,7 +12,7 @@
 @interface EMSDWebImageCombinedOperation : NSObject <EMSDWebImageOperation>
 
 @property (assign, nonatomic, getter = isCancelled) BOOL cancelled;
-@property (copy, nonatomic) SDWebImageNoParamsBlock cancelBlock;
+@property (copy, nonatomic) EMSDWebImageNoParamsBlock cancelBlock;
 @property (strong, nonatomic) NSOperation *cacheOperation;
 
 @end
@@ -297,7 +297,7 @@
 
 @implementation EMSDWebImageCombinedOperation
 
-- (void)setCancelBlock:(SDWebImageNoParamsBlock)cancelBlock {
+- (void)setCancelBlock:(EMSDWebImageNoParamsBlock)cancelBlock {
     // check if the operation is already cancelled, then we just call the cancelBlock
     if (self.isCancelled) {
         if (cancelBlock) {

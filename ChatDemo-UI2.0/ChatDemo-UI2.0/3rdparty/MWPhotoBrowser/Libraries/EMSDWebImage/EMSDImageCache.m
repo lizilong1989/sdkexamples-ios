@@ -62,7 +62,7 @@ BOOL EMImageDataHasPNGPreffix(NSData *data) {
         NSString *fullNamespace = [@"com.hackemist.SDWebImageCache." stringByAppendingString:ns];
 
         // Create IO serial queue
-        _ioQueue = dispatch_queue_create("com.hackemist.SDWebImageCache", DISPATCH_QUEUE_SERIAL);
+        _ioQueue = dispatch_queue_create("com.hackemist.EMSDWebImageCache", DISPATCH_QUEUE_SERIAL);
 
         // Init default values
         _maxCacheAge = kDefaultCacheMaxCacheAge;
@@ -319,7 +319,7 @@ BOOL EMImageDataHasPNGPreffix(NSData *data) {
     [self removeImageForKey:key withCompletion:nil];
 }
 
-- (void)removeImageForKey:(NSString *)key withCompletion:(SDWebImageNoParamsBlock)completion {
+- (void)removeImageForKey:(NSString *)key withCompletion:(EMSDWebImageNoParamsBlock)completion {
     [self removeImageForKey:key fromDisk:YES withCompletion:completion];
 }
 
@@ -327,7 +327,7 @@ BOOL EMImageDataHasPNGPreffix(NSData *data) {
     [self removeImageForKey:key fromDisk:fromDisk withCompletion:nil];
 }
 
-- (void)removeImageForKey:(NSString *)key fromDisk:(BOOL)fromDisk withCompletion:(SDWebImageNoParamsBlock)completion {
+- (void)removeImageForKey:(NSString *)key fromDisk:(BOOL)fromDisk withCompletion:(EMSDWebImageNoParamsBlock)completion {
     
     if (key == nil) {
         return;
@@ -367,7 +367,7 @@ BOOL EMImageDataHasPNGPreffix(NSData *data) {
     [self clearDiskOnCompletion:nil];
 }
 
-- (void)clearDiskOnCompletion:(SDWebImageNoParamsBlock)completion
+- (void)clearDiskOnCompletion:(EMSDWebImageNoParamsBlock)completion
 {
     dispatch_async(self.ioQueue, ^{
         [self->_fileManager removeItemAtPath:self.diskCachePath error:nil];
@@ -388,7 +388,7 @@ BOOL EMImageDataHasPNGPreffix(NSData *data) {
     [self cleanDiskWithCompletionBlock:nil];
 }
 
-- (void)cleanDiskWithCompletionBlock:(SDWebImageNoParamsBlock)completionBlock {
+- (void)cleanDiskWithCompletionBlock:(EMSDWebImageNoParamsBlock)completionBlock {
     dispatch_async(self.ioQueue, ^{
         NSURL *diskCacheURL = [NSURL fileURLWithPath:self.diskCachePath isDirectory:YES];
         NSArray *resourceKeys = @[NSURLIsDirectoryKey, NSURLContentModificationDateKey, NSURLTotalFileAllocatedSizeKey];

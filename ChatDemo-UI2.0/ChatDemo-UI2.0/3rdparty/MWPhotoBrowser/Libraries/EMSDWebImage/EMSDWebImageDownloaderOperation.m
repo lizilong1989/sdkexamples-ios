@@ -16,7 +16,7 @@
 
 @property (copy, nonatomic) EMSDWebImageDownloaderProgressBlock progressBlock;
 @property (copy, nonatomic) EMSDWebImageDownloaderCompletedBlock completedBlock;
-@property (copy, nonatomic) SDWebImageNoParamsBlock cancelBlock;
+@property (copy, nonatomic) EMSDWebImageNoParamsBlock cancelBlock;
 
 @property (assign, nonatomic, getter = isExecuting) BOOL executing;
 @property (assign, nonatomic, getter = isFinished) BOOL finished;
@@ -44,7 +44,7 @@
               options:(EMSDWebImageDownloaderOptions)options
              progress:(EMSDWebImageDownloaderProgressBlock)progressBlock
             completed:(EMSDWebImageDownloaderCompletedBlock)completedBlock
-            cancelled:(SDWebImageNoParamsBlock)cancelBlock {
+            cancelled:(EMSDWebImageNoParamsBlock)cancelBlock {
     if ((self = [super init])) {
         _request = request;
         _shouldUseCredentialStorage = YES;

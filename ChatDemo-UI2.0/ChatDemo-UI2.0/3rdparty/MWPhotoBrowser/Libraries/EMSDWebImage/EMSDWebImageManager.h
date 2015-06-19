@@ -266,7 +266,7 @@ EMSDWebImageManager *manager = [EMSDWebImageManager sharedManager];
 
 #pragma mark - Deprecated
 
-typedef void(^SDWebImageCompletedBlock)(UIImage *image, NSError *error, EMSDImageCacheType cacheType) __deprecated_msg("Block type deprecated. Use `EMSDWebImageCompletionBlock`");
+typedef void(^EMSDWebImageCompletedBlock)(UIImage *image, NSError *error, EMSDImageCacheType cacheType) __deprecated_msg("Block type deprecated. Use `EMSDWebImageCompletionBlock`");
 typedef void(^SDWebImageCompletedWithFinishedBlock)(UIImage *image, NSError *error, EMSDImageCacheType cacheType, BOOL finished) __deprecated_msg("Block type deprecated. Use `EMSDWebImageCompletionWithFinishedBlock`");
 
 

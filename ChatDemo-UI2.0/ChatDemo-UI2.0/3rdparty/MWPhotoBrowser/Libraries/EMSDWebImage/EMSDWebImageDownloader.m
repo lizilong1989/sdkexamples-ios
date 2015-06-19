@@ -174,7 +174,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
     return operation;
 }
 
-- (void)addProgressCallback:(EMSDWebImageDownloaderProgressBlock)progressBlock andCompletedBlock:(EMSDWebImageDownloaderCompletedBlock)completedBlock forURL:(NSURL *)url createCallback:(SDWebImageNoParamsBlock)createCallback {
+- (void)addProgressCallback:(EMSDWebImageDownloaderProgressBlock)progressBlock andCompletedBlock:(EMSDWebImageDownloaderCompletedBlock)completedBlock forURL:(NSURL *)url createCallback:(EMSDWebImageNoParamsBlock)createCallback {
     // The URL will be used as the key to the callbacks dictionary so it cannot be nil. If it is nil immediately call the completed block with no image or data.
     if (url == nil) {
         if (completedBlock != nil) {
