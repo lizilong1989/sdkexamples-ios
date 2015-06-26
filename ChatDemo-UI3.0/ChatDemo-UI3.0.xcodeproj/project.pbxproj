@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		EB1BD2571B3CFFB400ED2044 /* ChatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB1BD2561B3CFFB400ED2044 /* ChatViewController.m */; };
+		EB1BD25A1B3D00BE00ED2044 /* EMChatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB1BD2591B3D00BE00ED2044 /* EMChatViewController.m */; };
+		EB1BD2CB1B3D13A000ED2044 /* NSObject+EaseMob.m in Sources */ = {isa = PBXBuildFile; fileRef = EB1BD2CA1B3D13A000ED2044 /* NSObject+EaseMob.m */; };
+		EB1BD2D21B3D33D500ED2044 /* EMMessageCell.m in Sources */ = {isa = PBXBuildFile; fileRef = EB1BD2D11B3D33D500ED2044 /* EMMessageCell.m */; };
+		EB1BD2D81B3D3FCA00ED2044 /* MessageModel.m in Sources */ = {isa = PBXBuildFile; fileRef = EB1BD2D71B3D3FCA00ED2044 /* MessageModel.m */; };
+		EB1BD2DB1B3D608B00ED2044 /* EMMessageTimeCell.m in Sources */ = {isa = PBXBuildFile; fileRef = EB1BD2DA1B3D608B00ED2044 /* EMMessageTimeCell.m */; };
 		EB4799F21B3A607100598A21 /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB4799F11B3A607100598A21 /* LoginViewController.m */; };
 		EB4799FC1B3A6B0600598A21 /* account.png in Resources */ = {isa = PBXBuildFile; fileRef = EB4799F81B3A6B0600598A21 /* account.png */; };
 		EB4799FD1B3A6B0600598A21 /* account@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EB4799F91B3A6B0600598A21 /* account@2x.png */; };
@@ -110,6 +116,19 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		EB1BD2551B3CFFB400ED2044 /* ChatViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatViewController.h; sourceTree = "<group>"; };
+		EB1BD2561B3CFFB400ED2044 /* ChatViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChatViewController.m; sourceTree = "<group>"; };
+		EB1BD2581B3D00BE00ED2044 /* EMChatViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EMChatViewController.h; sourceTree = "<group>"; };
+		EB1BD2591B3D00BE00ED2044 /* EMChatViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EMChatViewController.m; sourceTree = "<group>"; };
+		EB1BD2C91B3D13A000ED2044 /* NSObject+EaseMob.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+EaseMob.h"; sourceTree = "<group>"; };
+		EB1BD2CA1B3D13A000ED2044 /* NSObject+EaseMob.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+EaseMob.m"; sourceTree = "<group>"; };
+		EB1BD2CF1B3D336400ED2044 /* IMessageModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMessageModel.h; sourceTree = "<group>"; };
+		EB1BD2D01B3D33D500ED2044 /* EMMessageCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EMMessageCell.h; sourceTree = "<group>"; };
+		EB1BD2D11B3D33D500ED2044 /* EMMessageCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EMMessageCell.m; sourceTree = "<group>"; };
+		EB1BD2D61B3D3FCA00ED2044 /* MessageModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageModel.h; sourceTree = "<group>"; };
+		EB1BD2D71B3D3FCA00ED2044 /* MessageModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MessageModel.m; sourceTree = "<group>"; };
+		EB1BD2D91B3D608B00ED2044 /* EMMessageTimeCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EMMessageTimeCell.h; sourceTree = "<group>"; };
+		EB1BD2DA1B3D608B00ED2044 /* EMMessageTimeCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EMMessageTimeCell.m; sourceTree = "<group>"; };
 		EB4799F01B3A607100598A21 /* LoginViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoginViewController.h; sourceTree = "<group>"; };
 		EB4799F11B3A607100598A21 /* LoginViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoginViewController.m; sourceTree = "<group>"; };
 		EB4799F81B3A6B0600598A21 /* account.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = account.png; sourceTree = "<group>"; };
@@ -308,6 +327,10 @@
 		EB479A001B3A6C8800598A21 /* Chat */ = {
 			isa = PBXGroup;
 			children = (
+				EB1BD2D61B3D3FCA00ED2044 /* MessageModel.h */,
+				EB1BD2D71B3D3FCA00ED2044 /* MessageModel.m */,
+				EB1BD2551B3CFFB400ED2044 /* ChatViewController.h */,
+				EB1BD2561B3CFFB400ED2044 /* ChatViewController.m */,
 			);
 			path = Chat;
 			sourceTree = "<group>";
@@ -453,6 +476,12 @@
 		EBE4D6361B3BFF47005C3643 /* Chat */ = {
 			isa = PBXGroup;
 			children = (
+				EB1BD2D01B3D33D500ED2044 /* EMMessageCell.h */,
+				EB1BD2D11B3D33D500ED2044 /* EMMessageCell.m */,
+				EB1BD2D91B3D608B00ED2044 /* EMMessageTimeCell.h */,
+				EB1BD2DA1B3D608B00ED2044 /* EMMessageTimeCell.m */,
+				EB1BD2581B3D00BE00ED2044 /* EMChatViewController.h */,
+				EB1BD2591B3D00BE00ED2044 /* EMChatViewController.m */,
 			);
 			path = Chat;
 			sourceTree = "<group>";
@@ -494,6 +523,8 @@
 				EBE4D6451B3BFF47005C3643 /* UIViewController+DismissKeyboard.m */,
 				EBE4D6461B3BFF47005C3643 /* UIViewController+HUD.h */,
 				EBE4D6471B3BFF47005C3643 /* UIViewController+HUD.m */,
+				EB1BD2C91B3D13A000ED2044 /* NSObject+EaseMob.h */,
+				EB1BD2CA1B3D13A000ED2044 /* NSObject+EaseMob.m */,
 			);
 			path = Category;
 			sourceTree = "<group>";
@@ -587,6 +618,7 @@
 				EBE4D6A31B3C11FE005C3643 /* IConversationModel.h */,
 				EBE4D6A41B3C11FE005C3643 /* IModelCell.h */,
 				EBE4D6A51B3C11FE005C3643 /* IUserModel.h */,
+				EB1BD2CF1B3D336400ED2044 /* IMessageModel.h */,
 			);
 			path = Interface;
 			sourceTree = "<group>";
@@ -814,10 +846,14 @@
 			files = (
 				EB479ADE1B3AB07300598A21 /* UserModel.m in Sources */,
 				EBE4D5FE1B3BD42F005C3643 /* BlackListViewController.m in Sources */,
+				EB1BD2CB1B3D13A000ED2044 /* NSObject+EaseMob.m in Sources */,
+				EB1BD2D81B3D3FCA00ED2044 /* MessageModel.m in Sources */,
 				EB479ABF1B3AA51D00598A21 /* SettingViewController.m in Sources */,
 				EB479A091B3A6CEF00598A21 /* EMHelper.m in Sources */,
 				EBE67AFA1B391CA3000DA203 /* AppDelegate.m in Sources */,
+				EB1BD2D21B3D33D500ED2044 /* EMMessageCell.m in Sources */,
 				EBE4D6061B3BDD66005C3643 /* ConversationListController.m in Sources */,
+				EB1BD25A1B3D00BE00ED2044 /* EMChatViewController.m in Sources */,
 				EBE4D68A1B3BFF47005C3643 /* MJRefreshGifHeader.m in Sources */,
 				EBE4D6031B3BDD2F005C3643 /* HomeViewController.m in Sources */,
 				EBE4D68D1B3BFF47005C3643 /* MJRefreshLegendHeader.m in Sources */,
@@ -856,6 +892,8 @@
 				EBE4D67A1B3BFF47005C3643 /* MBProgressHUD.m in Sources */,
 				EBE4D6831B3BFF47005C3643 /* ConvertToCommonEmoticonsHelper.m in Sources */,
 				EBE4D6951B3BFF47005C3643 /* EMImageView.m in Sources */,
+				EB1BD2DB1B3D608B00ED2044 /* EMMessageTimeCell.m in Sources */,
+				EB1BD2571B3CFFB400ED2044 /* ChatViewController.m in Sources */,
 				EBE4D6841B3BFF47005C3643 /* EMRefreshTableViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -988,10 +1026,7 @@
 				INFOPLIST_FILE = "ChatDemo-UI3.0/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/sdk-egftlguniriaatetrtetyjwlreue/Build/Products/Debug-iphoneos",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -1005,10 +1040,7 @@
 				INFOPLIST_FILE = "ChatDemo-UI3.0/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/sdk-egftlguniriaatetrtetyjwlreue/Build/Products/Debug-iphoneos",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

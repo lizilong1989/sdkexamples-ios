@@ -10,9 +10,13 @@
 
 @protocol IModelCell <NSObject>
 
+@optional
+
 @property (strong, nonatomic) id model;
 
 + (NSString *)cellIdentifier;
+
++ (NSString *)cellIdentifierWithModel:(id)model;
 
 + (CGFloat)cellHeightWithModel:(id)model;
 

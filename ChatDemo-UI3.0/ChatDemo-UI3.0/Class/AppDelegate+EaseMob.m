@@ -14,6 +14,7 @@
 
 #import "EMHelper.h"
 #import "LoginViewController.h"
+#import "NSObject+EaseMob.h"
 
 /**
  *  本类中做了EaseMob初始化和推送等操作
@@ -102,7 +103,7 @@
     }
     
     // 注册环信监听
-    [self _registerEaseMobNotification];
+    [self registerEaseMobLiteNotification];
     
     //启动easemob sdk
     [[EaseMob sharedInstance] application:application didFinishLaunchingWithOptions:launchOptions];
@@ -258,15 +259,6 @@
         [[UIApplication sharedApplication] registerForRemoteNotificationTypes:notificationTypes];
     }
 #endif
-}
-
-#pragma mark - register easemob Notification
-
-- (void)_registerEaseMobNotification
-{
-    [[EaseMob sharedInstance].chatManager removeDelegate:self];
-    // 将self 添加到SDK回调中，以便本类可以收到SDK回调
-    [[EaseMob sharedInstance].chatManager addDelegate:self delegateQueue:nil];
 }
 
 #pragma mark - login changed
