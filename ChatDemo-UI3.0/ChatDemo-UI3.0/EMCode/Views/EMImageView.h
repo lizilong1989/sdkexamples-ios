@@ -18,6 +18,8 @@
 
 @property (nonatomic) CGFloat imageCornerRadius UI_APPEARANCE_SELECTOR;
 
+@property (nonatomic) CGFloat badgeSize UI_APPEARANCE_SELECTOR;
+
 @property (nonatomic) UIFont *badgeFont UI_APPEARANCE_SELECTOR;
 
 @property (nonatomic) UIColor *badgeTextColor UI_APPEARANCE_SELECTOR;

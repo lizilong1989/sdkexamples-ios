@@ -15,9 +15,6 @@
 static CGFloat EMConversationCellMinHeight = 60;
 
 @interface EMConversationCell : UITableViewCell<IModelCell>
-{
-    CGFloat _cellWidth;
-}
 
 @property (strong, nonatomic) EMImageView *avatarView;
 
@@ -28,10 +25,6 @@ static CGFloat EMConversationCellMinHeight = 60;
 @property (strong, nonatomic) UILabel *titleLabel;
 
 @property (strong, nonatomic) id<IConversationModel> model;
-
-@property (nonatomic, readonly) CGFloat cellWidth;
-
-@property (nonatomic, readonly) CGFloat cellHeight;//
 
 @property (nonatomic) BOOL showAvatar;//default is "YES"
 

@@ -98,7 +98,7 @@
     
     // Configure the cell...
     if (cell == nil) {
-        cell = [[EMConversationCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier cellWidth:tableView.frame.size.width];
+        cell = [[EMConversationCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
     
     id<IConversationModel> model = [self.dataArray objectAtIndex:indexPath.row];

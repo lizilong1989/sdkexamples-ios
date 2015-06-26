@@ -66,7 +66,7 @@
     
     // Configure the cell...
     if (cell == nil) {
-        cell = [[EMUserCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier cellWidth:tableView.frame.size.width];
+        cell = [[EMUserCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
     
     id<IUserModel> model = [self.dataArray objectAtIndex:indexPath.row];

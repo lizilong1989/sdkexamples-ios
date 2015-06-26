@@ -15,6 +15,10 @@ CGFloat const EMUserCellPadding = 10;
 
 @interface EMUserCell()
 
+@property (nonatomic) NSLayoutConstraint *titleWithAvatarLeftConstraint;
+
+@property (nonatomic) NSLayoutConstraint *titleWithoutAvatarLeftConstraint;
+
 @end
 
 @implementation EMUserCell
@@ -29,12 +33,10 @@ CGFloat const EMUserCellPadding = 10;
 
 - (instancetype)initWithStyle:(UITableViewCellStyle)style
               reuseIdentifier:(NSString *)reuseIdentifier
-                    cellWidth:(CGFloat)cellWidth
 {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
-        _cellWidth = cellWidth;
-        [self _setupSubviewWithWidth:cellWidth];
+        [self _setupSubview];
     }
     
     return self;
@@ -42,18 +44,45 @@ CGFloat const EMUserCellPadding = 10;
 
 #pragma mark - private layout subviews
 
-- (void)_setupSubviewWithWidth:(CGFloat)cellWidth
+- (void)_setupSubview
 {
-    CGFloat height = [EMUserCell cellHeightWithModel:nil];
-    _avatarView = [[EMImageView alloc] initWithFrame:CGRectMake(EMUserCellPadding, EMUserCellPadding, height - EMUserCellPadding * 2, height - EMUserCellPadding * 2)];
+    _avatarView = [[EMImageView alloc] init];
+    _avatarView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.contentView addSubview:_avatarView];
     
-    _titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(_avatarView.frame) + EMUserCellPadding, EMUserCellPadding, cellWidth - EMUserCellPadding * 2 - CGRectGetMaxX(_avatarView.frame), height - EMUserCellPadding * 2)];
+    _titleLabel = [[UILabel alloc] init];
+    _titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
     _titleLabel.numberOfLines = 2;
     _titleLabel.backgroundColor = [UIColor clearColor];
     _titleLabel.font = _titleLabelFont;
     _titleLabel.textColor = _titleLabelColor;
     [self.contentView addSubview:_titleLabel];
+    
+    [self _setupAvatarViewConstraints];
+    [self _setupTitleLabelConstraints];
+}
+
+#pragma mark - Setup Constraints
+
+- (void)_setupAvatarViewConstraints
+{
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.avatarView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeTop multiplier:1.0 constant:EMUserCellPadding]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.avatarView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-EMUserCellPadding]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.avatarView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:EMUserCellPadding]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.avatarView attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.avatarView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.avatarView attribute:NSLayoutAttributeHeight multiplier:1.0 constant:0]];
+}
+
+- (void)_setupTitleLabelConstraints
+{
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.titleLabel attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeTop multiplier:1.0 constant:EMUserCellPadding]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.titleLabel attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-EMUserCellPadding]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.titleLabel attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.titleLabel attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeRight multiplier:1.0 constant:-EMUserCellPadding]];
+    
+    self.titleWithAvatarLeftConstraint = [NSLayoutConstraint constraintWithItem:self.titleLabel attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.avatarView attribute:NSLayoutAttributeRight multiplier:1.0 constant:EMUserCellPadding];
+    self.titleWithoutAvatarLeftConstraint = [NSLayoutConstraint constraintWithItem:self.titleLabel attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:EMUserCellPadding];
+    [self addConstraint:self.titleWithAvatarLeftConstraint];
 }
 
 #pragma mark - setter
@@ -63,17 +92,14 @@ CGFloat const EMUserCellPadding = 10;
     if (_showAvatar != showAvatar) {
         _showAvatar = showAvatar;
         self.avatarView.hidden = !showAvatar;
-        CGRect titleFrame = self.titleLabel.frame;
         if (_showAvatar) {
-            titleFrame.origin.x = CGRectGetMaxX(self.avatarView.frame) + EMUserCellPadding;
-            titleFrame.size.width = _cellWidth - CGRectGetMaxX(self.avatarView.frame) - EMUserCellPadding * 2;
+            [self removeConstraint:self.titleWithoutAvatarLeftConstraint];
+            [self addConstraint:self.titleWithAvatarLeftConstraint];
         }
         else{
-            titleFrame.origin.x = EMUserCellPadding;
-            titleFrame.size.width = _cellWidth - EMUserCellPadding * 2;
+            [self removeConstraint:self.titleWithAvatarLeftConstraint];
+            [self addConstraint:self.titleWithoutAvatarLeftConstraint];
         }
-        
-        self.titleLabel.frame = titleFrame;
     }
 }
 

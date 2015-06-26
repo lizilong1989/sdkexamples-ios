@@ -80,11 +80,11 @@
     EMUserCell *cell = (EMUserCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
     
     if (cell == nil) {
-        cell = [[EMUserCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentifier cellWidth:tableView.frame.size.width];
+        cell = [[EMUserCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentifier];
     }
     
     NSString *username = [[self.dataArray objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
-    cell.imageView.image = [UIImage imageNamed:@"chatListCellHead.png"];
+    cell.imageView.image = [UIImage imageNamed:@"user.png"];
     cell.textLabel.text = username;
     
     return cell;

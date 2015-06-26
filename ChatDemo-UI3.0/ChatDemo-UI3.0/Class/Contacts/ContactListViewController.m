@@ -76,7 +76,7 @@
     
     // Configure the cell...
     if (cell == nil) {
-        cell = [[EMUserCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier cellWidth:tableView.frame.size.width];
+        cell = [[EMUserCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
     
     if (indexPath.section == 0) {

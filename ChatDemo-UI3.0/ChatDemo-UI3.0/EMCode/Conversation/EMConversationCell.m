@@ -14,6 +14,14 @@ CGFloat const EMConversationCellPadding = 10;
 
 @interface EMConversationCell()
 
+@property (nonatomic) NSLayoutConstraint *titleWithAvatarLeftConstraint;
+
+@property (nonatomic) NSLayoutConstraint *titleWithoutAvatarLeftConstraint;
+
+@property (nonatomic) NSLayoutConstraint *detailWithAvatarLeftConstraint;
+
+@property (nonatomic) NSLayoutConstraint *detailWithoutAvatarLeftConstraint;
+
 @end
 
 @implementation EMConversationCell
@@ -32,12 +40,10 @@ CGFloat const EMConversationCellPadding = 10;
 
 - (instancetype)initWithStyle:(UITableViewCellStyle)style
               reuseIdentifier:(NSString *)reuseIdentifier
-                    cellWidth:(CGFloat)cellWidth
 {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
-        _cellWidth = cellWidth;
-        [self _setupSubviewWithWidth:cellWidth];
+        [self _setupSubview];
     }
     
     return self;
@@ -45,32 +51,80 @@ CGFloat const EMConversationCellPadding = 10;
 
 #pragma mark - private layout subviews
 
-- (void)_setupSubviewWithWidth:(CGFloat)cellWidth
+- (void)_setupSubview
 {
-    CGFloat height = [EMConversationCell cellHeightWithModel:nil];
-    
-    _avatarView = [[EMImageView alloc] initWithFrame:CGRectMake(EMConversationCellPadding, EMConversationCellPadding, height - EMConversationCellPadding * 2, height - EMConversationCellPadding * 2)];
+    _avatarView = [[EMImageView alloc] init];
+    _avatarView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.contentView addSubview:_avatarView];
     
-    _timeLabel = [[UILabel alloc] initWithFrame:CGRectMake(cellWidth - EMConversationCellPadding - 80, EMConversationCellPadding, 80, 20)];
+    _timeLabel = [[UILabel alloc] init];
+    _timeLabel.translatesAutoresizingMaskIntoConstraints = NO;
     _timeLabel.font = _timeLabelFont;
     _timeLabel.textColor = _timeLabelColor;
     _timeLabel.textAlignment = NSTextAlignmentRight;
     _timeLabel.backgroundColor = [UIColor clearColor];
     [self.contentView addSubview:_timeLabel];
     
-    _titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(_avatarView.frame) + EMConversationCellPadding, EMConversationCellPadding, cellWidth - EMConversationCellPadding * 2 - CGRectGetMaxX(_avatarView.frame), (height - EMConversationCellPadding) / 2)];
+    _titleLabel = [[UILabel alloc] init];
+    _titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
     _titleLabel.numberOfLines = 2;
     _titleLabel.backgroundColor = [UIColor clearColor];
     _titleLabel.font = _titleLabelFont;
     _titleLabel.textColor = _titleLabelColor;
     [self.contentView addSubview:_titleLabel];
     
-    _detailLabel = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMinX(_titleLabel.frame), CGRectGetMaxY(_titleLabel.frame), cellWidth - EMConversationCellPadding - CGRectGetMinX(_titleLabel.frame), (height - EMConversationCellPadding) / 2)];
+    _detailLabel = [[UILabel alloc] init];
+    _detailLabel.translatesAutoresizingMaskIntoConstraints = NO;
     _detailLabel.backgroundColor = [UIColor clearColor];
     _detailLabel.font = _detailLabelFont;
     _detailLabel.textColor = _detailLabelColor;
     [self.contentView addSubview:_detailLabel];
+    
+    [self _setupAvatarViewConstraints];
+    [self _setupTimeLabelConstraints];
+    [self _setupTitleLabelConstraints];
+    [self _setupDetailLabelConstraints];
+}
+
+#pragma mark - Setup Constraints
+
+- (void)_setupAvatarViewConstraints
+{
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.avatarView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeTop multiplier:1.0 constant:EMConversationCellPadding]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.avatarView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-EMConversationCellPadding]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.avatarView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:EMConversationCellPadding]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.avatarView attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.avatarView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.avatarView attribute:NSLayoutAttributeHeight multiplier:1.0 constant:0]];
+}
+
+- (void)_setupTimeLabelConstraints
+{
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.timeLabel attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeTop multiplier:1.0 constant:EMConversationCellPadding]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.timeLabel attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeRight multiplier:1.0 constant:-EMConversationCellPadding]];
+    
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.timeLabel attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeHeight multiplier:0.5 constant:0]];
+}
+
+- (void)_setupTitleLabelConstraints
+{
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.titleLabel attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeTop multiplier:1.0 constant:EMConversationCellPadding]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.titleLabel attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeHeight multiplier:0.5 constant:-EMConversationCellPadding]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.titleLabel attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.timeLabel attribute:NSLayoutAttributeLeft multiplier:1.0 constant:-EMConversationCellPadding]];
+    
+    self.titleWithAvatarLeftConstraint = [NSLayoutConstraint constraintWithItem:self.titleLabel attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.avatarView attribute:NSLayoutAttributeRight multiplier:1.0 constant:EMConversationCellPadding];
+    self.titleWithoutAvatarLeftConstraint = [NSLayoutConstraint constraintWithItem:self.titleLabel attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:EMConversationCellPadding];
+    [self addConstraint:self.titleWithAvatarLeftConstraint];
+}
+
+- (void)_setupDetailLabelConstraints
+{
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.detailLabel attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.titleLabel attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.detailLabel attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-EMConversationCellPadding]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.detailLabel attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeRight multiplier:1.0 constant:-EMConversationCellPadding]];
+    
+    self.detailWithAvatarLeftConstraint = [NSLayoutConstraint constraintWithItem:self.detailLabel attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.avatarView attribute:NSLayoutAttributeRight multiplier:1.0 constant:EMConversationCellPadding];
+    self.detailWithoutAvatarLeftConstraint = [NSLayoutConstraint constraintWithItem:self.detailLabel attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:EMConversationCellPadding];
+    [self addConstraint:self.detailWithAvatarLeftConstraint];
 }
 
 #pragma mark - setter
@@ -80,17 +134,18 @@ CGFloat const EMConversationCellPadding = 10;
     if (_showAvatar != showAvatar) {
         _showAvatar = showAvatar;
         self.avatarView.hidden = !showAvatar;
-        CGRect titleFrame = self.titleLabel.frame;
         if (_showAvatar) {
-            titleFrame.origin.x = CGRectGetMaxX(self.avatarView.frame) + EMConversationCellPadding;
-            titleFrame.size.width = _cellWidth - CGRectGetMaxX(self.avatarView.frame) - EMConversationCellPadding * 2;
+            [self removeConstraint:self.titleWithoutAvatarLeftConstraint];
+            [self removeConstraint:self.detailWithoutAvatarLeftConstraint];
+            [self addConstraint:self.titleWithAvatarLeftConstraint];
+            [self addConstraint:self.detailWithAvatarLeftConstraint];
         }
         else{
-            titleFrame.origin.x = EMConversationCellPadding;
-            titleFrame.size.width = _cellWidth - EMConversationCellPadding * 2;
+            [self removeConstraint:self.titleWithAvatarLeftConstraint];
+            [self removeConstraint:self.detailWithAvatarLeftConstraint];
+            [self addConstraint:self.titleWithoutAvatarLeftConstraint];
+            [self addConstraint:self.detailWithoutAvatarLeftConstraint];
         }
-        
-        self.titleLabel.frame = titleFrame;
     }
 }
 

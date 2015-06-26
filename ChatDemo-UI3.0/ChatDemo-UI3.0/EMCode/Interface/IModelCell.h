@@ -12,14 +12,6 @@
 
 @property (strong, nonatomic) id model;
 
-@property (nonatomic, readonly) CGFloat cellWidth;
-
-@property (nonatomic, readonly) CGFloat cellHeight;
-
-- (instancetype)initWithStyle:(UITableViewCellStyle)style
-              reuseIdentifier:(NSString *)reuseIdentifier
-                    cellWidth:(CGFloat)cellWidth;
-
 + (NSString *)cellIdentifier;
 
 + (CGFloat)cellHeightWithModel:(id)model;

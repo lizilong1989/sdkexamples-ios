@@ -22,10 +22,6 @@ static CGFloat EMUserCellMinHeight = 50;
 
 @property (strong, nonatomic) id<IUserModel> model;
 
-@property (nonatomic, readonly) CGFloat cellWidth;
-
-@property (nonatomic, readonly) CGFloat cellHeight;
-
 @property (nonatomic) BOOL showAvatar; //default is "YES"
 
 @property (nonatomic) UIFont *titleLabelFont UI_APPEARANCE_SELECTOR;
