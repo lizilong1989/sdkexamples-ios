@@ -412,7 +412,7 @@ static NSString *kGroupName = @"GroupName";
             }
                 break;
             case eMessageBodyType_Video:{
-                messageStr = NSLocalizedString(@"message.vidio", @"Vidio");
+                messageStr = NSLocalizedString(@"message.video", @"Video");
             }
                 break;
             default:
