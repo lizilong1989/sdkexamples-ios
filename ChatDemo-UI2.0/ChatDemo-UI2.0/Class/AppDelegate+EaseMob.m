@@ -43,7 +43,7 @@
     NSString *imServer = [ud stringForKey:@"identifier_imserver"];
     if (!imServer)
     {
-        imServer = @"im1.easemob.com";
+        imServer = @"im1.sandbox.easemob.com";
         [ud setObject:imServer forKey:@"identifier_imserver"];
     }
     NSString *imPort = [ud stringForKey:@"identifier_import"];
@@ -55,7 +55,7 @@
     NSString *restServer = [ud stringForKey:@"identifier_restserver"];
     if (!restServer)
     {
-        restServer = @"a1.easemob.com";
+        restServer = @"a1.sdb.easemob.com";
         [ud setObject:restServer forKey:@"identifier_restserver"];
     }
     [ud synchronize];
