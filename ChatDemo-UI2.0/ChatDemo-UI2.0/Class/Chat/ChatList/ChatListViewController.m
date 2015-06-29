@@ -558,9 +558,8 @@
     [self refreshDataSource];
 }
 
-- (void)didFinishedReceiveOfflineMessages:(NSArray *)offlineMessages{
+- (void)didFinishedReceiveOfflineMessages{
     NSLog(NSLocalizedString(@"message.endReceiveOffine", @"End to receive offline messages"));
-    [self refreshDataSource];
 }
 
 #pragma mark - ChatViewControllerDelegate

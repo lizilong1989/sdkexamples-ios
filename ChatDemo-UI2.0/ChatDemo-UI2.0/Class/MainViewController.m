@@ -316,12 +316,12 @@ static NSString *kGroupName = @"GroupName";
     [self setupUnreadMessageCount];
 }
 
-- (void)didFinishedReceiveOfflineMessages:(NSArray *)offlineMessages
+- (void)didFinishedReceiveOfflineMessages
 {
     [self setupUnreadMessageCount];
 }
 
-- (void)didFinishedReceiveOfflineCmdMessages:(NSArray *)offlineCmdMessages
+- (void)didFinishedReceiveOfflineCmdMessages
 {
     
 }
