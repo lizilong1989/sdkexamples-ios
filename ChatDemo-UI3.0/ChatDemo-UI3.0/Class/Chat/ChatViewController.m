@@ -33,7 +33,7 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deleteAllMessages:) name:KNOTIFICATIONNAME_DELETEALLMESSAGE object:nil];
     
     //通过会话管理者获取已收发消息
-    long long timestamp = self.conversationModel.conversation.latestMessage.timestamp + 1;
+    long long timestamp = self.conversation.latestMessage.timestamp + 1;
     [self loadMessagesFrom:timestamp count:self.pageCount append:NO];
 }
 
@@ -53,7 +53,7 @@
     [self.navigationItem setLeftBarButtonItem:backItem];
     
     //单聊
-    if (self.conversationModel.conversation.conversationType == eConversationTypeChat) {
+    if (self.conversation.conversationType == eConversationTypeChat) {
         UIButton *clearButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 44, 44)];
         [clearButton setImage:[UIImage imageNamed:@"delete"] forState:UIControlStateNormal];
         [clearButton addTarget:self action:@selector(deleteAllMessages:) forControlEvents:UIControlEventTouchUpInside];
@@ -73,7 +73,7 @@
 {
     if (alertView.cancelButtonIndex != buttonIndex) {
         self.timeIntervalTag = -1;
-        [self.conversationModel.conversation removeAllMessages];
+        [self.conversation removeAllMessages];
         [self.dataArray removeAllObjects];
         [self.messsagesSource removeAllObjects];
         
@@ -89,9 +89,9 @@
 {
     if (self.deleteConversationIfNull) {
         //判断当前会话是否为空，若符合则删除该会话
-        EMMessage *message = [self.conversationModel.conversation latestMessage];
+        EMMessage *message = [self.conversation latestMessage];
         if (message == nil) {
-            [[EaseMob sharedInstance].chatManager removeConversationByChatter:self.conversationModel.conversation.chatter deleteMessages:NO append2Chat:YES];
+            [[EaseMob sharedInstance].chatManager removeConversationByChatter:self.conversation.chatter deleteMessages:NO append2Chat:YES];
         }
     }
     
@@ -101,11 +101,11 @@
 - (void)showGroupDetailAction
 {
     [self.view endEditing:YES];
-    if (self.conversationModel.conversation.conversationType == eConversationTypeGroupChat) {
+    if (self.conversation.conversationType == eConversationTypeGroupChat) {
         //        ChatGroupDetailViewController *detailController = [[ChatGroupDetailViewController alloc] initWithGroupId:_chatter];
         //        [self.navigationController pushViewController:detailController animated:YES];
     }
-    else if (self.conversationModel.conversation.conversationType == eConversationTypeChatRoom)
+    else if (self.conversation.conversationType == eConversationTypeChatRoom)
     {
         //        ChatroomDetailViewController *detailController = [[ChatroomDetailViewController alloc] initWithChatroomId:_chatter];
         //        [self.navigationController pushViewController:detailController animated:YES];
@@ -121,10 +121,10 @@
     
     if ([sender isKindOfClass:[NSNotification class]]) {
         NSString *groupId = (NSString *)[(NSNotification *)sender object];
-        BOOL isDelete = [groupId isEqualToString:self.conversationModel.conversation.chatter];
-        if (self.conversationModel.conversation.conversationType != eConversationTypeChat && isDelete) {
+        BOOL isDelete = [groupId isEqualToString:self.conversation.chatter];
+        if (self.conversation.conversationType != eConversationTypeChat && isDelete) {
             self.timeIntervalTag = -1;
-            [self.conversationModel.conversation removeAllMessages];
+            [self.conversation removeAllMessages];
             [self.messsagesSource removeAllObjects];
             [self.dataArray removeAllObjects];
             
@@ -213,7 +213,7 @@
                    count:(NSInteger)count
                   append:(BOOL)append
 {
-    NSArray *moreMessages = [self.conversationModel.conversation loadNumbersOfMessages:count before:timestamp];
+    NSArray *moreMessages = [self.conversation loadNumbersOfMessages:count before:timestamp];
     [self.messsagesSource insertObjects:moreMessages atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [moreMessages count])]];
 }
 

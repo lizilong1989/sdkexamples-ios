@@ -11,6 +11,7 @@
 #import "EaseMob.h"
 #import "UserModel.h"
 #import "ChineseToPinyin.h"
+#import "ChatViewController.h"
 #import "UIViewController+HUD.h"
 
 @interface ContactListViewController ()
@@ -146,12 +147,14 @@
 {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
-//    if (indexPath.section == 0) {
-//        if (indexPath.row == 0) {
+    NSInteger section = indexPath.section;
+    NSInteger row = indexPath.row;
+    if (section) {
+        if (row == 0) {
 //            [self.navigationController pushViewController:[ApplyViewController shareController] animated:YES];
-//        }
-//        else if (indexPath.row == 1)
-//        {
+        }
+        else if (row == 1)
+        {
 //            if (_groupController == nil) {
 //                _groupController = [[GroupListViewController alloc] initWithStyle:UITableViewStylePlain];
 //            }
@@ -159,30 +162,20 @@
 //                [_groupController reloadDataSource];
 //            }
 //            [self.navigationController pushViewController:_groupController animated:YES];
-//        }
-//        else if (indexPath.row == 2)
-//        {
+        }
+        else if (row == 2)
+        {
 //            ChatroomListViewController *controller = [[ChatroomListViewController alloc] initWithStyle:UITableViewStylePlain];
 //            [self.navigationController pushViewController:controller animated:YES];
-//        }
-//    }
-//    else{
-//        EMBuddy *buddy = [[self.dataSource objectAtIndex:(indexPath.section - 1)] objectAtIndex:indexPath.row];
-//        NSDictionary *loginInfo = [[[EaseMob sharedInstance] chatManager] loginInfo];
-//        NSString *loginUsername = [loginInfo objectForKey:kSDKUsername];
-//        if (loginUsername && loginUsername.length > 0) {
-//            if ([loginUsername isEqualToString:buddy.username]) {
-//                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:NSLocalizedString(@"friend.notChatSelf", @"can't talk to yourself") delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
-//                [alertView show];
-//                
-//                return;
-//            }
-//        }
-//        
-//        ChatViewController *chatVC = [[ChatViewController alloc] initWithChatter:buddy.username isGroup:NO];
-//        chatVC.title = buddy.username;
-//        [self.navigationController pushViewController:chatVC animated:YES];
-//    }
+        }
+    }
+    else{
+        UserModel *model = [[self.dataArray objectAtIndex:(section - 1)] objectAtIndex:row];
+        EMConversation *conversation = [[EaseMob sharedInstance].chatManager conversationForChatter:model.buddy.username conversationType:eConversationTypeChat];
+        ChatViewController *chatController = [[ChatViewController alloc] initWithConversation:conversation];
+        chatController.title = model.buddy.username;
+        [self.navigationController pushViewController:chatController animated:YES];
+    }
 }
 
 #pragma mark - action

@@ -70,11 +70,6 @@ CGFloat const EMMessageTimeCellPadding = 5;
     _titleLabel.text = _title;
 }
 
-- (void)setImage:(UIImage *)image
-{
-    _image = image;
-}
-
 - (void)setTitleLabelFont:(UIFont *)titleLabelFont
 {
     _titleLabelFont = titleLabelFont;

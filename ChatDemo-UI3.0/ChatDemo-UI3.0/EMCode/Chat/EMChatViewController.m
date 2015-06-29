@@ -16,21 +16,21 @@
 
 @implementation EMChatViewController
 
-@synthesize conversationModel = _conversationModel;
+@synthesize conversation = _conversation;
 @synthesize deleteConversationIfNull = _deleteConversationIfNull;
 @synthesize pageCount = _pageCount;
 @synthesize timeCellHeight = _timeCellHeight;
 
-- (instancetype)initWithConversationModel:(id<IConversationModel>)conversationModel
+- (instancetype)initWithConversation:(EMConversation *)conversation
 {
-    if (!conversationModel) {
+    if (!conversation) {
         return nil;
     }
     
     self = [super initWithStyle:UITableViewStylePlain];
     if (self) {
-        _conversationModel = conversationModel;
-        [_conversationModel.conversation markAllMessagesAsRead:YES];
+        _conversation = conversation;
+        [_conversation markAllMessagesAsRead:YES];
         
         _pageCount = 50;
         _timeCellHeight = 30;
@@ -43,7 +43,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    self.title = self.conversationModel.title;
     
     [self registerEaseMobNotification];
 }
@@ -84,6 +83,7 @@
             timeCell.selectionStyle = UITableViewCellSelectionStyleNone;
         }
         
+        timeCell.title = object;
         return timeCell;
     }
     else{
@@ -93,7 +93,7 @@
         
         // Configure the cell...
         if (cell == nil) {
-            cell = [[EMMessageCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+            cell = [[EMMessageCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier isSender:model.isSender];
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
         }
         

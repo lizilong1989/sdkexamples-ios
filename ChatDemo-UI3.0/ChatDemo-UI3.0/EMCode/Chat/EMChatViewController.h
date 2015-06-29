@@ -16,7 +16,7 @@
 
 @interface EMChatViewController : EMRefreshTableViewController<IChatManagerDelegate, EMCallManagerCallDelegate>
 
-@property (strong, nonatomic, readonly) id<IConversationModel> conversationModel;
+@property (strong, nonatomic, readonly) EMConversation *conversation;
 
 @property (nonatomic) BOOL deleteConversationIfNull;
 
@@ -24,6 +24,6 @@
 
 @property (nonatomic) CGFloat timeCellHeight;
 
-- (instancetype)initWithConversationModel:(id<IConversationModel>)conversationModel;
+- (instancetype)initWithConversation:(EMConversation *)conversation;
 
 @end
