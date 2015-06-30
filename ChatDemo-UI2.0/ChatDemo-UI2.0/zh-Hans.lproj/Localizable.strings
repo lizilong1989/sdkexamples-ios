@@ -1,16 +1,22 @@
-/* 
-  Localizable.strings
-  ChatDemo-UI2.0
+/************************************************************
+ *  * EaseMob CONFIDENTIAL
+ * __________________
+ * Copyright (C) 2013-2014 EaseMob Technologies. All rights reserved.
+ *
+ * NOTICE: All information contained herein is, and remains
+ * the property of EaseMob Technologies.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from EaseMob Technologies.
+ */
 
-  Created by dhcdht on 15-1-20.
-  Copyright (c) 2015年 dhcdht. All rights reserved.
-*/
 //general
 "register" = "注册";
 "login" = "登录";
 "logout" = "登出";
 "password" = "密码";
 "username" = "个人账户";
+"confirmpassword"="确认密码";
 
 "ok" = "确定";
 "yes" = "是";
@@ -18,6 +24,7 @@
 "no" = "否";
 
 "search" = "搜索";
+"searching" = "正在搜索";
 "error" = "错误";
 "delete" = "删除";
 "copy" = "复制";
@@ -30,12 +37,14 @@
 "choose" = "选择";
 "accept" = "接受";
 "reject" = "拒绝";
+"wait" = "请等待...";
 
 "sendingApply" = "正在发送申请...";
 "acceptFail" = "接受失败";
 "rejectFail" = "拒绝失败";
 "refreshData" = "刷新数据...";
 "loadData" = "加载数据...";
+"loadDataFailed" = "加载数据失败";
 "saySomething" = "说点啥子吧";
 "searchResults" = "搜索结果";
 "doneWithCount" = "确定(%i)";
@@ -44,6 +53,10 @@
 "receiveMessage" = "您有一条新消息";
 "loginAtOtherDevice" = "你的账号已在其他地方登录";
 "loginUserRemoveFromServer" = "你的账号已被从服务器端移除";
+"deleteFailed" = "删除失败:%@";
+"notFound" = "没有找到";
+"noMore" = "没有更多数据了";
+"hasRead" = "已读";
 
 //app
 "AppName" = "环信Demo";
@@ -51,6 +64,15 @@
 //error des
 "error.connectServerFail" = "连接服务器失败!";
 "error.connectServerTimeout" = "连接服务器超时!";
+"error.connectNetworkFail" = "网络未连接!";
+"error.notFound" = "文件路径不存在";
+"error.initPlayerFail" = "初始化AVAudioPlayer失败!";
+"error.palyFail" = "播放失败!";
+"error.conversionFail" = "初始化AVAudioRecorder失败";
+"error.initRecorderFail" = "文件格式转换失败";
+"error.recordStoping" = "语音录制还没有结束";
+"error.recordNotBegin" = "还没有开始语音录制";
+"error.recordTooShort" = "录制时间过短";
 
 //login
 "login.beginAutoLogin" = "自动登录开始...";
@@ -67,10 +89,12 @@
 "register.fail" = "注册失败";
 "register.success" = "注册成功，请登陆";
 "register.repeat" = "您注册的用户已存在!";
+"register.confirmPassword" = "两次输入密码不一致,请重新输入";
 
 //apns
 "apns.failToRegisterApns" = "注册推送失败";
 "apns.failToBindDeviceToken" = "消息推送与设备绑定失败";
+"apns.content" = "推送内容";
 
 //friend
 "friend.add" = "添加好友";
@@ -123,9 +147,12 @@
 "group.create.occupantJoinPermissions" = "成员加入权限";
 "group.create.open" = "随便加入";
 "group.create.needApply" = "加入群组需要管理员同意";
+"group.create.group" = "新建群聊";
+"group.create.join" = "添加公开群";
 
 //Group Bans
 "group.ban.removing" = "正在将成员移出黑名单...";
+"group.ban.adding" = "正在将成员加入黑名单...";
 "group.ban.fetching" = "获取群组黑名单...";
 "group.ban.fetchFail" = "获取黑名单失败: %@";
 
@@ -140,6 +167,7 @@
 "group.removingOccupant" = "正在删除成员...";
 "group.destroyFail" = "解散群组失败";
 "group.leaveFail" = "退出群组失败";
+"group.addOccupantFail" = "添加群成员失败, 请稍后再试";
 
 //Group Setting
 "group.setting.receiveAndPrompt" = "接收并提示群消息";
@@ -148,6 +176,47 @@
 "group.setting.save" = "设置属性";
 "group.setting.success" = "设置成功";
 "group.setting.fail" = "设置失败";
+"group.setting.subject" = "请输入群组名称";
+
+//Chatroom detail
+"chatroom.somebodyInvite" = "%@ 邀请你加入聊天室\'%@\'";
+"chatroom.id" = "聊天室Id";
+"chatroom.occupantCount" = "聊天室人数";
+"chatroom.description" = "描述";
+"chatroom.joining" = "正在加入...";
+"chatroom.fetchInfoFail" = "获取聊天室详情失败";
+"chatroom.joinFailed" = "加入聊天室\'%@\'失败";
+"chatroom.join" = "\'%@\'加入聊天室\'%@\'";
+"chatroom.leave" = "\'%@\'离开聊天室\'%@\'";
+"chatroom.remove" = "被踢出聊天室\'%@\'";
+
+//call
+"call.initFailed"="通话建立失败";
+"call.waiting"="等待接听...";
+"call.connecting"="正在建立连接...";
+"call.silence"="静音";
+"call.speaker"="免提";
+"call.reject"="拒接";
+"call.answer"="接听";
+"call.hangup"="挂断";
+"call.connectFailed"="建立连接失败";
+"call.failed"="通话失败";
+"call.suspended"="通话已挂断";
+"call.over"="通话结束";
+"call.cancel"="取消通话";
+"call.rejected"="拒接通话";
+"call.in"="正在通话中...";
+"call.speak"="可以说话了...";
+"call.speak.relay"="可以说话了...Relay";
+"call.speak.direct"="可以说话了...Direct";
+"call.init"="正在初始化通话...";
+"call.dealloc"="正在结束通话...";
+"call.videoWidth"="宽度: ";
+"call.videoHeight"="宽度: ";
+"call.videoTimedelay"="延迟: ";
+"call.videoFramerate"="帧率: ";
+"call.videoLostcnt"="丢包数: ";
+"call.videoBitrate"="比特率: ";
 
 //message
 "message.image" = "图片";
@@ -176,6 +245,10 @@
 "message.simulatorNotSupportVideo" = "模拟器不支持录像";
 "message.startRecordFail" = "开始录音失败";
 "message.noMessage" = "消息已经清空";
+"message.forbiddenWords" = "你的消息包含不当言论";
+
+//media
+"media.timeShort" = "录音时间太短了";
 
 //network
 "network.disconnection" = "当前网络连接失败";
@@ -197,6 +270,8 @@
 "title.addressbook" = "通讯录";
 "title.setting" = "设置";
 "title.group" = "群组";
+"title.chatroom" = "聊天室";
+"title.mychatroom" = "我的聊天室";
 "title.chooseContact" = "选择联系人";
 "title.debug" = "诊断";
 "title.groupBlackList" = "群组黑名单";
@@ -208,6 +283,7 @@
 "title.apply" = "申请与通知";
 "title.groupApply" = "群组通知";
 "title.groupSubjectChanging" = "修改群名称";
+"title.chatroomlist" = "聊天室列表";
 
 //setting
 "setting.autoLogin" = "自动登录";
@@ -225,6 +301,18 @@
 "setting.sdkVersion" = "SDK 版本";
 "setting.uploading" = "正在上传...";
 "setting.uploadSuccess" = "上传成功";
+"setting.editName" = "更改昵称";
+"setting.inputName" = "请输入新昵称";
+"setting.saveName" = "保存更改昵称";
+"setting.namenotempty" = "昵称不能为空";
+"setting.edittips" = "设置此昵称以后,在与iOS客户端demo聊天工程中,iOS一侧会显示此昵称而不是环信ID,如果对方使用安卓客户端则此设置不生效";
+"setting.iospushname" = "iOS离线推送昵称";
+"setting.useIp" = "使用IP";
+"setting.deleteConWhenLeave" = "退群时删除会话";
+"setting.microphoneNoAuthority" = "未获得授权使用麦克风";
+"setting.microphoneAuthority" = "请在iOS\"设置中\"-\"隐私\"-\"麦克风\"中打开";
+"setting.cameraNoAuthority" = "未获得授权使用相机";
+"setting.cameraAuthority" = "请在iOS\"设置中\"-\"隐私\"-\"相机\"中打开";
 
 //NSDateCategory
 "NSDateCategory.text1" = "1分钟内";

@@ -37,7 +37,7 @@
                                                object:nil];
     
     if ([UIDevice currentDevice].systemVersion.floatValue >= 7.0) {
-        [[UINavigationBar appearance] setBarTintColor:RGBACOLOR(78, 188, 211, 1)];
+        [[UINavigationBar appearance] setBarTintColor:RGBACOLOR(30, 167, 252, 1)];
         [[UINavigationBar appearance] setTitleTextAttributes:
          [NSDictionary dictionaryWithObjectsAndKeys:RGBACOLOR(245, 245, 245, 1), NSForegroundColorAttributeName, [UIFont fontWithName:@ "HelveticaNeue-CondensedBlack" size:21.0], NSFontAttributeName, nil]];
     }
@@ -64,7 +64,7 @@
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification
 {
     if (_mainController) {
-        [_mainController jumpToChatList];
+        [_mainController didReceiveLocalNotification:notification];
     }
 }
 

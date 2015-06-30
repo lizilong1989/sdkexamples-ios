@@ -12,6 +12,7 @@
 
 #import "MessageReadManager.h"
 #import "UIImageView+EMWebCache.h"
+#import "EMCDDeviceManager.h"
 
 static MessageReadManager *detailInstance = nil;
 
@@ -155,10 +156,8 @@ static MessageReadManager *detailInstance = nil;
         if (isPlaying) {
             messageModel.isPlaying = NO;
             self.audioMessageModel = nil;
-//            prevAudioModel.isPlaying = NO;
             currentAudioModel = nil;
-            
-            [[EaseMob sharedInstance].chatManager stopPlayingAudio];
+            [[EMCDDeviceManager sharedInstance] stopPlaying];
         }
         else {
             messageModel.isPlaying = YES;

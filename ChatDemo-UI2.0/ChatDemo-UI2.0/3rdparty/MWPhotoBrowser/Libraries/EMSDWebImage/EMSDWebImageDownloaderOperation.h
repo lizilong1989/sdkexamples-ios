@@ -55,6 +55,6 @@
               options:(EMSDWebImageDownloaderOptions)options
              progress:(EMSDWebImageDownloaderProgressBlock)progressBlock
             completed:(EMSDWebImageDownloaderCompletedBlock)completedBlock
-            cancelled:(SDWebImageNoParamsBlock)cancelBlock;
+            cancelled:(EMSDWebImageNoParamsBlock)cancelBlock;
 
 @end

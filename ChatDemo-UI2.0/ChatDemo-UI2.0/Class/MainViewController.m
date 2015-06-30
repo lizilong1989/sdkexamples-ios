@@ -18,17 +18,20 @@
 #import "SettingsViewController.h"
 #import "ApplyViewController.h"
 #import "CallViewController.h"
-
+#import "ChatViewController.h"
+#import "EMCDDeviceManager.h"
 //两次提示的默认间隔
 static const CGFloat kDefaultPlaySoundInterval = 3.0;
+static NSString *kMessageType = @"MessageType";
+static NSString *kConversationChatter = @"ConversationChatter";
+static NSString *kGroupName = @"GroupName";
 
 @interface MainViewController () <UIAlertViewDelegate, IChatManagerDelegate, EMCallManagerDelegate>
 {
     ChatListViewController *_chatListVC;
     ContactsViewController *_contactsVC;
     SettingsViewController *_settingsVC;
-    
-    EMCallSession *_callSession;
+//    __weak CallViewController *_callController;
     
     UIBarButtonItem *_addFriendItem;
 }
@@ -130,13 +133,13 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
     [self unregisterNotifications];
     
     [[EaseMob sharedInstance].chatManager addDelegate:self delegateQueue:nil];
-    [[EMSDKFull sharedInstance].callManager addDelegate:self delegateQueue:nil];
+    [[EaseMob sharedInstance].callManager addDelegate:self delegateQueue:nil];
 }
 
 -(void)unregisterNotifications
 {
     [[EaseMob sharedInstance].chatManager removeDelegate:self];
-    [[EMSDKFull sharedInstance].callManager removeDelegate:self];
+    [[EaseMob sharedInstance].callManager removeDelegate:self];
 }
 
 - (void)setupSubviews
@@ -188,7 +191,7 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
 {
     [tabBarItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:
                                         [UIFont systemFontOfSize:14],
-                                        UITextAttributeFont,[UIColor colorWithRed:0.393 green:0.553 blue:1.000 alpha:1.000],UITextAttributeTextColor,
+                                        UITextAttributeFont,RGBACOLOR(0x00, 0xac, 0xff, 1),UITextAttributeTextColor,
                                         nil] forState:UIControlStateSelected];
 }
 
@@ -230,26 +233,57 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
     [_chatListVC networkChanged:connectionState];
 }
 
+#pragma mark - call
+
+- (BOOL)canRecord
+{
+    __block BOOL bCanRecord = YES;
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+    if ([[[UIDevice currentDevice] systemVersion] compare:@"7.0"] != NSOrderedAscending)
+    {
+        if ([audioSession respondsToSelector:@selector(requestRecordPermission:)]) {
+            [audioSession performSelector:@selector(requestRecordPermission:) withObject:^(BOOL granted) {
+                bCanRecord = granted;
+            }];
+        }
+    }
+    
+    if (!bCanRecord) {
+        UIAlertView * alt = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"setting.microphoneNoAuthority", @"No microphone permissions") message:NSLocalizedString(@"setting.microphoneAuthority", @"Please open in \"Setting\"-\"Privacy\"-\"Microphone\".") delegate:self cancelButtonTitle:nil otherButtonTitles:NSLocalizedString(@"ok", @"OK"), nil];
+        [alt show];
+    }
+    
+    return bCanRecord;
+}
+
 - (void)callOutWithChatter:(NSNotification *)notification
 {
     id object = notification.object;
-    if ([object isKindOfClass:[NSString class]]) {
+    if ([object isKindOfClass:[NSDictionary class]]) {
+        if (![self canRecord]) {
+            return;
+        }
         
         EMError *error = nil;
-        if (_callSession) {
-            error = [EMError errorWithCode:EMErrorServerTooManyOperations andDescription:@"正在进行通话"];
+        NSString *chatter = [object objectForKey:@"chatter"];
+        EMCallSessionType type = [[object objectForKey:@"type"] intValue];
+        EMCallSession *callSession = nil;
+        if (type == eCallSessionTypeAudio) {
+            callSession = [[EaseMob sharedInstance].callManager asyncMakeVoiceCall:chatter timeout:50 error:&error];
         }
-        else{
-            NSString *chatter = (NSString *)object;
-            EMCallSession *callSession = [[EMSDKFull sharedInstance].callManager asyncMakeVoiceCall:chatter timeout:50 error:&error];
-            
-            if (callSession && !error) {
-                [[EMSDKFull sharedInstance].callManager removeDelegate:self];
-                
-                CallViewController *callController = [[CallViewController alloc] initWithNibName:nil bundle:nil];
-                [callController showWithSession:callSession isIncoming:NO];
-                [self presentViewController:callController animated:YES completion:nil];
+        else if (type == eCallSessionTypeVideo){
+            if (![CallViewController canVideo]) {
+                return;
             }
+            callSession = [[EaseMob sharedInstance].callManager asyncMakeVideoCall:chatter timeout:50 error:&error];
+        }
+        
+        if (callSession && !error) {
+            [[EaseMob sharedInstance].callManager removeDelegate:self];
+            
+            CallViewController *callController = [[CallViewController alloc] initWithSession:callSession isIncoming:NO];
+            callController.modalPresentationStyle = UIModalPresentationOverFullScreen;
+            [self presentViewController:callController animated:NO completion:nil];
         }
         
         if (error) {
@@ -261,8 +295,11 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
 
 - (void)callControllerClose:(NSNotification *)notification
 {
-    _callSession = nil;
-    [[EMSDKFull sharedInstance].callManager addDelegate:self delegateQueue:nil];
+//    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+//    [audioSession setCategory:AVAudioSessionCategoryPlayback error:nil];
+//    [audioSession setActive:YES error:nil];
+ 
+    [[EaseMob sharedInstance].callManager addDelegate:self delegateQueue:nil];
 }
 
 #pragma mark - IChatManagerDelegate 消息变化
@@ -306,7 +343,7 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
 // 收到消息回调
 -(void)didReceiveMessage:(EMMessage *)message
 {
-    BOOL needShowNotification = message.isGroup ? [self needShowNotification:message.conversationChatter] : YES;
+    BOOL needShowNotification = (message.messageType != eMessageTypeChat) ? [self needShowNotification:message.conversationChatter] : YES;
     if (needShowNotification) {
 #if !TARGET_IPHONE_SIMULATOR
         
@@ -338,9 +375,9 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
     self.lastPlaySoundDate = [NSDate date];
     
     // 收到消息时，播放音频
-    [[EaseMob sharedInstance].deviceManager asyncPlayNewMessageSound];
+    [[EMCDDeviceManager sharedInstance] playNewMessageSound];
     // 收到消息时，震动
-    [[EaseMob sharedInstance].deviceManager asyncPlayVibration];
+    [[EMCDDeviceManager sharedInstance] playVibration];
 }
 
 - (void)showNotificationWithMessage:(EMMessage *)message
@@ -383,13 +420,24 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
         }
         
         NSString *title = message.from;
-        if (message.isGroup) {
+        if (message.messageType == eMessageTypeGroupChat) {
             NSArray *groupArray = [[EaseMob sharedInstance].chatManager groupList];
             for (EMGroup *group in groupArray) {
                 if ([group.groupId isEqualToString:message.conversationChatter]) {
                     title = [NSString stringWithFormat:@"%@(%@)", message.groupSenderName, group.groupSubject];
                     break;
                 }
+            }
+        }
+        else if (message.messageType == eMessageTypeChatRoom)
+        {
+            NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+            NSString *key = [NSString stringWithFormat:@"OnceJoinedChatrooms_%@", [[[EaseMob sharedInstance].chatManager loginInfo] objectForKey:@"username" ]];
+            NSMutableDictionary *chatrooms = [NSMutableDictionary dictionaryWithDictionary:[ud objectForKey:key]];
+            NSString *chatroomName = [chatrooms objectForKey:message.conversationChatter];
+            if (chatroomName)
+            {
+                title = [NSString stringWithFormat:@"%@(%@)", message.groupSenderName, chatroomName];
             }
         }
         
@@ -405,6 +453,12 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
     notification.alertAction = NSLocalizedString(@"open", @"Open");
     notification.timeZone = [NSTimeZone defaultTimeZone];
     notification.soundName = UILocalNotificationDefaultSoundName;
+    
+    NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+    [userInfo setObject:[NSNumber numberWithInt:message.messageType] forKey:kMessageType];
+    [userInfo setObject:message.conversationChatter forKey:kConversationChatter];
+    notification.userInfo = userInfo;
+    
     //发送通知
     [[UIApplication sharedApplication] scheduleLocalNotification:notification];
 //    UIApplication *application = [UIApplication sharedApplication];
@@ -451,17 +505,56 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
     [_contactsVC reloadApplyView];
 }
 
+- (void)_removeBuddies:(NSArray *)userNames
+{
+    [[EaseMob sharedInstance].chatManager removeConversationsByChatters:userNames deleteMessages:YES append2Chat:YES];
+    [_chatListVC refreshDataSource];
+    
+    NSMutableArray *viewControllers = [NSMutableArray arrayWithArray:self.navigationController.viewControllers];
+    ChatViewController *chatViewContrller = nil;
+    for (id viewController in viewControllers)
+    {
+        if ([viewController isKindOfClass:[ChatViewController class]] && [userNames containsObject:[(ChatViewController *)viewController chatter]])
+        {
+            chatViewContrller = viewController;
+            break;
+        }
+    }
+    if (chatViewContrller)
+    {
+        [viewControllers removeObject:chatViewContrller];
+        [self.navigationController setViewControllers:viewControllers animated:YES];
+    }
+    [self showHint:[NSString stringWithFormat:@"%@ %@", NSLocalizedString(@"delete", @"delete"), userNames[0]]];
+}
+
 - (void)didUpdateBuddyList:(NSArray *)buddyList
             changedBuddies:(NSArray *)changedBuddies
                      isAdd:(BOOL)isAdd
 {
+    if (!isAdd)
+    {
+        NSMutableArray *deletedBuddies = [NSMutableArray array];
+        for (EMBuddy *buddy in changedBuddies)
+        {
+            if ([buddy.username length])
+            {
+                [deletedBuddies addObject:buddy.username];
+            }
+        }
+        if (![deletedBuddies count])
+        {
+            return;
+        }
+        
+        [self _removeBuddies:deletedBuddies];
+    }
     [_contactsVC reloadDataSource];
 }
 
 - (void)didRemovedByBuddy:(NSString *)username
 {
-    [[EaseMob sharedInstance].chatManager removeConversationByChatter:username deleteMessages:YES append2Chat:YES];
-    [_chatListVC refreshDataSource];
+    [self _removeBuddies:@[username]];
     [_contactsVC reloadDataSource];
 }
 
@@ -522,7 +615,17 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
 - (void)didReceiveAcceptApplyToJoinGroup:(NSString *)groupId
                                groupname:(NSString *)groupname
 {
-    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"group.agreedToJoin", @"agreed to join the group of \'%@\'"), groupname];
+    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"group.agreedAndJoined", @"agreed to join the group of \'%@\'"), groupname];
+    [self showHint:message];
+}
+
+#pragma mark - IChatManagerDelegate 收到聊天室邀请
+
+- (void)didReceiveChatroomInvitationFrom:(NSString *)chatroomId
+                              inviter:(NSString *)username
+                              message:(NSString *)message
+{
+    message = [NSString stringWithFormat:NSLocalizedString(@"chatroom.somebodyInvite", @"%@ invite you to join chatroom \'%@\'"), username, chatroomId];
     [self showHint:message];
 }
 
@@ -547,10 +650,15 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
     } onQueue:nil];
 }
 
-//- (void)didConnectionStateChanged:(EMConnectionState)connectionState
-//{
-//    [_chatListVC networkChanged:connectionState];
-//}
+- (void)didServersChanged
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATION_LOGINCHANGE object:@NO];
+}
+
+- (void)didAppkeyChanged
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATION_LOGINCHANGE object:@NO];
+}
 
 #pragma mark - 自动登录回调
 
@@ -575,20 +683,40 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
     if (callSession.status == eCallSessionStatusConnected)
     {
         EMError *error = nil;
-        BOOL isShowPicker = [[[NSUserDefaults standardUserDefaults] objectForKey:@"isShowPicker"] boolValue];
+        do {
+            BOOL isShowPicker = [[[NSUserDefaults standardUserDefaults] objectForKey:@"isShowPicker"] boolValue];
+            if (isShowPicker) {
+                error = [EMError errorWithCode:EMErrorInitFailure andDescription:NSLocalizedString(@"call.initFailed", @"Establish call failure")];
+                break;
+            }
+            
+            if (![self canRecord]) {
+                error = [EMError errorWithCode:EMErrorInitFailure andDescription:NSLocalizedString(@"call.initFailed", @"Establish call failure")];
+                break;
+            }
+            
+#warning 在后台不能进行视频通话
+            if(callSession.type == eCallSessionTypeVideo && ([[UIApplication sharedApplication] applicationState] != UIApplicationStateActive || ![CallViewController canVideo])){
+                error = [EMError errorWithCode:EMErrorInitFailure andDescription:NSLocalizedString(@"call.initFailed", @"Establish call failure")];
+                break;
+            }
+            
+            if (!isShowPicker){
+                [[EaseMob sharedInstance].callManager removeDelegate:self];
+                CallViewController *callController = [[CallViewController alloc] initWithSession:callSession isIncoming:YES];
+                callController.modalPresentationStyle = UIModalPresentationOverFullScreen;
+                [self presentViewController:callController animated:NO completion:nil];
+                if ([self.navigationController.topViewController isKindOfClass:[ChatViewController class]])
+                {
+                    ChatViewController *chatVc = (ChatViewController *)self.navigationController.topViewController;
+                    chatVc.isInvisible = YES;
+                }
+            }
+        } while (0);
         
-        if (_callSession) {
-            error = [EMError errorWithCode:EMErrorServerTooManyOperations andDescription:@"正在进行通话"];
-        }
-        else if (!isShowPicker){
-            CallViewController *callController = [[CallViewController alloc] initWithNibName:nil bundle:nil];
-            [callController showWithSession:callSession isIncoming:YES];
-            [self presentViewController:callController animated:YES completion:nil];
-        }
-        
-        if (error || isShowPicker) {
-            EMCallStatusChangedReason reason = error ? eCallReason_Busy : eCallReason_Hangup;
-            [[EMSDKFull sharedInstance].callManager asyncEndCall:callSession.sessionId reason:reason];
+        if (error) {
+            [[EaseMob sharedInstance].callManager asyncEndCall:callSession.sessionId reason:eCallReasonHangup];
+            return;
         }
     }
 }
@@ -597,7 +725,111 @@ static const CGFloat kDefaultPlaySoundInterval = 3.0;
 
 - (void)jumpToChatList
 {
-    if(_chatListVC)
+    if ([self.navigationController.topViewController isKindOfClass:[ChatViewController class]]) {
+        ChatViewController *chatController = (ChatViewController *)self.navigationController.topViewController;
+        [chatController hideImagePicker];
+    }
+    else if(_chatListVC)
+    {
+        [self.navigationController popToViewController:self animated:NO];
+        [self setSelectedViewController:_chatListVC];
+    }
+}
+
+- (EMConversationType)conversationTypeFromMessageType:(EMMessageType)type
+{
+    EMConversationType conversatinType = eConversationTypeChat;
+    switch (type) {
+        case eMessageTypeChat:
+            conversatinType = eConversationTypeChat;
+            break;
+        case eMessageTypeGroupChat:
+            conversatinType = eConversationTypeGroupChat;
+            break;
+        case eMessageTypeChatRoom:
+            conversatinType = eConversationTypeChatRoom;
+            break;
+        default:
+            break;
+    }
+    return conversatinType;
+}
+
+- (void)didReceiveLocalNotification:(UILocalNotification *)notification
+{
+    NSDictionary *userInfo = notification.userInfo;
+    if (userInfo)
+    {
+        if ([self.navigationController.topViewController isKindOfClass:[ChatViewController class]]) {
+            ChatViewController *chatController = (ChatViewController *)self.navigationController.topViewController;
+            [chatController hideImagePicker];
+        }
+        
+        NSArray *viewControllers = self.navigationController.viewControllers;
+        [viewControllers enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id obj, NSUInteger idx, BOOL *stop){
+            if (obj != self)
+            {
+                if (![obj isKindOfClass:[ChatViewController class]])
+                {
+                    [self.navigationController popViewControllerAnimated:NO];
+                }
+                else
+                {
+                    NSString *conversationChatter = userInfo[kConversationChatter];
+                    ChatViewController *chatViewController = (ChatViewController *)obj;
+                    if (![chatViewController.chatter isEqualToString:conversationChatter])
+                    {
+                        [self.navigationController popViewControllerAnimated:NO];
+                        EMMessageType messageType = [userInfo[kMessageType] intValue];
+                        chatViewController = [[ChatViewController alloc] initWithChatter:conversationChatter conversationType:[self conversationTypeFromMessageType:messageType]];
+                        switch (messageType) {
+                            case eMessageTypeGroupChat:
+                                {
+                                    NSArray *groupArray = [[EaseMob sharedInstance].chatManager groupList];
+                                    for (EMGroup *group in groupArray) {
+                                        if ([group.groupId isEqualToString:conversationChatter]) {
+                                            chatViewController.title = group.groupSubject;
+                                            break;
+                                        }
+                                    }
+                                }
+                                break;
+                            default:
+                                chatViewController.title = conversationChatter;
+                                break;
+                        }
+                        [self.navigationController pushViewController:chatViewController animated:NO];
+                    }
+                    *stop= YES;
+                }
+            }
+            else
+            {
+                ChatViewController *chatViewController = (ChatViewController *)obj;
+                NSString *conversationChatter = userInfo[kConversationChatter];
+                EMMessageType messageType = [userInfo[kMessageType] intValue];
+                chatViewController = [[ChatViewController alloc] initWithChatter:conversationChatter conversationType:[self conversationTypeFromMessageType:messageType]];
+                switch (messageType) {
+                    case eMessageTypeGroupChat:
+                    {
+                        NSArray *groupArray = [[EaseMob sharedInstance].chatManager groupList];
+                        for (EMGroup *group in groupArray) {
+                            if ([group.groupId isEqualToString:conversationChatter]) {
+                                chatViewController.title = group.groupSubject;
+                                break;
+                            }
+                        }
+                    }
+                        break;
+                    default:
+                        chatViewController.title = conversationChatter;
+                        break;
+                }
+                [self.navigationController pushViewController:chatViewController animated:NO];
+            }
+        }];
+    }
+    else if (_chatListVC)
     {
         [self.navigationController popToViewController:self animated:NO];
         [self setSelectedViewController:_chatListVC];

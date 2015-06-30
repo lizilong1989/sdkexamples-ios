@@ -1,10 +1,14 @@
-//
-//  GroupSubjectChangingViewController.m
-//  ChatDemo-UI2.0
-//
-//  Created by Neil on 15-2-25.
-//  Copyright (c) 2014年 Neil. All rights reserved.
-//
+/************************************************************
+ *  * EaseMob CONFIDENTIAL
+ * __________________
+ * Copyright (C) 2013-2014 EaseMob Technologies. All rights reserved.
+ *
+ * NOTICE: All information contained herein is, and remains
+ * the property of EaseMob Technologies.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from EaseMob Technologies.
+ */
 
 #import "GroupSubjectChangingViewController.h"
 
@@ -56,7 +60,7 @@
     _subjectField = [[UITextField alloc] initWithFrame:frame];
     _subjectField.layer.cornerRadius = 5.0;
     _subjectField.layer.borderWidth = 1.0;
-    _subjectField.placeholder = @"Please input group name";
+    _subjectField.placeholder = NSLocalizedString(@"group.setting.subject", @"Please input group name");
     _subjectField.text = _group.groupSubject;
     if (!_isOwner)
     {
