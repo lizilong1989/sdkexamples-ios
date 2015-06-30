@@ -211,6 +211,12 @@
 "call.speak.direct"="可以说话了...Direct";
 "call.init"="正在初始化通话...";
 "call.dealloc"="正在结束通话...";
+"call.videoWidth"="宽度: ";
+"call.videoHeight"="宽度: ";
+"call.videoTimedelay"="延迟: ";
+"call.videoFramerate"="帧率: ";
+"call.videoLostcnt"="丢包数: ";
+"call.videoBitrate"="比特率: ";
 
 //message
 "message.image" = "图片";

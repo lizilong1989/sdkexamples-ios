@@ -211,6 +211,12 @@
 "call.speak.direct"="Can speak...Direct";
 "call.init"="Is init the call...";
 "call.dealloc"="Is hanging up the call...";
+"call.videoWidth"="Width: ";
+"call.videoHeight"="Height: ";
+"call.videoTimedelay"="Timedelay: ";
+"call.videoFramerate"="Framerate: ";
+"call.videoLostcnt"="Lostcnt: ";
+"call.videoBitrate"="Bitrate: ";
 
 //message
 "message.image" = "image";
