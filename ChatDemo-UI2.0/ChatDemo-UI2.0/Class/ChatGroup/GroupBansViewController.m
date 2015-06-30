@@ -1,10 +1,14 @@
-//
-//  GroupBansViewController.m
-//  ChatDemo-UI2.0
-//
-//  Created by dhcdht on 14-11-11.
-//  Copyright (c) 2014年 dhcdht. All rights reserved.
-//
+/************************************************************
+ *  * EaseMob CONFIDENTIAL
+ * __________________
+ * Copyright (C) 2013-2014 EaseMob Technologies. All rights reserved.
+ *
+ * NOTICE: All information contained herein is, and remains
+ * the property of EaseMob Technologies.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from EaseMob Technologies.
+ */
 
 #import "GroupBansViewController.h"
 
@@ -198,23 +202,18 @@
 
 - (void)fetchGroupBans
 {
-    if ([_group.bans count] == 0) {
-        __weak typeof(self) weakSelf = self;
-        [self showHudInView:weakSelf.view hint:NSLocalizedString(@"group.ban.fetching", @"getting group blacklist...")];
-        [[EaseMob sharedInstance].chatManager asyncFetchGroupBansList:_group.groupId completion:^(NSArray *groupBans, EMError *error) {
-            [weakSelf hideHud];
-            if (!error) {
-                [weakSelf refreshScrollView];
-            }
-            else{
-                NSString *errorStr = [NSString stringWithFormat:NSLocalizedString(@"group.ban.fetchFail", @"fail to get blacklist: %@"), error.description];
-                [weakSelf showHint:errorStr];
-            }
-        } onQueue:nil];
-    }
-    else{
-        [self refreshScrollView];
-    }
+    __weak typeof(self) weakSelf = self;
+    [self showHudInView:weakSelf.view hint:NSLocalizedString(@"group.ban.fetching", @"getting group blacklist...")];
+    [[EaseMob sharedInstance].chatManager asyncFetchGroupBansList:_group.groupId completion:^(NSArray *groupBans, EMError *error) {
+        [weakSelf hideHud];
+        if (!error) {
+            [weakSelf refreshScrollView];
+        }
+        else{
+            NSString *errorStr = [NSString stringWithFormat:NSLocalizedString(@"group.ban.fetchFail", @"fail to get blacklist: %@"), error.description];
+            [weakSelf showHint:errorStr];
+        }
+    } onQueue:nil];
 }
 
 @end

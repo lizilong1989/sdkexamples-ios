@@ -1,10 +1,14 @@
-//
-//  BlackListViewController.m
-//  ChatDemo-UI2.0
-//
-//  Created by dhcdht on 14-7-30.
-//  Copyright (c) 2014年 dhcdht. All rights reserved.
-//
+/************************************************************
+ *  * EaseMob CONFIDENTIAL
+ * __________________
+ * Copyright (C) 2013-2014 EaseMob Technologies. All rights reserved.
+ *
+ * NOTICE: All information contained herein is, and remains
+ * the property of EaseMob Technologies.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from EaseMob Technologies.
+ */
 
 #import "BlackListViewController.h"
 
@@ -123,10 +127,16 @@
 {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         NSString *username = [[self.dataSource objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
-        [[EaseMob sharedInstance].chatManager unblockBuddy:username];
-        
-        [[self.dataSource objectAtIndex:indexPath.section] removeObjectAtIndex:indexPath.row];
-        [tableView reloadData];
+        EMError *error = [[EaseMob sharedInstance].chatManager unblockBuddy:username];
+        if (!error)
+        {
+            [[self.dataSource objectAtIndex:indexPath.section] removeObjectAtIndex:indexPath.row];
+            [tableView reloadData];
+        }
+        else
+        {
+            [self showHint:error.description];
+        }
     }
 }
 

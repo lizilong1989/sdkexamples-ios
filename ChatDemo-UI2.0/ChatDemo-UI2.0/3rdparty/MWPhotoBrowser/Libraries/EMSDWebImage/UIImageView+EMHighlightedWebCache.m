@@ -76,7 +76,7 @@
     [self sd_setHighlightedImageWithURL:url options:options progress:nil completed:nil];
 }
 
-- (void)setHighlightedImageWithURL:(NSURL *)url completed:(SDWebImageCompletedBlock)completedBlock {
+- (void)setHighlightedImageWithURL:(NSURL *)url completed:(EMSDWebImageCompletedBlock)completedBlock {
     [self sd_setHighlightedImageWithURL:url options:0 progress:nil completed:^(UIImage *image, NSError *error, EMSDImageCacheType cacheType, NSURL *imageURL) {
         if (completedBlock) {
             completedBlock(image, error, cacheType);
@@ -84,7 +84,7 @@
     }];
 }
 
-- (void)setHighlightedImageWithURL:(NSURL *)url options:(EMSDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock {
+- (void)setHighlightedImageWithURL:(NSURL *)url options:(EMSDWebImageOptions)options completed:(EMSDWebImageCompletedBlock)completedBlock {
     [self sd_setHighlightedImageWithURL:url options:options progress:nil completed:^(UIImage *image, NSError *error, EMSDImageCacheType cacheType, NSURL *imageURL) {
         if (completedBlock) {
             completedBlock(image, error, cacheType);
@@ -92,7 +92,7 @@
     }];
 }
 
-- (void)setHighlightedImageWithURL:(NSURL *)url options:(EMSDWebImageOptions)options progress:(EMSDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletedBlock)completedBlock {
+- (void)setHighlightedImageWithURL:(NSURL *)url options:(EMSDWebImageOptions)options progress:(EMSDWebImageDownloaderProgressBlock)progressBlock completed:(EMSDWebImageCompletedBlock)completedBlock {
     [self sd_setHighlightedImageWithURL:url options:0 progress:progressBlock completed:^(UIImage *image, NSError *error, EMSDImageCacheType cacheType, NSURL *imageURL) {
         if (completedBlock) {
             completedBlock(image, error, cacheType);

@@ -1,14 +1,35 @@
-//
-//  CallViewController.m
-//  ChatDemo-UI2.0
-//
-//  Created by dhc on 15/4/13.
-//  Copyright (c) 2015年 dhc. All rights reserved.
-//
+/************************************************************
+ *  * EaseMob CONFIDENTIAL
+ * __________________
+ * Copyright (C) 2013-2014 EaseMob Technologies. All rights reserved.
+ *
+ * NOTICE: All information contained herein is, and remains
+ * the property of EaseMob Technologies.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from EaseMob Technologies.
+ */
 
+#import <CoreTelephony/CTCallCenter.h>
+#import <CoreTelephony/CTCall.h>
 #import "CallViewController.h"
 
 #define kAlertViewTag_Close 100
+
+@interface CallViewController (){
+    NSString * _audioCategory;
+    
+    UIView *_propertyView;
+    UILabel *_widthLabel;
+    UILabel *_heightLabel;
+    UILabel *_timedelayLabel;
+    UILabel *_framerateLabel;
+    UILabel *_lostcntLabel;
+    UILabel *_bitrateLabel;
+    NSTimer *_propertyTimer;
+}
+
+@end
 
 @implementation CallViewController
 
@@ -23,7 +44,23 @@
         _timeLength = 0;
         _chatter = session.sessionChatter;
         
-        [[EMSDKFull sharedInstance].callManager addDelegate:self delegateQueue:nil];
+        [[EaseMob sharedInstance].callManager removeDelegate:self];
+        [[EaseMob sharedInstance].callManager addDelegate:self delegateQueue:nil];
+        
+        g_callCenter = [[CTCallCenter alloc] init];
+        g_callCenter.callEventHandler=^(CTCall* call)
+        {
+            if(call.callState == CTCallStateIncoming)
+            {
+                NSLog(@"Call is incoming");
+                [_timeTimer invalidate];
+                [self _stopRing];
+                
+                [[EaseMob sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReasonHangup];
+                [self _close];
+            }
+        };
+
     }
     
     return self;
@@ -40,18 +77,20 @@
         [self _initializeCamera];
         [_session startRunning];
         [self.view addGestureRecognizer:self.tapRecognizer];
+        [self.view bringSubviewToFront:_topView];
+        [self.view bringSubviewToFront:_actionView];
         
 #warning 要提前设置视频通话对方图像的显示区域
         _callSession.displayView = _openGLView;
     }
     
     if (_isIncoming) {
-        _statusLabel.text = @"等待接听...";
+        _statusLabel.text = NSLocalizedString(@"call.waiting", @"Waiting to answer...");
         [_actionView addSubview:_answerButton];
         [_actionView addSubview:_rejectButton];
     }
     else{
-        _statusLabel.text = @"正在建立连接...";
+        _statusLabel.text = NSLocalizedString(@"call.connecting", @"Connecting...");
         [_actionView addSubview:_hangupButton];
     }
 }
@@ -63,16 +102,48 @@
 
 - (void)dealloc
 {
-    [[EMSDKFull sharedInstance].callManager removeDelegate:self];
+    if (_session) {
+        [_session stopRunning];
+        [_session removeInput:_captureInput];
+        [_session removeOutput:_captureOutput];
+        _session = nil;
+    }
     
-    [_ringPlayer stop];
-    _ringPlayer = nil;
+    if (_ringPlayer) {
+        [_ringPlayer stop];
+        _ringPlayer = nil;
+    }
     
-    [_timeTimer invalidate];
-    _timeTimer = nil;
+    if (_timeTimer) {
+        [_timeTimer invalidate];
+        _timeTimer = nil;
+    }
     
-    [_session stopRunning];
-    _session = nil;
+    if (_propertyTimer) {
+        [_propertyTimer invalidate];
+        _propertyTimer = nil;
+    }
+    
+    if (_smallView) {
+        [_smallCaptureLayer removeFromSuperlayer];
+        _smallCaptureLayer = nil;
+        _smallView = nil;
+    }
+    
+    if (_propertyView) {
+        _propertyView = nil;
+    }
+    
+    if (_openGLView) {
+        _openGLView = nil;
+    }
+    
+    if (_imageDataBuffer) {
+        free(_imageDataBuffer);
+        _imageDataBuffer = nil;
+    }
+    
+    [[EaseMob sharedInstance].callManager removeDelegate:self];
 }
 
 #pragma makr - property
@@ -102,34 +173,38 @@
     bgImageView.image = [UIImage imageNamed:@"callBg.png"];
     [self.view addSubview:bgImageView];
     
-    _statusLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 20, self.view.frame.size.width - 20, 20)];
+    _topView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 150)];
+    _topView.backgroundColor = [UIColor clearColor];
+    [self.view addSubview:_topView];
+    
+    _statusLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 20, _topView.frame.size.width - 20, 20)];
     _statusLabel.font = [UIFont systemFontOfSize:15.0];
     _statusLabel.backgroundColor = [UIColor clearColor];
     _statusLabel.textColor = [UIColor whiteColor];
     _statusLabel.textAlignment = NSTextAlignmentCenter;
-    [self.view addSubview:self.statusLabel];
+    [_topView addSubview:self.statusLabel];
     
-    _timeLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_statusLabel.frame), self.view.frame.size.width, 15)];
+    _timeLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_statusLabel.frame), _topView.frame.size.width, 15)];
     _timeLabel.font = [UIFont systemFontOfSize:12.0];
     _timeLabel.backgroundColor = [UIColor clearColor];
     _timeLabel.textColor = [UIColor whiteColor];
     _timeLabel.textAlignment = NSTextAlignmentCenter;
-    [self.view addSubview:_timeLabel];
+    [_topView addSubview:_timeLabel];
     
-    _headerImageView = [[UIImageView alloc] initWithFrame:CGRectMake((self.view.frame.size.width - 50) / 2, CGRectGetMaxY(_statusLabel.frame) + 20, 50, 50)];
+    _headerImageView = [[UIImageView alloc] initWithFrame:CGRectMake((_topView.frame.size.width - 50) / 2, CGRectGetMaxY(_statusLabel.frame) + 20, 50, 50)];
     _headerImageView.image = [UIImage imageNamed:@"chatListCellHead"];
-    [self.view addSubview:_headerImageView];
+    [_topView addSubview:_headerImageView];
     
-    _nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_headerImageView.frame) + 5, self.view.frame.size.width, 20)];
+    _nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_headerImageView.frame) + 5, _topView.frame.size.width, 20)];
     _nameLabel.font = [UIFont systemFontOfSize:14.0];
     _nameLabel.backgroundColor = [UIColor clearColor];
     _nameLabel.textColor = [UIColor whiteColor];
     _nameLabel.textAlignment = NSTextAlignmentCenter;
     _nameLabel.text = _chatter;
-    [self.view addSubview:_nameLabel];
+    [_topView addSubview:_nameLabel];
     
     _actionView = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height - 180, self.view.frame.size.width, 180)];
-    _actionView.backgroundColor = [UIColor colorWithWhite:0.5 alpha:0.5];
+    _actionView.backgroundColor = [UIColor clearColor];
     [self.view addSubview:_actionView];
 
     CGFloat tmpWidth = _actionView.frame.size.width / 2;
@@ -138,97 +213,137 @@
     [_silenceButton setImage:[UIImage imageNamed:@"call_silence_h"] forState:UIControlStateSelected];
     [_silenceButton addTarget:self action:@selector(silenceAction) forControlEvents:UIControlEventTouchUpInside];
     
-    _silenceLabel = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMinX(_silenceButton.frame), CGRectGetMaxY(_silenceButton.frame) + 5, 40, 20)];
+    _silenceLabel = [[UILabel alloc] initWithFrame:CGRectMake(30, CGRectGetMaxY(_silenceButton.frame) + 5, tmpWidth - 60, 20)];
     _silenceLabel.backgroundColor = [UIColor clearColor];
     _silenceLabel.textColor = [UIColor whiteColor];
     _silenceLabel.font = [UIFont systemFontOfSize:13.0];
     _silenceLabel.textAlignment = NSTextAlignmentCenter;
-    _silenceLabel.text = @"静音";
+    _silenceLabel.text = NSLocalizedString(@"call.silence", @"Silence");
     
     _speakerOutButton = [[UIButton alloc] initWithFrame:CGRectMake(tmpWidth + (tmpWidth - 40) / 2, _silenceButton.frame.origin.y, 40, 40)];
     [_speakerOutButton setImage:[UIImage imageNamed:@"call_out"] forState:UIControlStateNormal];
     [_speakerOutButton setImage:[UIImage imageNamed:@"call_out_h"] forState:UIControlStateSelected];
     [_speakerOutButton addTarget:self action:@selector(speakerOutAction) forControlEvents:UIControlEventTouchUpInside];
     
-    _speakerOutLabel = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMinX(_speakerOutButton.frame), CGRectGetMaxY(_speakerOutButton.frame) + 5, 40, 20)];
+    _speakerOutLabel = [[UILabel alloc] initWithFrame:CGRectMake(tmpWidth + 30, CGRectGetMaxY(_speakerOutButton.frame) + 5, tmpWidth - 60, 20)];
     _speakerOutLabel.backgroundColor = [UIColor clearColor];
     _speakerOutLabel.textColor = [UIColor whiteColor];
     _speakerOutLabel.font = [UIFont systemFontOfSize:13.0];
     _speakerOutLabel.textAlignment = NSTextAlignmentCenter;
-    _speakerOutLabel.text = @"免提";
+    _speakerOutLabel.text = NSLocalizedString(@"call.speaker", @"Speaker");
     
     _rejectButton = [[UIButton alloc] initWithFrame:CGRectMake((tmpWidth - 100) / 2, CGRectGetMaxY(_speakerOutLabel.frame) + 30, 100, 40)];
-    [_rejectButton setTitle:@"拒接" forState:UIControlStateNormal];
+    [_rejectButton setTitle:NSLocalizedString(@"call.reject", @"Reject") forState:UIControlStateNormal];
     [_rejectButton setBackgroundColor:[UIColor colorWithRed:191 / 255.0 green:48 / 255.0 blue:49 / 255.0 alpha:1.0]];;
     [_rejectButton addTarget:self action:@selector(rejectAction) forControlEvents:UIControlEventTouchUpInside];
     
     _answerButton = [[UIButton alloc] initWithFrame:CGRectMake(tmpWidth + (tmpWidth - 100) / 2, _rejectButton.frame.origin.y, 100, 40)];
-    [_answerButton setTitle:@"接听" forState:UIControlStateNormal];
+    [_answerButton setTitle:NSLocalizedString(@"call.answer", @"Answer") forState:UIControlStateNormal];
     [_answerButton setBackgroundColor:[UIColor colorWithRed:191 / 255.0 green:48 / 255.0 blue:49 / 255.0 alpha:1.0]];;
     [_answerButton addTarget:self action:@selector(answerAction) forControlEvents:UIControlEventTouchUpInside];
     
     _hangupButton = [[UIButton alloc] initWithFrame:CGRectMake((self.view.frame.size.width - 200) / 2, _rejectButton.frame.origin.y, 200, 40)];
-    [_hangupButton setTitle:@"挂断" forState:UIControlStateNormal];
+    [_hangupButton setTitle:NSLocalizedString(@"call.hangup", @"Hangup") forState:UIControlStateNormal];
     [_hangupButton setBackgroundColor:[UIColor colorWithRed:191 / 255.0 green:48 / 255.0 blue:49 / 255.0 alpha:1.0]];;
     [_hangupButton addTarget:self action:@selector(hangupAction) forControlEvents:UIControlEventTouchUpInside];
 }
 
 - (void)_initializeCamera
 {
-    if (_smallView == nil) {
-        CGFloat width = 100;
-        CGFloat height = 100;
-        _smallView = [[UIView alloc] initWithFrame:CGRectMake(200, 50, width, height)];
-        _smallView.backgroundColor = [UIColor redColor];
-        [self.view addSubview:_smallView];
-        
-        //1.创建会话层
-        _session = [[AVCaptureSession alloc] init];
-        [_session setSessionPreset:AVCaptureSessionPreset352x288];
-        
-        //2.创建、配置输入设备
-        AVCaptureDevice *device;
-        NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
-        for (AVCaptureDevice *tmp in devices)
+    //1.大窗口显示层
+    _openGLView = [[OpenGLView20 alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
+    _openGLView.backgroundColor = [UIColor clearColor];
+    _openGLView.sessionPreset = AVCaptureSessionPreset352x288;
+    [self.view addSubview:_openGLView];
+    
+    //2.小窗口视图
+    CGFloat width = 80;
+    CGFloat height = _openGLView.frame.size.height / _openGLView.frame.size.width * width;
+    _smallView = [[UIView alloc] initWithFrame:CGRectMake(self.view.frame.size.width - 90, CGRectGetMaxY(_statusLabel.frame), width, height)];
+    _smallView.backgroundColor = [UIColor clearColor];
+    [self.view addSubview:_smallView];
+    
+    //3.创建会话层
+    _session = [[AVCaptureSession alloc] init];
+    [_session setSessionPreset:_openGLView.sessionPreset];
+    
+    //4.创建、配置输入设备
+    AVCaptureDevice *device;
+    NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+    for (AVCaptureDevice *tmp in devices)
+    {
+        if (tmp.position == AVCaptureDevicePositionFront)
         {
-            if (tmp.position == AVCaptureDevicePositionFront)
-            {
-                device = tmp;
-                break;
-            }
+            device = tmp;
+            break;
         }
-        
-        AVCaptureDeviceInput *captureInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:nil];
-        [_session beginConfiguration];
-        [_session addInput:captureInput];
-        
-        //3.创建、配置输出
-        AVCaptureVideoDataOutput *captureOutput = [[AVCaptureVideoDataOutput alloc] init];
-        NSDictionary *settings = [[NSDictionary alloc] initWithObjectsAndKeys:
-                                  [NSNumber numberWithUnsignedInt:kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange], kCVPixelBufferPixelFormatTypeKey,
-                                  [NSNumber numberWithInt: 352], (id)kCVPixelBufferWidthKey,
-                                  [NSNumber numberWithInt: 288], (id)kCVPixelBufferHeightKey,
-                                  nil];
-        
-        captureOutput.videoSettings = settings;
-        captureOutput.minFrameDuration = CMTimeMake(1, 15);
-        captureOutput.alwaysDiscardsLateVideoFrames = YES;
-        dispatch_queue_t outQueue = dispatch_queue_create("com.gh.cecall", NULL);
-        [captureOutput setSampleBufferDelegate:self queue:outQueue];
-        [_session addOutput:captureOutput];
-        [_session commitConfiguration];
-        
-        //4.小窗口显示层
-        _smallCaptureLayer = [AVCaptureVideoPreviewLayer layerWithSession:_session];
-        _smallCaptureLayer.frame = CGRectMake(0, 0, width, height);
-        _smallCaptureLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
-        [_smallView.layer addSublayer:_smallCaptureLayer];
-        
-        //5.大窗口显示层
-        _openGLView = [[OpenGLView20 alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_nameLabel.frame), self.view.frame.size.width, CGRectGetMinY(_actionView.frame) - CGRectGetMaxY(_nameLabel.frame))];
-        _openGLView.backgroundColor = [UIColor blueColor];
-        [self.view addSubview:_openGLView];
     }
+    
+    NSError *error = nil;
+    _captureInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:&error];
+    [_session beginConfiguration];
+    if(!error){
+        [_session addInput:_captureInput];
+    }
+    else{
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"error", @"Error") message:error.localizedFailureReason delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
+        [alertView show];
+    }
+    
+    //5.创建、配置输出
+    _captureOutput = [[AVCaptureVideoDataOutput alloc] init];
+    _captureOutput.videoSettings = _openGLView.outputSettings;
+//    [[_captureOutput connectionWithMediaType:AVMediaTypeVideo] setVideoMinFrameDuration:CMTimeMake(1, 15)];
+    _captureOutput.minFrameDuration = CMTimeMake(1, 15);
+//    _captureOutput.minFrameDuration = _openGLView.videoMinFrameDuration;
+    _captureOutput.alwaysDiscardsLateVideoFrames = YES;
+    dispatch_queue_t outQueue = dispatch_queue_create("com.gh.cecall", NULL);
+    [_captureOutput setSampleBufferDelegate:self queue:outQueue];
+    [_session addOutput:_captureOutput];
+    [_session commitConfiguration];
+    
+    //6.小窗口显示层
+    _smallCaptureLayer = [AVCaptureVideoPreviewLayer layerWithSession:_session];
+    _smallCaptureLayer.frame = CGRectMake(0, 0, width, height);
+    _smallCaptureLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+    [_smallView.layer addSublayer:_smallCaptureLayer];
+    
+    //7、属性显示层
+    _propertyView = [[UIView alloc] initWithFrame:CGRectMake(10, CGRectGetMinY(_actionView.frame) - 90, self.view.frame.size.width - 20, 90)];
+    _propertyView.backgroundColor = [UIColor clearColor];
+    [self.view addSubview:_propertyView];
+    
+    width = (CGRectGetWidth(_propertyView.frame) - 20) / 2;
+    height = CGRectGetHeight(_propertyView.frame) / 3;
+    _widthLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, width, height)];
+    _widthLabel.backgroundColor = [UIColor clearColor];
+    _widthLabel.textColor = [UIColor redColor];
+    [_propertyView addSubview:_widthLabel];
+    
+    _heightLabel = [[UILabel alloc] initWithFrame:CGRectMake(width, 0, width, height)];
+    _heightLabel.backgroundColor = [UIColor clearColor];
+    _heightLabel.textColor = [UIColor redColor];
+    [_propertyView addSubview:_heightLabel];
+    
+    _timedelayLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, height, width, height)];
+    _timedelayLabel.backgroundColor = [UIColor clearColor];
+    _timedelayLabel.textColor = [UIColor redColor];
+    [_propertyView addSubview:_timedelayLabel];
+    
+    _framerateLabel = [[UILabel alloc] initWithFrame:CGRectMake(width, height, width, height)];
+    _framerateLabel.backgroundColor = [UIColor clearColor];
+    _framerateLabel.textColor = [UIColor redColor];
+    [_propertyView addSubview:_framerateLabel];
+    
+    _lostcntLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, height * 2, width, height)];
+    _lostcntLabel.backgroundColor = [UIColor clearColor];
+    _lostcntLabel.textColor = [UIColor redColor];
+    [_propertyView addSubview:_lostcntLabel];
+    
+    _bitrateLabel = [[UILabel alloc] initWithFrame:CGRectMake(width, height * 2, width, height)];
+    _bitrateLabel.backgroundColor = [UIColor clearColor];
+    _bitrateLabel.textColor = [UIColor redColor];
+    [_propertyView addSubview:_bitrateLabel];
 }
 
 #pragma mark - ring
@@ -274,6 +389,17 @@
 
 #pragma mark - private
 
+- (void)_reloadPropertyData
+{
+    id<ICallManager> callManager = [EaseMob sharedInstance].callManager;
+    _widthLabel.text = [NSString stringWithFormat:@"%@%i", NSLocalizedString(@"call.videoWidth", @"Width: "), [callManager getVideoWidth]];
+    _heightLabel.text = [NSString stringWithFormat:@"%@%i", NSLocalizedString(@"call.videoHeight", @"Height: "), [callManager getVideoHeight]];
+    _timedelayLabel.text = [NSString stringWithFormat:@"%@%i", NSLocalizedString(@"call.videoTimedelay", @"Timedelay: "), [callManager getVideoTimedelay]];
+    _framerateLabel.text = [NSString stringWithFormat:@"%@%i", NSLocalizedString(@"call.videoFramerate", @"Framerate: "), [callManager getVideoFramerate]];
+    _lostcntLabel.text = [NSString stringWithFormat:@"%@%i", NSLocalizedString(@"call.videoLostcnt", @"Lostcnt: "), [callManager getVideoLostcnt]];
+    _bitrateLabel.text = [NSString stringWithFormat:@"%@%i", NSLocalizedString(@"call.videoBitrate", @"Bitrate: "), [callManager getVideoBitrate]];
+}
+
 - (void)_insertMessageWithStr:(NSString *)str
 {
     EMChatText *chatText = [[EMChatText alloc] initWithText:str];
@@ -281,19 +407,49 @@
     EMMessage *message = [[EMMessage alloc] initWithReceiver:_callSession.sessionChatter bodies:@[textBody]];
     message.isRead = YES;
     message.deliveryState = eMessageDeliveryState_Delivered;
-    [[EaseMob sharedInstance].chatManager insertMessageToDB:message append2Chat:YES];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"insertCallMessage" object:message];
 }
 
 - (void)_close
 {
+    _callSession = nil;
+    _openGLView.hidden = YES;
+    _propertyView = nil;
     [self hideHud];
-    [_session stopRunning];
-    [_timeTimer invalidate];
-    _timeTimer = nil;
     
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"callControllerClose" object:nil];
-    [self dismissViewControllerAnimated:YES completion:nil];
+    if (_timeTimer) {
+        [_timeTimer invalidate];
+        _timeTimer = nil;
+    }
+    
+    if (_propertyTimer) {
+        [_propertyTimer invalidate];
+        _propertyTimer = nil;
+    }
+    
+    if (_session) {
+        [_session stopRunning];
+        [_session removeInput:_captureInput];
+        [_session removeOutput:_captureOutput];
+        _session = nil;
+    }
+    
+    if (_smallCaptureLayer) {
+        [_smallCaptureLayer removeFromSuperlayer];
+        _smallCaptureLayer = nil;
+        _smallView = nil;
+    }
+    
+    if (_openGLView) {
+        [_openGLView removeFromSuperview];
+    }
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[AVAudioSession sharedInstance] setActive:NO error:nil];
+        [[EaseMob sharedInstance].callManager removeDelegate:self];
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"callControllerClose" object:nil];
+        [self dismissViewControllerAnimated:YES completion:nil];
+    });
 }
 
 #pragma mark - UIAlertViewDelegate
@@ -302,12 +458,40 @@
 {
     if (alertView.tag == kAlertViewTag_Close)
     {
-        [[EMSDKFull sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Null];
+        [[EaseMob sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReasonNull];
+        _callSession = nil;
         [self _close];
     }
 }
 
 #pragma mark AVCaptureVideoDataOutputSampleBufferDelegate
+
+void YUV420spRotate90(UInt8 *  dst, UInt8* src, size_t srcWidth, size_t srcHeight)
+{
+    size_t wh = srcWidth * srcHeight;
+    size_t uvHeight = srcHeight >> 1;//uvHeight = height / 2
+    size_t uvWidth = srcWidth>>1;
+    size_t uvwh = wh>>2;
+    //旋转Y
+    int k = 0;
+    for(int i = 0; i < srcWidth; i++) {
+        int nPos = wh-srcWidth;
+        for(int j = 0; j < srcHeight; j++) {
+            dst[k] = src[nPos + i];
+            k++;
+            nPos -= srcWidth;
+        }
+    }
+    for(int i = 0; i < uvWidth; i++) {
+        int nPos = wh+uvwh-uvWidth;
+        for(int j = 0; j < uvHeight; j++) {
+            dst[k] = src[nPos + i];
+            dst[k+uvwh] = src[nPos + i+uvwh];
+            k++;
+            nPos -= uvWidth;
+        }
+    }
+}
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput
 didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
@@ -321,28 +505,30 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
     if(CVPixelBufferLockBaseAddress(imageBuffer, 0) == kCVReturnSuccess)
     {
-        UInt8 *bufferbasePtr = (UInt8 *)CVPixelBufferGetBaseAddress(imageBuffer);
+//        UInt8 *bufferbasePtr = (UInt8 *)CVPixelBufferGetBaseAddress(imageBuffer);
         UInt8 *bufferPtr = (UInt8 *)CVPixelBufferGetBaseAddressOfPlane(imageBuffer, 0);
         UInt8 *bufferPtr1 = (UInt8 *)CVPixelBufferGetBaseAddressOfPlane(imageBuffer, 1);
-        printf("addr diff1:%d,diff2:%d\n",bufferPtr-bufferbasePtr,bufferPtr1-bufferPtr);
+//        printf("addr diff1:%d,diff2:%d\n",bufferPtr-bufferbasePtr,bufferPtr1-bufferPtr);
         
-        size_t buffeSize = CVPixelBufferGetDataSize(imageBuffer);
+//        size_t buffeSize = CVPixelBufferGetDataSize(imageBuffer);
         size_t width = CVPixelBufferGetWidth(imageBuffer);
         size_t height = CVPixelBufferGetHeight(imageBuffer);
-        size_t bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
+//        size_t bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
         size_t bytesrow0 = CVPixelBufferGetBytesPerRowOfPlane(imageBuffer, 0);
         size_t bytesrow1  = CVPixelBufferGetBytesPerRowOfPlane(imageBuffer, 1);
-        size_t bytesrow2 = CVPixelBufferGetBytesPerRowOfPlane(imageBuffer, 2);
-        printf("buffeSize:%d,width:%d,height:%d,bytesPerRow:%d,bytesrow0 :%d,bytesrow1 :%d,bytesrow2 :%d\n",buffeSize,width,height,bytesPerRow,bytesrow0,bytesrow1,bytesrow2);
+//        size_t bytesrow2 = CVPixelBufferGetBytesPerRowOfPlane(imageBuffer, 2);
+//        printf("buffeSize:%d,width:%d,height:%d,bytesPerRow:%d,bytesrow0 :%d,bytesrow1 :%d,bytesrow2 :%d\n",buffeSize,width,height,bytesPerRow,bytesrow0,bytesrow1,bytesrow2);
 
-        UInt8 *tmp = (UInt8 *)malloc(width * height * 3 / 2);
+        if (_imageDataBuffer == nil) {
+            _imageDataBuffer = (UInt8 *)malloc(width * height * 3 / 2);
+        }
         UInt8 *pY = bufferPtr;
         UInt8 *pUV = bufferPtr1;
-        UInt8 *pU = tmp + width * height;
+        UInt8 *pU = _imageDataBuffer + width * height;
         UInt8 *pV = pU + width * height / 4;
         for(int i =0; i < height; i++)
         {
-            memcpy(tmp + i * width, pY + i * bytesrow0, width);
+            memcpy(_imageDataBuffer + i * width, pY + i * bytesrow0, width);
         }
         
         for(int j = 0; j < height / 2; j++)
@@ -355,8 +541,8 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             pUV += bytesrow1;
         }
         
-        [[EMSDKFull sharedInstance].callManager processPreviewData:(char *)tmp width:width * height * 3 / 2 height:height];
-        free(tmp);
+        YUV420spRotate90(bufferPtr, _imageDataBuffer, width, height);
+        [[EaseMob sharedInstance].callManager processPreviewData:(char *)bufferPtr width:width height:height];
         
         /*We unlock the buffer*/
         CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
@@ -377,8 +563,8 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [self hideHud];
     [self _stopRing];
     if(error){
-        _statusLabel.text = @"连接失败";
-        [self _insertMessageWithStr:@"通话失败"];
+        _statusLabel.text = NSLocalizedString(@"call.connectFailed", @"Connect failed");
+        [self _insertMessageWithStr:NSLocalizedString(@"call.failed", @"Call failed")];
         
         UIAlertView *errorAlert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"error", @"Error") message:error.description delegate:self cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
         errorAlert.tag = kAlertViewTag_Close;
@@ -388,18 +574,18 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     }
     
     if (callSession.status == eCallSessionStatusDisconnected) {
-        _statusLabel.text = @"通话已挂断";
-        NSString *str = @"通话结束";
+        _statusLabel.text = NSLocalizedString(@"call.suspended", @"Call has been suspended");
+        NSString *str = NSLocalizedString(@"call.over", @"Call end");
         if(_timeLength == 0)
         {
-            if (reason == eCallReason_Hangup) {
-                str = @"取消通话";
+            if (reason == eCallReasonHangup) {
+                str = NSLocalizedString(@"call.cancel", @"Cancel the call");
             }
-            else if (reason == eCallReason_Reject){
-                str = @"对方取消通话";
+            else if (reason == eCallReasonReject){
+                str = NSLocalizedString(@"call.rejected", @"Reject the call");
             }
-            else if (reason == eCallReason_Busy){
-                str = @"对方正在通话中";
+            else if (reason == eCallReasonBusy){
+                str = NSLocalizedString(@"call.in", @"In the call...");
             }
         }
         [self _insertMessageWithStr:str];
@@ -407,9 +593,17 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     }
     else if (callSession.status == eCallSessionStatusAccepted)
     {
-        _statusLabel.text = @"可以通话了...";
+        if (callSession.connectType == eCallConnectTypeRelay) {
+            _statusLabel.text = NSLocalizedString(@"call.speak.relay", @"Can speak...Relay");
+        }
+        else if (callSession.connectType == eCallConnectTypeDirect){
+            _statusLabel.text = NSLocalizedString(@"call.speak.direct", @"Can speak...Direct");
+        }
+        else{
+            _statusLabel.text = NSLocalizedString(@"call.speak", @"Can speak...");
+        }
         _timeLength = 0;
-        _timeTimer =  [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(timeTimerAction:) userInfo:nil repeats:YES];
+        _timeTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(timeTimerAction:) userInfo:nil repeats:YES];
 
         if(_isIncoming)
         {
@@ -421,6 +615,9 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         [_actionView addSubview:_silenceLabel];
         [_actionView addSubview:_speakerOutButton];
         [_actionView addSubview:_speakerOutLabel];
+        
+        [self _reloadPropertyData];
+        _propertyTimer = [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(_reloadPropertyData) userInfo:nil repeats:YES];
     }
 }
 
@@ -428,7 +625,17 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
 - (void)viewTapAction:(UITapGestureRecognizer *)tap
 {
+    _topView.hidden = !_topView.hidden;
     _actionView.hidden = !_actionView.hidden;
+    
+    CGRect frame = _propertyView.frame;
+    if (_actionView.hidden) {
+        frame.origin.y = self.view.frame.size.height - 90;
+    }
+    else{
+        frame.origin.y = CGRectGetMinY(_actionView.frame) - 90;
+    }
+    _propertyView.frame = frame;
 }
 
 #pragma mark - action
@@ -436,10 +643,18 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 - (void)silenceAction
 {
     _silenceButton.selected = !_silenceButton.selected;
+    [[EaseMob sharedInstance].callManager markCallSession:_callSession.sessionId asSilence:_silenceButton.selected];
 }
 
 - (void)speakerOutAction
 {
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+    if (_speakerOutButton.selected) {
+        [audioSession overrideOutputAudioPort:AVAudioSessionPortOverrideNone error:nil];
+    }else {
+        [audioSession overrideOutputAudioPort:AVAudioSessionPortOverrideSpeaker error:nil];
+    }
+    [audioSession setActive:YES error:nil];
     _speakerOutButton.selected = !_speakerOutButton.selected;
 }
 
@@ -447,28 +662,56 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 {
     [_timeTimer invalidate];
     [self _stopRing];
-    [self showHint:@"拒接通话..."];
+    [self showHint:NSLocalizedString(@"call.rejected", @"Reject the call")];
     
-    [[EMSDKFull sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Reject];
-    [self _close];
+    EMError *error = [[EaseMob sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReasonReject];
+    if (error) {
+        [self _close];
+    }
 }
 
 - (void)answerAction
 {
-    [self showHint:@"正在初始化通话..."];
+    [self showHint:NSLocalizedString(@"call.init", @"Is init the call...")];
     [self _stopRing];
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+    _audioCategory = audioSession.category;
+    if(![_audioCategory isEqualToString:AVAudioSessionCategoryPlayAndRecord]){
+        [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+        [audioSession setActive:YES error:nil];
+    }
     
-    [[EMSDKFull sharedInstance].callManager asyncAnswerCall:_callSession.sessionId];
+    [[EaseMob sharedInstance].callManager asyncAnswerCall:_callSession.sessionId];
 }
 
 - (void)hangupAction
 {
+    _openGLView.hidden = YES;
     [_timeTimer invalidate];
+    [_propertyTimer invalidate];
     [self _stopRing];
-    [self showHint:@"正在结束通话..."];
+    [self showHint:NSLocalizedString(@"call.dealloc", @"Is hanging up the call...")];
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+    [audioSession setCategory:_audioCategory error:nil];
+    [audioSession setActive:YES error:nil];
     
-    [[EMSDKFull sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReason_Hangup];
-    [self _close];
+    EMError *error = [[EaseMob sharedInstance].callManager asyncEndCall:_callSession.sessionId reason:eCallReasonHangup];
+    if (error) {
+        [self _close];
+    }
+}
+
++ (BOOL)canVideo
+{
+    if([[[UIDevice currentDevice] systemVersion] compare:@"7.0"] != NSOrderedAscending){
+        if(!([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] == AVAuthorizationStatusAuthorized)){\
+            UIAlertView * alt = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"setting.cameraNoAuthority", @"No camera permissions") message:NSLocalizedString(@"setting.cameraAuthority", @"Please open in \"Setting\"-\"Privacy\"-\"Camera\".") delegate:self cancelButtonTitle:nil otherButtonTitles:NSLocalizedString(@"ok", @"OK"), nil];
+            [alt show];
+            return NO;
+        }
+    }
+    
+    return YES;
 }
 
 @end

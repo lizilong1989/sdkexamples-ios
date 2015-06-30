@@ -1,16 +1,22 @@
-/* 
-  Localizable.strings
-  ChatDemo-UI2.0
+/************************************************************
+ *  * EaseMob CONFIDENTIAL
+ * __________________
+ * Copyright (C) 2013-2014 EaseMob Technologies. All rights reserved.
+ *
+ * NOTICE: All information contained herein is, and remains
+ * the property of EaseMob Technologies.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from EaseMob Technologies.
+ */
 
-  Created by dhcdht on 15-1-20.
-  Copyright (c) 2015年 dhcdht. All rights reserved.
-*/
 //general
 "register" = "Register";
 "login" = "Login";
 "logout" = "Logout";
 "password" = "Password";
 "username" = "Username";
+"confirmpassword"="Confirm password";
 
 "sure" = "OK";
 "yes" = "YES";
@@ -18,6 +24,7 @@
 "no" = "NO";
 
 "search" = "Search";
+"searching" = "Searching";
 "error" = "Error";
 "delete" = "Delete";
 "copy" = "Copy";
@@ -30,20 +37,26 @@
 "choose" = "Choose";
 "accept" = "Accept";
 "reject" = "Reject";
+"wait" = "Please wait...";
 
 "sendingApply" = "sending apply...";
 "acceptFail" = "accept failure";
 "rejectFail" = "reject failure";
 "refreshData" = "Refresh data...";
 "loadData" = "Load data...";
+"loadDataFailed" = "Load more failed";
 "saySomething" = "Say somthing";
 "searchResults" = "The search results";
 "doneWithCount" = "Done(%i)";
 "sureToDelete" = "please make sure to delete";
 "receiveCmd" = "receive cmd message";
 "receiveMessage" = "you have a new message";
-"loginAtOtherDevice" = "your login account has been in other places";
+"loginAtOtherDevice" = "your login account has been logged in other places";
 "loginUserRemoveFromServer" = "your account has been removed from the server side";
+"deleteFailed" = "Delete failed:%@";
+"notFound" = "Can't found";
+"noMore" = "No more data";
+"hasRead" = "Read";
 
 //app
 "AppName" = "EaseMobDemo";
@@ -51,6 +64,15 @@
 //error des
 "error.connectServerFail" = "Connect to the server failed!";
 "error.connectServerTimeout" = "Connect to the server timed out!";
+"error.connectNetworkFail" = "No network connection!";
+"error.notFound" = "File path not exist";
+"error.initPlayerFail" = "Failed to initialize AVAudioPlayer!";
+"error.palyFail" = "Play failure!";
+"error.initRecorderFail" = "Failed to initialize AVAudioRecorder";
+"error.initRecorderFail" = "File format conversion failed";
+"error.recordStoping" = "Record voice is not over yet";
+"error.recordNotBegin" = "Recording has not yet begun";
+"error.recordTooShort" = "Recording time is too short";
 
 //login
 "login.beginAutoLogin" = "Start automatic login...";
@@ -67,10 +89,12 @@
 "register.fail" = "Registration failed";
 "register.success" = "Registered successfully, please log in";
 "register.repeat" = "You registered user already exists!";
+"register.confirmPassword" = "The two input password does not match, please input again";
 
 //apns
 "apns.failToRegisterApns" = "Fail to register apns";
 "apns.failToBindDeviceToken" = "Fail to bind device token";
+"apns.content" = "Apns content";
 
 //friend
 "friend.add" = "add friend";
@@ -88,7 +112,7 @@
 "friend.black" = "Black List";
 "friend.notChatSelf" = "can't talk to yourself";
 "friend.notDeleteSelf" = "can't delete self";
-"friend.block" = "join the blacklist";
+"friend.block" = "Move to blacklist";
 
 //group
 "group.somebodyInvite" = "%@ invite you to join group \'%@\'";
@@ -121,33 +145,78 @@
 "group.create.fail" = "Failed to create a group, please operate again";
 "group.create.public" = "public group";
 "group.create.occupantJoinPermissions" = "members join permissions";
-"group.create.open" = "random join";
+"group.create.open" = "freely join";
 "group.create.needApply" = "you need administrator agreed to join the group";
+"group.create.group" = "Create a group";
+"group.create.join" = "Join public group";
 
 //Group Bans
 "group.ban.removing" = "members are removing from the blacklist...";
+"group.ban.adding" = "Adding to black list...";
 "group.ban.fetching" = "getting group blacklist...";
 "group.ban.fetchFail" = "fail to get blacklist: %@";
 
 //Group Detail
-"group.removeAllMessages" = "remove all messages";
-"group.destroy" = "dissolution of the group";
+"group.removeAllMessages" = "clear all messages";
+"group.destroy" = "dismiss group";
 "group.leave" = "quit the group";
 "group.id" = "groupID";
 "group.occupantCount" = "members count";
 "group.addingOccupant" = "add a group member...";
 "group.fetchInfoFail" = "failed to get the group details, please try again later";
 "group.removingOccupant" = "deleting member...";
-"group.destroyFail" = "dissolution of group failure";
+"group.destroyFail" = "dessolve group failed";
 "group.leaveFail" = "exit the group failure";
+"group.addOccupantFail" = "Failed to add group member, please try again later";
 
 //Group Setting
-"group.setting.receiveAndPrompt" = "receive and prompt group of messages";
-"group.setting.receiveAndUnprompt" = "receive not only hint of messages";
-"group.setting.blockMessage" = "shielding of the message";
+"group.setting.receiveAndPrompt" = "recv and notification group messages";
+"group.setting.receiveAndUnprompt" = "receive message without apns";
+"group.setting.blockMessage" = "block message";
 "group.setting.save" = "set properties";
 "group.setting.success" = "set success";
 "group.setting.fail" = "set failure";
+"group.setting.subject" = "Please input group name";
+
+//Chatroom detail
+"chatroom.somebodyInvite" = "%@ invite you to join chatroom \'%@\'";
+"chatroom.id" = "chatroomId";
+"chatroom.occupantCount" = "members count";
+"chatroom.description" = "description";
+"chatroom.joining" = "Joining...";
+"chatroom.fetchInfoFail" = "Failed to get the chatroom details";
+"chatroom.joinFailed" = "join chatroom \'%@\' failed";
+"chatroom.join" = "\'%@\'join chatroom\'%@\'";
+"chatroom.leave" = "\'%@\'leave chatroom\'%@\'";
+"chatroom.remove" = "be removed from chatroom\'%@\'";
+
+//call
+"call.initFailed"="Establish call failure";
+"call.waiting"="Waiting to answer...";
+"call.connecting"="Connecting...";
+"call.silence"="Silence";
+"call.speaker"="Speaker";
+"call.reject"="Reject";
+"call.answer"="Answer";
+"call.hangup"="Hangup";
+"call.connectFailed"="Connect failed";
+"call.failed"="Call failed";
+"call.suspended"="Call has been suspended";
+"call.over"="Call end";
+"call.cancel"="Cancel the call";
+"call.rejected"="Reject the call";
+"call.in"="In the call...";
+"call.speak"="Can speak...";
+"call.speak.relay"="Can speak...Relay";
+"call.speak.direct"="Can speak...Direct";
+"call.init"="Is init the call...";
+"call.dealloc"="Is hanging up the call...";
+"call.videoWidth"="Width: ";
+"call.videoHeight"="Height: ";
+"call.videoTimedelay"="Timedelay: ";
+"call.videoFramerate"="Framerate: ";
+"call.videoLostcnt"="Lostcnt: ";
+"call.videoBitrate"="Bitrate: ";
 
 //message
 "message.image" = "image";
@@ -161,8 +230,8 @@
 "message.beginReceiveOffine" = "begin to receive offline messages";
 "message.endReceiveOffine" = "end to receive offline messages";
 "message.toolBar.inputPlaceHolder" = "input a new message";
-"message.toolBar.record.upCancel" = " Fingers up slide, cancel sending ";
-"message.toolBar.record.loosenCancel" = " loosen the fingers, to cancel sending ";
+"message.toolBar.record.upCancel" = "slide up to cancel sending";
+"message.toolBar.record.loosenCancel" = "release the fingers, to cancel sending";
 "message.toolBar.record.touch" = "hold down to talk";
 "message.toolBar.record.send" = "loosen to send";
 "DXMessageToolBarDelegate.record" = "hold down to talk";
@@ -177,7 +246,11 @@
 "message.simulatorNotSupportCamera" = "simulator does not support taking picture";
 "message.simulatorNotSupportVideo" = "simulator does not support vidio";
 "message.startRecordFail" = "failure to start recording";
-"message.noMessage" = "no messages";
+"message.noMessage" = "All messages cleared";
+"message.forbiddenWords" = "Your message contains forbidden words";
+
+//media
+"media.timeShort" = "The recording time is too short";
 
 //network
 "network.disconnection" = "Network disconnection";
@@ -199,6 +272,8 @@
 "title.addressbook" = "AddressBook";
 "title.setting" = "Setting";
 "title.group" = "Group";
+"title.chatroom" = "Chatroom";
+"title.mychatroom" = "My Chatroom";
 "title.chooseContact" = "select the contact";
 "title.debug" = "Debug";
 "title.groupBlackList" = "Group black list";
@@ -210,6 +285,7 @@
 "title.apply" = "Application and notification";
 "title.groupApply" = "Group Notification";
 "title.groupSubjectChanging" = "Change group name";
+"title.chatroomlist" = "Chatroom List";
 
 //setting
 "setting.autoLogin" = "automatic login";
@@ -217,7 +293,7 @@
 "setting.logoutOngoing" = "loging out...";
 
 "setting.notDisturb" = "No disturbing";
-"setting.showDetail" = "notify the display messages";
+"setting.showDetail" = "display message details in apns";
 "setting.open" = "open";
 "setting.nightOpen" = "only open at night (22:00 - 7:00)";
 "setting.close" = "close";
@@ -227,6 +303,18 @@
 "setting.sdkVersion" = "SDK version";
 "setting.uploading" = "uploading...";
 "setting.uploadSuccess" = "uploaded successfully";
+"setting.editName" = "Edit NickName";
+"setting.inputName" = "Please input nickname";
+"setting.saveName" = "Save Nickname";
+"setting.namenotempty" = "Name cannot be empty";
+"setting.edittips" = "After setting this nickname, chat with the iOS client demo project, iOS will display this nickname is not a EaseMob ID, if the other party to use the Android client this setting is not effective";
+"setting.iospushname" = "iOS push nickname";
+"setting.useIp" = "Use IP";
+"setting.deleteConWhenLeave" = "Delete conversation when leave a group";
+"setting.microphoneNoAuthority" = "No microphone permissions";
+"setting.microphoneAuthority" = "Please open in \"Setting\"-\"Privacy\"-\"Microphone\".";
+"setting.cameraNoAuthority" = "No camera permissions";
+"setting.cameraAuthority" = "Please open in \"Setting\"-\"Privacy\"-\"Camera\".";
 
 //NSDateCategory
 "NSDateCategory.text1" = "one minute";

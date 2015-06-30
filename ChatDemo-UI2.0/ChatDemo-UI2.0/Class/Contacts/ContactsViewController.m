@@ -22,8 +22,10 @@
 #import "ApplyViewController.h"
 #import "GroupListViewController.h"
 #import "ChatViewController.h"
+#import "MyChatroomListViewController.h"
+#import "ChatroomListViewController.h"
 
-@interface ContactsViewController ()<UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate, UISearchDisplayDelegate, UIActionSheetDelegate, BaseTableCellDelegate, SRRefreshDelegate>
+@interface ContactsViewController ()<UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate, UISearchDisplayDelegate, UIActionSheetDelegate, BaseTableCellDelegate, SRRefreshDelegate, IChatManagerDelegate>
 {
     NSIndexPath *_currentLongPressIndex;
 }
@@ -51,6 +53,7 @@
         _dataSource = [NSMutableArray array];
         _contactsSource = [NSMutableArray array];
         _sectionTitles = [NSMutableArray array];
+        [[EaseMob sharedInstance].chatManager addDelegate:self delegateQueue:nil];
     }
     return self;
 }
@@ -66,6 +69,8 @@
     self.tableView.frame = CGRectMake(0, self.searchBar.frame.size.height, self.view.frame.size.width, self.view.frame.size.height - self.searchBar.frame.size.height);
     [self.view addSubview:self.tableView];
     [self.tableView addSubview:self.slimeView];
+    
+    [self reloadDataSource];
 }
 
 - (void)didReceiveMemoryWarning
@@ -80,6 +85,10 @@
     [self reloadApplyView];
 }
 
+- (void)dealloc
+{
+    [[EaseMob sharedInstance].chatManager removeDelegate:self];
+}
 #pragma mark - getter
 
 - (UISearchBar *)searchBar
@@ -208,7 +217,7 @@
 {
     // Return the number of rows in the section.
     if (section == 0) {
-        return 2;
+        return 3;
 //        return 1;
     }
     
@@ -242,6 +251,10 @@
         if (indexPath.section == 0 && indexPath.row == 1) {
             cell.imageView.image = [UIImage imageNamed:@"groupPrivateHeader"];
             cell.textLabel.text = NSLocalizedString(@"title.group", @"Group");
+        }
+        else if (indexPath.section == 0 && indexPath.row == 2) {
+            cell.imageView.image = [UIImage imageNamed:@"groupPublicHeader"];
+            cell.textLabel.text = NSLocalizedString(@"title.chatroomlist",@"chatroom list");
         }
         else{
             EMBuddy *buddy = [[self.dataSource objectAtIndex:(indexPath.section - 1)] objectAtIndex:indexPath.row];
@@ -290,7 +303,7 @@
             [tableView  endUpdates];
         }
         else{
-            [self showHint:[NSString stringWithFormat:@"删除失败：%@", error.description]];
+            [self showHint:[NSString stringWithFormat:NSLocalizedString(@"deleteFailed", @"Delete failed:%@"), error.description]];
             [tableView reloadData];
         }
     }
@@ -365,6 +378,11 @@
             }
             [self.navigationController pushViewController:_groupController animated:YES];
         }
+        else if (indexPath.row == 2)
+        {
+            ChatroomListViewController *controller = [[ChatroomListViewController alloc] initWithStyle:UITableViewStylePlain];
+            [self.navigationController pushViewController:controller animated:YES];
+        }
     }
     else{
         EMBuddy *buddy = [[self.dataSource objectAtIndex:(indexPath.section - 1)] objectAtIndex:indexPath.row];
@@ -396,12 +414,13 @@
 
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
 {
+    __weak typeof(self) weakSelf = self;
     [[RealtimeSearchUtil currentUtil] realtimeSearchWithSource:self.contactsSource searchText:(NSString *)searchText collationStringSelector:@selector(username) resultBlock:^(NSArray *results) {
         if (results) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self.searchController.resultsSource removeAllObjects];
-                [self.searchController.resultsSource addObjectsFromArray:results];
-                [self.searchController.searchResultsTableView reloadData];
+                [weakSelf.searchController.resultsSource removeAllObjects];
+                [weakSelf.searchController.resultsSource addObjectsFromArray:results];
+                [weakSelf.searchController.searchResultsTableView reloadData];
             });
         }
     }];
@@ -431,15 +450,23 @@
 {
     if (buttonIndex != actionSheet.cancelButtonIndex && _currentLongPressIndex) {
         EMBuddy *buddy = [[self.dataSource objectAtIndex:(_currentLongPressIndex.section - 1)] objectAtIndex:_currentLongPressIndex.row];
-        [self.tableView beginUpdates];
-        [[self.dataSource objectAtIndex:(_currentLongPressIndex.section - 1)] removeObjectAtIndex:_currentLongPressIndex.row];
-        [self.contactsSource removeObject:buddy];
-        [self.tableView  deleteRowsAtIndexPaths:[NSArray arrayWithObject:_currentLongPressIndex] withRowAnimation:UITableViewRowAnimationFade];
-        [self.tableView  endUpdates];
-        
-        [[EaseMob sharedInstance].chatManager blockBuddy:buddy.username relationship:eRelationshipBoth];
+        [self hideHud];
+        [self showHudInView:self.view hint:NSLocalizedString(@"wait", @"Pleae wait...")];
+
+        __weak typeof(self) weakSelf = self;
+        [[EaseMob sharedInstance].chatManager asyncBlockBuddy:buddy.username relationship:eRelationshipBoth withCompletion:^(NSString *username, EMError *error){
+            typeof(weakSelf) strongSelf = weakSelf;
+            [strongSelf hideHud];
+            if (!error)
+            {
+                //由于加入黑名单成功后会刷新黑名单，所以此处不需要再更改好友列表
+            }
+            else
+            {
+                [strongSelf showHint:error.description];
+            }
+        } onQueue:nil];
     }
-    
     _currentLongPressIndex = nil;
 }
 
@@ -469,8 +496,8 @@
 
 - (void)cellImageViewLongPressAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (indexPath.section == 0 && indexPath.row == 1) {
-        // 群组
+    if (indexPath.section == 0 && indexPath.row >= 1) {
+        // 群组，聊天室
         return;
     }
     NSDictionary *loginInfo = [[[EaseMob sharedInstance] chatManager] loginInfo];
@@ -480,7 +507,7 @@
     {
         return;
     }
-    
+
     _currentLongPressIndex = indexPath;
     UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"cancel", @"Cancel") destructiveButtonTitle:NSLocalizedString(@"friend.block", @"join the blacklist") otherButtonTitles:nil, nil];
     [actionSheet showInView:[[UIApplication sharedApplication] keyWindow]];
@@ -542,8 +569,9 @@
     [self.contactsSource removeAllObjects];
     
     NSArray *buddyList = [[EaseMob sharedInstance].chatManager buddyList];
+    NSArray *blockList = [[EaseMob sharedInstance].chatManager blockedList];
     for (EMBuddy *buddy in buddyList) {
-        if (buddy.followState != eEMBuddyFollowState_NotFollowed) {
+        if (![blockList containsObject:buddy.username]) {
             [self.contactsSource addObject:buddy];
         }
     }
@@ -596,5 +624,10 @@
     [self.navigationController pushViewController:addController animated:YES];
 }
 
+#pragma mark - EMChatManagerBuddyDelegate
+- (void)didUpdateBlockedList:(NSArray *)blockedList
+{
+    [self reloadDataSource];
+}
 
 @end

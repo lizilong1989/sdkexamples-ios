@@ -2,8 +2,8 @@
 //  main.m
 //  ChatDemo-UI3.0
 //
-//  Created by dhcdht on 14-11-11.
-//  Copyright (c) 2014年 easemob.com. All rights reserved.
+//  Created by dhc on 15/6/23.
+//  Copyright (c) 2015年 easemob.com. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>

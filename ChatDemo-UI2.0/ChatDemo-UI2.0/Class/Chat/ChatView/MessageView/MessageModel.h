@@ -24,7 +24,7 @@
 
 @property (nonatomic) BOOL isSender;    //是否是发送者
 @property (nonatomic) BOOL isRead;      //是否已读
-@property (nonatomic) BOOL isChatGroup;  //是否是群聊
+@property (nonatomic) EMMessageType messageType;  // 消息类型（单聊，群里，聊天室）
 
 @property (nonatomic, strong, readonly) NSString *messageId;
 @property (nonatomic, strong) NSURL *headImageURL;

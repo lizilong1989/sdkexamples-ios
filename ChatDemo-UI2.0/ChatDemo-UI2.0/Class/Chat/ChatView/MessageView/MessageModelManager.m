@@ -21,7 +21,8 @@
     id<IEMMessageBody> messageBody = [message.messageBodies firstObject];
     NSDictionary *userInfo = [[EaseMob sharedInstance].chatManager loginInfo];
     NSString *login = [userInfo objectForKey:kSDKUsername];
-    BOOL isSender = [login isEqualToString:message.from] ? YES : NO;
+    NSString *sender = (message.messageType == eMessageTypeChat) ? message.from : message.groupSenderName;
+    BOOL isSender = [login isEqualToString:sender] ? YES : NO;
     
     MessageModel *model = [[MessageModel alloc] init];
     model.isRead = message.isRead;
@@ -30,20 +31,22 @@
     model.type = messageBody.messageBodyType;
     model.isSender = isSender;
     model.isPlaying = NO;
-    model.isChatGroup = message.isGroup;
-    if (model.isChatGroup) {
+    model.messageType = message.messageType;
+    if (model.messageType != eMessageTypeChat) {
         model.username = message.groupSenderName;
     }
     else{
         model.username = message.from;
     }
-    
+
+    /*
     if (isSender) {
         model.headImageURL = nil;
     }
     else{
         model.headImageURL = nil;
     }
+     */
     
     switch (messageBody.messageBodyType) {
         case eMessageBodyType_Text:

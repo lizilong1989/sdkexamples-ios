@@ -103,6 +103,9 @@
                      case EMErrorServerDuplicatedAccount:
                          TTAlertNoTitle(NSLocalizedString(@"register.repeat", @"You registered user already exists!"));
                          break;
+                     case EMErrorNetworkNotConnected:
+                         TTAlertNoTitle(NSLocalizedString(@"error.connectNetworkFail", @"No network connection!"));
+                         break;
                      case EMErrorServerTimeout:
                          TTAlertNoTitle(NSLocalizedString(@"error.connectServerTimeout", @"Connect to the server timed out!"));
                          break;
@@ -132,7 +135,7 @@
              //设置是否自动登录
              [[EaseMob sharedInstance].chatManager setIsAutoLoginEnabled:YES];
              
-             //将旧版的coredata数据导入新的数据库
+             //将2.1.0版本旧版的coredata数据导入新的数据库
              EMError *error = [[EaseMob sharedInstance].chatManager importDataToNewDatabase];
              if (!error) {
                  error = [[EaseMob sharedInstance].chatManager loadDataFromDatabase];
@@ -146,6 +149,12 @@
          {
              switch (error.errorCode)
              {
+                 case EMErrorNotFound:
+                     TTAlertNoTitle(error.description);
+                     break;
+                 case EMErrorNetworkNotConnected:
+                     TTAlertNoTitle(NSLocalizedString(@"error.connectNetworkFail", @"No network connection!"));
+                     break;
                  case EMErrorServerNotReachable:
                      TTAlertNoTitle(NSLocalizedString(@"error.connectServerFail", @"Connect to the server failed!"));
                      break;
@@ -156,7 +165,7 @@
                      TTAlertNoTitle(NSLocalizedString(@"error.connectServerTimeout", @"Connect to the server timed out!"));
                      break;
                  default:
-                     TTAlertNoTitle(NSLocalizedString(@"login.fail", @"Logon failure"));
+                     TTAlertNoTitle(NSLocalizedString(@"login.fail", @"Login failure"));
                      break;
              }
          }
@@ -195,6 +204,7 @@
             
             return;
         }
+        /*
 #if !TARGET_IPHONE_SIMULATOR
         //弹出提示
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:NSLocalizedString(@"login.inputApnsNickname", @"Please enter nickname for apns") delegate:self cancelButtonTitle:NSLocalizedString(@"cancel", @"Cancel") otherButtonTitles:NSLocalizedString(@"ok", @"OK"), nil];
@@ -205,6 +215,8 @@
 #elif TARGET_IPHONE_SIMULATOR
         [self loginWithUsername:_usernameTextField.text password:_passwordTextField.text];
 #endif
+         */
+        [self loginWithUsername:_usernameTextField.text password:_passwordTextField.text];
     }
 }
 
@@ -222,12 +234,11 @@
     NSString *password = _passwordTextField.text;
     if (username.length == 0 || password.length == 0) {
         ret = YES;
-        [WCAlertView showAlertWithTitle:NSLocalizedString(@"prompt", @"Prompt")
+        [EMAlertView showAlertWithTitle:NSLocalizedString(@"prompt", @"Prompt")
                                 message:NSLocalizedString(@"login.inputNameAndPswd", @"Please enter username and password")
-                     customizationBlock:nil
                         completionBlock:nil
                       cancelButtonTitle:NSLocalizedString(@"ok", @"OK")
-                      otherButtonTitles: nil];
+                      otherButtonTitles:nil];
     }
     
     return ret;

@@ -40,6 +40,8 @@
 
 @property (nonatomic, weak) id <DXMessageToolBarDelegate> delegate;
 
+@property (strong, nonatomic) UIButton *recordButton;
+
 /**
  *  操作栏背景图片
  */

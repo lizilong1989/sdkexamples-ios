@@ -211,8 +211,7 @@ static ApplyViewController *controller = nil;
         }
         else if (applyStyle == ApplyStyleJoinGroup)
         {
-            NSString *reason = [NSString stringWithFormat:NSLocalizedString(@"group.beRefusedToJoin", @"be refused to join the group\'%@\'"), entity.groupSubject];
-            [[EaseMob sharedInstance].chatManager rejectApplyJoinGroup:entity.groupId groupname:entity.groupSubject toApplicant:entity.applicantUsername reason:reason];
+            [[EaseMob sharedInstance].chatManager rejectApplyJoinGroup:entity.groupId groupname:entity.groupSubject toApplicant:entity.applicantUsername reason:nil];
         }
         else if(applyStyle == ApplyStyleFriend){
             [[EaseMob sharedInstance].chatManager rejectBuddyRequest:entity.applicantUsername reason:@"" error:&error];
