@@ -23,7 +23,7 @@ CGFloat const EMMessageTimeCellPadding = 5;
     // UIAppearance Proxy Defaults
     EMMessageTimeCell *cell = [self appearance];
     cell.titleLabelColor = [UIColor grayColor];
-    cell.titleLabelFont = [UIFont systemFontOfSize:15];
+    cell.titleLabelFont = [UIFont systemFontOfSize:12];
 }
 
 - (instancetype)initWithStyle:(UITableViewCellStyle)style
@@ -31,6 +31,7 @@ CGFloat const EMMessageTimeCellPadding = 5;
 {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
+        self.backgroundColor = [UIColor clearColor];
         [self _setupSubview];
     }
     
@@ -44,6 +45,7 @@ CGFloat const EMMessageTimeCellPadding = 5;
     _titleLabel = [[UILabel alloc] init];
     _titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
     _titleLabel.textAlignment = NSTextAlignmentCenter;
+    _titleLabel.backgroundColor = [UIColor clearColor];
     _titleLabel.textColor = _titleLabelColor;
     _titleLabel.font = _titleLabelFont;
     [self.contentView addSubview:_titleLabel];

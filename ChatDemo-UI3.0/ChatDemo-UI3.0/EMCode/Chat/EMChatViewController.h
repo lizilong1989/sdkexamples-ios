@@ -11,7 +11,8 @@
 #import "EaseMob.h"
 #import "IConversationModel.h"
 #import "IMessageModel.h"
-#import "EMMessageCell.h"
+#import "EMSendMessageCell.h"
+#import "EMRecvMessageCell.h"
 #import "EMMessageTimeCell.h"
 
 @interface EMChatViewController : EMRefreshTableViewController<IChatManagerDelegate, EMCallManagerCallDelegate>

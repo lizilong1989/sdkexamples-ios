@@ -22,7 +22,14 @@
     self.window.backgroundColor = [UIColor whiteColor];
     
 #warning 初始化环信SDK，详细内容在AppDelegate+EaseMob.m 文件中
-    [self easemobApplication:application didFinishLaunchingWithOptions:launchOptions];
+#warning SDK注册 APNS文件的名字, 需要与后台上传证书时的名字一一对应
+    NSString *apnsCertName = nil;
+#if DEBUG
+    apnsCertName = @"chatdemoui_dev";
+#else
+    apnsCertName = @"chatdemoui";
+#endif
+    [self easemobApplication:application didFinishLaunchingWithOptions:launchOptions appkey:@"easemob-demo#chatdemoui" apnsCertName:apnsCertName otherConfig:@{kSDKConfigEnableConsoleLogger:[NSNumber numberWithBool:YES]}];
     
     [self.window makeKeyAndVisible];
     

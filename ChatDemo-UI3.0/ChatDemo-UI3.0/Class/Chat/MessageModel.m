@@ -23,8 +23,8 @@
         
         NSDictionary *userInfo = [[EaseMob sharedInstance].chatManager loginInfo];
         NSString *login = [userInfo objectForKey:kSDKUsername];
-        NSString *senderName = (message.messageType == eMessageTypeChat) ? message.from : message.groupSenderName;
-        _isSender = [login isEqualToString:senderName] ? YES : NO;
+        _nickname = (message.messageType == eMessageTypeChat) ? message.from : message.groupSenderName;
+        _isSender = [login isEqualToString:_nickname] ? YES : NO;
         
         switch (_firstMessageBody.messageBodyType) {
             case eMessageBodyType_Text:

@@ -43,6 +43,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    self.view.backgroundColor = [UIColor colorWithRed:248 / 255.0 green:248 / 255.0 blue:248 / 255.0 alpha:1.0];
+    self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     
     [self registerEaseMobNotification];
 }
@@ -74,6 +76,8 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     id object = [self.dataArray objectAtIndex:indexPath.row];
+    
+    //时间cell
     if ([object isKindOfClass:[NSString class]]) {
         NSString *TimeCellIdentifier = [EMMessageTimeCell cellIdentifier];
         EMMessageTimeCell *timeCell = (EMMessageTimeCell *)[tableView dequeueReusableCellWithIdentifier:TimeCellIdentifier];
@@ -89,16 +93,32 @@
     else{
         id<IMessageModel> model = object;
         NSString *CellIdentifier = [EMMessageCell cellIdentifierWithModel:model];
-        EMMessageCell *cell = (EMMessageCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
         
-        // Configure the cell...
-        if (cell == nil) {
-            cell = [[EMMessageCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier isSender:model.isSender];
-            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        //发送cell
+        if (model.isSender) {
+            EMSendMessageCell *sendCell = (EMSendMessageCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+            
+            // Configure the cell...
+            if (sendCell == nil) {
+                sendCell = [[EMSendMessageCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+                sendCell.selectionStyle = UITableViewCellSelectionStyleNone;
+            }
+            
+            sendCell.model = model;
+            return sendCell;
         }
-        
-        cell.model = model;
-        return cell;
+        else{//接收cell
+            EMRecvMessageCell *recvCell = (EMRecvMessageCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+            
+            // Configure the cell...
+            if (recvCell == nil) {
+                recvCell = [[EMRecvMessageCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+                recvCell.selectionStyle = UITableViewCellSelectionStyleNone;
+            }
+            
+            recvCell.model = model;
+            return recvCell;
+        }
     }
 }
 
@@ -112,7 +132,12 @@
     }
     else{
         id<IMessageModel> model = object;
-        return [EMMessageCell cellHeightWithModel:model];
+        if (model.isSender) {
+            return [EMSendMessageCell cellHeightWithModel:model];
+        }
+        else{
+            return [EMRecvMessageCell cellHeightWithModel:model];
+        }
     }
 }
 

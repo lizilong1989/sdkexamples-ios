@@ -10,6 +10,7 @@
 
 #import "EaseMob.h"
 #import "ConversationModel.h"
+#import "ChatViewController.h"
 #import "UIViewController+HUD.h"
 
 @interface ConversationListController ()
@@ -29,6 +30,21 @@
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Table view delegate
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    ConversationModel *model = [self.dataArray objectAtIndex:indexPath.row];
+    EMConversation *conversation = model.conversation;
+    if (conversation) {
+        ChatViewController *chatController = [[ChatViewController alloc] initWithConversation:conversation];
+        chatController.title = model.title;
+        [self.navigationController pushViewController:chatController animated:YES];
+    }
 }
 
 #pragma mark - data

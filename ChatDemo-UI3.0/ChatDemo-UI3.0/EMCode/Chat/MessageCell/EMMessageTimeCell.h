@@ -12,9 +12,9 @@
 
 @property (strong, nonatomic) NSString *title;
 
-@property (nonatomic) UIFont *titleLabelFont UI_APPEARANCE_SELECTOR;
+@property (nonatomic) UIFont *titleLabelFont UI_APPEARANCE_SELECTOR; //default [UIFont systemFontOfSize:12]
 
-@property (nonatomic) UIColor *titleLabelColor UI_APPEARANCE_SELECTOR;
+@property (nonatomic) UIColor *titleLabelColor UI_APPEARANCE_SELECTOR; //default [UIColor grayColor]
 
 + (NSString *)cellIdentifier;
 

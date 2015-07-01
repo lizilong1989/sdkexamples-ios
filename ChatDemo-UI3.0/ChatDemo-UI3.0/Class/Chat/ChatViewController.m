@@ -29,6 +29,11 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
+    [[EMSendMessageCell appearance] setBubbleBackgroundImage:[[UIImage imageNamed:@"chat_sender_bg"] stretchableImageWithLeftCapWidth:10 topCapHeight:35]];
+    [[EMRecvMessageCell appearance] setBubbleBackgroundImage:[[UIImage imageNamed:@"chat_receiver_bg"] stretchableImageWithLeftCapWidth:35 topCapHeight:35]];
+//    [[EMMessageCell appearance] setSendBubbleMargin:EMMarginMake(10, 10, 10, 20)];
+//    [[EMMessageCell appearance] setRecvBubbleMargin:EMMarginMake(10, 10, 20, 10)];
+    
     [self _setupBarButtonItem];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deleteAllMessages:) name:KNOTIFICATIONNAME_DELETEALLMESSAGE object:nil];
     
@@ -202,6 +207,7 @@
         //构建数据模型
         MessageModel *model = [[MessageModel alloc] initWithMessage:message];
         if (model) {
+            model.avatarImage = [UIImage imageNamed:@"user"];
             [formattedArray addObject:model];
         }
     }
@@ -214,7 +220,61 @@
                   append:(BOOL)append
 {
     NSArray *moreMessages = [self.conversation loadNumbersOfMessages:count before:timestamp];
+    if ([moreMessages count] == 0) {
+        return;
+    }
+    
+    NSInteger scrollToIndex = 0;
     [self.messsagesSource insertObjects:moreMessages atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [moreMessages count])]];
+    EMMessage *latest = [self.messsagesSource lastObject];
+    self.timeIntervalTag = latest.timestamp;
+    
+    //格式化消息
+    NSArray *formattedMessages = [self _formatMessages:moreMessages];
+    //合并消息
+    id object = [self.dataArray firstObject];
+    if ([object isKindOfClass:[NSString class]])
+    {
+        NSString *timestamp = object;
+        [formattedMessages enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id model, NSUInteger idx, BOOL *stop) {
+            if ([model isKindOfClass:[NSString class]] && [timestamp isEqualToString:model])
+            {
+                [self.dataArray removeObjectAtIndex:0];
+                *stop = YES;
+            }
+        }];
+    }
+    scrollToIndex = [self.dataArray count];
+    [self.dataArray insertObjects:formattedMessages atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [formattedMessages count])]];
+    
+    //刷新页面
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.tableView reloadData];
+        
+        [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:[self.dataArray count] - scrollToIndex - 1 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:NO];
+    });
+    
+    //从数据库导入时重新下载没有下载成功的附件
+    for (EMMessage *message in moreMessages)
+    {
+        [self _downloadMessageAttachments:message];
+    }
+    
+    //发送已读回执
+//    NSMutableArray *unreadMessages = [NSMutableArray array];
+//    for (NSInteger i = 0; i < [moreMessages count]; i++)
+//    {
+//        EMMessage *message = moreMessages[i];
+//        if ([self shouldAckMessage:message read:NO])
+//        {
+//            [unreadMessages addObject:message];
+//        }
+//    }
+//    
+//    if ([unreadMessages count])
+//    {
+//        [self sendHasReadResponseForMessages:unreadMessages];
+//    }
 }
 
 @end

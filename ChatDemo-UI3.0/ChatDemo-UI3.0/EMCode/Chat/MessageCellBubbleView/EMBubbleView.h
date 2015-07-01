@@ -8,7 +8,12 @@
 
 #import <UIKit/UIKit.h>
 
-extern CGFloat const EMMessageCellPadding;
+extern NSString *const EMMessageCellIdentifierSendText;
+extern NSString *const EMMessageCellIdentifierSendLocation;
+extern NSString *const EMMessageCellIdentifierSendVoice;
+extern NSString *const EMMessageCellIdentifierSendVideo;
+extern NSString *const EMMessageCellIdentifierSendImage;
+extern NSString *const EMMessageCellIdentifierSendFile;
 
 extern NSString *const EMMessageCellIdentifierRecvText;
 extern NSString *const EMMessageCellIdentifierRecvLocation;
@@ -17,19 +22,19 @@ extern NSString *const EMMessageCellIdentifierRecvVideo;
 extern NSString *const EMMessageCellIdentifierRecvImage;
 extern NSString *const EMMessageCellIdentifierRecvFile;
 
-extern NSString *const EMMessageCellIdentifierSendText;
-extern NSString *const EMMessageCellIdentifierSendLocation;
-extern NSString *const EMMessageCellIdentifierSendVoice;
-extern NSString *const EMMessageCellIdentifierSendVideo;
-extern NSString *const EMMessageCellIdentifierSendImage;
-extern NSString *const EMMessageCellIdentifierSendFile;
-
 @interface EMBubbleView : UIView
 
 @property (strong, nonatomic) NSString *identifier;
 
-@property (strong, nonatomic) NSString *backgroundImageName;
+@property (strong, nonatomic) UIImage *backgroundImage;
 
-- (instancetype)initWithIdentifier:(NSString *)identifier;
+@property (nonatomic) UIEdgeInsets margin;
+
+@property (strong, nonatomic) UILabel *textLabel;
+
+@property (strong, nonatomic) UIImageView *imageView;
+
+- (instancetype)initWithIdentifier:(NSString *)identifier
+                            margin:(UIEdgeInsets)margin;
 
 @end

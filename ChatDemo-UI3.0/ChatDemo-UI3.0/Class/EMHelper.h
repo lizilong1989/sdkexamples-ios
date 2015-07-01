@@ -13,6 +13,6 @@
 
 @interface EMHelper : NSObject
 
-+(instancetype)shareHelper;
++ (instancetype)shareHelper;
 
 @end

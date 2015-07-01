@@ -8,8 +8,6 @@
 
 #import "EMMessageCell.h"
 
-#import "EMBubbleView.h"
-
 CGFloat const EMMessageCellPadding = 10;
 
 NSString *const EMMessageCellIdentifierRecvText = @"EMMessageCellRecvText";
@@ -28,24 +26,13 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
 
 @interface EMMessageCell()
 
-@property (strong, nonatomic) UIImageView *avatarView;
-
-@property (strong, nonatomic) UILabel *nameLabel;
-
-@property (strong, nonatomic) UIButton *statusButton;
-
-@property (strong, nonatomic) EMBubbleView *bubbleView;
-
-@property (nonatomic) NSLayoutConstraint *avatarWidthConstraint;
-
 @property (nonatomic) NSLayoutConstraint *statusWidthConstraint;
+@property (nonatomic) NSLayoutConstraint *bubbleMaxWidthConstraint;
 
 @end
 
 @implementation EMMessageCell
 
-@synthesize avatarView = _avatarView;
-@synthesize nameLabel = _nameLabel;
 @synthesize statusButton = _statusButton;
 @synthesize bubbleView = _bubbleView;
 
@@ -53,28 +40,19 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
 {
     // UIAppearance Proxy Defaults
     EMMessageCell *cell = [self appearance];
-    cell.nameLabelColor = [UIColor grayColor];
-    cell.nameLabelFont = [UIFont systemFontOfSize:10];
-    cell.nameLabelHeight = 15;
-    cell.avatarSize = 30;
+    cell.messageTextFont = [UIFont systemFontOfSize:15];
+    cell.messageTextColor = [UIColor whiteColor];
     cell.statusSize = 20;
-    cell.backgroundImageTheme = @"bubbleBg";
+    cell.bubbleMaxWidth = 230;
+    cell.bubbleMargin = UIEdgeInsetsMake(8, 15, 8, 10);
 }
 
 - (instancetype)initWithStyle:(UITableViewCellStyle)style
               reuseIdentifier:(NSString *)reuseIdentifier
-{
-    BOOL isSender = [reuseIdentifier containsString:@"Send"];
-    return [self initWithStyle:style reuseIdentifier:reuseIdentifier isSender:isSender];
-}
-
-- (instancetype)initWithStyle:(UITableViewCellStyle)style
-              reuseIdentifier:(NSString *)reuseIdentifier
-                     isSender:(BOOL)isSender
 {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
-        [self _setupSubviewsWithSender:isSender];
+        [self _setupSubviews];
     }
     
     return self;
@@ -82,104 +60,45 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
 
 #pragma mark - setup subviews
 
-- (void)_setupSubviewsWithSender:(BOOL)isSender
+- (void)_setupSubviews
 {
     _statusButton = [[UIButton alloc] init];
+    _statusButton.translatesAutoresizingMaskIntoConstraints = NO;
     _statusButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
     [_statusButton addTarget:self action:@selector(statusAction) forControlEvents:UIControlEventTouchUpInside];
-    [self addSubview:_statusButton];
+    _statusButton.hidden = YES;
+    [self.contentView addSubview:_statusButton];
     
-    _bubbleView = [[EMBubbleView alloc] initWithIdentifier:self.reuseIdentifier];
+    _bubbleView = [[EMBubbleView alloc] initWithIdentifier:self.reuseIdentifier margin:_bubbleMargin];
     _bubbleView.translatesAutoresizingMaskIntoConstraints = NO;
     _bubbleView.backgroundColor = [UIColor clearColor];
-    NSString *imageName = [NSString stringWithFormat:@"%@%@", _backgroundImageTheme, (isSender ? @"Send" : @"Recv")];
-    _bubbleView.backgroundImageName = imageName;
-    [self addSubview:_bubbleView];
+    _bubbleView.backgroundImage = _bubbleBackgroundImage;
+    _bubbleView.textLabel.font = _messageTextFont;
+    _bubbleView.textLabel.textColor = _messageTextColor;
+    [self.contentView addSubview:_bubbleView];
     
-    if (!isSender) {
-        _avatarView = [[UIImageView alloc] init];
-        _avatarView.translatesAutoresizingMaskIntoConstraints = NO;
-        _avatarView.backgroundColor = [UIColor clearColor];
-        _avatarView.clipsToBounds = YES;
-        _avatarView.layer.cornerRadius = _avatarCornerRadius;
-        [self addSubview:_avatarView];
-        
-        _nameLabel = [[UILabel alloc] init];
-        _nameLabel.backgroundColor = [UIColor clearColor];
-        _nameLabel.font = _nameLabelFont;
-        _nameLabel.textColor = _nameLabelColor;
-        [self addSubview:_nameLabel];
-        
-        [self _setupAvatarViewConstraints];
-        [self _setupNameLabelConstraints];
-    }
-    
-    [self _setupBubbleViewConstraintsWithSender:isSender];
-    [self _setupStatusButtonConstraintsWithSender:isSender];
+    [self _setupConstraints];
 }
 
 #pragma mark - Setup Constraints
 
-- (void)_setupAvatarViewConstraints
+- (void)_setupConstraints
 {
-    self.avatarWidthConstraint = [NSLayoutConstraint constraintWithItem:self.avatarView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:0 constant:self.avatarSize];
-    [self addConstraint:self.avatarWidthConstraint];
+    //bubble view
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.bubbleView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-EMMessageCellPadding]];
     
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.avatarView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self.avatarView attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0]];
+    self.bubbleMaxWidthConstraint = [NSLayoutConstraint constraintWithItem:self.bubbleView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationLessThanOrEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:self.bubbleMaxWidth];
+    [self addConstraint:self.bubbleMaxWidthConstraint];
     
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.avatarView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeTop multiplier:1.0 constant:EMMessageCellPadding]];
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.avatarView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:EMMessageCellPadding]];
-}
-
-- (void)_setupNameLabelConstraints
-{
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.nameLabel attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeTop multiplier:1.0 constant:EMMessageCellPadding]];
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.nameLabel attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeRight multiplier:1.0 constant:-EMMessageCellPadding]];
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.nameLabel attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:self.nameLabelHeight]];
-}
-
-- (void)_setupStatusButtonConstraintsWithSender:(BOOL)isSender
-{
-    self.statusWidthConstraint = [NSLayoutConstraint constraintWithItem:self.statusButton attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:0 constant:self.statusSize];
+    //status button
+    self.statusWidthConstraint = [NSLayoutConstraint constraintWithItem:self.statusButton attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:self.statusSize];
     [self addConstraint:self.statusWidthConstraint];
-    
     [self addConstraint:[NSLayoutConstraint constraintWithItem:self.statusButton attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self.statusButton attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0]];
     
     [self addConstraint:[NSLayoutConstraint constraintWithItem:self.statusButton attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.bubbleView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
-    
-    if (isSender) {
-        [self addConstraint:[NSLayoutConstraint constraintWithItem:self.statusButton attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.bubbleView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:-EMMessageCellPadding]];
-    }
-    else{
-        [self addConstraint:[NSLayoutConstraint constraintWithItem:self.statusButton attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.bubbleView attribute:NSLayoutAttributeRight multiplier:1.0 constant:EMMessageCellPadding]];
-    }
 }
 
-- (void)_setupBubbleViewConstraintsWithSender:(BOOL)isSender
-{
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.bubbleView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-EMMessageCellPadding]];
-    
-    if (isSender) {
-        [self addConstraint:[NSLayoutConstraint constraintWithItem:self.bubbleView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeTop multiplier:1.0 constant:EMMessageCellPadding]];
-        [self addConstraint:[NSLayoutConstraint constraintWithItem:self.bubbleView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:EMMessageCellPadding * 2 + self.statusSize]];
-        [self addConstraint:[NSLayoutConstraint constraintWithItem:self.bubbleView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeRight multiplier:1.0 constant:-EMMessageCellPadding]];
-    }
-    else{
-        [self addConstraint:[NSLayoutConstraint constraintWithItem:self.bubbleView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.nameLabel attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
-        [self addConstraint:[NSLayoutConstraint constraintWithItem:self.bubbleView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.avatarView attribute:NSLayoutAttributeRight multiplier:1.0 constant:EMMessageCellPadding]];
-        [self addConstraint:[NSLayoutConstraint constraintWithItem:self.bubbleView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeRight multiplier:1.0 constant:-(EMMessageCellPadding * 2 + self.statusSize)]];
-    }
-}
-
-- (void)_updateAvatarViewWidthConstraint
-{
-    if (_avatarView) {
-        [self removeConstraint:self.avatarWidthConstraint];
-        
-        self.avatarWidthConstraint = [NSLayoutConstraint constraintWithItem:self.avatarView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:0 constant:self.avatarSize];
-        [self addConstraint:self.avatarWidthConstraint];
-    }
-}
+#pragma mark - Update Constraint
 
 - (void)_updateStatusButtonWidthConstraint
 {
@@ -191,35 +110,54 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
     }
 }
 
+- (void)_updateBubbleMaxWidthConstraint
+{
+    [self removeConstraint:self.bubbleMaxWidthConstraint];
+    
+    self.bubbleMaxWidthConstraint = [NSLayoutConstraint constraintWithItem:self.bubbleView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationLessThanOrEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:self.bubbleMaxWidth];
+    [self addConstraint:self.bubbleMaxWidthConstraint];
+}
+
 #pragma mark - setter
 
 - (void)setModel:(id<IMessageModel>)model
 {
     _model = model;
-}
-
-- (void)setNameLabelFont:(UIFont *)nameLabelFont
-{
-    _nameLabelFont = nameLabelFont;
-    _nameLabel.font = nameLabelFont;
-}
-
-- (void)setNameLabelColor:(UIColor *)nameLabelColor
-{
-    _nameLabelColor = nameLabelColor;
-    _nameLabel.textColor = nameLabelColor;
-}
-
-- (void)setAvatarSize:(CGFloat)avatarSize
-{
-    _avatarSize = avatarSize;
-    [self _updateAvatarViewWidthConstraint];
-}
-
-- (void)setAvatarCornerRadius:(CGFloat)avatarCornerRadius
-{
-    _avatarCornerRadius = avatarCornerRadius;
-    _avatarView.layer.cornerRadius = avatarCornerRadius;
+    
+    switch (model.contentType) {
+        case eMessageBodyType_Text:
+        {
+            _bubbleView.textLabel.text = model.text;
+        }
+            break;
+        case eMessageBodyType_Image:
+        {
+            
+        }
+            break;
+        case eMessageBodyType_Video:
+        {
+            
+        }
+            break;
+        case eMessageBodyType_Location:
+        {
+            
+        }
+            break;
+        case eMessageBodyType_Voice:
+        {
+            
+        }
+            break;
+        case eMessageBodyType_File:
+        {
+            
+        }
+            break;
+        default:
+            break;
+    }
 }
 
 - (void)setStatusSize:(CGFloat)statusSize
@@ -228,14 +166,41 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
     [self _updateStatusButtonWidthConstraint];
 }
 
-- (void)setBackgroundImageTheme:(NSString *)backgroundImageTheme
+- (void)setBubbleBackgroundImage:(UIImage *)bubbleBackgroundImage
 {
-    _backgroundImageTheme = backgroundImageTheme;
-    
+    _bubbleBackgroundImage = bubbleBackgroundImage;
     if (_bubbleView) {
-        BOOL isSender = [self.reuseIdentifier containsString:@"Send"];
-        NSString *imageName = [NSString stringWithFormat:@"%@%@", _backgroundImageTheme, (isSender ? @"Send" : @"Recv")];
-        _bubbleView.backgroundImageName = imageName;
+        _bubbleView.backgroundImage = _bubbleBackgroundImage;
+    }
+}
+
+- (void)setBubbleMaxWidth:(CGFloat)bubbleMaxWidth
+{
+    _bubbleMaxWidth = bubbleMaxWidth;
+    [self _updateBubbleMaxWidthConstraint];
+}
+
+- (void)setBubbleMargin:(UIEdgeInsets)bubbleMargin
+{
+    _bubbleMargin = bubbleMargin;
+    if (_bubbleView) {
+        [_bubbleView setMargin:_bubbleMargin];
+    }
+}
+
+- (void)setMessageTextFont:(UIFont *)messageTextFont
+{
+    _messageTextFont = messageTextFont;
+    if (_bubbleView) {
+        _bubbleView.textLabel.font = messageTextFont;
+    }
+}
+
+- (void)setMessageTextColor:(UIColor *)messageTextColor
+{
+    _messageTextColor = messageTextColor;
+    if (_bubbleView) {
+        _bubbleView.textLabel.textColor = _messageTextColor;
     }
 }
 
@@ -305,7 +270,55 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
 
 + (CGFloat)cellHeightWithModel:(id<IMessageModel>)model
 {
-    return 0;
+    EMMessageCell *cell = [self appearance];
+    CGFloat bubbleMaxWidth = cell.bubbleMaxWidth - cell.bubbleMargin.left - cell.bubbleMargin.right;
+    
+    CGFloat height = EMMessageCellPadding + cell.bubbleMargin.top + cell.bubbleMargin.bottom;
+    
+    switch (model.contentType) {
+        case eMessageBodyType_Text:
+        {
+            NSString *text = model.text;
+            UIFont *textFont = cell.messageTextFont;
+            CGRect rect = [text boundingRectWithSize:CGSizeMake(bubbleMaxWidth, CGFLOAT_MAX)
+                                             options:NSStringDrawingUsesLineFragmentOrigin
+                                          attributes:@{NSFontAttributeName:textFont}
+                                             context:nil];
+            height += (rect.size.height > 20 ? rect.size.height : 20);
+        }
+            break;
+        case eMessageBodyType_Image:
+        {
+            
+        }
+            break;
+        case eMessageBodyType_Video:
+        {
+            
+        }
+            break;
+        case eMessageBodyType_Location:
+        {
+            
+        }
+            break;
+        case eMessageBodyType_Voice:
+        {
+            
+        }
+            break;
+        case eMessageBodyType_File:
+        {
+            
+        }
+            break;
+        default:
+            break;
+    }
+
+    height += EMMessageCellPadding;
+    
+    return height;
 }
 
 @end
