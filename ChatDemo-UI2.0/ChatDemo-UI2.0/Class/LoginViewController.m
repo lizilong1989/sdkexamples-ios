@@ -129,17 +129,14 @@
      ^(NSDictionary *loginInfo, EMError *error) {
          [self hideHud];
          if (loginInfo && !error) {
-             //获取群组列表
-             [[EaseMob sharedInstance].chatManager asyncFetchMyGroupsList];
-             
              //设置是否自动登录
              [[EaseMob sharedInstance].chatManager setIsAutoLoginEnabled:YES];
              
-             //将2.1.0版本旧版的coredata数据导入新的数据库
-             EMError *error = [[EaseMob sharedInstance].chatManager importDataToNewDatabase];
-             if (!error) {
-                 error = [[EaseMob sharedInstance].chatManager loadDataFromDatabase];
-             }
+             //获取数据库中数据
+             [[EaseMob sharedInstance].chatManager loadDataFromDatabase];
+             
+             //获取群组列表
+             [[EaseMob sharedInstance].chatManager asyncFetchMyGroupsList];
              
              //发送自动登陆状态通知
              [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATION_LOGINCHANGE object:@YES];

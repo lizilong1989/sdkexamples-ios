@@ -225,11 +225,8 @@
     else{
         alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:NSLocalizedString(@"login.beginAutoLogin", @"Start automatic login...") delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
         
-        //将旧版的coredata数据导入新的数据库
-        EMError *error = [[EaseMob sharedInstance].chatManager importDataToNewDatabase];
-        if (!error) {
-            error = [[EaseMob sharedInstance].chatManager loadDataFromDatabase];
-        }
+        //获取数据库中的数据
+        [[EaseMob sharedInstance].chatManager loadDataFromDatabase];
     }
     
     [alertView show];
