@@ -61,23 +61,24 @@
         _imageView = [[UIImageView alloc] init];
         _imageView.translatesAutoresizingMaskIntoConstraints = NO;
         _imageView.backgroundColor = [UIColor lightGrayColor];
+        _imageView.contentMode = UIViewContentModeScaleAspectFit;
         [self.backgroundImageView addSubview:_imageView];
         
         [self _setupImageConstraints];
     }
     else if ([_identifier isEqualToString:EMMessageCellIdentifierSendLocation] || [_identifier isEqualToString:EMMessageCellIdentifierRecvLocation])
     {
-        _imageView = [[UIImageView alloc] init];
-        _imageView.translatesAutoresizingMaskIntoConstraints = NO;
-        _imageView.backgroundColor = [UIColor lightGrayColor];
-        _imageView.clipsToBounds = YES;
-        [self addSubview:_imageView];
+        _locationImageView = [[UIImageView alloc] init];
+        _locationImageView.translatesAutoresizingMaskIntoConstraints = NO;
+        _locationImageView.backgroundColor = [UIColor lightGrayColor];
+        _locationImageView.clipsToBounds = YES;
+        [self addSubview:_locationImageView];
         
-        _textLabel = [[UILabel alloc] init];
-        _textLabel.translatesAutoresizingMaskIntoConstraints = NO;
-        _textLabel.numberOfLines = 2;
-        _textLabel.backgroundColor = [UIColor clearColor];
-        [_imageView addSubview:_textLabel];
+        _locationLabel = [[UILabel alloc] init];
+        _locationLabel.translatesAutoresizingMaskIntoConstraints = NO;
+        _locationLabel.numberOfLines = 2;
+        _locationLabel.backgroundColor = [UIColor colorWithWhite:0.3 alpha:0.8];
+        [_locationImageView addSubview:_locationLabel];
         
         [self _setupLocationConstraints];
     }
@@ -91,6 +92,7 @@
         _imageView = [[UIImageView alloc] init];
         _imageView.translatesAutoresizingMaskIntoConstraints = NO;
         _imageView.backgroundColor = [UIColor lightGrayColor];
+        _imageView.contentMode = UIViewContentModeScaleAspectFit;
         [self addSubview:_imageView];
         
         [self _setupVoiceConstraints];
@@ -100,6 +102,7 @@
         _imageView = [[UIImageView alloc] init];
         _imageView.translatesAutoresizingMaskIntoConstraints = NO;
         _imageView.backgroundColor = [UIColor lightGrayColor];
+        _imageView.contentMode = UIViewContentModeScaleAspectFit;
         [self addSubview:_imageView];
         
         [self _setupVideoConstraints];
@@ -114,6 +117,7 @@
         _imageView = [[UIImageView alloc] init];
         _imageView.translatesAutoresizingMaskIntoConstraints = NO;
         _imageView.backgroundColor = [UIColor lightGrayColor];
+        _imageView.contentMode = UIViewContentModeScaleAspectFit;
         [self addSubview:_imageView];
         
         [self _setupFileConstraints];
@@ -158,13 +162,13 @@
 
 - (void)_setupLocationConstraints
 {
-    [self _setupMarginConstraintsForSubview:self.imageView toItem:self.backgroundImageView];
+    [self _setupMarginConstraintsForSubview:self.locationImageView toItem:self.backgroundImageView];
     
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.textLabel attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.imageView attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.textLabel attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self.imageView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.textLabel attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.imageView attribute:NSLayoutAttributeRight multiplier:1.0 constant:0]];
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.textLabel attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.imageView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0]];
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.textLabel attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self.imageView attribute:NSLayoutAttributeHeight multiplier:0.3 constant:0]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.locationLabel attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.locationImageView attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.locationLabel attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self.locationImageView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.locationLabel attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.locationImageView attribute:NSLayoutAttributeRight multiplier:1.0 constant:0]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.locationLabel attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.locationImageView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.locationLabel attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self.locationImageView attribute:NSLayoutAttributeHeight multiplier:0.3 constant:0]];
 }
 
 - (void)_setupVoiceConstraints
@@ -208,7 +212,7 @@
     [self removeConstraint:self.marginBottomConstraint];
     [self removeConstraint:self.marginLeftConstraint];
     [self removeConstraint:self.marginRightConstraint];
-    [self _setupMarginConstraintsForSubview:self.imageView toItem:self.backgroundImageView];
+    [self _setupMarginConstraintsForSubview:self.locationImageView toItem:self.backgroundImageView];
 }
 
 - (void)_updateVoiceMarginConstraints

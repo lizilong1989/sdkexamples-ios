@@ -36,7 +36,6 @@
     cell.messageNameColor = [UIColor grayColor];
     cell.messageNameFont = [UIFont systemFontOfSize:10];
     cell.messageNameHeight = 15;
-    cell.messageTextColor = [UIColor blackColor];
     cell.avatarSize = 30;
     cell.avatarCornerRadius = 0;
     cell.bubbleMargin = UIEdgeInsetsMake(8, 10, 8, 15);
@@ -75,7 +74,7 @@
     [self addConstraint:[NSLayoutConstraint constraintWithItem:self.avatarView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeTop multiplier:1.0 constant:EMMessageCellPadding]];
     
     [self addConstraint:[NSLayoutConstraint constraintWithItem:self.avatarView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:EMMessageCellPadding]];
-    
+
     self.avatarWidthConstraint = [NSLayoutConstraint constraintWithItem:self.avatarView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:self.avatarSize];
     [self addConstraint:self.avatarWidthConstraint];
     [self addConstraint:[NSLayoutConstraint constraintWithItem:self.avatarView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self.avatarView attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0]];

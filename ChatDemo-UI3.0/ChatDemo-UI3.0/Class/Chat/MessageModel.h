@@ -27,13 +27,17 @@
 @property (strong, nonatomic) NSString *nickname;
 @property (strong, nonatomic) NSString *avatarURLPath;
 @property (strong, nonatomic) UIImage *avatarImage;
+@property (strong, nonatomic) NSString *failImageName;
+
+//text message
 @property (strong, nonatomic) NSString *text;
 
-//location
+//location message
+@property (strong, nonatomic) NSString *address;
 @property (nonatomic) double latitude;
 @property (nonatomic) double longitude;
 
-//image
+//image message
 @property (nonatomic) CGSize size;
 @property (nonatomic) CGSize thumbnailSize;
 @property (strong, nonatomic) NSString *imageURLPath;
@@ -48,7 +52,7 @@
 @property (nonatomic) BOOL isMediaPlaying;
 @property (nonatomic) BOOL isMediaPlayed;
 
-//audio
+//audio message
 @property (nonatomic, strong) EMChatVoice *chatVoice;
 
 - (instancetype)initWithMessage:(EMMessage *)message;

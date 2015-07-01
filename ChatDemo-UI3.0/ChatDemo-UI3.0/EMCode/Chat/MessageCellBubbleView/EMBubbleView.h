@@ -34,6 +34,10 @@ extern NSString *const EMMessageCellIdentifierRecvFile;
 
 @property (strong, nonatomic) UIImageView *imageView;
 
+@property (strong, nonatomic) UIImageView *locationImageView;
+
+@property (strong, nonatomic) UILabel *locationLabel;
+
 - (instancetype)initWithIdentifier:(NSString *)identifier
                             margin:(UIEdgeInsets)margin;
 

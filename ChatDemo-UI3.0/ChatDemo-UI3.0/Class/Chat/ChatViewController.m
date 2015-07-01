@@ -31,6 +31,7 @@
     
     [[EMSendMessageCell appearance] setBubbleBackgroundImage:[[UIImage imageNamed:@"chat_sender_bg"] stretchableImageWithLeftCapWidth:10 topCapHeight:35]];
     [[EMRecvMessageCell appearance] setBubbleBackgroundImage:[[UIImage imageNamed:@"chat_receiver_bg"] stretchableImageWithLeftCapWidth:35 topCapHeight:35]];
+    [[EMMessageCell appearance] setMessageLocationImage:[[UIImage imageNamed:@"chat_location_preview"] stretchableImageWithLeftCapWidth:10 topCapHeight:10]];
 //    [[EMMessageCell appearance] setSendBubbleMargin:EMMarginMake(10, 10, 10, 20)];
 //    [[EMMessageCell appearance] setRecvBubbleMargin:EMMarginMake(10, 10, 20, 10)];
     
@@ -208,6 +209,7 @@
         MessageModel *model = [[MessageModel alloc] initWithMessage:message];
         if (model) {
             model.avatarImage = [UIImage imageNamed:@"user"];
+            model.failImageName = @"imageDownloadFail";
             [formattedArray addObject:model];
         }
     }

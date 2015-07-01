@@ -23,7 +23,18 @@
 @property (strong, nonatomic) NSString *nickname;
 @property (strong, nonatomic) NSString *avatarURLPath;
 @property (strong, nonatomic) UIImage *avatarImage;
+@property (strong, nonatomic) NSString *failImageName;
+
+//text message
 @property (strong, nonatomic) NSString *text;
+
+//image message
+@property (nonatomic) CGSize thumbnailSize;
+@property (strong, nonatomic) UIImage *image;
+@property (strong, nonatomic) UIImage *thumbnailImage;
+
+//location message
+@property (strong, nonatomic) NSString *address;
 
 - (instancetype)initWithMessage:(EMMessage *)message;
 

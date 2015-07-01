@@ -53,7 +53,7 @@
             case eMessageBodyType_Location:
             {
                 EMLocationMessageBody *locationBody = (EMLocationMessageBody *)_firstMessageBody;
-                self.text = locationBody.address;
+                self.address = locationBody.address;
                 self.latitude = locationBody.latitude;
                 self.longitude = locationBody.longitude;
             }

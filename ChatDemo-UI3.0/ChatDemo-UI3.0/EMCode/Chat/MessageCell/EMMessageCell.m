@@ -41,7 +41,9 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
     // UIAppearance Proxy Defaults
     EMMessageCell *cell = [self appearance];
     cell.messageTextFont = [UIFont systemFontOfSize:15];
-    cell.messageTextColor = [UIColor whiteColor];
+    cell.messageTextColor = [UIColor blackColor];
+    cell.messageLocationFont = [UIFont systemFontOfSize:12];
+    cell.messageLocationColor = [UIColor whiteColor];
     cell.statusSize = 20;
     cell.bubbleMaxWidth = 230;
     cell.bubbleMargin = UIEdgeInsetsMake(8, 15, 8, 10);
@@ -75,6 +77,8 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
     _bubbleView.backgroundImage = _bubbleBackgroundImage;
     _bubbleView.textLabel.font = _messageTextFont;
     _bubbleView.textLabel.textColor = _messageTextColor;
+    _bubbleView.locationLabel.font = _messageLocationFont;
+    _bubbleView.locationLabel.textColor = _messageLocationColor;
     [self.contentView addSubview:_bubbleView];
     
     [self _setupConstraints];
@@ -132,7 +136,14 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
             break;
         case eMessageBodyType_Image:
         {
-            
+            UIImage *image = _model.thumbnailImage;
+            if (!image) {
+                image = _model.image;
+                if (!image) {
+                    image = [UIImage imageNamed:_model.failImageName];
+                }
+            }
+            _bubbleView.imageView.image = image;
         }
             break;
         case eMessageBodyType_Video:
@@ -142,7 +153,8 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
             break;
         case eMessageBodyType_Location:
         {
-            
+            _bubbleView.locationImageView.image = _messageLocationImage;
+            _bubbleView.locationLabel.text = _model.address;
         }
             break;
         case eMessageBodyType_Voice:
@@ -201,6 +213,30 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
     _messageTextColor = messageTextColor;
     if (_bubbleView) {
         _bubbleView.textLabel.textColor = _messageTextColor;
+    }
+}
+
+- (void)setMessageLocationColor:(UIColor *)messageLocationColor
+{
+    _messageLocationColor = messageLocationColor;
+    if (_bubbleView) {
+        _bubbleView.locationLabel.textColor = _messageLocationColor;
+    }
+}
+
+- (void)setMessageLocationFont:(UIFont *)messageLocationFont
+{
+    _messageLocationFont = messageLocationFont;
+    if (_bubbleView) {
+        _bubbleView.locationLabel.font = _messageLocationFont;
+    }
+}
+
+- (void)setMessageLocationImage:(UIImage *)messageLocationImage
+{
+    _messageLocationImage = messageLocationImage;
+    if (_bubbleView) {
+        _bubbleView.locationImageView.image = _messageLocationImage;
     }
 }
 
@@ -289,17 +325,33 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
             break;
         case eMessageBodyType_Image:
         {
-            
+            CGSize retSize = model.thumbnailSize;
+            if (retSize.width == 0 || retSize.height == 0) {
+                retSize.width = kEMMessageMaxImageSize;
+                retSize.height = kEMMessageMaxImageSize;
+            }
+            else if (retSize.width > retSize.height) {
+                CGFloat height =  kEMMessageMaxImageSize / retSize.width * retSize.height;
+                retSize.height = height;
+                retSize.width = kEMMessageMaxImageSize;
+            }
+            else {
+                CGFloat width = kEMMessageMaxImageSize / retSize.height * retSize.width;
+                retSize.width = width;
+                retSize.height = kEMMessageMaxImageSize;
+            }
+
+            height += retSize.height;
         }
             break;
         case eMessageBodyType_Video:
         {
-            
+        
         }
             break;
         case eMessageBodyType_Location:
         {
-            
+            height += kEMMessageLocationSize;
         }
             break;
         case eMessageBodyType_Voice:
