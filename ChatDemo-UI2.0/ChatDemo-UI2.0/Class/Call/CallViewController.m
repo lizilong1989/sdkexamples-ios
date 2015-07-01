@@ -18,6 +18,15 @@
 
 @interface CallViewController (){
     NSString * _audioCategory;
+    
+    UIView *_propertyView;
+    UILabel *_widthLabel;
+    UILabel *_heightLabel;
+    UILabel *_timedelayLabel;
+    UILabel *_framerateLabel;
+    UILabel *_lostcntLabel;
+    UILabel *_bitrateLabel;
+    NSTimer *_propertyTimer;
 }
 
 @end
@@ -35,7 +44,7 @@
         _timeLength = 0;
         _chatter = session.sessionChatter;
         
-//        [[EaseMob sharedInstance].callManager removeDelegate:self];
+        [[EaseMob sharedInstance].callManager removeDelegate:self];
         [[EaseMob sharedInstance].callManager addDelegate:self delegateQueue:nil];
         
         g_callCenter = [[CTCallCenter alloc] init];
@@ -110,10 +119,19 @@
         _timeTimer = nil;
     }
     
+    if (_propertyTimer) {
+        [_propertyTimer invalidate];
+        _propertyTimer = nil;
+    }
+    
     if (_smallView) {
         [_smallCaptureLayer removeFromSuperlayer];
         _smallCaptureLayer = nil;
         _smallView = nil;
+    }
+    
+    if (_propertyView) {
+        _propertyView = nil;
     }
     
     if (_openGLView) {
@@ -124,6 +142,8 @@
         free(_imageDataBuffer);
         _imageDataBuffer = nil;
     }
+    
+    [[EaseMob sharedInstance].callManager removeDelegate:self];
 }
 
 #pragma makr - property
@@ -287,6 +307,43 @@
     _smallCaptureLayer.frame = CGRectMake(0, 0, width, height);
     _smallCaptureLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
     [_smallView.layer addSublayer:_smallCaptureLayer];
+    
+    //7、属性显示层
+    _propertyView = [[UIView alloc] initWithFrame:CGRectMake(10, CGRectGetMinY(_actionView.frame) - 90, self.view.frame.size.width - 20, 90)];
+    _propertyView.backgroundColor = [UIColor clearColor];
+    [self.view addSubview:_propertyView];
+    
+    width = (CGRectGetWidth(_propertyView.frame) - 20) / 2;
+    height = CGRectGetHeight(_propertyView.frame) / 3;
+    _widthLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, width, height)];
+    _widthLabel.backgroundColor = [UIColor clearColor];
+    _widthLabel.textColor = [UIColor redColor];
+    [_propertyView addSubview:_widthLabel];
+    
+    _heightLabel = [[UILabel alloc] initWithFrame:CGRectMake(width, 0, width, height)];
+    _heightLabel.backgroundColor = [UIColor clearColor];
+    _heightLabel.textColor = [UIColor redColor];
+    [_propertyView addSubview:_heightLabel];
+    
+    _timedelayLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, height, width, height)];
+    _timedelayLabel.backgroundColor = [UIColor clearColor];
+    _timedelayLabel.textColor = [UIColor redColor];
+    [_propertyView addSubview:_timedelayLabel];
+    
+    _framerateLabel = [[UILabel alloc] initWithFrame:CGRectMake(width, height, width, height)];
+    _framerateLabel.backgroundColor = [UIColor clearColor];
+    _framerateLabel.textColor = [UIColor redColor];
+    [_propertyView addSubview:_framerateLabel];
+    
+    _lostcntLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, height * 2, width, height)];
+    _lostcntLabel.backgroundColor = [UIColor clearColor];
+    _lostcntLabel.textColor = [UIColor redColor];
+    [_propertyView addSubview:_lostcntLabel];
+    
+    _bitrateLabel = [[UILabel alloc] initWithFrame:CGRectMake(width, height * 2, width, height)];
+    _bitrateLabel.backgroundColor = [UIColor clearColor];
+    _bitrateLabel.textColor = [UIColor redColor];
+    [_propertyView addSubview:_bitrateLabel];
 }
 
 #pragma mark - ring
@@ -332,6 +389,17 @@
 
 #pragma mark - private
 
+- (void)_reloadPropertyData
+{
+    id<ICallManager> callManager = [EaseMob sharedInstance].callManager;
+    _widthLabel.text = [NSString stringWithFormat:@"%@%i", NSLocalizedString(@"call.videoWidth", @"Width: "), [callManager getVideoWidth]];
+    _heightLabel.text = [NSString stringWithFormat:@"%@%i", NSLocalizedString(@"call.videoHeight", @"Height: "), [callManager getVideoHeight]];
+    _timedelayLabel.text = [NSString stringWithFormat:@"%@%i", NSLocalizedString(@"call.videoTimedelay", @"Timedelay: "), [callManager getVideoTimedelay]];
+    _framerateLabel.text = [NSString stringWithFormat:@"%@%i", NSLocalizedString(@"call.videoFramerate", @"Framerate: "), [callManager getVideoFramerate]];
+    _lostcntLabel.text = [NSString stringWithFormat:@"%@%i", NSLocalizedString(@"call.videoLostcnt", @"Lostcnt: "), [callManager getVideoLostcnt]];
+    _bitrateLabel.text = [NSString stringWithFormat:@"%@%i", NSLocalizedString(@"call.videoBitrate", @"Bitrate: "), [callManager getVideoBitrate]];
+}
+
 - (void)_insertMessageWithStr:(NSString *)str
 {
     EMChatText *chatText = [[EMChatText alloc] initWithText:str];
@@ -346,11 +414,17 @@
 {
     _callSession = nil;
     _openGLView.hidden = YES;
+    _propertyView = nil;
     [self hideHud];
     
     if (_timeTimer) {
         [_timeTimer invalidate];
         _timeTimer = nil;
+    }
+    
+    if (_propertyTimer) {
+        [_propertyTimer invalidate];
+        _propertyTimer = nil;
     }
     
     if (_session) {
@@ -541,6 +615,9 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         [_actionView addSubview:_silenceLabel];
         [_actionView addSubview:_speakerOutButton];
         [_actionView addSubview:_speakerOutLabel];
+        
+        [self _reloadPropertyData];
+        _propertyTimer = [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(_reloadPropertyData) userInfo:nil repeats:YES];
     }
 }
 
@@ -550,6 +627,15 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 {
     _topView.hidden = !_topView.hidden;
     _actionView.hidden = !_actionView.hidden;
+    
+    CGRect frame = _propertyView.frame;
+    if (_actionView.hidden) {
+        frame.origin.y = self.view.frame.size.height - 90;
+    }
+    else{
+        frame.origin.y = CGRectGetMinY(_actionView.frame) - 90;
+    }
+    _propertyView.frame = frame;
 }
 
 #pragma mark - action
@@ -602,6 +688,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 {
     _openGLView.hidden = YES;
     [_timeTimer invalidate];
+    [_propertyTimer invalidate];
     [self _stopRing];
     [self showHint:NSLocalizedString(@"call.dealloc", @"Is hanging up the call...")];
     AVAudioSession *audioSession = [AVAudioSession sharedInstance];

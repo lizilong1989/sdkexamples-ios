@@ -211,22 +211,16 @@
 "call.speak.direct"="可以说话了...Direct";
 "call.init"="正在初始化通话...";
 "call.dealloc"="正在结束通话...";
-"call.videoWidth"="宽度: ";
-"call.videoHeight"="宽度: ";
-"call.videoTimedelay"="延迟: ";
-"call.videoFramerate"="帧率: ";
-"call.videoLostcnt"="丢包数: ";
-"call.videoBitrate"="比特率: ";
 
 //message
 "message.image" = "图片";
 "message.location" = "位置";
 "message.voice" = "音频";
-"message.video" = "视频";
+"message.vidio" = "视频";
 "message.image1" = "[图片]";
 "message.location1" = "[位置]";
 "message.voice1" = "[音频]";
-"message.video1" = "[视频]";
+"message.vidio1" = "[视频]";
 "message.beginReceiveOffine" = "开始接收离线消息";
 "message.endReceiveOffine" = "离线消息接收成功";
 "message.toolBar.inputPlaceHolder" = "输入新消息";

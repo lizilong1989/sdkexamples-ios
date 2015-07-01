@@ -211,22 +211,16 @@
 "call.speak.direct"="Can speak...Direct";
 "call.init"="Is init the call...";
 "call.dealloc"="Is hanging up the call...";
-"call.videoWidth"="Width: ";
-"call.videoHeight"="Height: ";
-"call.videoTimedelay"="Timedelay: ";
-"call.videoFramerate"="Framerate: ";
-"call.videoLostcnt"="Lostcnt: ";
-"call.videoBitrate"="Bitrate: ";
 
 //message
 "message.image" = "image";
 "message.location" = "location";
 "message.voice" = "audio";
-"message.video" = "video";
+"message.vidio" = "vidio";
 "message.image1" = "[image]";
 "message.location1" = "[location]";
 "message.voice1" = "[audio]";
-"message.video1" = "[video]";
+"message.vidio1" = "[vidio]";
 "message.beginReceiveOffine" = "begin to receive offline messages";
 "message.endReceiveOffine" = "end to receive offline messages";
 "message.toolBar.inputPlaceHolder" = "input a new message";
@@ -244,7 +238,7 @@
 "message.imageFail" = "image for failure!";
 "message.thumImageFail" = "thumbnail for failure!";
 "message.simulatorNotSupportCamera" = "simulator does not support taking picture";
-"message.simulatorNotSupportVideo" = "simulator does not support video";
+"message.simulatorNotSupportVideo" = "simulator does not support vidio";
 "message.startRecordFail" = "failure to start recording";
 "message.noMessage" = "All messages cleared";
 "message.forbiddenWords" = "Your message contains forbidden words";
