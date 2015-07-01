@@ -318,7 +318,7 @@
                 ret = NSLocalizedString(@"message.location1", @"[location]");
             } break;
             case eMessageBodyType_Video: {
-                ret = NSLocalizedString(@"message.vidio1", @"[vidio]");
+                ret = NSLocalizedString(@"message.video1", @"[video]");
             } break;
             default: {
             } break;
@@ -558,9 +558,8 @@
     [self refreshDataSource];
 }
 
-- (void)didFinishedReceiveOfflineMessages:(NSArray *)offlineMessages{
+- (void)didFinishedReceiveOfflineMessages{
     NSLog(NSLocalizedString(@"message.endReceiveOffine", @"End to receive offline messages"));
-    [self refreshDataSource];
 }
 
 #pragma mark - ChatViewControllerDelegate

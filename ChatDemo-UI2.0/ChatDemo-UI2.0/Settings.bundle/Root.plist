@@ -50,7 +50,7 @@
 			<key>AutocorrectionType</key>
 			<string>No</string>
 			<key>DefaultValue</key>
-			<string>im1.easemob.com</string>
+			<string>im1.sandbox.easemob.com</string>
 			<key>IsSecure</key>
 			<false/>
 			<key>Key</key>
@@ -86,7 +86,7 @@
 			<key>AutocorrectionType</key>
 			<string>No</string>
 			<key>DefaultValue</key>
-			<string>a1.easemob.com</string>
+			<string>a1.sdb.easemob.com</string>
 			<key>IsSecure</key>
 			<false/>
 			<key>Key</key>

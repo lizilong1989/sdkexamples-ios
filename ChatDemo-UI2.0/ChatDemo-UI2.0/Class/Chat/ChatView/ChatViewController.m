@@ -1005,20 +1005,6 @@
     }
 }
 
-- (void)didFinishedReceiveOfflineMessages:(NSArray *)offlineMessages
-{
-    if ([self shouldMarkMessageAsRead])
-    {
-        [_conversation markAllMessagesAsRead:YES];
-    }
-    if (![offlineMessages count])
-    {
-        return;
-    }
-    _chatTagDate = nil;
-    long long timestamp = [[NSDate date] timeIntervalSince1970] * 1000 + 1;
-    [self loadMoreMessagesFrom:timestamp count:[self.messages count] + [offlineMessages count] append:NO];
-}
 
 - (void)didReceiveOfflineMessages:(NSArray *)offlineMessages
 {
