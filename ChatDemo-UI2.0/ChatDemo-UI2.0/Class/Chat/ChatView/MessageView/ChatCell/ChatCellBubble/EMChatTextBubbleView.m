@@ -12,7 +12,9 @@
 
 #import <CoreText/CoreText.h>
 #import "EMChatTextBubbleView.h"
+#import "RobotManager.h"
 
+NSString *const kRouterEventMenuTapEventName = @"kRouterEventMenuTapEventName";
 NSString *const kRouterEventTextURLTapEventName = @"kRouterEventTextURLTapEventName";
 
 @interface EMChatTextBubbleView ()
@@ -92,7 +94,23 @@ NSString *const kRouterEventTextURLTapEventName = @"kRouterEventTextURLTapEventN
 {
     [super setModel:model];
     
-    _urlMatches = [_detector matchesInString:self.model.content options:0 range:NSMakeRange(0, self.model.content.length)];
+    if ([[RobotManager sharedInstance] isRobotMenuMessage:self.model.message]) {
+        if ([self.model.message.ext objectForKey:kRobot_Message_Type]) {
+            NSDictionary *dic = [self.model.message.ext objectForKey:kRobot_Message_Type];
+            if ([dic objectForKey:kRobot_Message_Choice]) {
+                NSMutableArray *array = [NSMutableArray array];
+                NSDictionary *choice = [dic objectForKey:kRobot_Message_Choice];
+                NSArray *menu = [choice objectForKey:kRobot_Message_List];
+                self.model.content = [[RobotManager sharedInstance] getRobotMenuMessageContent:self.model.message];
+                for (NSString *string in menu) {
+                    [array addObject:[NSTextCheckingResult replacementCheckingResultWithRange:[self.model.content rangeOfString:string] replacementString:string]];
+                }
+                _urlMatches = array;
+            }
+        }
+    } else {
+        _urlMatches = [_detector matchesInString:self.model.content options:0 range:NSMakeRange(0, self.model.content.length)];
+    }
     NSMutableAttributedString * attributedString = [[NSMutableAttributedString alloc]
                                                     initWithString:self.model.content];
     NSMutableParagraphStyle * paragraphStyle = [[NSMutableParagraphStyle alloc] init];
@@ -115,7 +133,7 @@ NSString *const kRouterEventTextURLTapEventName = @"kRouterEventTextURLTapEventN
     
     for (NSTextCheckingResult *match in _urlMatches) {
         
-        if ([match resultType] == NSTextCheckingTypeLink) {
+        if ([match resultType] == NSTextCheckingTypeLink || [match resultType] == NSTextCheckingTypeReplacement) {
             
             NSRange matchRange = [match range];
             
@@ -253,7 +271,7 @@ NSString *const kRouterEventTextURLTapEventName = @"kRouterEventTextURLTapEventN
 -(void)bubbleViewPressed:(id)sender
 {
     UITapGestureRecognizer *tap = (UITapGestureRecognizer *)sender;
-    CGPoint point = [tap locationInView:_textLabel];
+    CGPoint point = [tap locationInView:self];
     CFIndex charIndex = [self characterIndexAtPoint:point];
     
     [self highlightLinksWithIndex:NSNotFound];
@@ -269,6 +287,15 @@ NSString *const kRouterEventTextURLTapEventName = @"kRouterEventTextURLTapEventN
                 [self routerEventWithName:kRouterEventTextURLTapEventName userInfo:@{KMESSAGEKEY:self.model, @"url":match.URL}];
                 break;
             }
+        } else if ([match resultType] ==  NSTextCheckingTypeReplacement) {
+            
+            NSRange matchRange = [match range];
+            
+            if ([self isIndex:charIndex inRange:matchRange]) {
+                
+                [self routerEventWithName:kRouterEventMenuTapEventName userInfo:@{KMESSAGEKEY:self.model, @"text":match.replacementString}];
+                break;
+            }
         }
     }
 }
@@ -282,17 +309,21 @@ NSString *const kRouterEventTextURLTapEventName = @"kRouterEventTextURLTapEventN
     dispatch_once(&onceToken, ^{
         systemVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
     });
+    NSString *content = [NSString stringWithString:object.content];
+    if ([[RobotManager sharedInstance] isRobotMenuMessage:object.message]) {
+        content = [[RobotManager sharedInstance] getRobotMenuMessageContent:object.message];
+    }
     if (systemVersion >= 7.0) {
         NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
         [paragraphStyle setLineSpacing:[[self class] lineSpacing]];//调整行间距
-        size = [object.content boundingRectWithSize:textBlockMinSize options:NSStringDrawingUsesLineFragmentOrigin
+        size = [content boundingRectWithSize:textBlockMinSize options:NSStringDrawingUsesLineFragmentOrigin
                                          attributes:@{
                                                       NSFontAttributeName:[[self class] textLabelFont],
                                                       NSParagraphStyleAttributeName:paragraphStyle
                                                       }
                                             context:nil].size;
     }else{
-        size = [object.content sizeWithFont:[self textLabelFont]
+        size = [content sizeWithFont:[self textLabelFont]
                           constrainedToSize:textBlockMinSize
                               lineBreakMode:[self textLabelLineBreakModel]];
     }
