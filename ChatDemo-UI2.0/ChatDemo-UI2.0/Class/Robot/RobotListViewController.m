@@ -165,8 +165,12 @@
 
 - (void)reloadDataSource
 {
+    [self hideHud];
+    [self showHudInView:self.view hint:NSLocalizedString(@"loadData", @"Load data...")];
+    
     __weak typeof(self) weakSelf = self;
     [[EaseMob sharedInstance].chatManager asyncFetchRobotsFromServerWithCompletion:^(NSArray *robots, EMError *error) {
+        [weakSelf hideHud];
         if (!error) {
             [weakSelf.dataSource removeAllObjects];
             [weakSelf.dataSource addObjectsFromArray:robots];

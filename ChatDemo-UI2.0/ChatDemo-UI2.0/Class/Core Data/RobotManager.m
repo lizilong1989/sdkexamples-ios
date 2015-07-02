@@ -45,7 +45,7 @@ static RobotManager *sharedInstance = nil;
     if ([[_robotSource allKeys] count] == 0) {
         [self addRobotsToMemory:[[EaseMob sharedInstance].chatManager robotList]];
     }
-    if ([_robotSource objectForKey:username]) {
+    if ([_robotSource objectForKey:[username lowercaseString]]) {
         return YES;
     }
     return NO;
@@ -53,8 +53,8 @@ static RobotManager *sharedInstance = nil;
 
 - (NSString*)getRobotNickWithUsername:(NSString*)username
 {
-    if ([_robotSource objectForKey:username]) {
-        EMRobot *robot = [_robotSource objectForKey:username];
+    if ([_robotSource objectForKey:[username lowercaseString]]) {
+        EMRobot *robot = [_robotSource objectForKey:[username lowercaseString]];
         return robot.nickname;
     }
     return nil;
@@ -66,7 +66,7 @@ static RobotManager *sharedInstance = nil;
         [_robotSource removeAllObjects];
         for (EMRobot *robot in robots) {
             if ([robot isKindOfClass:[EMRobot class]]) {
-                [_robotSource setObject:robot forKey:robot.username];
+                [_robotSource setObject:robot forKey:[robot.username lowercaseString]];
             }
         }
     }
@@ -74,10 +74,10 @@ static RobotManager *sharedInstance = nil;
 
 - (BOOL)isRobotMenuMessage:(EMMessage *)message
 {
-    if (message.ext && [message.ext objectForKey:@"em_robot_message"]) {
-        if ([message.ext objectForKey:@"msgtype"]) {
-            NSDictionary *dic = [message.ext objectForKey:@"msgtype"];
-            if ([dic objectForKey:@"choice"]) {
+    if (message.ext && [message.ext objectForKey:kRobot_Message_Ext]) {
+        if ([message.ext objectForKey:kRobot_Message_Type]) {
+            NSDictionary *dic = [message.ext objectForKey:kRobot_Message_Type];
+            if ([dic objectForKey:kRobot_Message_Choice]) {
                 return YES;
             }
         }
@@ -88,11 +88,11 @@ static RobotManager *sharedInstance = nil;
 - (NSString*)getRobotMenuMessageDigest:(EMMessage*)message
 {
     if ([self isRobotMenuMessage:message]) {
-        if ([message.ext objectForKey:@"msgtype"]) {
-            NSDictionary *dic = [message.ext objectForKey:@"msgtype"];
-            if ([dic objectForKey:@"choice"]) {
-                NSDictionary *choice = [dic objectForKey:@"choice"];
-                return [choice objectForKey:@"title"];
+        if ([message.ext objectForKey:kRobot_Message_Type]) {
+            NSDictionary *dic = [message.ext objectForKey:kRobot_Message_Type];
+            if ([dic objectForKey:kRobot_Message_Choice]) {
+                NSDictionary *choice = [dic objectForKey:kRobot_Message_Choice];
+                return [choice objectForKey:kRobot_Message_Title];
             }
         }
     }

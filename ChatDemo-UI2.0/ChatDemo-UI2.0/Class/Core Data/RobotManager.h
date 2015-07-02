@@ -10,6 +10,7 @@
  * from EaseMob Technologies.
  */
 
+//  用来处理UIDemo上的机器人
 
 #import <Foundation/Foundation.h>
 
