@@ -54,6 +54,7 @@
 		EB9B858E1B45138E0037C3F7 /* chat_sender_audio_playing_003@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EB9B857F1B45138E0037C3F7 /* chat_sender_audio_playing_003@2x.png */; };
 		EB9B858F1B45138E0037C3F7 /* chat_sender_audio_playing_000@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EB9B85801B45138E0037C3F7 /* chat_sender_audio_playing_000@2x.png */; };
 		EB9B85901B45138E0037C3F7 /* chat_sender_bg@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EB9B85811B45138E0037C3F7 /* chat_sender_bg@2x.png */; };
+		EB9B85FF1B4521F50037C3F7 /* EMLocationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB9B85FE1B4521F50037C3F7 /* EMLocationViewController.m */; };
 		EBE4D5EA1B3BD2CE005C3643 /* addContact@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EBE4D5E21B3BD2CE005C3643 /* addContact@2x.png */; };
 		EBE4D5EB1B3BD2CE005C3643 /* apply@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EBE4D5E31B3BD2CE005C3643 /* apply@2x.png */; };
 		EBE4D5EC1B3BD2CE005C3643 /* group@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EBE4D5E41B3BD2CE005C3643 /* group@2x.png */; };
@@ -208,6 +209,8 @@
 		EB9B857F1B45138E0037C3F7 /* chat_sender_audio_playing_003@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chat_sender_audio_playing_003@2x.png"; sourceTree = "<group>"; };
 		EB9B85801B45138E0037C3F7 /* chat_sender_audio_playing_000@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chat_sender_audio_playing_000@2x.png"; sourceTree = "<group>"; };
 		EB9B85811B45138E0037C3F7 /* chat_sender_bg@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chat_sender_bg@2x.png"; sourceTree = "<group>"; };
+		EB9B85FD1B4521F50037C3F7 /* EMLocationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EMLocationViewController.h; sourceTree = "<group>"; };
+		EB9B85FE1B4521F50037C3F7 /* EMLocationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EMLocationViewController.m; sourceTree = "<group>"; };
 		EBE4D5E21B3BD2CE005C3643 /* addContact@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "addContact@2x.png"; sourceTree = "<group>"; };
 		EBE4D5E31B3BD2CE005C3643 /* apply@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "apply@2x.png"; sourceTree = "<group>"; };
 		EBE4D5E41B3BD2CE005C3643 /* group@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "group@2x.png"; sourceTree = "<group>"; };
@@ -678,6 +681,8 @@
 		EBE4D6711B3BFF47005C3643 /* ViewController */ = {
 			isa = PBXGroup;
 			children = (
+				EB9B85FD1B4521F50037C3F7 /* EMLocationViewController.h */,
+				EB9B85FE1B4521F50037C3F7 /* EMLocationViewController.m */,
 				EBE4D6721B3BFF47005C3643 /* EMSearchDisplayController.h */,
 				EBE4D6731B3BFF47005C3643 /* EMSearchDisplayController.m */,
 				EBE4D6741B3BFF47005C3643 /* EMViewController.h */,
@@ -1028,6 +1033,7 @@
 				EBE67AD21B391B9D000DA203 /* main.m in Sources */,
 				EBE4D67E1B3BFF47005C3643 /* NSDateFormatter+Category.m in Sources */,
 				EBE4D6981B3C01B1005C3643 /* ConversationModel.m in Sources */,
+				EB9B85FF1B4521F50037C3F7 /* EMLocationViewController.m in Sources */,
 				EB192ECE1B43DDCE00D5BBAA /* DXTextView.m in Sources */,
 				EBE4D68C1B3BFF47005C3643 /* MJRefreshLegendFooter.m in Sources */,
 				EBE4D6821B3BFF47005C3643 /* ChineseToPinyin.m in Sources */,

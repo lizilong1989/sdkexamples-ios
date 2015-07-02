@@ -15,10 +15,11 @@
 
 #define kEMMessageMaxImageSize 120
 #define kEMMessageLocationHeight 95
-#define kEMMessageVoiceHeight 25
+#define kEMMessageVoiceHeight 23
 
 extern CGFloat const EMMessageCellPadding;
 
+@protocol EMMessageCellDelegate;
 @interface EMMessageCell : UITableViewCell<IModelCell>
 {
     UIButton *_statusButton;
@@ -26,6 +27,8 @@ extern CGFloat const EMMessageCellPadding;
     
     NSLayoutConstraint *_statusWidthConstraint;
 }
+
+@property (weak, nonatomic) id<EMMessageCellDelegate> delegate;
 
 @property (strong, nonatomic) UIImageView *avatarView;
 
@@ -74,3 +77,18 @@ extern CGFloat const EMMessageCellPadding;
 + (CGFloat)cellHeightWithModel:(id<IMessageModel>)model;
 
 @end
+
+@protocol EMMessageCellDelegate <NSObject>
+
+- (void)imageMessageCellSelcted:(id<IMessageModel>)model;
+
+- (void)locationMessageCellSelcted:(id<IMessageModel>)model;
+
+- (void)voiceMessageCellSelcted:(id<IMessageModel>)model;
+
+- (void)videoMessageCellSelcted:(id<IMessageModel>)model;
+
+- (void)fileMessageCellSelcted:(id<IMessageModel>)model;
+
+@end
+

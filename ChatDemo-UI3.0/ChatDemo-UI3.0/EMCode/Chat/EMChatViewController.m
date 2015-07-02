@@ -6,11 +6,15 @@
 //  Copyright (c) 2015年 easemob.com. All rights reserved.
 //
 
+#import <MediaPlayer/MediaPlayer.h>
 #import "EMChatViewController.h"
 
+#import "EMLocationViewController.h"
 #import "NSObject+EaseMob.h"
 
 @interface EMChatViewController ()
+
+@property (nonatomic) id<IMessageModel> playingVoiceModel;
 
 @end
 
@@ -35,6 +39,7 @@
         _pageCount = 50;
         _timeCellHeight = 30;
         _deleteConversationIfNull = YES;
+        _scrollToBottomWhenAppear = YES;
     }
     
     return self;
@@ -57,6 +62,37 @@
 - (void)dealloc
 {
     [self unregisterEaseMobNotification];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    
+    self.isViewDidAppear = YES;
+    
+    if (self.scrollToBottomWhenAppear) {
+        [self _scrollViewToBottom:NO];
+    }
+    self.scrollToBottomWhenAppear = YES;
+
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    
+    self.isViewDidAppear = NO;
+}
+
+#pragma mark - private
+
+- (void)_scrollViewToBottom:(BOOL)animated
+{
+    if (self.tableView.contentSize.height > self.tableView.frame.size.height)
+    {
+        CGPoint offset = CGPointMake(0, self.tableView.contentSize.height - self.tableView.frame.size.height);
+        [self.tableView setContentOffset:offset animated:animated];
+    }
 }
 
 #pragma mark - Table view data source
@@ -102,6 +138,7 @@
             if (sendCell == nil) {
                 sendCell = [[EMSendMessageCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
                 sendCell.selectionStyle = UITableViewCellSelectionStyleNone;
+                sendCell.delegate = self;
             }
             
             sendCell.model = model;
@@ -114,6 +151,7 @@
             if (recvCell == nil) {
                 recvCell = [[EMRecvMessageCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
                 recvCell.selectionStyle = UITableViewCellSelectionStyleNone;
+                recvCell.delegate = self;
             }
             
             recvCell.model = model;
@@ -139,6 +177,43 @@
             return [EMRecvMessageCell cellHeightWithModel:model];
         }
     }
+}
+
+#pragma mark - EMMessageCellDelegate
+
+- (void)imageMessageCellSelcted:(id<IMessageModel>)model
+{
+    
+}
+
+- (void)locationMessageCellSelcted:(id<IMessageModel>)model
+{
+    _scrollToBottomWhenAppear = NO;
+    EMLocationViewController *locationController = [[EMLocationViewController alloc] initWithLocation:CLLocationCoordinate2DMake(model.latitude, model.longitude)];
+    [self.navigationController pushViewController:locationController animated:YES];
+}
+
+- (void)voiceMessageCellSelcted:(id<IMessageModel>)model
+{
+    _scrollToBottomWhenAppear = NO;
+    if (model.isMediaPlaying) {
+        self.playingVoiceModel = model;
+    }
+}
+
+- (void)videoMessageCellSelcted:(id<IMessageModel>)model
+{
+    _scrollToBottomWhenAppear = NO;
+//    NSURL *videoURL = [NSURL fileURLWithPath:videoPath];
+//    MPMoviePlayerViewController *moviePlayerController = [[MPMoviePlayerViewController alloc] initWithContentURL:videoURL];
+//    [moviePlayerController.moviePlayer prepareToPlay];
+//    moviePlayerController.moviePlayer.movieSourceType = MPMovieSourceTypeFile;
+//    [self presentMoviePlayerViewControllerAnimated:moviePlayerController];
+}
+
+- (void)fileMessageCellSelcted:(id<IMessageModel>)model
+{
+    _scrollToBottomWhenAppear = NO;
 }
 
 @end

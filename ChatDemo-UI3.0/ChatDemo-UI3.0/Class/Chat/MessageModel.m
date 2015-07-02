@@ -17,6 +17,7 @@
 {
     self = [super init];
     if (self) {
+        _cellHeight = -1;
         _message = message;
         _firstMessageBody = [message.messageBodies firstObject];
         _isMediaPlaying = NO;

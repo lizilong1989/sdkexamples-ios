@@ -15,11 +15,15 @@
 #import "EMRecvMessageCell.h"
 #import "EMMessageTimeCell.h"
 
-@interface EMChatViewController : EMRefreshTableViewController<IChatManagerDelegate, EMCallManagerCallDelegate>
+@interface EMChatViewController : EMRefreshTableViewController<IChatManagerDelegate, EMCallManagerCallDelegate, EMMessageCellDelegate>
 
 @property (strong, nonatomic, readonly) EMConversation *conversation;
 
-@property (nonatomic) BOOL deleteConversationIfNull;
+@property (nonatomic) BOOL deleteConversationIfNull; //default YES;
+
+@property (nonatomic) BOOL scrollToBottomWhenAppear; //default YES;
+
+@property (nonatomic) BOOL isViewDidAppear;
 
 @property (nonatomic) NSInteger pageCount;
 

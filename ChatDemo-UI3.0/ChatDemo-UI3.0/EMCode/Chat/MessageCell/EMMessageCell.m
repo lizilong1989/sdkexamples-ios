@@ -97,6 +97,9 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
     _bubbleView.fileSizeLabel.font = _messageFileSizeFont;
     [self.contentView addSubview:_bubbleView];
     
+    UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(bubbleViewTapAction:)];
+    [_bubbleView addGestureRecognizer:tapRecognizer];
+    
     [self _setupConstraints];
 }
 
@@ -170,8 +173,15 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
             break;
         case eMessageBodyType_Voice:
         {
-            if ([_messageVoiceAnimationImages count] > 0) {
-                _bubbleView.voiceImageView.image = [_messageVoiceAnimationImages objectAtIndex:0];
+//            if ([_messageVoiceAnimationImages count] > 0) {
+//                _bubbleView.voiceImageView.image = [_messageVoiceAnimationImages objectAtIndex:0];
+//            }
+            
+            if (_model.isMediaPlaying) {
+                [_bubbleView.voiceImageView startAnimating];
+            }
+            else{
+                [_bubbleView.voiceImageView stopAnimating];
             }
             
             _bubbleView.voiceDurationLabel.text = [NSString stringWithFormat:@"%d''",(int)_model.mediaDuration];
@@ -332,6 +342,63 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
 
 #pragma mark - action
 
+- (void)bubbleViewTapAction:(UITapGestureRecognizer *)tapRecognizer
+{
+    if (tapRecognizer.state == UIGestureRecognizerStateEnded) {
+        if (!_delegate) {
+            return;
+        }
+        
+        switch (_model.contentType) {
+            case eMessageBodyType_Image:
+            {
+                if ([_delegate respondsToSelector:@selector(imageMessageCellSelcted:)]) {
+                    [_delegate imageMessageCellSelcted:_model];
+                }
+            }
+                break;
+            case eMessageBodyType_Location:
+            {
+                if ([_delegate respondsToSelector:@selector(locationMessageCellSelcted:)]) {
+                    [_delegate locationMessageCellSelcted:_model];
+                }
+            }
+                break;
+            case eMessageBodyType_Voice:
+            {
+                _model.isMediaPlaying = !_model.isMediaPlaying;
+                if (_model.isMediaPlaying) {
+                    [_bubbleView.voiceImageView startAnimating];
+                }
+                else{
+                    [_bubbleView.voiceImageView stopAnimating];
+                }
+//                _bubbleView.voiceImageView
+                if ([_delegate respondsToSelector:@selector(voiceMessageCellSelcted:)]) {
+                    [_delegate voiceMessageCellSelcted:_model];
+                }
+            }
+                break;
+            case eMessageBodyType_Video:
+            {
+                if ([_delegate respondsToSelector:@selector(videoMessageCellSelcted:)]) {
+                    [_delegate videoMessageCellSelcted:_model];
+                }
+            }
+                break;
+            case eMessageBodyType_File:
+            {
+                if ([_delegate respondsToSelector:@selector(fileMessageCellSelcted:)]) {
+                    [_delegate fileMessageCellSelcted:_model];
+                }
+            }
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 - (void)statusAction
 {
     
@@ -396,6 +463,10 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
 
 + (CGFloat)cellHeightWithModel:(id<IMessageModel>)model
 {
+    if (model.cellHeight > 0) {
+        return model.cellHeight;
+    }
+    
     EMMessageCell *cell = [self appearance];
     CGFloat bubbleMaxWidth = cell.bubbleMaxWidth - cell.bubbleMargin.left - cell.bubbleMargin.right;
     
@@ -460,6 +531,7 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
     }
 
     height += EMMessageCellPadding;
+    model.cellHeight = height;
     
     return height;
 }

@@ -87,6 +87,13 @@
     }
 }
 
+#pragma mark - EMMessageCellDelegate
+
+- (void)imageMessageCellSelcted:(id<IMessageModel>)model
+{
+    
+}
+
 #pragma mark - EMCallManagerCallDelegate
 
 #pragma mark - action

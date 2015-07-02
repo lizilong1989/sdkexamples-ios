@@ -14,6 +14,7 @@
 @class EMChatVoice;
 @interface MessageModel : NSObject<IMessageModel>
 
+@property (nonatomic) CGFloat cellHeight;
 @property (strong, nonatomic, readonly) EMMessage *message;
 @property (strong, nonatomic, readonly) id<IEMMessageBody> firstMessageBody;
 
