@@ -36,6 +36,11 @@
 //location message
 @property (strong, nonatomic) NSString *address;
 
+//file message
+@property (strong, nonatomic) NSString *fileIconName;
+@property (strong, nonatomic) NSString *fileName;
+@property (strong, nonatomic) NSString *fileSizeDes;
+
 - (instancetype)initWithMessage:(EMMessage *)message;
 
 @end

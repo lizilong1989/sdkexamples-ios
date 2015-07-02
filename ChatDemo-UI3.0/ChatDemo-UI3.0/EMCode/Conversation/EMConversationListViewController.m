@@ -57,6 +57,9 @@
             case eMessageBodyType_Video: {
                 ret = NSLocalizedString(@"message.vidio1", @"[vidio]");
             } break;
+            case eMessageBodyType_File: {
+                ret = NSLocalizedString(@"message.file1", @"[file]");
+            } break;
             default: {
             } break;
         }

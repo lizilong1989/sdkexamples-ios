@@ -221,6 +221,7 @@
 "message.location1" = "[location]";
 "message.voice1" = "[audio]";
 "message.vidio1" = "[vidio]";
+"message.file1" = "[file]";
 "message.beginReceiveOffine" = "begin to receive offline messages";
 "message.endReceiveOffine" = "end to receive offline messages";
 "message.toolBar.inputPlaceHolder" = "input a new message";

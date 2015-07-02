@@ -23,20 +23,39 @@ extern NSString *const EMMessageCellIdentifierRecvImage;
 extern NSString *const EMMessageCellIdentifierRecvFile;
 
 @interface EMBubbleView : UIView
+{
+    CGFloat _fileIconSize;
+}
 
 @property (strong, nonatomic) NSString *identifier;
 
-@property (strong, nonatomic) UIImage *backgroundImage;
-
 @property (nonatomic) UIEdgeInsets margin;
 
+@property (strong, nonatomic) UIImageView *backgroundImageView;
+
+@property (strong, nonatomic) NSMutableArray *marginConstraints;
+
+//text views
 @property (strong, nonatomic) UILabel *textLabel;
 
+//image views
 @property (strong, nonatomic) UIImageView *imageView;
 
+//location views
 @property (strong, nonatomic) UIImageView *locationImageView;
 
 @property (strong, nonatomic) UILabel *locationLabel;
+
+//video views
+
+//voice views
+
+//file views
+@property (strong, nonatomic) UIImageView *fileIconView;
+
+@property (strong, nonatomic) UILabel *fileNameLabel;
+
+@property (strong, nonatomic) UILabel *fileSizeLabel;
 
 - (instancetype)initWithIdentifier:(NSString *)identifier
                             margin:(UIEdgeInsets)margin;

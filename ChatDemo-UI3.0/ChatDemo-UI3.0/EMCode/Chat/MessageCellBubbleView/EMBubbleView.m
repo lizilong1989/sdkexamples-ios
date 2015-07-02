@@ -8,9 +8,9 @@
 
 #import "EMBubbleView.h"
 
-@interface EMBubbleView()
+#import "EMBubbleView+File.h"
 
-@property (strong, nonatomic) UIImageView *backgroundImageView;
+@interface EMBubbleView()
 
 @property (nonatomic) NSLayoutConstraint *marginTopConstraint;
 @property (nonatomic) NSLayoutConstraint *marginBottomConstraint;
@@ -31,6 +31,7 @@
     if (self) {
         _identifier = identifier;
         _margin = margin;
+        _marginConstraints = [NSMutableArray array];
         
         [self _setupSubviews];
     }
@@ -109,18 +110,7 @@
     }
     else if ([_identifier isEqualToString:EMMessageCellIdentifierSendFile] || [_identifier isEqualToString:EMMessageCellIdentifierRecvFile])
     {
-        _textLabel = [[UILabel alloc] init];
-        _textLabel.translatesAutoresizingMaskIntoConstraints = NO;
-        _textLabel.backgroundColor = [UIColor clearColor];
-        [self addSubview:_textLabel];
-        
-        _imageView = [[UIImageView alloc] init];
-        _imageView.translatesAutoresizingMaskIntoConstraints = NO;
-        _imageView.backgroundColor = [UIColor lightGrayColor];
-        _imageView.contentMode = UIViewContentModeScaleAspectFit;
-        [self addSubview:_imageView];
-        
-        [self _setupFileConstraints];
+        [self setupFileBubbleView];
     }
     
     [self _setupBackgroundImageViewConstraints];
@@ -141,8 +131,8 @@
 {
     self.marginTopConstraint = [NSLayoutConstraint constraintWithItem:forView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:toView attribute:NSLayoutAttributeTop multiplier:1.0 constant:self.margin.top];
     self.marginBottomConstraint = [NSLayoutConstraint constraintWithItem:forView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:toView attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-self.margin.bottom];
-    self.marginLeftConstraint = [NSLayoutConstraint constraintWithItem:forView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:toView attribute:NSLayoutAttributeRight multiplier:1.0 constant:-self.margin.left];
-    self.marginRightConstraint = [NSLayoutConstraint constraintWithItem:forView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:toView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:self.margin.right];
+    self.marginLeftConstraint = [NSLayoutConstraint constraintWithItem:forView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:toView attribute:NSLayoutAttributeRight multiplier:1.0 constant:-self.margin.right];
+    self.marginRightConstraint = [NSLayoutConstraint constraintWithItem:forView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:toView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:self.margin.left];
     
     [self addConstraint:self.marginTopConstraint];
     [self addConstraint:self.marginBottomConstraint];
@@ -229,19 +219,8 @@
     [self _setupMarginConstraintsForSubview:self.imageView toItem:self.backgroundImageView];
 }
 
-- (void)_updateFileMarginConstraints
-{
-    
-}
-
 
 #pragma mark - setter
-
-- (void)setBackgroundImage:(UIImage *)backgroundImage
-{
-    _backgroundImage = backgroundImage;
-    _backgroundImageView.image = backgroundImage;
-}
 
 - (void)setMargin:(UIEdgeInsets)margin
 {
@@ -269,7 +248,7 @@
     }
     else if ([_identifier isEqualToString:EMMessageCellIdentifierSendFile] || [_identifier isEqualToString:EMMessageCellIdentifierRecvFile])
     {
-        [self _updateFileMarginConstraints];
+        [self updateFileMarginConstraints];
     }
 }
 

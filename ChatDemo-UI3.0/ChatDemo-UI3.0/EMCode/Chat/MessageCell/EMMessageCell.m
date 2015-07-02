@@ -40,13 +40,17 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
 {
     // UIAppearance Proxy Defaults
     EMMessageCell *cell = [self appearance];
-    cell.messageTextFont = [UIFont systemFontOfSize:15];
-    cell.messageTextColor = [UIColor blackColor];
-    cell.messageLocationFont = [UIFont systemFontOfSize:12];
-    cell.messageLocationColor = [UIColor whiteColor];
     cell.statusSize = 20;
     cell.bubbleMaxWidth = 230;
-    cell.bubbleMargin = UIEdgeInsetsMake(8, 15, 8, 10);
+    cell.bubbleMargin = UIEdgeInsetsMake(8, 10, 8, 15);
+    
+    cell.messageTextFont = [UIFont systemFontOfSize:15];
+    cell.messageTextColor = [UIColor blackColor];
+    
+    cell.messageFileNameColor = [UIColor blackColor];
+    cell.messageFileNameFont = [UIFont systemFontOfSize:13];
+    cell.messageFileSizeColor = [UIColor grayColor];
+    cell.messageFileSizeFont = [UIFont systemFontOfSize:11];
 }
 
 - (instancetype)initWithStyle:(UITableViewCellStyle)style
@@ -74,11 +78,14 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
     _bubbleView = [[EMBubbleView alloc] initWithIdentifier:self.reuseIdentifier margin:_bubbleMargin];
     _bubbleView.translatesAutoresizingMaskIntoConstraints = NO;
     _bubbleView.backgroundColor = [UIColor clearColor];
-    _bubbleView.backgroundImage = _bubbleBackgroundImage;
+    _bubbleView.backgroundImageView.image = _bubbleBackgroundImage;
     _bubbleView.textLabel.font = _messageTextFont;
     _bubbleView.textLabel.textColor = _messageTextColor;
     _bubbleView.locationLabel.font = _messageLocationFont;
     _bubbleView.locationLabel.textColor = _messageLocationColor;
+    _bubbleView.fileNameLabel.font = _messageFileNameFont;
+    _bubbleView.fileNameLabel.textColor = _messageFileNameColor;
+    _bubbleView.fileSizeLabel.font = _messageFileSizeFont;
     [self.contentView addSubview:_bubbleView];
     
     [self _setupConstraints];
@@ -164,7 +171,9 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
             break;
         case eMessageBodyType_File:
         {
-            
+            _bubbleView.fileIconView.image = [UIImage imageNamed:_model.fileIconName];
+            _bubbleView.fileNameLabel.text = _model.fileName;
+            _bubbleView.fileSizeLabel.text = _model.fileSizeDes;
         }
             break;
         default:
@@ -182,7 +191,7 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
 {
     _bubbleBackgroundImage = bubbleBackgroundImage;
     if (_bubbleView) {
-        _bubbleView.backgroundImage = _bubbleBackgroundImage;
+        _bubbleView.backgroundImageView.image = _bubbleBackgroundImage;
     }
 }
 
@@ -203,7 +212,7 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
 - (void)setMessageTextFont:(UIFont *)messageTextFont
 {
     _messageTextFont = messageTextFont;
-    if (_bubbleView) {
+    if (_bubbleView.textLabel) {
         _bubbleView.textLabel.font = messageTextFont;
     }
 }
@@ -211,7 +220,7 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
 - (void)setMessageTextColor:(UIColor *)messageTextColor
 {
     _messageTextColor = messageTextColor;
-    if (_bubbleView) {
+    if (_bubbleView.textLabel) {
         _bubbleView.textLabel.textColor = _messageTextColor;
     }
 }
@@ -219,7 +228,7 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
 - (void)setMessageLocationColor:(UIColor *)messageLocationColor
 {
     _messageLocationColor = messageLocationColor;
-    if (_bubbleView) {
+    if (_bubbleView.locationLabel) {
         _bubbleView.locationLabel.textColor = _messageLocationColor;
     }
 }
@@ -227,7 +236,7 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
 - (void)setMessageLocationFont:(UIFont *)messageLocationFont
 {
     _messageLocationFont = messageLocationFont;
-    if (_bubbleView) {
+    if (_bubbleView.locationLabel) {
         _bubbleView.locationLabel.font = _messageLocationFont;
     }
 }
@@ -235,8 +244,40 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
 - (void)setMessageLocationImage:(UIImage *)messageLocationImage
 {
     _messageLocationImage = messageLocationImage;
-    if (_bubbleView) {
+    if (_bubbleView.locationImageView) {
         _bubbleView.locationImageView.image = _messageLocationImage;
+    }
+}
+
+- (void)setMessageFileNameFont:(UIFont *)messageFileNameFont
+{
+    _messageFileNameFont = messageFileNameFont;
+    if (_bubbleView.fileNameLabel) {
+        _bubbleView.fileNameLabel.font = _messageFileNameFont;
+    }
+}
+
+- (void)setMessageFileNameColor:(UIColor *)messageFileNameColor
+{
+    _messageFileNameColor = messageFileNameColor;
+    if (_bubbleView.fileNameLabel) {
+        _bubbleView.fileNameLabel.textColor = _messageFileNameColor;
+    }
+}
+
+- (void)setMessageFileSizeFont:(UIFont *)messageFileSizeFont
+{
+    _messageFileSizeFont = messageFileSizeFont;
+    if (_bubbleView.fileSizeLabel) {
+        _bubbleView.fileSizeLabel.font = _messageFileSizeFont;
+    }
+}
+
+- (void)setMessageFileSizeColor:(UIColor *)messageFileSizeColor
+{
+    _messageFileSizeColor = messageFileSizeColor;
+    if (_bubbleView.fileSizeLabel) {
+        _bubbleView.fileSizeLabel.textColor = _messageFileSizeColor;
     }
 }
 
@@ -316,10 +357,7 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
         {
             NSString *text = model.text;
             UIFont *textFont = cell.messageTextFont;
-            CGRect rect = [text boundingRectWithSize:CGSizeMake(bubbleMaxWidth, CGFLOAT_MAX)
-                                             options:NSStringDrawingUsesLineFragmentOrigin
-                                          attributes:@{NSFontAttributeName:textFont}
-                                             context:nil];
+            CGRect rect = [text boundingRectWithSize:CGSizeMake(bubbleMaxWidth, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:textFont} context:nil];
             height += (rect.size.height > 20 ? rect.size.height : 20);
         }
             break;
@@ -351,7 +389,7 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
             break;
         case eMessageBodyType_Location:
         {
-            height += kEMMessageLocationSize;
+            height += kEMMessageLocationHeight;
         }
             break;
         case eMessageBodyType_Voice:
@@ -361,7 +399,15 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
             break;
         case eMessageBodyType_File:
         {
+            NSString *text = model.fileName;
+            UIFont *font = cell.messageFileNameFont;
+            CGRect nameRect = [text boundingRectWithSize:CGSizeMake(bubbleMaxWidth, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:font} context:nil];
+            height += (nameRect.size.height > 20 ? nameRect.size.height : 20);
             
+            text = model.fileSizeDes;
+            font = cell.messageFileSizeFont;
+            CGRect sizeRect = [text boundingRectWithSize:CGSizeMake(bubbleMaxWidth, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:font} context:nil];
+            height += (sizeRect.size.height > 15 ? sizeRect.size.height : 15);
         }
             break;
         default:

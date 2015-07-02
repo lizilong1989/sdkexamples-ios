@@ -37,6 +37,14 @@
 @property (nonatomic) double latitude;
 @property (nonatomic) double longitude;
 
+//file message
+@property (strong, nonatomic) NSString *fileIconName;
+@property (strong, nonatomic) NSString *fileName;
+@property (nonatomic) CGFloat fileSize;
+@property (strong, nonatomic) NSString *fileSizeDes;
+@property (strong, nonatomic) NSString *fileLocalPath;
+@property (strong, nonatomic) NSString *fileURLPath;
+
 //image message
 @property (nonatomic) CGSize size;
 @property (nonatomic) CGSize thumbnailSize;
@@ -44,10 +52,6 @@
 @property (strong, nonatomic) UIImage *image;
 @property (strong, nonatomic) NSString *thumbnailImageURLPath;
 @property (strong, nonatomic) UIImage *thumbnailImage;
-
-@property (strong, nonatomic) NSString *fileLocalPath;
-@property (strong, nonatomic) NSString *fileURLPath;
-@property (nonatomic) CGFloat fileSize;
 
 @property (nonatomic) BOOL isMediaPlaying;
 @property (nonatomic) BOOL isMediaPlayed;

@@ -77,13 +77,32 @@
                 self.fileURLPath = voiceBody.remotePath;
             }
                 break;
-            case eMessageBodyType_Video:{
+            case eMessageBodyType_Video:
+            {
                 EMVideoMessageBody *videoMessageBody = (EMVideoMessageBody *)_firstMessageBody;
                 self.size = videoMessageBody.size;
                 self.thumbnailSize = videoMessageBody.size;
                 self.fileLocalPath = videoMessageBody.thumbnailLocalPath;
                 self.thumbnailImage = [UIImage imageWithContentsOfFile:videoMessageBody.thumbnailLocalPath];
                 self.image = self.thumbnailImage;
+            }
+                break;
+                case eMessageBodyType_File:
+            {
+                EMFileMessageBody *fileMessageBody = (EMFileMessageBody *)_firstMessageBody;
+                self.fileIconName = @"chat_item_file";
+                self.fileName = fileMessageBody.displayName;
+                self.fileSize = fileMessageBody.fileLength;
+                
+                if (self.fileSize < 1024) {
+                    self.fileSizeDes = [NSString stringWithFormat:@"%fB", self.fileSize];
+                }
+                else if(self.fileSize < 1024 * 1024){
+                    self.fileSizeDes = [NSString stringWithFormat:@"%.2fkB", self.fileSize / 1024];
+                }
+                else if (self.fileSize < 2014 * 1024 * 1024){
+                    self.fileSizeDes = [NSString stringWithFormat:@"%.2fMB", self.fileSize / (1024 * 1024)];
+                }
             }
                 break;
             default:

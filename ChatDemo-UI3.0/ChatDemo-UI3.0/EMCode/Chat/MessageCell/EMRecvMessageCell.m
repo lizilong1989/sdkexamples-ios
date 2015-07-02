@@ -33,12 +33,14 @@
 {
     // UIAppearance Proxy Defaults
     EMRecvMessageCell *cell = [self appearance];
+    cell.avatarSize = 30;
+    cell.avatarCornerRadius = 0;
+    
     cell.messageNameColor = [UIColor grayColor];
     cell.messageNameFont = [UIFont systemFontOfSize:10];
     cell.messageNameHeight = 15;
-    cell.avatarSize = 30;
-    cell.avatarCornerRadius = 0;
-    cell.bubbleMargin = UIEdgeInsetsMake(8, 10, 8, 15);
+    
+    cell.bubbleMargin = UIEdgeInsetsMake(8, 15, 8, 10);
 }
 
 - (instancetype)initWithStyle:(UITableViewCellStyle)style
