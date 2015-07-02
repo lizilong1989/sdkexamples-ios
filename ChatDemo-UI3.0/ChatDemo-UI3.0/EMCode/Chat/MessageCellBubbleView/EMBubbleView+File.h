@@ -8,8 +8,6 @@
 
 #import "EMBubbleView.h"
 
-extern CGFloat const EMMessageCellPadding;
-
 @interface EMBubbleView (File)
 
 - (void)setupFileBubbleView;

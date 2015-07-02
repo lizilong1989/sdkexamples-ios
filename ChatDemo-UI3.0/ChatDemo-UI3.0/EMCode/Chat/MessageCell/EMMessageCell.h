@@ -12,10 +12,10 @@
 #import "IMessageModel.h"
 
 #import "EMBubbleView.h"
-#import "EMBubbleView+File.h"
 
 #define kEMMessageMaxImageSize 120
 #define kEMMessageLocationHeight 95
+#define kEMMessageVoiceHeight 25
 
 extern CGFloat const EMMessageCellPadding;
 
@@ -54,6 +54,12 @@ extern CGFloat const EMMessageCellPadding;
 @property (nonatomic) UIColor *messageLocationColor UI_APPEARANCE_SELECTOR; //default [UIColor whiteColor];
 
 @property (nonatomic) UIImage *messageLocationImage UI_APPEARANCE_SELECTOR;
+
+@property (nonatomic) NSArray *messageVoiceAnimationImages UI_APPEARANCE_SELECTOR;
+
+@property (nonatomic) UIColor *messageVoiceDurationColor UI_APPEARANCE_SELECTOR; //default [UIColor grayColor];
+
+@property (nonatomic) UIFont *messageVoiceDurationFont UI_APPEARANCE_SELECTOR; //default [UIFont systemFontOfSize:12];
 
 @property (nonatomic) UIFont *messageFileNameFont UI_APPEARANCE_SELECTOR; //default [UIFont systemFontOfSize:13];
 

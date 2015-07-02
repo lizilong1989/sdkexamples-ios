@@ -47,6 +47,12 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
     cell.messageTextFont = [UIFont systemFontOfSize:15];
     cell.messageTextColor = [UIColor blackColor];
     
+    cell.messageLocationFont = [UIFont systemFontOfSize:12];
+    cell.messageLocationColor = [UIColor whiteColor];
+    
+    cell.messageVoiceDurationColor = [UIColor grayColor];
+    cell.messageVoiceDurationFont = [UIFont systemFontOfSize:12];
+    
     cell.messageFileNameColor = [UIColor blackColor];
     cell.messageFileNameFont = [UIFont systemFontOfSize:13];
     cell.messageFileSizeColor = [UIColor grayColor];
@@ -75,7 +81,7 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
     _statusButton.hidden = YES;
     [self.contentView addSubview:_statusButton];
     
-    _bubbleView = [[EMBubbleView alloc] initWithIdentifier:self.reuseIdentifier margin:_bubbleMargin];
+    _bubbleView = [[EMBubbleView alloc] initWithIdentifier:self.reuseIdentifier isSender:[self.reuseIdentifier containsString:@"Send"] margin:_bubbleMargin];
     _bubbleView.translatesAutoresizingMaskIntoConstraints = NO;
     _bubbleView.backgroundColor = [UIColor clearColor];
     _bubbleView.backgroundImageView.image = _bubbleBackgroundImage;
@@ -83,6 +89,9 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
     _bubbleView.textLabel.textColor = _messageTextColor;
     _bubbleView.locationLabel.font = _messageLocationFont;
     _bubbleView.locationLabel.textColor = _messageLocationColor;
+    _bubbleView.voiceImageView.animationImages = _messageVoiceAnimationImages;
+    _bubbleView.voiceDurationLabel.textColor = _messageVoiceDurationColor;
+    _bubbleView.voiceDurationLabel.font = _messageVoiceDurationFont;
     _bubbleView.fileNameLabel.font = _messageFileNameFont;
     _bubbleView.fileNameLabel.textColor = _messageFileNameColor;
     _bubbleView.fileSizeLabel.font = _messageFileSizeFont;
@@ -153,11 +162,6 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
             _bubbleView.imageView.image = image;
         }
             break;
-        case eMessageBodyType_Video:
-        {
-            
-        }
-            break;
         case eMessageBodyType_Location:
         {
             _bubbleView.locationImageView.image = _messageLocationImage;
@@ -166,7 +170,24 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
             break;
         case eMessageBodyType_Voice:
         {
+            if ([_messageVoiceAnimationImages count] > 0) {
+                _bubbleView.voiceImageView.image = [_messageVoiceAnimationImages objectAtIndex:0];
+            }
             
+            _bubbleView.voiceDurationLabel.text = [NSString stringWithFormat:@"%d''",(int)_model.mediaDuration];
+        }
+            break;
+        case eMessageBodyType_Video:
+        {
+            UIImage *image = _model.thumbnailImage;
+            if (!image) {
+                image = _model.image;
+                if (!image) {
+                    image = [UIImage imageNamed:_model.failImageName];
+                }
+            }
+            _bubbleView.videoImageView.image = image;
+//            _bubbleView.videoImageView.image = 
         }
             break;
         case eMessageBodyType_File:
@@ -246,6 +267,34 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
     _messageLocationImage = messageLocationImage;
     if (_bubbleView.locationImageView) {
         _bubbleView.locationImageView.image = _messageLocationImage;
+    }
+}
+
+- (void)setMessageVoiceAnimationImages:(NSArray *)messageVoiceAnimationImages
+{
+    _messageVoiceAnimationImages = messageVoiceAnimationImages;
+    if (_bubbleView.voiceImageView) {
+        if ([_messageVoiceAnimationImages count] > 0) {
+            _bubbleView.voiceImageView.image = [_messageVoiceAnimationImages objectAtIndex:0];
+        }
+        
+        _bubbleView.voiceImageView.animationImages = _messageVoiceAnimationImages;
+    }
+}
+
+- (void)setMessageVoiceDurationColor:(UIColor *)messageVoiceDurationColor
+{
+    _messageVoiceDurationColor = messageVoiceDurationColor;
+    if (_bubbleView.voiceDurationLabel) {
+        _bubbleView.voiceDurationLabel.textColor = _messageVoiceDurationColor;
+    }
+}
+
+- (void)setMessageVoiceDurationFont:(UIFont *)messageVoiceDurationFont
+{
+    _messageVoiceDurationFont = messageVoiceDurationFont;
+    if (_bubbleView.voiceDurationLabel) {
+        _bubbleView.voiceDurationLabel.font = _messageVoiceDurationFont;
     }
 }
 
@@ -362,8 +411,9 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
         }
             break;
         case eMessageBodyType_Image:
+        case eMessageBodyType_Video:
         {
-            CGSize retSize = model.thumbnailSize;
+            CGSize retSize = model.thumbnailImageSize;
             if (retSize.width == 0 || retSize.height == 0) {
                 retSize.width = kEMMessageMaxImageSize;
                 retSize.height = kEMMessageMaxImageSize;
@@ -382,11 +432,6 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
             height += retSize.height;
         }
             break;
-        case eMessageBodyType_Video:
-        {
-        
-        }
-            break;
         case eMessageBodyType_Location:
         {
             height += kEMMessageLocationHeight;
@@ -394,7 +439,7 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
             break;
         case eMessageBodyType_Voice:
         {
-            
+            height += kEMMessageVoiceHeight;
         }
             break;
         case eMessageBodyType_File:

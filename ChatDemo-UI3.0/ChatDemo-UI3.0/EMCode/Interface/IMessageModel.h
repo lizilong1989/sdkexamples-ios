@@ -23,18 +23,23 @@
 @property (strong, nonatomic) NSString *nickname;
 @property (strong, nonatomic) NSString *avatarURLPath;
 @property (strong, nonatomic) UIImage *avatarImage;
-@property (strong, nonatomic) NSString *failImageName;
 
 //text message
 @property (strong, nonatomic) NSString *text;
 
+@property (strong, nonatomic) NSString *failImageName;
 //image message
-@property (nonatomic) CGSize thumbnailSize;
+@property (nonatomic) CGSize imageSize;
+@property (nonatomic) CGSize thumbnailImageSize;
 @property (strong, nonatomic) UIImage *image;
 @property (strong, nonatomic) UIImage *thumbnailImage;
 
 //location message
 @property (strong, nonatomic) NSString *address;
+
+//media message
+@property (nonatomic) BOOL isMediaPlaying;
+@property (nonatomic) CGFloat mediaDuration;
 
 //file message
 @property (strong, nonatomic) NSString *fileIconName;

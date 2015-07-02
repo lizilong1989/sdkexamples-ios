@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
+extern CGFloat const EMMessageCellPadding;
+
 extern NSString *const EMMessageCellIdentifierSendText;
 extern NSString *const EMMessageCellIdentifierSendLocation;
 extern NSString *const EMMessageCellIdentifierSendVoice;
@@ -29,11 +31,13 @@ extern NSString *const EMMessageCellIdentifierRecvFile;
 
 @property (strong, nonatomic) NSString *identifier;
 
+@property (nonatomic) BOOL isSender;
+
 @property (nonatomic) UIEdgeInsets margin;
 
-@property (strong, nonatomic) UIImageView *backgroundImageView;
-
 @property (strong, nonatomic) NSMutableArray *marginConstraints;
+
+@property (strong, nonatomic) UIImageView *backgroundImageView;
 
 //text views
 @property (strong, nonatomic) UILabel *textLabel;
@@ -43,21 +47,23 @@ extern NSString *const EMMessageCellIdentifierRecvFile;
 
 //location views
 @property (strong, nonatomic) UIImageView *locationImageView;
-
 @property (strong, nonatomic) UILabel *locationLabel;
 
-//video views
-
 //voice views
+@property (strong, nonatomic) UIImageView *voiceImageView;
+@property (strong, nonatomic) UILabel *voiceDurationLabel;
+
+//video views
+@property (strong, nonatomic) UIImageView *videoImageView;
+@property (strong, nonatomic) UIImageView *videoTagView;
 
 //file views
 @property (strong, nonatomic) UIImageView *fileIconView;
-
 @property (strong, nonatomic) UILabel *fileNameLabel;
-
 @property (strong, nonatomic) UILabel *fileSizeLabel;
 
 - (instancetype)initWithIdentifier:(NSString *)identifier
+                          isSender:(BOOL)isSender
                             margin:(UIEdgeInsets)margin;
 
 @end

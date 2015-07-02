@@ -37,6 +37,21 @@
 @property (nonatomic) double latitude;
 @property (nonatomic) double longitude;
 
+//image message
+@property (nonatomic) CGSize imageSize;
+@property (nonatomic) CGSize thumbnailImageSize;
+@property (strong, nonatomic) NSString *imageURLPath;
+@property (strong, nonatomic) UIImage *image;
+@property (strong, nonatomic) NSString *thumbnailImageURLPath;
+@property (strong, nonatomic) UIImage *thumbnailImage;
+
+//media message
+@property (nonatomic) BOOL isMediaPlaying;
+@property (nonatomic) BOOL isMediaPlayed;
+@property (nonatomic) CGFloat mediaDuration;
+//audio
+@property (nonatomic, strong) EMChatVoice *chatVoice;
+
 //file message
 @property (strong, nonatomic) NSString *fileIconName;
 @property (strong, nonatomic) NSString *fileName;
@@ -44,20 +59,6 @@
 @property (strong, nonatomic) NSString *fileSizeDes;
 @property (strong, nonatomic) NSString *fileLocalPath;
 @property (strong, nonatomic) NSString *fileURLPath;
-
-//image message
-@property (nonatomic) CGSize size;
-@property (nonatomic) CGSize thumbnailSize;
-@property (strong, nonatomic) NSString *imageURLPath;
-@property (strong, nonatomic) UIImage *image;
-@property (strong, nonatomic) NSString *thumbnailImageURLPath;
-@property (strong, nonatomic) UIImage *thumbnailImage;
-
-@property (nonatomic) BOOL isMediaPlaying;
-@property (nonatomic) BOOL isMediaPlayed;
-
-//audio message
-@property (nonatomic, strong) EMChatVoice *chatVoice;
 
 - (instancetype)initWithMessage:(EMMessage *)message;
 

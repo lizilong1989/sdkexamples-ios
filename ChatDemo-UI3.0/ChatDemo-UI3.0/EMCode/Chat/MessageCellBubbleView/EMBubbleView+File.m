@@ -32,11 +32,23 @@
     
     //size label
     NSLayoutConstraint *fileSizeWithMarginBottomConstraint = [NSLayoutConstraint constraintWithItem:self.fileSizeLabel attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.backgroundImageView attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-self.margin.bottom];
-    NSLayoutConstraint *fileSizeWithMarginRightConstraint = [NSLayoutConstraint constraintWithItem:self.fileSizeLabel attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.backgroundImageView attribute:NSLayoutAttributeRight multiplier:1.0 constant:-self.margin.right];
     [self.marginConstraints addObject:fileSizeWithMarginBottomConstraint];
-    [self.marginConstraints addObject:fileSizeWithMarginRightConstraint];
     
     [self addConstraints:self.marginConstraints];
+}
+
+- (void)_setupFileBubbleConstraints
+{
+    [self _setupFileBubbleMarginConstraints];
+    
+    //icon view
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.fileIconView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self.fileIconView attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0]];
+    
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.fileNameLabel attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.fileIconView attribute:NSLayoutAttributeRight multiplier:1.0 constant:EMMessageCellPadding]];
+    
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.fileSizeLabel attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.fileNameLabel attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.fileSizeLabel attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.fileNameLabel attribute:NSLayoutAttributeRight multiplier:1.0 constant:0]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.fileSizeLabel attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.fileNameLabel attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
 }
 
 #pragma mark - public
@@ -47,32 +59,19 @@
     self.fileIconView.translatesAutoresizingMaskIntoConstraints = NO;
     self.fileIconView.backgroundColor = [UIColor clearColor];
     self.fileIconView.contentMode = UIViewContentModeScaleAspectFit;
-    [self addSubview:self.fileIconView];
+    [self.backgroundImageView addSubview:self.fileIconView];
     
     self.fileNameLabel = [[UILabel alloc] init];
     self.fileNameLabel.translatesAutoresizingMaskIntoConstraints = NO;
     self.fileNameLabel.backgroundColor = [UIColor clearColor];
-    [self addSubview:self.fileNameLabel];
+    [self.backgroundImageView addSubview:self.fileNameLabel];
     
     self.fileSizeLabel = [[UILabel alloc] init];
     self.fileSizeLabel.translatesAutoresizingMaskIntoConstraints = NO;
     self.fileSizeLabel.backgroundColor = [UIColor clearColor];
-    [self addSubview:self.fileSizeLabel];
+    [self.backgroundImageView addSubview:self.fileSizeLabel];
     
-    [self setupFileBubbleConstraints];
-}
-
-- (void)setupFileBubbleConstraints
-{
-    //icon view
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.fileIconView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self.fileIconView attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0]];
-    
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.fileNameLabel attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.fileIconView attribute:NSLayoutAttributeRight multiplier:1.0 constant:EMMessageCellPadding]];
-    
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.fileSizeLabel attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.fileIconView attribute:NSLayoutAttributeRight multiplier:1.0 constant:EMMessageCellPadding]];
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.fileSizeLabel attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.fileNameLabel attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
-    
-    [self _setupFileBubbleMarginConstraints];
+    [self _setupFileBubbleConstraints];
 }
 
 - (void)updateFileMarginConstraints

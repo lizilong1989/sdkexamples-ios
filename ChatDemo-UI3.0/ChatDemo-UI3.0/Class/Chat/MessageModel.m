@@ -38,8 +38,8 @@
             case eMessageBodyType_Image:
             {
                 EMImageMessageBody *imgMessageBody = (EMImageMessageBody *)_firstMessageBody;
-                self.size = imgMessageBody.size;
-                self.thumbnailSize = imgMessageBody.thumbnailSize;
+                self.imageSize = imgMessageBody.size;
+                self.thumbnailImageSize = imgMessageBody.thumbnailSize;
                 self.fileLocalPath = imgMessageBody.localPath;
                 self.thumbnailImage = [UIImage imageWithContentsOfFile:imgMessageBody.thumbnailLocalPath];
                 if (self.isSender)
@@ -61,7 +61,7 @@
             case eMessageBodyType_Voice:
             {
                 EMVoiceMessageBody *voiceBody = (EMVoiceMessageBody *)_firstMessageBody;
-                self.fileSize = voiceBody.duration;
+                self.mediaDuration = voiceBody.duration;
                 self.chatVoice = (EMChatVoice *)voiceBody.chatObject;
                 if (message.ext) {
                     NSDictionary *dict = message.ext;
@@ -80,8 +80,8 @@
             case eMessageBodyType_Video:
             {
                 EMVideoMessageBody *videoMessageBody = (EMVideoMessageBody *)_firstMessageBody;
-                self.size = videoMessageBody.size;
-                self.thumbnailSize = videoMessageBody.size;
+                self.imageSize = videoMessageBody.size;
+                self.thumbnailImageSize = videoMessageBody.size;
                 self.fileLocalPath = videoMessageBody.thumbnailLocalPath;
                 self.thumbnailImage = [UIImage imageWithContentsOfFile:videoMessageBody.thumbnailLocalPath];
                 self.image = self.thumbnailImage;
