@@ -20,12 +20,12 @@
     NSString * _audioCategory;
     
     UIView *_propertyView;
-    UILabel *_widthLabel;
-    UILabel *_heightLabel;
+    UILabel *_sizeLabel;
     UILabel *_timedelayLabel;
     UILabel *_framerateLabel;
     UILabel *_lostcntLabel;
-    UILabel *_bitrateLabel;
+    UILabel *_remoteBitrateLabel;
+    UILabel *_localBitrateLabel;
     NSTimer *_propertyTimer;
 }
 
@@ -315,35 +315,35 @@
     
     width = (CGRectGetWidth(_propertyView.frame) - 20) / 2;
     height = CGRectGetHeight(_propertyView.frame) / 3;
-    _widthLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, width, height)];
-    _widthLabel.backgroundColor = [UIColor clearColor];
-    _widthLabel.textColor = [UIColor redColor];
-    [_propertyView addSubview:_widthLabel];
+    _sizeLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, width, height)];
+    _sizeLabel.backgroundColor = [UIColor clearColor];
+    _sizeLabel.textColor = [UIColor redColor];
+    [_propertyView addSubview:_sizeLabel];
     
-    _heightLabel = [[UILabel alloc] initWithFrame:CGRectMake(width, 0, width, height)];
-    _heightLabel.backgroundColor = [UIColor clearColor];
-    _heightLabel.textColor = [UIColor redColor];
-    [_propertyView addSubview:_heightLabel];
-    
-    _timedelayLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, height, width, height)];
+    _timedelayLabel = [[UILabel alloc] initWithFrame:CGRectMake(width, 0, width, height)];
     _timedelayLabel.backgroundColor = [UIColor clearColor];
     _timedelayLabel.textColor = [UIColor redColor];
     [_propertyView addSubview:_timedelayLabel];
     
-    _framerateLabel = [[UILabel alloc] initWithFrame:CGRectMake(width, height, width, height)];
+    _framerateLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, height, width, height)];
     _framerateLabel.backgroundColor = [UIColor clearColor];
     _framerateLabel.textColor = [UIColor redColor];
     [_propertyView addSubview:_framerateLabel];
     
-    _lostcntLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, height * 2, width, height)];
+    _lostcntLabel = [[UILabel alloc] initWithFrame:CGRectMake(width, height, width, height)];
     _lostcntLabel.backgroundColor = [UIColor clearColor];
     _lostcntLabel.textColor = [UIColor redColor];
     [_propertyView addSubview:_lostcntLabel];
     
-    _bitrateLabel = [[UILabel alloc] initWithFrame:CGRectMake(width, height * 2, width, height)];
-    _bitrateLabel.backgroundColor = [UIColor clearColor];
-    _bitrateLabel.textColor = [UIColor redColor];
-    [_propertyView addSubview:_bitrateLabel];
+    _localBitrateLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, height * 2, width, height)];
+    _localBitrateLabel.backgroundColor = [UIColor clearColor];
+    _localBitrateLabel.textColor = [UIColor redColor];
+    [_propertyView addSubview:_localBitrateLabel];
+    
+    _remoteBitrateLabel = [[UILabel alloc] initWithFrame:CGRectMake(width, height * 2, width, height)];
+    _remoteBitrateLabel.backgroundColor = [UIColor clearColor];
+    _remoteBitrateLabel.textColor = [UIColor redColor];
+    [_propertyView addSubview:_remoteBitrateLabel];
 }
 
 #pragma mark - ring
@@ -392,12 +392,12 @@
 - (void)_reloadPropertyData
 {
     id<ICallManager> callManager = [EaseMob sharedInstance].callManager;
-    _widthLabel.text = [NSString stringWithFormat:@"%@%i", NSLocalizedString(@"call.videoWidth", @"Width: "), [callManager getVideoWidth]];
-    _heightLabel.text = [NSString stringWithFormat:@"%@%i", NSLocalizedString(@"call.videoHeight", @"Height: "), [callManager getVideoHeight]];
+    _sizeLabel.text = [NSString stringWithFormat:@"%@%i/%i", NSLocalizedString(@"call.videoSize", @"Width/Height: "), [callManager getVideoWidth], [callManager getVideoHeight]];
     _timedelayLabel.text = [NSString stringWithFormat:@"%@%i", NSLocalizedString(@"call.videoTimedelay", @"Timedelay: "), [callManager getVideoTimedelay]];
     _framerateLabel.text = [NSString stringWithFormat:@"%@%i", NSLocalizedString(@"call.videoFramerate", @"Framerate: "), [callManager getVideoFramerate]];
     _lostcntLabel.text = [NSString stringWithFormat:@"%@%i", NSLocalizedString(@"call.videoLostcnt", @"Lostcnt: "), [callManager getVideoLostcnt]];
-    _bitrateLabel.text = [NSString stringWithFormat:@"%@%i", NSLocalizedString(@"call.videoBitrate", @"Bitrate: "), [callManager getVideoBitrate]];
+    _localBitrateLabel.text = [NSString stringWithFormat:@"%@%i", NSLocalizedString(@"call.videoLocalBitrate", @"Local Bitrate: "), [callManager getVideoLocalBitrate]];
+    _remoteBitrateLabel.text = [NSString stringWithFormat:@"%@%i", NSLocalizedString(@"call.videoRemoteBitrate", @"Remote Bitrate: "), [callManager getVideoRemoteBitrate]];
 }
 
 - (void)_insertMessageWithStr:(NSString *)str

@@ -29,7 +29,7 @@ typedef enum{
 @property (nonatomic, strong) UIButton *audioCallButton;
 @property (nonatomic, strong) UIButton *videoCallButton;
 
-- (instancetype)initWithFrame:(CGRect)frame typw:(ChatMoreType)type;
+- (instancetype)initWithFrame:(CGRect)frame type:(ChatMoreType)type;
 
 - (void)setupSubviewsForType:(ChatMoreType)type;
 

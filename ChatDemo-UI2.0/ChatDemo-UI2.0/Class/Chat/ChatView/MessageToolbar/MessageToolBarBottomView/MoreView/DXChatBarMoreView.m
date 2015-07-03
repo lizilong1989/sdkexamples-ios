@@ -17,7 +17,7 @@
 
 @implementation DXChatBarMoreView
 
-- (instancetype)initWithFrame:(CGRect)frame typw:(ChatMoreType)type
+- (instancetype)initWithFrame:(CGRect)frame type:(ChatMoreType)type
 {
     self = [super initWithFrame:frame];
     if (self) {

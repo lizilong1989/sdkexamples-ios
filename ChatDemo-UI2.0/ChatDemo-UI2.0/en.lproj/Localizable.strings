@@ -211,12 +211,12 @@
 "call.speak.direct"="Can speak...Direct";
 "call.init"="Is init the call...";
 "call.dealloc"="Is hanging up the call...";
-"call.videoWidth"="Width: ";
-"call.videoHeight"="Height: ";
+"call.videoSize"="Width/Height: ";
 "call.videoTimedelay"="Timedelay: ";
 "call.videoFramerate"="Framerate: ";
 "call.videoLostcnt"="Lostcnt: ";
-"call.videoBitrate"="Bitrate: ";
+"call.videoLocalBitrate"="Local Bitrate: ";
+"call.videoRemoteBitrate"="Remote Bitrate: ";
 
 //message
 "message.image" = "image";
