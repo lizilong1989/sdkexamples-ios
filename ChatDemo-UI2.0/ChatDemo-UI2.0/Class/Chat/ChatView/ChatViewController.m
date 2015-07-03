@@ -716,7 +716,8 @@
     [self.navigationController pushViewController:locationController animated:YES];
 }
 
-- (void)chatVideoCellPressed:(MessageModel *)model{
+- (void)chatVideoCellPressed:(MessageModel *)model
+{
     EMVideoMessageBody *videoBody = (EMVideoMessageBody*)model.messageBody;
     if (videoBody.attachmentDownloadStatus == EMAttachmentDownloadSuccessed)
     {

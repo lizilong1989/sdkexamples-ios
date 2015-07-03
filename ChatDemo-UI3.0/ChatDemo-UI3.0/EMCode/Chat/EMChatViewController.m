@@ -12,9 +12,13 @@
 #import "EMLocationViewController.h"
 #import "NSObject+EaseMob.h"
 
-@interface EMChatViewController ()
+@interface EMChatViewController ()<EMChatToolbarDelegate>
+{
+    UILongPressGestureRecognizer *_lpgr;
+}
 
-@property (nonatomic) id<IMessageModel> playingVoiceModel;
+@property (strong, nonatomic) id<IMessageModel> playingVoiceModel;
+@property (strong, nonatomic) NSIndexPath *menuIndexPath;
 
 @end
 
@@ -40,6 +44,7 @@
         _timeCellHeight = 30;
         _deleteConversationIfNull = YES;
         _scrollToBottomWhenAppear = YES;
+        _messsagesSource = [NSMutableArray array];
     }
     
     return self;
@@ -51,13 +56,20 @@
     self.view.backgroundColor = [UIColor colorWithRed:248 / 255.0 green:248 / 255.0 blue:248 / 255.0 alpha:1.0];
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     
+    //初始化页面
     CGFloat chatbarHeight = [EMChatToolbar defaultHeight];
-    self.chatToolbar = [[EMChatToolbar alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height - chatbarHeight, self.view.frame.size.width, chatbarHeight)];
-    _chatToolbar.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
+    EMChatToolbarType barType = self.conversation.conversationType == eConversationTypeChat ? EMChatToolbarTypeChat : EMChatToolbarTypeGroup;
+    self.chatToolbar = [[EMChatToolbar alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height - chatbarHeight, self.view.frame.size.width, chatbarHeight) type:barType];
+    [(EMChatToolbar *)self.chatToolbar setDelegate:self];
+    self.chatToolbar.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
     
+    //初始化手势
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(keyBoardHidden:)];
     [self.view addGestureRecognizer:tap];
+    self.showMessageMenuController = YES;
     
+    //注册代理
+    [EMCDDeviceManager sharedInstance].delegate = self;
     [self registerEaseMobNotification];
 }
 
@@ -68,7 +80,15 @@
 
 - (void)dealloc
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
+    [[EMCDDeviceManager sharedInstance] stopPlaying];
+    [EMCDDeviceManager sharedInstance].delegate = nil;
     [self unregisterEaseMobNotification];
+    
+//    if (_imagePicker){
+//        [_imagePicker dismissViewControllerAnimated:NO completion:nil];
+//    }
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -88,6 +108,21 @@
     [super viewWillDisappear:animated];
     
     self.isViewDidAppear = NO;
+}
+
+#pragma mark - getter
+
+- (UIMenuController *)menuController
+{
+    if(_menuController == nil)
+    {
+        _menuController = [UIMenuController sharedMenuController];
+        
+        UIMenuItem *deleteItem = [[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"delete", @"Delete") action:@selector(deleteMenuAction:)];
+        [_menuController setMenuItems:@[deleteItem]];
+    }
+    
+    return _menuController;
 }
 
 #pragma mark - setter
@@ -111,13 +146,18 @@
     if (_showMessageMenuController != showMessageMenuController) {
         _showMessageMenuController = showMessageMenuController;
         
-        UILongPressGestureRecognizer *lpgr = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
-        lpgr.minimumPressDuration = 0.5;
-        [self.tableView addGestureRecognizer:lpgr];
+        if (_showMessageMenuController) {
+            _lpgr = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
+            _lpgr.minimumPressDuration = 0.5;
+            [self.tableView addGestureRecognizer:_lpgr];
+        }
+        else{
+            [self.tableView removeGestureRecognizer:_lpgr];
+        }
     }
 }
 
-#pragma mark - private
+#pragma mark - private helper
 
 - (void)_scrollViewToBottom:(BOOL)animated
 {
@@ -142,6 +182,90 @@
     }
     
     return bCanRecord;
+}
+
+- (void)_showMenuViewController:(UIView *)showInView
+                   andIndexPath:(NSIndexPath *)indexPath
+                    messageType:(MessageBodyType)messageType
+{
+    _menuController = [UIMenuController sharedMenuController];
+    
+    UIMenuItem *deleteItem = [[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"delete", @"Delete") action:@selector(deleteMenuAction:)];
+    [_menuController setMenuItems:@[deleteItem]];
+    
+    [_menuController setTargetRect:showInView.frame inView:showInView.superview];
+    [_menuController setMenuVisible:YES animated:YES];
+}
+
+- (BOOL)_shouldAckMessage:(EMMessage *)message read:(BOOL)read
+{
+    NSString *account = [[EaseMob sharedInstance].chatManager loginInfo][kSDKUsername];
+    if (message.messageType != eMessageTypeChat || message.isReadAcked || [account isEqualToString:message.from] || ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) || !self.isViewDidAppear)
+    {
+        return NO;
+    }
+    
+    id<IEMMessageBody> body = [message.messageBodies firstObject];
+    if (((body.messageBodyType == eMessageBodyType_Video) ||
+         (body.messageBodyType == eMessageBodyType_Voice) ||
+         (body.messageBodyType == eMessageBodyType_Image)) &&
+        !read)
+    {
+        return NO;
+    }
+    else
+    {
+        return YES;
+    }
+}
+
+- (void)_stopAudioPlayingWithChangeCategory:(BOOL)isChange
+{
+    //停止音频播放及播放动画
+    [[EMCDDeviceManager sharedInstance] stopPlaying];
+    [[EMCDDeviceManager sharedInstance] disableProximitySensor];
+    [EMCDDeviceManager sharedInstance].delegate = nil;
+    
+    //    MessageModel *playingModel = [self.messageReadManager stopMessageAudioModel];
+    //    NSIndexPath *indexPath = nil;
+    //    if (playingModel) {
+    //        indexPath = [NSIndexPath indexPathForRow:[self.dataSource indexOfObject:playingModel] inSection:0];
+    //    }
+    //
+    //    if (indexPath) {
+    //        dispatch_async(dispatch_get_main_queue(), ^{
+    //            [self.tableView beginUpdates];
+    //            [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+    //            [self.tableView endUpdates];
+    //        });
+    //    }
+}
+
+#pragma mark - GestureRecognizer
+
+// 点击背景隐藏
+-(void)keyBoardHidden:(UITapGestureRecognizer *)tapRecognizer
+{
+    if (tapRecognizer.state == UIGestureRecognizerStateEnded) {
+        [self.chatToolbar endEditing:YES];
+    }
+}
+
+- (void)handleLongPress:(UILongPressGestureRecognizer *)recognizer
+{
+    if (recognizer.state == UIGestureRecognizerStateBegan && [self.dataArray count] > 0)
+    {
+        CGPoint location = [recognizer locationInView:self.tableView];
+        NSIndexPath * indexPath = [self.tableView indexPathForRowAtPoint:location];
+        id object = [self.dataArray objectAtIndex:indexPath.row];
+        if (![object isKindOfClass:[NSString class]]) {
+            EMMessageCell *cell = (EMMessageCell *)[self.tableView cellForRowAtIndexPath:indexPath];
+            //            [cell becomeFirstResponder];
+            
+            _menuIndexPath = indexPath;
+            [self _showMenuViewController:cell andIndexPath:indexPath messageType:cell.model.bodyType];
+        }
+    }
 }
 
 #pragma mark - Table view data source
@@ -228,32 +352,6 @@
     }
 }
 
-#pragma mark - GestureRecognizer
-
-// 点击背景隐藏
--(void)keyBoardHidden:(UITapGestureRecognizer *)tapRecognizer
-{
-    if (tapRecognizer.state == UIGestureRecognizerStateEnded) {
-        [self.chatToolbar endEditing:YES];
-    }
-}
-
-- (void)handleLongPress:(UILongPressGestureRecognizer *)recognizer
-{
-    if (recognizer.state == UIGestureRecognizerStateBegan && [self.dataArray count] > 0)
-    {
-//        CGPoint location = [recognizer locationInView:self.tableView];
-//        NSIndexPath * indexPath = [self.tableView indexPathForRowAtPoint:location];
-//        id object = [self.dataSource objectAtIndex:indexPath.row];
-//        if ([object isKindOfClass:[MessageModel class]]) {
-//            EMChatViewCell *cell = (EMChatViewCell *)[self.tableView cellForRowAtIndexPath:indexPath];
-//            [cell becomeFirstResponder];
-//            _longPressIndexPath = indexPath;
-//            [self showMenuViewController:cell.bubbleView andIndexPath:indexPath messageType:cell.messageModel.type];
-//        }
-    }
-}
-
 #pragma mark - EMMessageCellDelegate
 
 - (void)locationMessageCellSelcted:(id<IMessageModel>)model
@@ -268,8 +366,68 @@
 {
     _scrollToBottomWhenAppear = NO;
     
-    if (model.isMediaPlaying) {
+    //如果存在正在播放的语音，停止播放
+    if (self.playingVoiceModel){
+        [[EMCDDeviceManager sharedInstance] stopPlaying];
+    }
+    self.playingVoiceModel = nil;
+    
+    //如果是要停止播放
+    if (!model.isMediaPlaying) {
+        [[EMCDDeviceManager sharedInstance] disableProximitySensor];
+        
+        return;
+    }
+    
+    //判断语音是否已经下载下来了
+    EMVoiceMessageBody *voiceBody = [model.message.messageBodies firstObject];
+    EMAttachmentDownloadStatus downloadStatus = [voiceBody attachmentDownloadStatus];
+    //正在下载，不进行任何处理
+    if (downloadStatus == EMAttachmentDownloading) {
+        [self showHint:NSLocalizedString(@"message.downloadingAudio", @"downloading voice, click later")];
+        return;
+    }//下载失败，进行异步下载操作，直接返回
+    else if (downloadStatus == EMAttachmentDownloadFailure)
+    {
+        [self showHint:NSLocalizedString(@"message.downloadingAudio", @"downloading voice, click later")];
+        [[EaseMob sharedInstance].chatManager asyncFetchMessage:model.message progress:nil];
+        
+        return;
+    }
+    
+    //判断本地路劲是否存在
+    NSString *localPath = [model.fileLocalPath length] > 0 ? model.fileLocalPath : voiceBody.localPath;
+    if ([localPath length] == 0) {
+        [self showHint:NSLocalizedString(@"message.audioFail", @"audio failed!")];
+        return;
+    }
+    
+    // 播放音频
+    if (model.bodyType == eMessageBodyType_Voice)
+    {
         self.playingVoiceModel = model;
+        __weak EMChatViewController *weakSelf = self;
+        [[EMCDDeviceManager sharedInstance] enableProximitySensor];
+        [[EMCDDeviceManager sharedInstance] asyncPlayingWithPath:localPath completion:^(NSError *error) {
+            weakSelf.playingVoiceModel.isMediaPlaying = NO;
+            weakSelf.playingVoiceModel = nil;
+            [weakSelf.tableView reloadData];
+            [[EMCDDeviceManager sharedInstance] disableProximitySensor];
+        }];
+        
+        //发送已读回执
+        if ([self _shouldAckMessage:model.message read:YES]){
+            [self sendHasReadResponseForMessages:@[model.message]];
+        }
+        
+        //更新message.ext中是否已播放字段
+        model.isMediaPlayed = YES;
+        if (![[model.message.ext objectForKey:@"isPlayed"] boolValue]) {
+            NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithDictionary:model.message.ext];
+            [dic setObject:@YES forKey:@"isPlayed"];
+            model.message.ext = dic;
+            [model.message updateMessageExtToDB];
+        }
     }
 }
 
@@ -277,19 +435,55 @@
 {
     _scrollToBottomWhenAppear = NO;
     
-//    NSURL *videoURL = [NSURL fileURLWithPath:videoPath];
-//    MPMoviePlayerViewController *moviePlayerController = [[MPMoviePlayerViewController alloc] initWithContentURL:videoURL];
-//    [moviePlayerController.moviePlayer prepareToPlay];
-//    moviePlayerController.moviePlayer.movieSourceType = MPMovieSourceTypeFile;
-//    [self presentMoviePlayerViewControllerAnimated:moviePlayerController];
+    EMVideoMessageBody *videoBody = (EMVideoMessageBody*)[model.message.messageBodies firstObject];
+    
+    //判断本地路劲是否存在
+    NSString *localPath = [model.fileLocalPath length] > 0 ? model.fileLocalPath : videoBody.localPath;
+    if ([localPath length] == 0) {
+        [self showHint:NSLocalizedString(@"message.videoFail", @"video for failure!")];
+        return;
+    }
+    
+    dispatch_block_t block = ^{
+        //发送已读回执
+        if ([self _shouldAckMessage:model.message read:YES]){
+            [self sendHasReadResponseForMessages:@[model.message]];
+        }
+        
+        NSURL *videoURL = [NSURL fileURLWithPath:localPath];
+        MPMoviePlayerViewController *moviePlayerController = [[MPMoviePlayerViewController alloc] initWithContentURL:videoURL];
+        [moviePlayerController.moviePlayer prepareToPlay];
+        moviePlayerController.moviePlayer.movieSourceType = MPMovieSourceTypeFile;
+        [self presentMoviePlayerViewControllerAnimated:moviePlayerController];
+    };
+
+    if (videoBody.attachmentDownloadStatus == EMAttachmentDownloadSuccessed)
+    {
+        block();
+        return;
+    }
+    
+    [self showHudInView:self.view hint:NSLocalizedString(@"message.downloadingVideo", @"downloading video...")];
+    __weak EMChatViewController *weakSelf = self;
+    id<IChatManager> chatManager = [[EaseMob sharedInstance] chatManager];
+    [chatManager asyncFetchMessage:model.message progress:nil completion:^(EMMessage *aMessage, EMError *error) {
+        [weakSelf hideHud];
+        if (!error) {
+            block();
+        }else{
+            [weakSelf showHint:NSLocalizedString(@"message.videoFail", @"video for failure!")];
+        }
+    } onQueue:nil];
 }
 
 - (void)fileMessageCellSelcted:(id<IMessageModel>)model
 {
-    _scrollToBottomWhenAppear = NO;
+//    _scrollToBottomWhenAppear = NO;
+    
+    [self showHint:@"Custom implementation!"];
 }
 
-#pragma mark - DXMessageToolBarDelegate
+#pragma mark - EMChatToolbarDelegate
 
 - (void)chatToolbarDidChangeFrameToHeight:(CGFloat)toHeight
 {
@@ -367,6 +561,66 @@
     }];
 }
 
+#pragma mark - EMCDDeviceManagerProximitySensorDelegate
 
+- (void)proximitySensorChanged:(BOOL)isCloseToUser
+{
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+    if (isCloseToUser)
+    {
+        [audioSession setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+    } else {
+        [audioSession setCategory:AVAudioSessionCategoryPlayback error:nil];
+        if (self.playingVoiceModel == nil) {
+            [[EMCDDeviceManager sharedInstance] disableProximitySensor];
+        }
+    }
+    [audioSession setActive:YES error:nil];
+}
+
+#pragma mark - action
+
+- (void)deleteMenuAction:(id)sender
+{
+    if (self.menuIndexPath && self.menuIndexPath.row > 0) {
+        id<IMessageModel> model = [self.dataArray objectAtIndex:self.menuIndexPath.row];
+        NSMutableIndexSet *indexs = [NSMutableIndexSet indexSetWithIndex:self.menuIndexPath.row];
+        NSMutableArray *indexPaths = [NSMutableArray arrayWithObjects:self.menuIndexPath, nil];
+        
+        [self.conversation removeMessage:model.message];
+        [self.messsagesSource removeObject:model.message];
+        
+        if (self.menuIndexPath.row - 1 >= 0) {
+            id nextMessage = nil;
+            id prevMessage = [self.dataArray objectAtIndex:(self.menuIndexPath.row - 1)];
+            if (self.menuIndexPath.row + 1 < [self.dataArray count]) {
+                nextMessage = [self.dataArray objectAtIndex:(self.menuIndexPath.row + 1)];
+            }
+            if ((!nextMessage || [nextMessage isKindOfClass:[NSString class]]) && [prevMessage isKindOfClass:[NSString class]]) {
+                [indexs addIndex:self.menuIndexPath.row - 1];
+                [indexPaths addObject:[NSIndexPath indexPathForRow:(self.menuIndexPath.row - 1) inSection:0]];
+            }
+        }
+        
+        [self.dataArray removeObjectsAtIndexes:indexs];
+        [self.tableView beginUpdates];
+        [self.tableView deleteRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationFade];
+        [self.tableView endUpdates];
+    }
+    
+    self.menuIndexPath = nil;
+}
+
+#pragma mark - send message
+
+- (void)sendHasReadResponseForMessages:(NSArray*)messages
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        for (EMMessage *message in messages)
+        {
+            [[EaseMob sharedInstance].chatManager sendReadAckForMessage:message];
+        }
+    });
+}
 
 @end

@@ -19,7 +19,7 @@
 @property (strong, nonatomic, readonly) id<IEMMessageBody> firstMessageBody;
 
 @property (strong, nonatomic, readonly) NSString *messageId;
-@property (nonatomic, readonly) MessageBodyType contentType;
+@property (nonatomic, readonly) MessageBodyType bodyType;
 @property (nonatomic, readonly) MessageDeliveryState messageStatus;
 @property (nonatomic, readonly) EMMessageType messageType;  // 消息类型（单聊，群里，聊天室）
 
@@ -41,25 +41,28 @@
 //image message
 @property (nonatomic) CGSize imageSize;
 @property (nonatomic) CGSize thumbnailImageSize;
-@property (strong, nonatomic) NSString *imageURLPath;
 @property (strong, nonatomic) UIImage *image;
-@property (strong, nonatomic) NSString *thumbnailImageURLPath;
 @property (strong, nonatomic) UIImage *thumbnailImage;
 
 //media message
 @property (nonatomic) BOOL isMediaPlaying;
 @property (nonatomic) BOOL isMediaPlayed;
 @property (nonatomic) CGFloat mediaDuration;
-//audio
-@property (nonatomic, strong) EMChatVoice *chatVoice;
 
 //file message
 @property (strong, nonatomic) NSString *fileIconName;
 @property (strong, nonatomic) NSString *fileName;
 @property (nonatomic) CGFloat fileSize;
 @property (strong, nonatomic) NSString *fileSizeDes;
+
+//消息：附件本地地址
 @property (strong, nonatomic) NSString *fileLocalPath;
+//消息：压缩附件本地地址
+@property (strong, nonatomic) NSString *thumbnailFileLocalPath;
+//消息：附件下载地址
 @property (strong, nonatomic) NSString *fileURLPath;
+//消息：压缩附件下载地址
+@property (strong, nonatomic) NSString *thumbnailFileURLPath;
 
 - (instancetype)initWithMessage:(EMMessage *)message;
 

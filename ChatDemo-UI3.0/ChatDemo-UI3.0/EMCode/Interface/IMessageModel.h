@@ -23,7 +23,7 @@
 //消息ID
 @property (strong, nonatomic, readonly) NSString *messageId;
 //消息类型
-@property (nonatomic, readonly) MessageBodyType contentType;
+@property (nonatomic, readonly) MessageBodyType bodyType;
 
 //是否是当前登录者发送的消息
 @property (nonatomic) BOOL isSender;
@@ -68,6 +68,15 @@
 @property (strong, nonatomic) NSString *fileName;
 //文件消息：文件大小描述
 @property (strong, nonatomic) NSString *fileSizeDes;
+
+//消息：附件本地地址
+@property (strong, nonatomic) NSString *fileLocalPath;
+//消息：压缩附件本地地址
+@property (strong, nonatomic) NSString *thumbnailFileLocalPath;
+//消息：附件下载地址
+@property (strong, nonatomic) NSString *fileURLPath;
+//消息：压缩附件下载地址
+@property (strong, nonatomic) NSString *thumbnailFileURLPath;
 
 - (instancetype)initWithMessage:(EMMessage *)message;
 

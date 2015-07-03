@@ -233,6 +233,7 @@
 "DXMessageToolBarDelegate.send" = "loosen to send";
 
 "message.downloadingAudio" = "downloading voice, click later";
+"message.audioFail" = "audio failed!";
 "message.downloadingVideo" = "downloading video...";
 "message.videoFail" = "video for failure!";
 "message.downloadingImage" = "downloading a image...";

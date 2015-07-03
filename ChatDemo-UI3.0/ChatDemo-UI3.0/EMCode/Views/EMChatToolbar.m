@@ -9,7 +9,6 @@
 #import "EMChatToolbar.h"
 
 #import "DXFaceView.h"
-#import "DXChatBarMoreView.h"
 
 @interface EMChatToolbar()<UITextViewDelegate, DXFaceDelegate>
 
@@ -55,7 +54,18 @@
 
 - (instancetype)initWithFrame:(CGRect)frame
 {
-    self = [self initWithFrame:frame horizontalPadding:8 verticalPadding:5 inputViewMinHeight:36 inputViewMaxHeight:150];
+    self = [self initWithFrame:frame horizontalPadding:8 verticalPadding:5 inputViewMinHeight:36 inputViewMaxHeight:150 type:EMChatToolbarTypeGroup];
+    if (self) {
+        
+    }
+    
+    return self;
+}
+
+- (instancetype)initWithFrame:(CGRect)frame
+                         type:(EMChatToolbarType)type
+{
+    self = [self initWithFrame:frame horizontalPadding:8 verticalPadding:5 inputViewMinHeight:36 inputViewMaxHeight:150 type:type];
     if (self) {
         
     }
@@ -68,6 +78,7 @@
               verticalPadding:(CGFloat)verticalPadding
            inputViewMinHeight:(CGFloat)inputViewMinHeight
            inputViewMaxHeight:(CGFloat)inputViewMaxHeight
+                         type:(EMChatToolbarType)type
 {
     if (frame.size.height < (verticalPadding * 2 + inputViewMinHeight)) {
         frame.size.height = verticalPadding * 2 + inputViewMinHeight;
@@ -78,6 +89,7 @@
         _verticalPadding = verticalPadding;
         _inputViewMinHeight = inputViewMinHeight;
         _inputViewMaxHeight = inputViewMaxHeight;
+        _chatBarType = type;
         
         _leftItems = [NSMutableArray array];
         _rightItems = [NSMutableArray array];
@@ -189,7 +201,7 @@
     if (_faceView == nil) {
         _faceView = [[DXFaceView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_toolbarView.frame), self.frame.size.width, 200)];
         [(DXFaceView *)_faceView setDelegate:self];
-        _faceView.backgroundColor = [UIColor lightGrayColor];
+        _faceView.backgroundColor = [UIColor colorWithRed:240 / 255.0 green:242 / 255.0 blue:247 / 255.0 alpha:1.0];
         _faceView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
     }
     
@@ -199,8 +211,8 @@
 - (UIView *)moreView
 {
     if (_moreView == nil) {
-        _moreView = [[DXChatBarMoreView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_toolbarView.frame), self.frame.size.width, 80) type:ChatMoreTypeGroupChat];
-        _moreView.backgroundColor = [UIColor lightGrayColor];
+        _moreView = [[DXChatBarMoreView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_toolbarView.frame), self.frame.size.width, 80) type:self.chatBarType];
+        _moreView.backgroundColor = [UIColor colorWithRed:240 / 255.0 green:242 / 255.0 blue:247 / 255.0 alpha:1.0];
         _moreView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
     }
     

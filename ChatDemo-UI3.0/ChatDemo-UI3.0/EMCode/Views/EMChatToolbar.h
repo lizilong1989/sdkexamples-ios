@@ -10,10 +10,13 @@
 
 #import "DXTextView.h"
 #import "DXRecordView.h"
+#import "DXChatBarMoreView.h"
 #import "EMChatToolbarItem.h"
 
 #define kTouchToRecord NSLocalizedString(@"message.toolBar.record.touch", @"hold down to talk")
 #define kTouchToFinish NSLocalizedString(@"message.toolBar.record.send", @"loosen to send")
+
+
 
 @protocol EMChatToolbarDelegate;
 @interface EMChatToolbar : UIView
@@ -21,6 +24,8 @@
 @property (weak, nonatomic) id<EMChatToolbarDelegate> delegate;
 
 @property (nonatomic) UIImage *backgroundImage;
+
+@property (nonatomic, readonly) EMChatToolbarType chatBarType;
 
 @property (nonatomic, readonly) CGFloat inputViewMaxHeight;
 
@@ -60,18 +65,23 @@
  */
 @property (strong, nonatomic) UIView *recordView;
 
+- (instancetype)initWithFrame:(CGRect)frame
+                         type:(EMChatToolbarType)type;
+
 /**
  *  初始化chat bar
  * @param horizontalPadding  default 8
  * @param verticalPadding    default 5
  * @param inputViewMinHeight default 36
  * @param inputViewMaxHeight default 150
+ * @param type               default EMChatToolbarTypeGroup
  */
 - (instancetype)initWithFrame:(CGRect)frame
             horizontalPadding:(CGFloat)horizontalPadding
               verticalPadding:(CGFloat)verticalPadding
            inputViewMinHeight:(CGFloat)inputViewMinHeight
-           inputViewMaxHeight:(CGFloat)inputViewMaxHeight;
+           inputViewMaxHeight:(CGFloat)inputViewMaxHeight
+                         type:(EMChatToolbarType)type;
 
 /**
  *  默认高度
@@ -83,6 +93,8 @@
 @end
 
 @protocol EMChatToolbarDelegate <NSObject>
+
+@optional
 
 /**
  *  文字输入框开始编辑

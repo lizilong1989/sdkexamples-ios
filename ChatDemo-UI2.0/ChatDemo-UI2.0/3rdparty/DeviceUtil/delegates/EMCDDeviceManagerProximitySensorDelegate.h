@@ -13,6 +13,7 @@
 #import <Foundation/Foundation.h>
 
 @protocol EMCDDeviceManagerProximitySensorDelegate <NSObject>
+
 /*!
  @method
  @brief 当手机靠近耳朵时或者离开耳朵时的回调方法
@@ -21,4 +22,5 @@
  @result
  */
 - (void)proximitySensorChanged:(BOOL)isCloseToUser;
+
 @end

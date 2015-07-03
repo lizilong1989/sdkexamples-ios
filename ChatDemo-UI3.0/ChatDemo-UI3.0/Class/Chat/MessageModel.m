@@ -39,16 +39,13 @@
             case eMessageBodyType_Image:
             {
                 EMImageMessageBody *imgMessageBody = (EMImageMessageBody *)_firstMessageBody;
-                self.imageSize = imgMessageBody.size;
                 self.thumbnailImageSize = imgMessageBody.thumbnailSize;
-                self.fileLocalPath = imgMessageBody.localPath;
                 self.thumbnailImage = [UIImage imageWithContentsOfFile:imgMessageBody.thumbnailLocalPath];
-                if (self.isSender)
-                {
-                    self.image = [UIImage imageWithContentsOfFile:imgMessageBody.thumbnailLocalPath];
-                }else {
-                    self.fileURLPath = imgMessageBody.remotePath;
-                }
+                self.imageSize = imgMessageBody.size;
+                self.image = [UIImage imageWithContentsOfFile:imgMessageBody.localPath];
+                
+                self.fileLocalPath = imgMessageBody.localPath;
+                self.fileURLPath = imgMessageBody.remotePath;
             }
                 break;
             case eMessageBodyType_Location:
@@ -63,29 +60,27 @@
             {
                 EMVoiceMessageBody *voiceBody = (EMVoiceMessageBody *)_firstMessageBody;
                 self.mediaDuration = voiceBody.duration;
-                self.chatVoice = (EMChatVoice *)voiceBody.chatObject;
+                self.isMediaPlayed = NO;
                 if (message.ext) {
-                    NSDictionary *dict = message.ext;
-                    BOOL isPlayed = [[dict objectForKey:@"isPlayed"] boolValue];
-                    self.isMediaPlayed = isPlayed;
-                }else {
-                    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:@NO,@"isPlayed", nil];
-                    message.ext = dict;
-                    [message updateMessageExtToDB];
+                    self.isMediaPlayed = [[message.ext objectForKey:@"isPlayed"] boolValue];
                 }
-                // 本地音频路径
+                
+                // 音频路径
                 self.fileLocalPath = voiceBody.localPath;
                 self.fileURLPath = voiceBody.remotePath;
             }
                 break;
             case eMessageBodyType_Video:
             {
-                EMVideoMessageBody *videoMessageBody = (EMVideoMessageBody *)_firstMessageBody;
-                self.imageSize = videoMessageBody.size;
-                self.thumbnailImageSize = videoMessageBody.size;
-                self.fileLocalPath = videoMessageBody.thumbnailLocalPath;
-                self.thumbnailImage = [UIImage imageWithContentsOfFile:videoMessageBody.thumbnailLocalPath];
+                EMVideoMessageBody *videoBody = (EMVideoMessageBody *)_firstMessageBody;
+                self.thumbnailImageSize = videoBody.size;
+                self.thumbnailImage = [UIImage imageWithContentsOfFile:videoBody.thumbnailLocalPath];
+                self.imageSize = videoBody.size;
                 self.image = self.thumbnailImage;
+                
+                // 视频路径
+                self.fileLocalPath = videoBody.localPath;
+                self.fileURLPath = videoBody.remotePath;
             }
                 break;
                 case eMessageBodyType_File:
@@ -129,7 +124,7 @@
     return _message.messageType;
 }
 
-- (MessageBodyType)contentType
+- (MessageBodyType)bodyType
 {
     return self.firstMessageBody.messageBodyType;
 }

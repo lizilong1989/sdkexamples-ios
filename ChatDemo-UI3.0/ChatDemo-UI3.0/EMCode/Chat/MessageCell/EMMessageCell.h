@@ -82,6 +82,8 @@ extern CGFloat const EMMessageCellPadding;
 
 @protocol EMMessageCellDelegate <NSObject>
 
+@optional
+
 - (void)imageMessageCellSelcted:(id<IMessageModel>)model;
 
 - (void)locationMessageCellSelcted:(id<IMessageModel>)model;

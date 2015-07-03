@@ -17,9 +17,10 @@
 #import "EMRecvMessageCell.h"
 #import "EMMessageTimeCell.h"
 #import "EMCDDeviceManager+Media.h"
+#import "EMCDDeviceManager+ProximitySensor.h"
 #import "UIViewController+HUD.h"
 
-@interface EMChatViewController : EMRefreshTableViewController<IChatManagerDelegate, EMCallManagerCallDelegate, EMMessageCellDelegate>
+@interface EMChatViewController : EMRefreshTableViewController<IChatManagerDelegate, EMCallManagerCallDelegate, EMMessageCellDelegate, EMCDDeviceManagerDelegate>
 
 @property (strong, nonatomic, readonly) EMConversation *conversation;
 
@@ -34,6 +35,8 @@
 @property (nonatomic) NSInteger pageCount;
 
 @property (nonatomic) CGFloat timeCellHeight;
+
+@property (strong, nonatomic) NSMutableArray *messsagesSource;
 
 @property (strong, nonatomic) UIView *chatToolbar;
 

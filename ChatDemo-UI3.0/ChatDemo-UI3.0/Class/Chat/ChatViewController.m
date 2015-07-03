@@ -15,8 +15,6 @@
 
 @interface ChatViewController ()<UIAlertViewDelegate>
 
-@property (strong, nonatomic) NSMutableArray *messsagesSource;
-
 @property (nonatomic) NSTimeInterval timeIntervalTag;
 
 @end

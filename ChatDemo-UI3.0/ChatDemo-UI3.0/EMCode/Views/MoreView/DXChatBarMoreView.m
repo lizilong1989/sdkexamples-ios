@@ -17,7 +17,7 @@
 
 @implementation DXChatBarMoreView
 
-- (instancetype)initWithFrame:(CGRect)frame type:(ChatMoreType)type
+- (instancetype)initWithFrame:(CGRect)frame type:(EMChatToolbarType)type
 {
     self = [super initWithFrame:frame];
     if (self) {
@@ -27,7 +27,7 @@
     return self;
 }
 
-- (void)setupSubviewsForType:(ChatMoreType)type
+- (void)setupSubviewsForType:(EMChatToolbarType)type
 {
     self.backgroundColor = [UIColor clearColor];
     CGFloat insets = (self.frame.size.width - 4 * CHAT_BUTTON_SIZE) / 5;
@@ -54,7 +54,7 @@
     [self addSubview:_takePicButton];
 
     CGRect frame = self.frame;
-    if (type == ChatMoreTypeChat) {
+    if (type == EMChatToolbarTypeChat) {
         frame.size.height = 150;
         _audioCallButton =[UIButton buttonWithType:UIButtonTypeCustom];
         [_audioCallButton setFrame:CGRectMake(insets * 4 + CHAT_BUTTON_SIZE * 3, 10, CHAT_BUTTON_SIZE , CHAT_BUTTON_SIZE)];
@@ -70,7 +70,7 @@
         [_videoCallButton addTarget:self action:@selector(takeVideoCallAction) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:_videoCallButton];
     }
-    else if (type == ChatMoreTypeGroupChat)
+    else if (type == EMChatToolbarTypeGroup)
     {
         frame.size.height = 80;
     }

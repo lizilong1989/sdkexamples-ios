@@ -13,9 +13,9 @@
 #import <UIKit/UIKit.h>
 
 typedef enum{
-    ChatMoreTypeChat,
-    ChatMoreTypeGroupChat,
-}ChatMoreType;
+    EMChatToolbarTypeChat,
+    EMChatToolbarTypeGroup,
+}EMChatToolbarType;
 
 @protocol DXChatBarMoreViewDelegate;
 @interface DXChatBarMoreView : UIView
@@ -29,9 +29,9 @@ typedef enum{
 @property (nonatomic, strong) UIButton *audioCallButton;
 @property (nonatomic, strong) UIButton *videoCallButton;
 
-- (instancetype)initWithFrame:(CGRect)frame type:(ChatMoreType)type;
+- (instancetype)initWithFrame:(CGRect)frame type:(EMChatToolbarType)type;
 
-- (void)setupSubviewsForType:(ChatMoreType)type;
+- (void)setupSubviewsForType:(EMChatToolbarType)type;
 
 @end
 

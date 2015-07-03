@@ -75,8 +75,8 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
 {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
-        _messageType = model.contentType;
-        [self _setupSubviewsWithType:model.contentType
+        _messageType = model.bodyType;
+        [self _setupSubviewsWithType:model.bodyType
                             isSender:model.isSender];
     }
     
@@ -211,7 +211,7 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
 {
     _model = model;
     
-    switch (model.contentType) {
+    switch (model.bodyType) {
         case eMessageBodyType_Text:
         {
             _bubbleView.textLabel.text = model.text;
@@ -256,7 +256,6 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
                 }
             }
             _bubbleView.videoImageView.image = image;
-//            _bubbleView.videoImageView.image = 
         }
             break;
         case eMessageBodyType_File:
@@ -434,7 +433,7 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
             return;
         }
         
-        switch (_model.contentType) {
+        switch (_model.bodyType) {
             case eMessageBodyType_Image:
             {
                 if ([_delegate respondsToSelector:@selector(imageMessageCellSelcted:)]) {
@@ -495,7 +494,7 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
 {
     NSString *cellIdentifier = nil;
     if (model.isSender) {
-        switch (model.contentType) {
+        switch (model.bodyType) {
             case eMessageBodyType_Text:
                 cellIdentifier = EMMessageCellIdentifierSendText;
                 break;
@@ -519,7 +518,7 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
         }
     }
     else{
-        switch (model.contentType) {
+        switch (model.bodyType) {
             case eMessageBodyType_Text:
                 cellIdentifier = EMMessageCellIdentifierRecvText;
                 break;
@@ -557,7 +556,7 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
     
     CGFloat height = EMMessageCellPadding + cell.bubbleMargin.top + cell.bubbleMargin.bottom;
     
-    switch (model.contentType) {
+    switch (model.bodyType) {
         case eMessageBodyType_Text:
         {
             NSString *text = model.text;
