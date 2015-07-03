@@ -9,6 +9,9 @@
 #import <UIKit/UIKit.h>
 
 #import "DXTextView.h"
+#import "EMChatToolbarItem.h"
+#import "DXChatBarMoreView.h"
+#import "DXFaceView.h"
 
 @protocol EMChatToolbarDelegate;
 @interface EMChatToolbar : UIView
@@ -17,24 +20,48 @@
 
 @property (nonatomic) UIImage *backgroundImage;
 
-@property (nonatomic) CGFloat inputViewMaxHeight;
+@property (nonatomic, readonly) CGFloat inputViewMaxHeight;
 
-@property (nonatomic) CGFloat horizontalPadding;
+@property (nonatomic, readonly) CGFloat inputViewMinHeight;
 
-@property (nonatomic) CGFloat verticalPadding;
+@property (nonatomic, readonly) CGFloat horizontalPadding;
 
-@property (strong, nonatomic) UIButton *leftButton; //default record
+@property (nonatomic, readonly) CGFloat verticalPadding;
 
-@property (strong, nonatomic) UIButton *rightButton; //default more
+/**
+ *  输入框左侧的按钮列表：EMChatToolbarItem类型
+ */
+@property (strong, nonatomic) NSArray *inputViewLeftItems;
 
-@property (strong, nonatomic) UIView *left2View; //default record view
-
-@property (strong, nonatomic) UIView *right2View; //default more view
+/**
+ *  输入框右侧的按钮列表：EMChatToolbarItem类型
+ */
+@property (strong, nonatomic) NSArray *inputViewRightItems;
 
 /**
  *  用于输入文本消息的输入框
  */
 @property (strong, nonatomic) DXTextView *inputTextView;
+
+/**
+ *  初始化chat bar
+ * @param horizontalPadding  default 8
+ * @param verticalPadding    default 5
+ * @param inputViewMinHeight default 36
+ * @param inputViewMaxHeight default 150
+ */
+- (instancetype)initWithFrame:(CGRect)frame
+            horizontalPadding:(CGFloat)horizontalPadding
+              verticalPadding:(CGFloat)verticalPadding
+           inputViewMinHeight:(CGFloat)inputViewMinHeight
+           inputViewMaxHeight:(CGFloat)inputViewMaxHeight;
+
+/**
+ *  默认高度
+ *
+ *  @return 默认高度
+ */
++ (CGFloat)defaultHeight;
 
 @end
 
