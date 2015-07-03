@@ -8,7 +8,10 @@
 
 #import "EMChatToolbar.h"
 
-@interface EMChatToolbar()<UITextViewDelegate>
+#import "DXFaceView.h"
+#import "DXChatBarMoreView.h"
+
+@interface EMChatToolbar()<UITextViewDelegate, DXFaceDelegate>
 
 @property (nonatomic) CGFloat version;
 
@@ -31,9 +34,9 @@
  *  按钮、toolbarView
  */
 @property (strong, nonatomic) UIView *toolbarView;
-//@property (strong, nonatomic) UIButton *styleChangeButton;
-//@property (strong, nonatomic) UIButton *moreButton;
-//@property (strong, nonatomic) UIButton *faceButton;
+@property (strong, nonatomic) UIButton *recordButton;
+@property (strong, nonatomic) UIButton *moreButton;
+@property (strong, nonatomic) UIButton *faceButton;
 
 /**
  *  输入框
@@ -46,11 +49,15 @@
 
 @implementation EMChatToolbar
 
+@synthesize faceView = _faceView;
+@synthesize moreView = _moreView;
+@synthesize recordView = _recordView;
+
 - (instancetype)initWithFrame:(CGRect)frame
 {
     self = [self initWithFrame:frame horizontalPadding:8 verticalPadding:5 inputViewMinHeight:36 inputViewMaxHeight:150];
     if (self) {
-        //
+        
     }
     
     return self;
@@ -74,30 +81,26 @@
         
         _leftItems = [NSMutableArray array];
         _rightItems = [NSMutableArray array];
+        _version = [[[UIDevice currentDevice] systemVersion] floatValue];
+        _activityButtomView = nil;
+        _isShowButtomView = NO;
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillChangeFrame:) name:UIKeyboardWillChangeFrameNotification object:nil];
+        
+        [self _setupSubviews];
     }
     return self;
 }
 
 #pragma mark - setup subviews
 
-- (void)_setupBackgroundImageView
-{
-    
-}
-
 - (void)_setupSubviews
 {
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillChangeFrame:) name:UIKeyboardWillChangeFrameNotification object:nil];
-    
-    self.version = [[[UIDevice currentDevice] systemVersion] floatValue];
-    
-    self.activityButtomView = nil;
-    self.isShowButtomView = NO;
-    
     //backgroundImageView
     _backgroundImageView = [[UIImageView alloc] initWithFrame:self.bounds];
     _backgroundImageView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     _backgroundImageView.backgroundColor = [UIColor clearColor];
+    _backgroundImageView.image = [[UIImage imageNamed:@"messageToolbarBg"] stretchableImageWithLeftCapWidth:0.5 topCapHeight:10];
     [self addSubview:_backgroundImageView];
     
     //toolbar
@@ -111,7 +114,7 @@
     [_toolbarView addSubview:_toolbarBackgroundImageView];
     
     //输入框
-    _inputTextView = [[DXTextView alloc] initWithFrame:CGRectMake(self.horizontalPadding, self.verticalPadding, self.frame.size.width - self.verticalPadding * 2, self.frame.size.height - self.horizontalPadding * 2)];
+    _inputTextView = [[DXTextView alloc] initWithFrame:CGRectMake(self.horizontalPadding, self.verticalPadding, self.frame.size.width - self.verticalPadding * 2, self.frame.size.height - self.verticalPadding * 2)];
     _inputTextView.autoresizingMask = UIViewAutoresizingFlexibleHeight;
     _inputTextView.scrollEnabled = YES;
     _inputTextView.returnKeyType = UIReturnKeySend;
@@ -129,116 +132,117 @@
     UIButton *styleChangeButton = [[UIButton alloc] init];
     [styleChangeButton setImage:[UIImage imageNamed:@"chatBar_record"] forState:UIControlStateNormal];
     [styleChangeButton setImage:[UIImage imageNamed:@"chatBar_keyboard"] forState:UIControlStateSelected];
-    [styleChangeButton addTarget:self action:@selector(buttonAction:) forControlEvents:UIControlEventTouchUpInside];
+    [styleChangeButton addTarget:self action:@selector(styleButtonAction:) forControlEvents:UIControlEventTouchUpInside];
     
     EMChatToolbarItem *styleItem = [[EMChatToolbarItem alloc] initWithButton:styleChangeButton withView:nil];
     [self setInputViewLeftItems:@[styleItem]];
     
-    //更多
-    UIButton *moreButton = [[UIButton alloc] init];
-    [moreButton setImage:[UIImage imageNamed:@"chatBar_more"] forState:UIControlStateNormal];
-    [moreButton setImage:[UIImage imageNamed:@"chatBar_moreSelected"] forState:UIControlStateHighlighted];
-    [moreButton setImage:[UIImage imageNamed:@"chatBar_keyboard"] forState:UIControlStateSelected];
-    [moreButton addTarget:self action:@selector(buttonAction:) forControlEvents:UIControlEventTouchUpInside];
-    
-    DXChatBarMoreView *moreView = [[DXChatBarMoreView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_toolbarView.frame), self.frame.size.width, 80) type:ChatMoreTypeGroupChat];
-    moreView.backgroundColor = [UIColor lightGrayColor];
-    moreView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
-    EMChatToolbarItem *moreItem = [[EMChatToolbarItem alloc] initWithButton:moreButton withView:moreButton];
+    //录制
+    self.recordButton = [[UIButton alloc] initWithFrame:self.inputTextView.frame];
+    self.recordButton.titleLabel.font = [UIFont systemFontOfSize:15.0];
+    [self.recordButton setTitleColor:[UIColor darkGrayColor] forState:UIControlStateNormal];
+    [self.recordButton setBackgroundImage:[[UIImage imageNamed:@"chatBar_recordBg"] stretchableImageWithLeftCapWidth:10 topCapHeight:10] forState:UIControlStateNormal];
+    [self.recordButton setBackgroundImage:[[UIImage imageNamed:@"chatBar_recordSelectedBg"] stretchableImageWithLeftCapWidth:10 topCapHeight:10] forState:UIControlStateHighlighted];
+    [self.recordButton setTitle:kTouchToRecord forState:UIControlStateNormal];
+    [self.recordButton setTitle:kTouchToFinish forState:UIControlStateHighlighted];
+    self.recordButton.hidden = YES;
+    [self.recordButton addTarget:self action:@selector(recordButtonTouchDown) forControlEvents:UIControlEventTouchDown];
+    [self.recordButton addTarget:self action:@selector(recordButtonTouchUpOutside) forControlEvents:UIControlEventTouchUpOutside];
+    [self.recordButton addTarget:self action:@selector(recordButtonTouchUpInside) forControlEvents:UIControlEventTouchUpInside];
+    [self.recordButton addTarget:self action:@selector(recordDragOutside) forControlEvents:UIControlEventTouchDragExit];
+    [self.recordButton addTarget:self action:@selector(recordDragInside) forControlEvents:UIControlEventTouchDragEnter];
+    self.recordButton.hidden = YES;
+    [self.toolbarView addSubview:self.recordButton];
     
     //表情
-    UIButton *faceButton = [[UIButton alloc] init];
-    [faceButton setImage:[UIImage imageNamed:@"chatBar_face"] forState:UIControlStateNormal];
-    [faceButton setImage:[UIImage imageNamed:@"chatBar_faceSelected"] forState:UIControlStateHighlighted];
-    [faceButton setImage:[UIImage imageNamed:@"chatBar_keyboard"] forState:UIControlStateSelected];
-    [faceButton addTarget:self action:@selector(buttonAction:) forControlEvents:UIControlEventTouchUpInside];
+    self.faceButton = [[UIButton alloc] init];
+    [self.faceButton setImage:[UIImage imageNamed:@"chatBar_face"] forState:UIControlStateNormal];
+    [self.faceButton setImage:[UIImage imageNamed:@"chatBar_faceSelected"] forState:UIControlStateHighlighted];
+    [self.faceButton setImage:[UIImage imageNamed:@"chatBar_keyboard"] forState:UIControlStateSelected];
+    [self.faceButton addTarget:self action:@selector(faceButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    EMChatToolbarItem *faceItem = [[EMChatToolbarItem alloc] initWithButton:self.faceButton withView:self.faceView];
     
-    DXFaceView *faceView = [[DXFaceView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_toolbarView.frame), self.frame.size.width, 200)];
-    [(DXFaceView *)faceView setDelegate:self];
-    faceView.backgroundColor = [UIColor lightGrayColor];
-    faceView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
-    EMChatToolbarItem *faceItem = [[EMChatToolbarItem alloc] initWithButton:faceButton withView:faceView];
+    //更多
+    self.moreButton = [[UIButton alloc] init];
+    [self.moreButton setImage:[UIImage imageNamed:@"chatBar_more"] forState:UIControlStateNormal];
+    [self.moreButton setImage:[UIImage imageNamed:@"chatBar_moreSelected"] forState:UIControlStateHighlighted];
+    [self.moreButton setImage:[UIImage imageNamed:@"chatBar_keyboard"] forState:UIControlStateSelected];
+    [self.moreButton addTarget:self action:@selector(moreButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    EMChatToolbarItem *moreItem = [[EMChatToolbarItem alloc] initWithButton:self.moreButton withView:self.moreView];
+    
     [self setInputViewRightItems:@[faceItem, moreItem]];
 }
 
-#pragma mark - UITextViewDelegate
+#pragma mark - getter
 
-#pragma mark - input view
-
-- (CGFloat)_getTextViewContentH:(UITextView *)textView
+- (UIView *)recordView
 {
-    if (self.version >= 7.0)
-    {
-        return ceilf([textView sizeThatFits:textView.frame.size].height);
-    } else {
-        return textView.contentSize.height;
+    if (_recordView == nil) {
+        _recordView = [[DXRecordView alloc] initWithFrame:CGRectMake(90, 130, 140, 140)];
     }
+    
+    return _recordView;
 }
 
-#pragma mark - UIKeyboardNotification
-
-- (void)_willShowBottomHeight:(CGFloat)bottomHeight
+- (UIView *)faceView
 {
-    CGRect fromFrame = self.frame;
-    CGFloat toHeight = self.toolbarView.frame.size.height + bottomHeight;
-    CGRect toFrame = CGRectMake(fromFrame.origin.x, fromFrame.origin.y + (fromFrame.size.height - toHeight), fromFrame.size.width, toHeight);
-    
-    //如果需要将所有扩展页面都隐藏，而此时已经隐藏了所有扩展页面，则不进行任何操作
-    if(bottomHeight == 0 && self.frame.size.height == self.toolbarView.frame.size.height)
-    {
-        return;
+    if (_faceView == nil) {
+        _faceView = [[DXFaceView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_toolbarView.frame), self.frame.size.width, 200)];
+        [(DXFaceView *)_faceView setDelegate:self];
+        _faceView.backgroundColor = [UIColor lightGrayColor];
+        _faceView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
     }
     
-    if (bottomHeight == 0) {
-        self.isShowButtomView = NO;
-    }
-    else{
-        self.isShowButtomView = YES;
-    }
-    
-    self.frame = toFrame;
-    
-//    if (_delegate && [_delegate respondsToSelector:@selector(didChangeFrameToHeight:)]) {
-//        [_delegate didChangeFrameToHeight:toHeight];
-//    }
+    return _faceView;
 }
 
-- (void)_willShowKeyboardFromFrame:(CGRect)beginFrame toFrame:(CGRect)toFrame
+- (UIView *)moreView
 {
-    if (beginFrame.origin.y == [[UIScreen mainScreen] bounds].size.height)
-    {
-        //一定要把self.activityButtomView置为空
-        [self _willShowBottomHeight:toFrame.size.height];
-        if (self.activityButtomView) {
-            [self.activityButtomView removeFromSuperview];
-        }
-        self.activityButtomView = nil;
+    if (_moreView == nil) {
+        _moreView = [[DXChatBarMoreView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_toolbarView.frame), self.frame.size.width, 80) type:ChatMoreTypeGroupChat];
+        _moreView.backgroundColor = [UIColor lightGrayColor];
+        _moreView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
     }
-    else if (toFrame.origin.y == [[UIScreen mainScreen] bounds].size.height)
-    {
-        [self _willShowBottomHeight:0];
-    }
-    else{
-        [self _willShowBottomHeight:toFrame.size.height];
-    }
-}
-
-- (void)keyboardWillChangeFrame:(NSNotification *)notification
-{
-    NSDictionary *userInfo = notification.userInfo;
-    CGRect endFrame = [userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
-    CGRect beginFrame = [userInfo[UIKeyboardFrameBeginUserInfoKey] CGRectValue];
-    CGFloat duration = [userInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
-    UIViewAnimationCurve curve = [userInfo[UIKeyboardAnimationCurveUserInfoKey] integerValue];
     
-    void(^animations)() = ^{
-        [self _willShowKeyboardFromFrame:beginFrame toFrame:endFrame];
-    };
-    
-    [UIView animateWithDuration:duration delay:0.0f options:(curve << 16 | UIViewAnimationOptionBeginFromCurrentState) animations:animations completion:nil];
+    return _moreView;
 }
 
 #pragma mark - setter
+
+- (void)setRecordView:(UIView *)recordView
+{
+    if(_recordView != recordView){
+        _recordView = recordView;
+    }
+}
+
+- (void)setMoreView:(UIView *)moreView
+{
+    if (_moreView != moreView) {
+        _moreView = moreView;
+        
+        for (EMChatToolbarItem *item in self.rightItems) {
+            if (item.button == self.moreButton) {
+                item.button2View = _moreView;
+                break;
+            }
+        }
+    }
+}
+
+- (void)setFaceView:(UIView *)faceView
+{
+    if (_faceView != faceView) {
+        _faceView = faceView;
+        
+        for (EMChatToolbarItem *item in self.rightItems) {
+            if (item.button == self.faceButton) {
+                item.button2View = _faceView;
+                break;
+            }
+        }
+    }
+}
 
 - (void)setInputViewLeftItems:(NSArray *)inputViewLeftItems
 {
@@ -268,6 +272,7 @@
                 chatItem.button.frame = itemFrame;
                 oX += (itemFrame.size.width + self.horizontalPadding);
                 
+                [self.toolbarView addSubview:chatItem.button];
                 [self.leftItems addObject:chatItem];
             }
         }
@@ -278,6 +283,11 @@
     inputFrame.origin.x = oX;
     inputFrame.size.width += value;
     self.inputTextView.frame = inputFrame;
+    
+    CGRect recordFrame = self.recordButton.frame;
+    recordFrame.origin.x = inputFrame.origin.x;
+    recordFrame.size.width = inputFrame.size.width;
+    self.recordButton.frame = recordFrame;
 }
 
 - (void)setInputViewRightItems:(NSArray *)inputViewRightItems
@@ -311,6 +321,7 @@
                     chatItem.button.frame = itemFrame;
                     oMaxX -= self.horizontalPadding;
                     
+                    [self.toolbarView addSubview:chatItem.button];
                     [self.rightItems addObject:item];
                 }
             }
@@ -321,9 +332,408 @@
     CGFloat value = oMaxX - CGRectGetMaxX(inputFrame);
     inputFrame.size.width += value;
     self.inputTextView.frame = inputFrame;
+    
+    CGRect recordFrame = self.recordButton.frame;
+    recordFrame.origin.x = inputFrame.origin.x;
+    recordFrame.size.width = inputFrame.size.width;
+    self.recordButton.frame = recordFrame;
+}
+
+#pragma mark - private input view
+
+- (CGFloat)_getTextViewContentH:(UITextView *)textView
+{
+    if (self.version >= 7.0)
+    {
+        return ceilf([textView sizeThatFits:textView.frame.size].height);
+    } else {
+        return textView.contentSize.height;
+    }
+}
+
+- (void)_willShowInputTextViewToHeight:(CGFloat)toHeight
+{
+    if (toHeight < self.inputViewMinHeight) {
+        toHeight = self.inputViewMinHeight;
+    }
+    if (toHeight > self.inputViewMaxHeight) {
+        toHeight = self.inputViewMaxHeight;
+    }
+    
+    if (toHeight == _previousTextViewContentHeight)
+    {
+        return;
+    }
+    else{
+        CGFloat changeHeight = toHeight - _previousTextViewContentHeight;
+        
+        CGRect rect = self.frame;
+        rect.size.height += changeHeight;
+        rect.origin.y -= changeHeight;
+        self.frame = rect;
+        
+        rect = self.toolbarView.frame;
+        rect.size.height += changeHeight;
+        self.toolbarView.frame = rect;
+        
+        if (self.version < 7.0) {
+            [self.inputTextView setContentOffset:CGPointMake(0.0f, (self.inputTextView.contentSize.height - self.inputTextView.frame.size.height) / 2) animated:YES];
+        }
+        _previousTextViewContentHeight = toHeight;
+        
+        if (_delegate && [_delegate respondsToSelector:@selector(chatToolbarDidChangeFrameToHeight:)]) {
+            [_delegate chatToolbarDidChangeFrameToHeight:self.frame.size.height];
+        }
+    }
+}
+
+#pragma mark - private bottom view
+
+- (void)_willShowBottomHeight:(CGFloat)bottomHeight
+{
+    CGRect fromFrame = self.frame;
+    CGFloat toHeight = self.toolbarView.frame.size.height + bottomHeight;
+    CGRect toFrame = CGRectMake(fromFrame.origin.x, fromFrame.origin.y + (fromFrame.size.height - toHeight), fromFrame.size.width, toHeight);
+    
+    //如果需要将所有扩展页面都隐藏，而此时已经隐藏了所有扩展页面，则不进行任何操作
+    if(bottomHeight == 0 && self.frame.size.height == self.toolbarView.frame.size.height)
+    {
+        return;
+    }
+    
+    if (bottomHeight == 0) {
+        self.isShowButtomView = NO;
+    }
+    else{
+        self.isShowButtomView = YES;
+    }
+    
+    self.frame = toFrame;
+    
+    if (_delegate && [_delegate respondsToSelector:@selector(chatToolbarDidChangeFrameToHeight:)]) {
+        [_delegate chatToolbarDidChangeFrameToHeight:toHeight];
+    }
+}
+
+- (void)_willShowBottomView:(UIView *)bottomView
+{
+    if (![self.activityButtomView isEqual:bottomView]) {
+        CGFloat bottomHeight = bottomView ? bottomView.frame.size.height : 0;
+        [self _willShowBottomHeight:bottomHeight];
+        
+        if (bottomView) {
+            CGRect rect = bottomView.frame;
+            rect.origin.y = CGRectGetMaxY(self.toolbarView.frame);
+            bottomView.frame = rect;
+            [self addSubview:bottomView];
+        }
+        
+        if (self.activityButtomView) {
+            [self.activityButtomView removeFromSuperview];
+        }
+        self.activityButtomView = bottomView;
+    }
+}
+
+- (void)_willShowKeyboardFromFrame:(CGRect)beginFrame toFrame:(CGRect)toFrame
+{
+    if (beginFrame.origin.y == [[UIScreen mainScreen] bounds].size.height)
+    {
+        //一定要把self.activityButtomView置为空
+        [self _willShowBottomHeight:toFrame.size.height];
+        if (self.activityButtomView) {
+            [self.activityButtomView removeFromSuperview];
+        }
+        self.activityButtomView = nil;
+    }
+    else if (toFrame.origin.y == [[UIScreen mainScreen] bounds].size.height)
+    {
+        [self _willShowBottomHeight:0];
+    }
+    else{
+        [self _willShowBottomHeight:toFrame.size.height];
+    }
+}
+
+#pragma mark - UITextViewDelegate
+
+- (BOOL)textViewShouldBeginEditing:(UITextView *)textView
+{
+    if ([self.delegate respondsToSelector:@selector(inputTextViewWillBeginEditing:)]) {
+        [self.delegate inputTextViewWillBeginEditing:self.inputTextView];
+    }
+    
+    for (EMChatToolbarItem *item in self.leftItems) {
+        item.button.selected = NO;
+    }
+    
+    for (EMChatToolbarItem *item in self.rightItems) {
+        item.button.selected = NO;
+    }
+    
+    return YES;
+}
+
+- (void)textViewDidBeginEditing:(UITextView *)textView
+{
+    [textView becomeFirstResponder];
+    
+    if ([self.delegate respondsToSelector:@selector(inputTextViewDidBeginEditing:)]) {
+        [self.delegate inputTextViewDidBeginEditing:self.inputTextView];
+    }
+}
+
+- (void)textViewDidEndEditing:(UITextView *)textView
+{
+    [textView resignFirstResponder];
+}
+
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
+{
+    if ([text isEqualToString:@"\n"]) {
+        if ([self.delegate respondsToSelector:@selector(didSendText:)]) {
+            [self.delegate didSendText:textView.text];
+            self.inputTextView.text = @"";
+            [self _willShowInputTextViewToHeight:[self _getTextViewContentH:self.inputTextView]];;
+        }
+        
+        return NO;
+    }
+    return YES;
+}
+
+- (void)textViewDidChange:(UITextView *)textView
+{
+    [self _willShowInputTextViewToHeight:[self _getTextViewContentH:textView]];
+}
+
+#pragma mark - DXFaceDelegate
+
+- (void)selectedFacialView:(NSString *)str isDelete:(BOOL)isDelete
+{
+    NSString *chatText = self.inputTextView.text;
+    
+    if (!isDelete && str.length > 0) {
+        self.inputTextView.text = [NSString stringWithFormat:@"%@%@",chatText,str];
+    }
+    else {
+        if (chatText.length >= 2)
+        {
+            NSString *subStr = [chatText substringFromIndex:chatText.length-2];
+            if ([(DXFaceView *)self.faceView stringIsFace:subStr]) {
+                self.inputTextView.text = [chatText substringToIndex:chatText.length-2];
+                [self textViewDidChange:self.inputTextView];
+                return;
+            }
+        }
+        
+        if (chatText.length > 0) {
+            self.inputTextView.text = [chatText substringToIndex:chatText.length-1];
+        }
+    }
+    
+    [self textViewDidChange:self.inputTextView];
+}
+- (void)sendFace
+{
+    NSString *chatText = self.inputTextView.text;
+    if (chatText.length > 0) {
+        if ([self.delegate respondsToSelector:@selector(didSendText:)]) {
+            [self.delegate didSendText:chatText];
+            self.inputTextView.text = @"";
+            [self _willShowInputTextViewToHeight:[self _getTextViewContentH:self.inputTextView]];;
+        }
+    }
+}
+
+
+#pragma mark - UIKeyboardNotification
+
+- (void)keyboardWillChangeFrame:(NSNotification *)notification
+{
+    NSDictionary *userInfo = notification.userInfo;
+    CGRect endFrame = [userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
+    CGRect beginFrame = [userInfo[UIKeyboardFrameBeginUserInfoKey] CGRectValue];
+    CGFloat duration = [userInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
+    UIViewAnimationCurve curve = [userInfo[UIKeyboardAnimationCurveUserInfoKey] integerValue];
+    
+    void(^animations)() = ^{
+        [self _willShowKeyboardFromFrame:beginFrame toFrame:endFrame];
+    };
+    
+    [UIView animateWithDuration:duration delay:0.0f options:(curve << 16 | UIViewAnimationOptionBeginFromCurrentState) animations:animations completion:nil];
 }
 
 #pragma mark - action
+
+- (void)styleButtonAction:(id)sender
+{
+    UIButton *button = (UIButton *)sender;
+    button.selected = !button.selected;
+    if (button.selected) {
+        for (EMChatToolbarItem *item in self.rightItems) {
+            item.button.selected = NO;
+        }
+        
+        for (EMChatToolbarItem *item in self.leftItems) {
+            if (item.button != button) {
+                item.button.selected = NO;
+            }
+        }
+        
+        //录音状态下，不显示底部扩展页面
+        [self _willShowBottomView:nil];
+        
+        //将inputTextView内容置空，以使toolbarView回到最小高度
+        self.inputTextView.text = @"";
+        [self textViewDidChange:self.inputTextView];
+        [self.inputTextView resignFirstResponder];
+    }
+    else{
+        //键盘也算一种底部扩展页面
+        [self.inputTextView becomeFirstResponder];
+    }
+    
+    [UIView animateWithDuration:0.2 delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+        self.recordButton.hidden = !button.selected;
+        self.inputTextView.hidden = button.selected;
+    } completion:nil];
+}
+
+- (void)faceButtonAction:(id)sender
+{
+    UIButton *button = (UIButton *)sender;
+    button.selected = !button.selected;
+    
+    EMChatToolbarItem *faceItem = nil;
+    for (EMChatToolbarItem *item in self.rightItems) {
+        if (item.button == button){
+            faceItem = item;
+            continue;
+        }
+        
+        item.button.selected = NO;
+    }
+    
+    for (EMChatToolbarItem *item in self.leftItems) {
+        item.button.selected = NO;
+    }
+    
+    if (button.selected) {
+        //如果处于文字输入状态，使文字输入框失去焦点
+        [self.inputTextView resignFirstResponder];
+        
+        [self _willShowBottomView:faceItem.button2View];
+        [UIView animateWithDuration:0.2 delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            self.recordButton.hidden = button.selected;
+            self.inputTextView.hidden = !button.selected;
+        } completion:^(BOOL finished) {
+            
+        }];
+    } else {
+        [self.inputTextView becomeFirstResponder];
+    }
+}
+
+- (void)moreButtonAction:(id)sender
+{
+    UIButton *button = (UIButton *)sender;
+    button.selected = !button.selected;
+    
+    EMChatToolbarItem *moreItem = nil;
+    for (EMChatToolbarItem *item in self.rightItems) {
+        if (item.button == button){
+            moreItem = item;
+            continue;
+        }
+        
+        item.button.selected = NO;
+    }
+    
+    for (EMChatToolbarItem *item in self.leftItems) {
+        item.button.selected = NO;
+    }
+    
+    if (button.selected) {
+        //如果处于文字输入状态，使文字输入框失去焦点
+        [self.inputTextView resignFirstResponder];
+        
+        [self _willShowBottomView:moreItem.button2View];
+        [UIView animateWithDuration:0.2 delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            self.recordButton.hidden = button.selected;
+            self.inputTextView.hidden = !button.selected;
+        } completion:nil];
+    }
+    else
+    {
+        [self.inputTextView becomeFirstResponder];
+    }
+}
+
+- (void)recordButtonTouchDown
+{
+    if ([self.recordView isKindOfClass:[DXRecordView class]]) {
+        [(DXRecordView *)self.recordView recordButtonTouchDown];
+    }
+    
+    if (_delegate && [_delegate respondsToSelector:@selector(didStartRecordingVoiceAction:)]) {
+        [_delegate didStartRecordingVoiceAction:self.recordView];
+    }
+}
+
+- (void)recordButtonTouchUpOutside
+{
+    if (_delegate && [_delegate respondsToSelector:@selector(didCancelRecordingVoiceAction:)])
+    {
+        [_delegate didCancelRecordingVoiceAction:self.recordView];
+    }
+    
+    if ([self.recordView isKindOfClass:[DXRecordView class]]) {
+        [(DXRecordView *)self.recordView recordButtonTouchUpOutside];
+    }
+    
+    [self.recordView removeFromSuperview];
+}
+
+- (void)recordButtonTouchUpInside
+{
+    if ([self.recordView isKindOfClass:[DXRecordView class]]) {
+        [(DXRecordView *)self.recordView recordButtonTouchUpInside];
+    }
+    
+    self.recordButton.enabled = NO;
+    if ([self.delegate respondsToSelector:@selector(didFinishRecoingVoiceAction:)])
+    {
+        [self.delegate didFinishRecoingVoiceAction:self.recordView];
+    }
+    
+    [self.recordView removeFromSuperview];
+    self.recordButton.enabled = YES;
+}
+
+- (void)recordDragOutside
+{
+    if ([self.recordView isKindOfClass:[DXRecordView class]]) {
+        [(DXRecordView *)self.recordView recordButtonDragOutside];
+    }
+    
+    if ([self.delegate respondsToSelector:@selector(didDragOutsideAction:)])
+    {
+        [self.delegate didDragOutsideAction:self.recordView];
+    }
+}
+
+- (void)recordDragInside
+{
+    if ([self.recordView isKindOfClass:[DXRecordView class]]) {
+        [(DXRecordView *)self.recordView recordButtonDragInside];
+    }
+    
+    if ([self.delegate respondsToSelector:@selector(didDragInsideAction:)])
+    {
+        [self.delegate didDragInsideAction:self.recordView];
+    }
+}
 
 #pragma mark - public
 
@@ -335,6 +745,25 @@
 + (CGFloat)defaultHeight
 {
     return 5 * 2 + 36;
+}
+
+/**
+ *  停止编辑
+ */
+- (BOOL)endEditing:(BOOL)force
+{
+    BOOL result = [super endEditing:force];
+    
+    for (EMChatToolbarItem *item in self.leftItems) {
+        item.button.selected = NO;
+    }
+    
+    for (EMChatToolbarItem *item in self.rightItems) {
+        item.button.selected = NO;
+    }
+    [self _willShowBottomView:nil];
+    
+    return result;
 }
 
 @end

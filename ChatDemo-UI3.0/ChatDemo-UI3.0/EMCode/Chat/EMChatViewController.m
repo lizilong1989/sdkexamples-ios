@@ -6,7 +6,6 @@
 //  Copyright (c) 2015年 easemob.com. All rights reserved.
 //
 
-#import <MediaPlayer/MediaPlayer.h>
 #import "EMChatViewController.h"
 
 #import "EMChatToolbar.h"
@@ -16,8 +15,6 @@
 @interface EMChatViewController ()
 
 @property (nonatomic) id<IMessageModel> playingVoiceModel;
-
-@property (strong, nonatomic) EMChatToolbar *chatToolbar;
 
 @end
 
@@ -56,11 +53,10 @@
     
     CGFloat chatbarHeight = [EMChatToolbar defaultHeight];
     self.chatToolbar = [[EMChatToolbar alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height - chatbarHeight, self.view.frame.size.width, chatbarHeight)];
-    [self.view addSubview:self.chatToolbar];
+    _chatToolbar.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
     
-    CGRect tableFrame = self.tableView.frame;
-    tableFrame.size.height = self.view.frame.size.height - chatbarHeight;
-    self.tableView.frame = tableFrame;
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(keyBoardHidden:)];
+    [self.view addGestureRecognizer:tap];
     
     [self registerEaseMobNotification];
 }
@@ -85,7 +81,6 @@
         [self _scrollViewToBottom:NO];
     }
     self.scrollToBottomWhenAppear = YES;
-
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -93,6 +88,33 @@
     [super viewWillDisappear:animated];
     
     self.isViewDidAppear = NO;
+}
+
+#pragma mark - setter
+
+- (void)setChatToolbar:(EMChatToolbar *)chatToolbar
+{
+    [_chatToolbar removeFromSuperview];
+    
+    _chatToolbar = chatToolbar;
+    if (_chatToolbar) {
+        [self.view addSubview:_chatToolbar];
+    }
+    
+    CGRect tableFrame = self.tableView.frame;
+    tableFrame.size.height = self.view.frame.size.height - _chatToolbar.frame.size.height;
+    self.tableView.frame = tableFrame;
+}
+
+- (void)setShowMessageMenuController:(BOOL)showMessageMenuController
+{
+    if (_showMessageMenuController != showMessageMenuController) {
+        _showMessageMenuController = showMessageMenuController;
+        
+        UILongPressGestureRecognizer *lpgr = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
+        lpgr.minimumPressDuration = 0.5;
+        [self.tableView addGestureRecognizer:lpgr];
+    }
 }
 
 #pragma mark - private
@@ -104,6 +126,22 @@
         CGPoint offset = CGPointMake(0, self.tableView.contentSize.height - self.tableView.frame.size.height);
         [self.tableView setContentOffset:offset animated:animated];
     }
+}
+
+- (BOOL)_canRecord
+{
+    __block BOOL bCanRecord = YES;
+    if ([[[UIDevice currentDevice] systemVersion] compare:@"7.0"] != NSOrderedAscending)
+    {
+        AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+        if ([audioSession respondsToSelector:@selector(requestRecordPermission:)]) {
+            [audioSession performSelector:@selector(requestRecordPermission:) withObject:^(BOOL granted) {
+                bCanRecord = granted;
+            }];
+        }
+    }
+    
+    return bCanRecord;
 }
 
 #pragma mark - Table view data source
@@ -190,16 +228,38 @@
     }
 }
 
-#pragma mark - EMMessageCellDelegate
+#pragma mark - GestureRecognizer
 
-- (void)imageMessageCellSelcted:(id<IMessageModel>)model
+// 点击背景隐藏
+-(void)keyBoardHidden:(UITapGestureRecognizer *)tapRecognizer
 {
-    
+    if (tapRecognizer.state == UIGestureRecognizerStateEnded) {
+        [self.chatToolbar endEditing:YES];
+    }
 }
+
+- (void)handleLongPress:(UILongPressGestureRecognizer *)recognizer
+{
+    if (recognizer.state == UIGestureRecognizerStateBegan && [self.dataArray count] > 0)
+    {
+//        CGPoint location = [recognizer locationInView:self.tableView];
+//        NSIndexPath * indexPath = [self.tableView indexPathForRowAtPoint:location];
+//        id object = [self.dataSource objectAtIndex:indexPath.row];
+//        if ([object isKindOfClass:[MessageModel class]]) {
+//            EMChatViewCell *cell = (EMChatViewCell *)[self.tableView cellForRowAtIndexPath:indexPath];
+//            [cell becomeFirstResponder];
+//            _longPressIndexPath = indexPath;
+//            [self showMenuViewController:cell.bubbleView andIndexPath:indexPath messageType:cell.messageModel.type];
+//        }
+    }
+}
+
+#pragma mark - EMMessageCellDelegate
 
 - (void)locationMessageCellSelcted:(id<IMessageModel>)model
 {
     _scrollToBottomWhenAppear = NO;
+    
     EMLocationViewController *locationController = [[EMLocationViewController alloc] initWithLocation:CLLocationCoordinate2DMake(model.latitude, model.longitude)];
     [self.navigationController pushViewController:locationController animated:YES];
 }
@@ -207,6 +267,7 @@
 - (void)voiceMessageCellSelcted:(id<IMessageModel>)model
 {
     _scrollToBottomWhenAppear = NO;
+    
     if (model.isMediaPlaying) {
         self.playingVoiceModel = model;
     }
@@ -215,6 +276,7 @@
 - (void)videoMessageCellSelcted:(id<IMessageModel>)model
 {
     _scrollToBottomWhenAppear = NO;
+    
 //    NSURL *videoURL = [NSURL fileURLWithPath:videoPath];
 //    MPMoviePlayerViewController *moviePlayerController = [[MPMoviePlayerViewController alloc] initWithContentURL:videoURL];
 //    [moviePlayerController.moviePlayer prepareToPlay];
@@ -226,5 +288,85 @@
 {
     _scrollToBottomWhenAppear = NO;
 }
+
+#pragma mark - DXMessageToolBarDelegate
+
+- (void)chatToolbarDidChangeFrameToHeight:(CGFloat)toHeight
+{
+    [UIView animateWithDuration:0.3 animations:^{
+        CGRect rect = self.tableView.frame;
+        rect.origin.y = 0;
+        rect.size.height = self.view.frame.size.height - toHeight;
+        self.tableView.frame = rect;
+    }];
+    
+    [self _scrollViewToBottom:NO];
+}
+
+- (void)inputTextViewWillBeginEditing:(DXTextView *)inputTextView
+{
+//    [self.menuController setMenuItems:nil];
+}
+
+- (void)didSendText:(NSString *)text
+{
+    if (text && text.length > 0) {
+//        [self sendTextMessage:text];
+    }
+}
+
+/**
+ *  按下录音按钮开始录音
+ */
+- (void)didStartRecordingVoiceAction:(UIView *)recordView
+{
+    if ([self _canRecord]) {
+        DXRecordView *tmpView = (DXRecordView *)recordView;
+        tmpView.center = self.view.center;
+        [self.view addSubview:tmpView];
+        [self.view bringSubviewToFront:recordView];
+        int x = arc4random() % 100000;
+        NSTimeInterval time = [[NSDate date] timeIntervalSince1970];
+        NSString *fileName = [NSString stringWithFormat:@"%d%d",(int)time,x];
+        
+        [[EMCDDeviceManager sharedInstance] asyncStartRecordingWithFileName:fileName completion:^(NSError *error)
+         {
+             if (error) {
+                 NSLog(NSLocalizedString(@"message.startRecordFail", @"failure to start recording"));
+             }
+         }];
+    }
+}
+
+/**
+ *  手指向上滑动取消录音
+ */
+- (void)didCancelRecordingVoiceAction:(UIView *)recordView
+{
+    [[EMCDDeviceManager sharedInstance] cancelCurrentRecording];
+}
+
+/**
+ *  松开手指完成录音
+ */
+- (void)didFinishRecoingVoiceAction:(UIView *)recordView
+{
+    __weak typeof(self) weakSelf = self;
+    [[EMCDDeviceManager sharedInstance] asyncStopRecordingWithCompletion:^(NSString *recordPath, NSInteger aDuration, NSError *error) {
+        if (!error) {
+            EMChatVoice *voice = [[EMChatVoice alloc] initWithFile:recordPath displayName:@"audio"];
+            voice.duration = aDuration;
+//            [weakSelf sendAudioMessage:voice];
+        }
+        else {
+            [weakSelf showHudInView:self.view hint:NSLocalizedString(@"media.timeShort", @"The recording time is too short")];
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [weakSelf hideHud];
+            });
+        }
+    }];
+}
+
+
 
 @end

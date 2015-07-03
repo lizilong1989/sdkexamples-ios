@@ -56,8 +56,6 @@ extern CGFloat const EMMessageCellPadding;
 
 @property (nonatomic) UIColor *messageLocationColor UI_APPEARANCE_SELECTOR; //default [UIColor whiteColor];
 
-@property (nonatomic) UIImage *messageLocationImage UI_APPEARANCE_SELECTOR;
-
 @property (nonatomic) NSArray *messageVoiceAnimationImages UI_APPEARANCE_SELECTOR;
 
 @property (nonatomic) UIColor *messageVoiceDurationColor UI_APPEARANCE_SELECTOR; //default [UIColor grayColor];

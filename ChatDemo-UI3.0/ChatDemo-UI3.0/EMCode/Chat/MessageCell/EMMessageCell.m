@@ -59,7 +59,6 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
     
     cell.messageLocationFont = [UIFont systemFontOfSize:12];
     cell.messageLocationColor = [UIColor whiteColor];
-    cell.messageLocationImage = [[UIImage imageNamed:@"chat_location_preview"] stretchableImageWithLeftCapWidth:10 topCapHeight:10];
     
     cell.messageVoiceDurationColor = [UIColor grayColor];
     cell.messageVoiceDurationFont = [UIFont systemFontOfSize:12];
@@ -118,6 +117,7 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
         {
             [_bubbleView setupLocationBubbleView];
             
+            _bubbleView.locationImageView.image = [[UIImage imageNamed:@"chat_location_preview"] stretchableImageWithLeftCapWidth:10 topCapHeight:10];
             _bubbleView.locationLabel.font = _messageLocationFont;
             _bubbleView.locationLabel.textColor = _messageLocationColor;
         }
@@ -126,6 +126,9 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
         {
             [_bubbleView setupVoiceBubbleView];
             
+            if ([_messageVoiceAnimationImages count] > 0) {
+                _bubbleView.voiceImageView.image = [_messageVoiceAnimationImages objectAtIndex:0];
+            }
             _bubbleView.voiceImageView.animationImages = _messageVoiceAnimationImages;
             _bubbleView.voiceDurationLabel.textColor = _messageVoiceDurationColor;
             _bubbleView.voiceDurationLabel.font = _messageVoiceDurationFont;
@@ -134,6 +137,8 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
         case eMessageBodyType_Video:
         {
             [_bubbleView setupVideoBubbleView];
+            
+            _bubbleView.videoTagView.image = [UIImage imageNamed:@"messageVideo"];
         }
             break;
         case eMessageBodyType_File:
@@ -226,16 +231,11 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
             break;
         case eMessageBodyType_Location:
         {
-            _bubbleView.locationImageView.image = _messageLocationImage;
             _bubbleView.locationLabel.text = _model.address;
         }
             break;
         case eMessageBodyType_Voice:
         {
-//            if ([_messageVoiceAnimationImages count] > 0) {
-//                _bubbleView.voiceImageView.image = [_messageVoiceAnimationImages objectAtIndex:0];
-//            }
-            
             if (_model.isMediaPlaying) {
                 [_bubbleView.voiceImageView startAnimating];
             }
@@ -362,14 +362,6 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
     _messageLocationFont = messageLocationFont;
     if (_bubbleView.locationLabel) {
         _bubbleView.locationLabel.font = _messageLocationFont;
-    }
-}
-
-- (void)setMessageLocationImage:(UIImage *)messageLocationImage
-{
-    _messageLocationImage = messageLocationImage;
-    if (_bubbleView.locationImageView) {
-        _bubbleView.locationImageView.image = _messageLocationImage;
     }
 }
 
