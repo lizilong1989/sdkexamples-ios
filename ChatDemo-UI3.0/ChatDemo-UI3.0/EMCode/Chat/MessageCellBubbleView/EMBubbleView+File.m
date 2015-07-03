@@ -74,10 +74,14 @@
     [self _setupFileBubbleConstraints];
 }
 
-- (void)updateFileMarginConstraints
+- (void)updateFileMargin:(UIEdgeInsets)margin
 {
-    [self removeConstraints:self.marginConstraints];
+    if (_margin.top == margin.top && _margin.bottom == margin.bottom && _margin.left == margin.left && _margin.right == margin.right) {
+        return;
+    }
+    _margin = margin;
     
+    [self removeConstraints:self.marginConstraints];
     [self _setupFileBubbleMarginConstraints];
 }
 

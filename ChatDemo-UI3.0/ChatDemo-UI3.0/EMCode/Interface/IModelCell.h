@@ -10,11 +10,13 @@
 
 @protocol IModelCell <NSObject>
 
-@optional
+@required
 
 @property (strong, nonatomic) id model;
 
-+ (NSString *)cellIdentifier;
+- (instancetype)initWithStyle:(UITableViewCellStyle)style
+              reuseIdentifier:(NSString *)reuseIdentifier
+                        model:(id)model;
 
 + (NSString *)cellIdentifierWithModel:(id)model;
 

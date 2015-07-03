@@ -76,7 +76,7 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSString *cellIdentifier = [EMUserCell cellIdentifier];
+    NSString *cellIdentifier = [EMUserCell cellIdentifierWithModel:nil];
     EMUserCell *cell = (EMUserCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
     
     if (cell == nil) {

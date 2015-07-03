@@ -61,12 +61,12 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSString *CellIdentifier = [EMUserCell cellIdentifier];
+    NSString *CellIdentifier = [EMUserCell cellIdentifierWithModel:nil];
     EMUserCell *cell = (EMUserCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     
     // Configure the cell...
     if (cell == nil) {
-        cell = [[EMUserCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+        cell = [[EMUserCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier model:nil];
     }
     
     id<IUserModel> model = [self.dataArray objectAtIndex:indexPath.row];

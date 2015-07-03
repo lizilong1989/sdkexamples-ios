@@ -96,12 +96,12 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSString *CellIdentifier = [EMConversationCell cellIdentifier];
+    NSString *CellIdentifier = [EMConversationCell cellIdentifierWithModel:nil];
     EMConversationCell *cell = (EMConversationCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     
     // Configure the cell...
     if (cell == nil) {
-        cell = [[EMConversationCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+        cell = [[EMConversationCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier model:nil];
     }
     
     id<IConversationModel> model = [self.dataArray objectAtIndex:indexPath.row];

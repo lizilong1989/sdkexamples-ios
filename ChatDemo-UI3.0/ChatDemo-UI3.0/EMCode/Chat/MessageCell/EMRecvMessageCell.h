@@ -31,6 +31,4 @@ extern NSString *const EMMessageCellIdentifierRecvFile;
 
 @property (nonatomic) CGFloat messageNameHeight UI_APPEARANCE_SELECTOR; //default 15;
 
-+ (CGFloat)cellHeightWithModel:(id<IMessageModel>)model;
-
 @end

@@ -12,6 +12,6 @@
 
 - (void)setupVideoBubbleView;
 
-- (void)updateVideoMarginConstraints;
+- (void)updateVideoMargin:(UIEdgeInsets)margin;
 
 @end

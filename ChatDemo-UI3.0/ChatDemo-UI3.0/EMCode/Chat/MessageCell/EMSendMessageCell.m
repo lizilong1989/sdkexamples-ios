@@ -16,8 +16,9 @@
 
 - (instancetype)initWithStyle:(UITableViewCellStyle)style
               reuseIdentifier:(NSString *)reuseIdentifier
+                        model:(id<IMessageModel>)model
 {
-    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier model:model];
     if (self) {
         self.backgroundColor = [UIColor clearColor];
         [self configureLayoutConstraints];

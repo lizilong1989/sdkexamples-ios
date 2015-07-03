@@ -12,6 +12,6 @@
 
 - (void)setupFileBubbleView;
 
-- (void)updateFileMarginConstraints;
+- (void)updateFileMargin:(UIEdgeInsets)margin;
 
 @end

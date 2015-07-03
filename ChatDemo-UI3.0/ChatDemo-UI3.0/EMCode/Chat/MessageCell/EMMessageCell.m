@@ -8,6 +8,13 @@
 
 #import "EMMessageCell.h"
 
+#import "EMBubbleView+Text.h"
+#import "EMBubbleView+Image.h"
+#import "EMBubbleView+Location.h"
+#import "EMBubbleView+Voice.h"
+#import "EMBubbleView+Video.h"
+#import "EMBubbleView+File.h"
+
 CGFloat const EMMessageCellPadding = 10;
 
 NSString *const EMMessageCellIdentifierRecvText = @"EMMessageCellRecvText";
@@ -25,6 +32,9 @@ NSString *const EMMessageCellIdentifierSendImage = @"EMMessageCellSendImage";
 NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
 
 @interface EMMessageCell()
+{
+    MessageBodyType _messageType;
+}
 
 @property (nonatomic) NSLayoutConstraint *statusWidthConstraint;
 @property (nonatomic) NSLayoutConstraint *bubbleMaxWidthConstraint;
@@ -49,6 +59,7 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
     
     cell.messageLocationFont = [UIFont systemFontOfSize:12];
     cell.messageLocationColor = [UIColor whiteColor];
+    cell.messageLocationImage = [[UIImage imageNamed:@"chat_location_preview"] stretchableImageWithLeftCapWidth:10 topCapHeight:10];
     
     cell.messageVoiceDurationColor = [UIColor grayColor];
     cell.messageVoiceDurationFont = [UIFont systemFontOfSize:12];
@@ -61,10 +72,13 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
 
 - (instancetype)initWithStyle:(UITableViewCellStyle)style
               reuseIdentifier:(NSString *)reuseIdentifier
+                        model:(id<IMessageModel>)model
 {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
-        [self _setupSubviews];
+        _messageType = model.contentType;
+        [self _setupSubviewsWithType:model.contentType
+                            isSender:model.isSender];
     }
     
     return self;
@@ -72,7 +86,8 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
 
 #pragma mark - setup subviews
 
-- (void)_setupSubviews
+- (void)_setupSubviewsWithType:(MessageBodyType)messageType
+                      isSender:(BOOL)isSender
 {
     _statusButton = [[UIButton alloc] init];
     _statusButton.translatesAutoresizingMaskIntoConstraints = NO;
@@ -81,20 +96,58 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
     _statusButton.hidden = YES;
     [self.contentView addSubview:_statusButton];
     
-    _bubbleView = [[EMBubbleView alloc] initWithIdentifier:self.reuseIdentifier isSender:[self.reuseIdentifier containsString:@"Send"] margin:_bubbleMargin];
+    _bubbleView = [[EMBubbleView alloc] initWithMargin:_bubbleMargin isSender:isSender];
     _bubbleView.translatesAutoresizingMaskIntoConstraints = NO;
     _bubbleView.backgroundColor = [UIColor clearColor];
     _bubbleView.backgroundImageView.image = _bubbleBackgroundImage;
-    _bubbleView.textLabel.font = _messageTextFont;
-    _bubbleView.textLabel.textColor = _messageTextColor;
-    _bubbleView.locationLabel.font = _messageLocationFont;
-    _bubbleView.locationLabel.textColor = _messageLocationColor;
-    _bubbleView.voiceImageView.animationImages = _messageVoiceAnimationImages;
-    _bubbleView.voiceDurationLabel.textColor = _messageVoiceDurationColor;
-    _bubbleView.voiceDurationLabel.font = _messageVoiceDurationFont;
-    _bubbleView.fileNameLabel.font = _messageFileNameFont;
-    _bubbleView.fileNameLabel.textColor = _messageFileNameColor;
-    _bubbleView.fileSizeLabel.font = _messageFileSizeFont;
+    switch (messageType) {
+        case eMessageBodyType_Text:
+        {
+            [_bubbleView setupTextBubbleView];
+            
+            _bubbleView.textLabel.font = _messageTextFont;
+            _bubbleView.textLabel.textColor = _messageTextColor;
+        }
+            break;
+        case eMessageBodyType_Image:
+        {
+            [_bubbleView setupImageBubbleView];
+        }
+            break;
+        case eMessageBodyType_Location:
+        {
+            [_bubbleView setupLocationBubbleView];
+            
+            _bubbleView.locationLabel.font = _messageLocationFont;
+            _bubbleView.locationLabel.textColor = _messageLocationColor;
+        }
+            break;
+        case eMessageBodyType_Voice:
+        {
+            [_bubbleView setupVoiceBubbleView];
+            
+            _bubbleView.voiceImageView.animationImages = _messageVoiceAnimationImages;
+            _bubbleView.voiceDurationLabel.textColor = _messageVoiceDurationColor;
+            _bubbleView.voiceDurationLabel.font = _messageVoiceDurationFont;
+        }
+            break;
+        case eMessageBodyType_Video:
+        {
+            [_bubbleView setupVideoBubbleView];
+        }
+            break;
+        case eMessageBodyType_File:
+        {
+            [_bubbleView setupFileBubbleView];
+            
+            _bubbleView.fileNameLabel.font = _messageFileNameFont;
+            _bubbleView.fileNameLabel.textColor = _messageFileNameColor;
+            _bubbleView.fileSizeLabel.font = _messageFileSizeFont;
+        }
+            break;
+        default:
+            break;
+    }
     [self.contentView addSubview:_bubbleView];
     
     UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(bubbleViewTapAction:)];
@@ -110,8 +163,12 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
     //bubble view
     [self addConstraint:[NSLayoutConstraint constraintWithItem:self.bubbleView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-EMMessageCellPadding]];
     
+//    NSLayoutConstraint *constraint = [NSLayoutConstraint constraintWithItem:self.bubbleView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-EMMessageCellPadding];
+//    constraint.active = YES;
+    
     self.bubbleMaxWidthConstraint = [NSLayoutConstraint constraintWithItem:self.bubbleView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationLessThanOrEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:self.bubbleMaxWidth];
     [self addConstraint:self.bubbleMaxWidthConstraint];
+//    self.bubbleMaxWidthConstraint.active = YES;
     
     //status button
     self.statusWidthConstraint = [NSLayoutConstraint constraintWithItem:self.statusButton attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:self.statusSize];
@@ -136,9 +193,11 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
 - (void)_updateBubbleMaxWidthConstraint
 {
     [self removeConstraint:self.bubbleMaxWidthConstraint];
+//    self.bubbleMaxWidthConstraint.active = NO;
     
     self.bubbleMaxWidthConstraint = [NSLayoutConstraint constraintWithItem:self.bubbleView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationLessThanOrEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:self.bubbleMaxWidth];
     [self addConstraint:self.bubbleMaxWidthConstraint];
+//    self.bubbleMaxWidthConstraint.active = YES;
 }
 
 #pragma mark - setter
@@ -236,7 +295,41 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
 {
     _bubbleMargin = bubbleMargin;
     if (_bubbleView) {
-        [_bubbleView setMargin:_bubbleMargin];
+        switch (_messageType) {
+            case eMessageBodyType_Text:
+            {
+                [_bubbleView updateTextMargin:_bubbleMargin];
+            }
+                break;
+            case eMessageBodyType_Image:
+            {
+                [_bubbleView updateImageMargin:_bubbleMargin];
+            }
+                break;
+            case eMessageBodyType_Location:
+            {
+                [_bubbleView updateLocationMargin:_bubbleMargin];
+            }
+                break;
+            case eMessageBodyType_Voice:
+            {
+                [_bubbleView updateVoiceMargin:_bubbleMargin];
+            }
+                break;
+            case eMessageBodyType_Video:
+            {
+                [_bubbleView updateVideoMargin:_bubbleMargin];
+            }
+                break;
+            case eMessageBodyType_File:
+            {
+                [_bubbleView updateFileMargin:_bubbleMargin];
+            }
+                break;
+            default:
+                break;
+        }
+
     }
 }
 

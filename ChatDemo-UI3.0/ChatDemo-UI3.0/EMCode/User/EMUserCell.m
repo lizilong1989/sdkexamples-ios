@@ -33,6 +33,7 @@ CGFloat const EMUserCellPadding = 10;
 
 - (instancetype)initWithStyle:(UITableViewCellStyle)style
               reuseIdentifier:(NSString *)reuseIdentifier
+                        model:(id)model
 {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
@@ -136,7 +137,7 @@ CGFloat const EMUserCellPadding = 10;
 
 #pragma mark - class method
 
-+ (NSString *)cellIdentifier
++ (NSString *)cellIdentifierWithModel:(id)model
 {
     return @"EMUserCell";
 }

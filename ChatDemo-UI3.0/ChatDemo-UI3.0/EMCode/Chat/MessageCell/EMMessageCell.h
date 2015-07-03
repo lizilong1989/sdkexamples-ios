@@ -72,6 +72,10 @@ extern CGFloat const EMMessageCellPadding;
 
 @property (nonatomic) UIColor *messageFileSizeColor UI_APPEARANCE_SELECTOR; //default [UIColor grayColor];
 
+- (instancetype)initWithStyle:(UITableViewCellStyle)style
+              reuseIdentifier:(NSString *)reuseIdentifier
+                        model:(id<IMessageModel>)model;
+
 + (NSString *)cellIdentifierWithModel:(id<IMessageModel>)model;
 
 + (CGFloat)cellHeightWithModel:(id<IMessageModel>)model;

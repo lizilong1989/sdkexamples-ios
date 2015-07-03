@@ -12,6 +12,6 @@
 
 - (void)setupLocationBubbleView;
 
-- (void)updateLocationMarginConstraints;
+- (void)updateLocationMargin:(UIEdgeInsets)margin;
 
 @end

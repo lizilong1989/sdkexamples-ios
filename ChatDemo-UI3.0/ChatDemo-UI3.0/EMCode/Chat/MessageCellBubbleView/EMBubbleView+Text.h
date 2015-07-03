@@ -12,6 +12,6 @@
 
 - (void)setupTextBubbleView;
 
-- (void)updateTextMarginConstraints;
+- (void)updateTextMargin:(UIEdgeInsets)margin;
 
 @end

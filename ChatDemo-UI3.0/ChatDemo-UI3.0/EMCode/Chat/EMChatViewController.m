@@ -9,12 +9,15 @@
 #import <MediaPlayer/MediaPlayer.h>
 #import "EMChatViewController.h"
 
+#import "EMChatToolbar.h"
 #import "EMLocationViewController.h"
 #import "NSObject+EaseMob.h"
 
 @interface EMChatViewController ()
 
 @property (nonatomic) id<IMessageModel> playingVoiceModel;
+
+@property (strong, nonatomic) EMChatToolbar *chatToolbar;
 
 @end
 
@@ -50,6 +53,14 @@
     // Do any additional setup after loading the view.
     self.view.backgroundColor = [UIColor colorWithRed:248 / 255.0 green:248 / 255.0 blue:248 / 255.0 alpha:1.0];
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    
+    CGFloat chatbarHeight = [EMChatToolbar defaultHeight];
+    self.chatToolbar = [[EMChatToolbar alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height - chatbarHeight, self.view.frame.size.width, chatbarHeight)];
+    [self.view addSubview:self.chatToolbar];
+    
+    CGRect tableFrame = self.tableView.frame;
+    tableFrame.size.height = self.view.frame.size.height - chatbarHeight;
+    self.tableView.frame = tableFrame;
     
     [self registerEaseMobNotification];
 }
@@ -136,7 +147,7 @@
             
             // Configure the cell...
             if (sendCell == nil) {
-                sendCell = [[EMSendMessageCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+                sendCell = [[EMSendMessageCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier model:model];
                 sendCell.selectionStyle = UITableViewCellSelectionStyleNone;
                 sendCell.delegate = self;
             }
@@ -149,7 +160,7 @@
             
             // Configure the cell...
             if (recvCell == nil) {
-                recvCell = [[EMRecvMessageCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+                recvCell = [[EMRecvMessageCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier model:model];
                 recvCell.selectionStyle = UITableViewCellSelectionStyleNone;
                 recvCell.delegate = self;
             }

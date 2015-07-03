@@ -25,7 +25,7 @@
 //消息类型
 @property (nonatomic, readonly) MessageBodyType contentType;
 
-//是否是发送者
+//是否是当前登录者发送的消息
 @property (nonatomic) BOOL isSender;
 //消息显示的昵称
 @property (strong, nonatomic) NSString *nickname;

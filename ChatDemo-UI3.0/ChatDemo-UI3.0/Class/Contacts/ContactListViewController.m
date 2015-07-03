@@ -72,7 +72,7 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSString *CellIdentifier = [EMUserCell cellIdentifier];
+    NSString *CellIdentifier = [EMUserCell cellIdentifierWithModel:nil];
     EMUserCell *cell = (EMUserCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     
     // Configure the cell...

@@ -29,104 +29,44 @@
 @synthesize backgroundImageView = _backgroundImageView;
 @synthesize margin = _margin;
 
-- (instancetype)initWithIdentifier:(NSString *)identifier
-                          isSender:(BOOL)isSender
-                            margin:(UIEdgeInsets)margin
+- (instancetype)initWithMargin:(UIEdgeInsets)margin
+                      isSender:(BOOL)isSender
 {
     self = [super init];
     if (self) {
-        _identifier = identifier;
         _isSender = isSender;
         _margin = margin;
-        _marginConstraints = [NSMutableArray array];
         
-        [self _setupSubviews];
+        _marginConstraints = [NSMutableArray array];
     }
     
     return self;
-}
-
-#pragma mark - layout subviews
-
-- (void)_setupSubviews
-{
-    _backgroundImageView = [[UIImageView alloc] init];
-    _backgroundImageView.translatesAutoresizingMaskIntoConstraints = NO;
-    _backgroundImageView.backgroundColor = [UIColor clearColor];
-    [self addSubview:_backgroundImageView];
-    [self _setupBackgroundImageViewConstraints];
-    
-    if ([_identifier isEqualToString:EMMessageCellIdentifierSendText] || [_identifier isEqualToString:EMMessageCellIdentifierRecvText])
-    {
-        [self setupTextBubbleView];
-    }
-    else if ([_identifier isEqualToString:EMMessageCellIdentifierSendImage] || [_identifier isEqualToString:EMMessageCellIdentifierRecvImage])
-    {
-        [self setupImageBubbleView];
-    }
-    else if ([_identifier isEqualToString:EMMessageCellIdentifierSendLocation] || [_identifier isEqualToString:EMMessageCellIdentifierRecvLocation])
-    {
-        [self setupLocationBubbleView];
-    }
-    else if ([_identifier isEqualToString:EMMessageCellIdentifierSendVoice] || [_identifier isEqualToString:EMMessageCellIdentifierRecvVoice])
-    {
-        [self setupVoiceBubbleView];
-    }
-    else if ([_identifier isEqualToString:EMMessageCellIdentifierSendVideo] || [_identifier isEqualToString:EMMessageCellIdentifierRecvVideo])
-    {
-        [self setupVideoBubbleView];
-    }
-    else if ([_identifier isEqualToString:EMMessageCellIdentifierSendFile] || [_identifier isEqualToString:EMMessageCellIdentifierRecvFile])
-    {
-        [self setupFileBubbleView];
-    }
 }
 
 #pragma mark - Setup Constraints
 
 - (void)_setupBackgroundImageViewConstraints
 {
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.backgroundImageView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTop multiplier:1.0 constant:0]];
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.backgroundImageView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.backgroundImageView attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.backgroundImageView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeRight multiplier:1.0 constant:0]];
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.backgroundImageView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:_backgroundImageView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTop multiplier:1.0 constant:0]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:_backgroundImageView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:_backgroundImageView attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:_backgroundImageView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeRight multiplier:1.0 constant:0]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:_backgroundImageView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0]];
 }
 
-#pragma mark - setter
+#pragma mark - getter
 
-- (void)setMargin:(UIEdgeInsets)margin
+- (UIImageView *)backgroundImageView
 {
-    if (_margin.top == margin.top && _margin.bottom == margin.bottom && _margin.left == margin.left && _margin.right == margin.right) {
-        return;
+    if (_backgroundImageView == nil) {
+        _backgroundImageView = [[UIImageView alloc] init];
+        _backgroundImageView.translatesAutoresizingMaskIntoConstraints = NO;
+        _backgroundImageView.backgroundColor = [UIColor clearColor];
+        [self addSubview:_backgroundImageView];
+        [self _setupBackgroundImageViewConstraints];
     }
     
-    _margin = margin;
-    
-    if ([_identifier isEqualToString:EMMessageCellIdentifierSendText] || [_identifier isEqualToString:EMMessageCellIdentifierRecvText])
-    {
-        [self updateTextMarginConstraints];
-    }
-    else if ([_identifier isEqualToString:EMMessageCellIdentifierSendImage] || [_identifier isEqualToString:EMMessageCellIdentifierRecvImage])
-    {
-        [self updateImageMarginConstraints];
-    }
-    else if ([_identifier isEqualToString:EMMessageCellIdentifierSendLocation] || [_identifier isEqualToString:EMMessageCellIdentifierRecvLocation])
-    {
-        [self updateLocationMarginConstraints];
-    }
-    else if ([_identifier isEqualToString:EMMessageCellIdentifierSendVoice] || [_identifier isEqualToString:EMMessageCellIdentifierRecvVoice])
-    {
-        [self updateVoiceMarginConstraints];
-    }
-    else if ([_identifier isEqualToString:EMMessageCellIdentifierSendVideo] || [_identifier isEqualToString:EMMessageCellIdentifierRecvVideo])
-    {
-        [self updateVideoMarginConstraints];
-    }
-    else if ([_identifier isEqualToString:EMMessageCellIdentifierSendFile] || [_identifier isEqualToString:EMMessageCellIdentifierRecvFile])
-    {
-        [self updateFileMarginConstraints];
-    }
+    return _backgroundImageView;
 }
 
 @end

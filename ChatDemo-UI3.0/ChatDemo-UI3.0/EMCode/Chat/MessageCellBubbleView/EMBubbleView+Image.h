@@ -12,6 +12,6 @@
 
 - (void)setupImageBubbleView;
 
-- (void)updateImageMarginConstraints;
+- (void)updateImageMargin:(UIEdgeInsets)margin;
 
 @end

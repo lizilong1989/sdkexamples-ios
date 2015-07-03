@@ -12,6 +12,6 @@
 
 - (void)setupVoiceBubbleView;
 
-- (void)updateVoiceMarginConstraints;
+- (void)updateVoiceMargin:(UIEdgeInsets)margin;
 
 @end
