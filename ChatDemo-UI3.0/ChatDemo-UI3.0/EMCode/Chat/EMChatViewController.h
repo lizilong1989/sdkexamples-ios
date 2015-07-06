@@ -6,11 +6,12 @@
 //  Copyright (c) 2015年 easemob.com. All rights reserved.
 //
 
+#import <MobileCoreServices/MobileCoreServices.h>
 #import <AVFoundation/AVFoundation.h>
 #import <MediaPlayer/MediaPlayer.h>
 #import "EMRefreshTableViewController.h"
 
-#import "EaseMob.h"
+#import "EMMessageModel.h"
 #import "IConversationModel.h"
 #import "IMessageModel.h"
 #import "EMSendMessageCell.h"
@@ -19,10 +20,13 @@
 #import "EMCDDeviceManager+Media.h"
 #import "EMCDDeviceManager+ProximitySensor.h"
 #import "UIViewController+HUD.h"
+#import "EMHelper.h"
 
-@interface EMChatViewController : EMRefreshTableViewController<IChatManagerDelegate, EMCallManagerCallDelegate, EMMessageCellDelegate, EMCDDeviceManagerDelegate>
+@interface EMChatViewController : EMRefreshTableViewController<UINavigationControllerDelegate, UIImagePickerControllerDelegate, IChatManagerDelegate, EMCallManagerCallDelegate, EMMessageCellDelegate, EMCDDeviceManagerDelegate>
 
 @property (strong, nonatomic, readonly) EMConversation *conversation;
+
+@property (nonatomic) NSTimeInterval messageTimeIntervalTag;
 
 @property (nonatomic) BOOL deleteConversationIfNull; //default YES;
 
@@ -42,6 +46,22 @@
 
 @property (strong, nonatomic) UIMenuController *menuController;
 
+@property (strong, nonatomic) UIImagePickerController *imagePicker;
+
 - (instancetype)initWithConversation:(EMConversation *)conversation;
+
+/**
+ *  获取消息，返回EMMessage类型的数据，可重写
+ */
+- (void)loadMessagesFrom:(long long)timestamp
+                   count:(NSInteger)count
+                  append:(BOOL)append;
+
+/**
+ *  格式化指定的消息列表，可重写
+ *  messages中是EMMessage类型的数据
+ *  返回的数据必须是id<IMessageModel>类型的数据
+ */
+- (NSArray *)formatMessages:(NSArray *)messages;
 
 @end

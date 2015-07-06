@@ -221,6 +221,14 @@
 
 #pragma mark - setter
 
+- (void)setDelegate:(id<EMChatToolbarDelegate>)delegate
+{
+    _delegate = delegate;
+    if ([_moreView isKindOfClass:[DXChatBarMoreView class]]) {
+        [(DXChatBarMoreView *)_moreView setDelegate:delegate];
+    }
+}
+
 - (void)setRecordView:(UIView *)recordView
 {
     if(_recordView != recordView){

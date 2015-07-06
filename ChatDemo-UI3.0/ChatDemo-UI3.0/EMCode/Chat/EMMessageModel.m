@@ -1,17 +1,17 @@
 //
-//  MessageModel.m
+//  EMMessageModel.m
 //  ChatDemo-UI3.0
 //
 //  Created by dhc on 15/6/26.
 //  Copyright (c) 2015年 easemob.com. All rights reserved.
 //
 
-#import "MessageModel.h"
+#import "EMMessageModel.h"
 
 #import "EaseMob.h"
 #import "ConvertToCommonEmoticonsHelper.h"
 
-@implementation MessageModel
+@implementation EMMessageModel
 
 - (instancetype)initWithMessage:(EMMessage *)message
 {

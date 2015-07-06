@@ -8,11 +8,13 @@
 
 #import "EMChatViewController.h"
 
+#import "EMHelper.h"
 #import "EMChatToolbar.h"
 #import "EMLocationViewController.h"
 #import "NSObject+EaseMob.h"
+#import "NSDate+Category.h"
 
-@interface EMChatViewController ()<EMChatToolbarDelegate>
+@interface EMChatViewController ()<EMChatToolbarDelegate, DXChatBarMoreViewDelegate, EMLocationViewDelegate>
 {
     UILongPressGestureRecognizer *_lpgr;
 }
@@ -28,6 +30,7 @@
 @synthesize deleteConversationIfNull = _deleteConversationIfNull;
 @synthesize pageCount = _pageCount;
 @synthesize timeCellHeight = _timeCellHeight;
+@synthesize messageTimeIntervalTag = _messageTimeIntervalTag;
 
 - (instancetype)initWithConversation:(EMConversation *)conversation
 {
@@ -66,7 +69,7 @@
     //初始化手势
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(keyBoardHidden:)];
     [self.view addGestureRecognizer:tap];
-    self.showMessageMenuController = YES;
+//    self.showMessageMenuController = YES;
     
     //注册代理
     [EMCDDeviceManager sharedInstance].delegate = self;
@@ -123,6 +126,17 @@
     }
     
     return _menuController;
+}
+
+- (UIImagePickerController *)imagePicker
+{
+    if (_imagePicker == nil) {
+        _imagePicker = [[UIImagePickerController alloc] init];
+        _imagePicker.modalPresentationStyle= UIModalPresentationOverFullScreen;
+        _imagePicker.delegate = self;
+    }
+    
+    return _imagePicker;
 }
 
 #pragma mark - setter
@@ -241,6 +255,114 @@
     //    }
 }
 
+- (NSURL *)_convert2Mp4:(NSURL *)movUrl
+{
+    NSURL *mp4Url = nil;
+    AVURLAsset *avAsset = [AVURLAsset URLAssetWithURL:movUrl options:nil];
+    NSArray *compatiblePresets = [AVAssetExportSession exportPresetsCompatibleWithAsset:avAsset];
+    
+    if ([compatiblePresets containsObject:AVAssetExportPresetHighestQuality]) {
+        AVAssetExportSession *exportSession = [[AVAssetExportSession alloc]initWithAsset:avAsset
+                                                                              presetName:AVAssetExportPresetHighestQuality];
+        mp4Url = [movUrl copy];
+        mp4Url = [mp4Url URLByDeletingPathExtension];
+        mp4Url = [mp4Url URLByAppendingPathExtension:@"mp4"];
+        exportSession.outputURL = mp4Url;
+        exportSession.shouldOptimizeForNetworkUse = YES;
+        exportSession.outputFileType = AVFileTypeMPEG4;
+        dispatch_semaphore_t wait = dispatch_semaphore_create(0l);
+        [exportSession exportAsynchronouslyWithCompletionHandler:^{
+            switch ([exportSession status]) {
+                case AVAssetExportSessionStatusFailed: {
+                    NSLog(@"failed, error:%@.", exportSession.error);
+                } break;
+                case AVAssetExportSessionStatusCancelled: {
+                    NSLog(@"cancelled.");
+                } break;
+                case AVAssetExportSessionStatusCompleted: {
+                    NSLog(@"completed.");
+                } break;
+                default: {
+                    NSLog(@"others.");
+                } break;
+            }
+            dispatch_semaphore_signal(wait);
+        }];
+        long timeout = dispatch_semaphore_wait(wait, DISPATCH_TIME_FOREVER);
+        if (timeout) {
+            NSLog(@"timeout.");
+        }
+        if (wait) {
+            //dispatch_release(wait);
+            wait = nil;
+        }
+    }
+    
+    return mp4Url;
+}
+
+- (EMMessageType)_messageTypeFromConversationType
+{
+    EMMessageType type = eMessageTypeChat;
+    switch (self.conversation.conversationType) {
+        case eConversationTypeChat:
+            type = eMessageTypeChat;
+            break;
+        case eConversationTypeGroupChat:
+            type = eMessageTypeGroupChat;
+            break;
+        case eConversationTypeChatRoom:
+            type = eMessageTypeChatRoom;
+            break;
+        default:
+            break;
+    }
+    return type;
+}
+
+- (void)_downloadMessageAttachments:(EMMessage *)message
+{
+    __weak typeof(self) weakSelf = self;
+    void (^completion)(EMMessage *aMessage, EMError *error) = ^(EMMessage *aMessage, EMError *error) {
+        if (!error)
+        {
+            //            [weakSelf reloadTableViewDataWithMessage:message];
+        }
+        else
+        {
+            [weakSelf showHint:NSLocalizedString(@"message.thumImageFail", @"thumbnail for failure!")];
+        }
+    };
+    
+    id<IEMMessageBody> messageBody = [message.messageBodies firstObject];
+    if ([messageBody messageBodyType] == eMessageBodyType_Image) {
+        EMImageMessageBody *imageBody = (EMImageMessageBody *)messageBody;
+        if (imageBody.thumbnailDownloadStatus > EMAttachmentDownloadSuccessed)
+        {
+            //下载缩略图
+            [[[EaseMob sharedInstance] chatManager] asyncFetchMessageThumbnail:message progress:nil completion:completion onQueue:nil];
+        }
+    }
+    else if ([messageBody messageBodyType] == eMessageBodyType_Video)
+    {
+        EMVideoMessageBody *videoBody = (EMVideoMessageBody *)messageBody;
+        if (videoBody.thumbnailDownloadStatus > EMAttachmentDownloadSuccessed)
+        {
+            //下载缩略图
+            [[[EaseMob sharedInstance] chatManager] asyncFetchMessageThumbnail:message progress:nil completion:completion onQueue:nil];
+        }
+    }
+    else if ([messageBody messageBodyType] == eMessageBodyType_Voice)
+    {
+        EMVoiceMessageBody *voiceBody = (EMVoiceMessageBody*)messageBody;
+        if (voiceBody.attachmentDownloadStatus > EMAttachmentDownloadSuccessed)
+        {
+            //下载语言
+            [[EaseMob sharedInstance].chatManager asyncFetchMessage:message progress:nil];
+        }
+    }
+}
+
 #pragma mark - GestureRecognizer
 
 // 点击背景隐藏
@@ -350,6 +472,46 @@
             return [EMRecvMessageCell cellHeightWithModel:model];
         }
     }
+}
+
+#pragma mark - UIImagePickerControllerDelegate
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
+{
+    NSString *mediaType = info[UIImagePickerControllerMediaType];
+    if ([mediaType isEqualToString:(NSString *)kUTTypeMovie]) {
+        NSURL *videoURL = info[UIImagePickerControllerMediaURL];
+        [picker dismissViewControllerAnimated:YES completion:^{
+            [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:@"isShowPicker"];
+        }];
+        // video url:
+        // file:///private/var/mobile/Applications/B3CDD0B2-2F19-432B-9CFA-158700F4DE8F/tmp/capture-T0x16e39100.tmp.9R8weF/capturedvideo.mp4
+        // we will convert it to mp4 format
+        NSURL *mp4 = [self _convert2Mp4:videoURL];
+        NSFileManager *fileman = [NSFileManager defaultManager];
+        if ([fileman fileExistsAtPath:videoURL.path]) {
+            NSError *error = nil;
+            [fileman removeItemAtURL:videoURL error:&error];
+            if (error) {
+                NSLog(@"failed to remove file, error:%@.", error);
+            }
+        }
+        EMChatVideo *chatVideo = [[EMChatVideo alloc] initWithFile:[mp4 relativePath] displayName:@"video.mp4"];
+//        [self sendVideoMessage:chatVideo];
+        
+    }else{
+        UIImage *orgImage = info[UIImagePickerControllerOriginalImage];
+        [picker dismissViewControllerAnimated:YES completion:^{
+            [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:@"isShowPicker"];
+        }];
+//        [self sendImageMessage:orgImage];
+    }
+}
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
+{
+    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:@"isShowPicker"];
+    [self.imagePicker dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark - EMMessageCellDelegate
@@ -478,7 +640,7 @@
 
 - (void)fileMessageCellSelcted:(id<IMessageModel>)model
 {
-//    _scrollToBottomWhenAppear = NO;
+    _scrollToBottomWhenAppear = NO;
     
     [self showHint:@"Custom implementation!"];
 }
@@ -505,7 +667,7 @@
 - (void)didSendText:(NSString *)text
 {
     if (text && text.length > 0) {
-//        [self sendTextMessage:text];
+        [self sendTextMessage:text];
     }
 }
 
@@ -560,6 +722,68 @@
         }
     }];
 }
+
+#pragma mark - EMChatBarMoreViewDelegate
+
+- (void)moreViewPhotoAction:(DXChatBarMoreView *)moreView
+{
+    // 隐藏键盘
+    [self keyBoardHidden:nil];
+    
+    // 弹出照片选择
+    self.imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+    self.imagePicker.mediaTypes = @[(NSString *)kUTTypeImage];
+    [self presentViewController:self.imagePicker animated:YES completion:NULL];
+}
+
+- (void)moreViewTakePicAction:(DXChatBarMoreView *)moreView
+{
+    [self keyBoardHidden:nil];
+    
+#if TARGET_IPHONE_SIMULATOR
+    [self showHint:NSLocalizedString(@"message.simulatorNotSupportCamera", @"simulator does not support taking picture")];
+#elif TARGET_OS_IPHONE
+    self.imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
+    self.imagePicker.mediaTypes = @[(NSString *)kUTTypeImage,(NSString *)kUTTypeMovie];
+    [self presentViewController:self.imagePicker animated:YES completion:NULL];
+#endif
+}
+
+- (void)moreViewLocationAction:(DXChatBarMoreView *)moreView
+{
+    // 隐藏键盘
+    [self keyBoardHidden:nil];
+    
+    EMLocationViewController *locationController = [[EMLocationViewController alloc] init];
+    locationController.delegate = self;
+    [self.navigationController pushViewController:locationController animated:YES];
+}
+
+- (void)moreViewAudioCallAction:(DXChatBarMoreView *)moreView
+{
+    // 隐藏键盘
+    [self keyBoardHidden:nil];
+//    [[NSNotificationCenter defaultCenter] postNotificationName:@"callOutWithChatter" object:@{@"chatter":self.chatter, @"type":[NSNumber numberWithInt:eCallSessionTypeAudio]}];
+}
+
+- (void)moreViewVideoCallAction:(DXChatBarMoreView *)moreView
+{
+    // 隐藏键盘
+    [self keyBoardHidden:nil];
+//    [[NSNotificationCenter defaultCenter] postNotificationName:@"callOutWithChatter" object:@{@"chatter":self.chatter, @"type":[NSNumber numberWithInt:eCallSessionTypeVideo]}];
+}
+
+#pragma mark - EMLocationViewDelegate
+
+-(void)sendLocationLatitude:(double)latitude
+                  longitude:(double)longitude
+                 andAddress:(NSString *)address
+{
+//    EMMessage *locationMessage = [ChatSendHelper sendLocationLatitude:latitude longitude:longitude address:address toUsername:_conversation.chatter messageType:[self messageType] requireEncryption:NO ext:nil];
+//    [self addMessage:locationMessage];
+}
+
+#pragma mark - EaseMob
 
 #pragma mark - EMCDDeviceManagerProximitySensorDelegate
 
@@ -620,6 +844,118 @@
         {
             [[EaseMob sharedInstance].chatManager sendReadAckForMessage:message];
         }
+    });
+}
+
+- (void)sendTextMessage:(NSString *)text
+{
+    EMMessage *message = [EMHelper sendTextMessage:text toUser:_conversation.chatter messageType:[self _messageTypeFromConversationType] requireEncryption:NO messageExt:nil];
+    [self addMessage:message];
+}
+
+#pragma mark - data
+
+- (NSArray *)formatMessages:(NSArray *)messages
+{
+    NSMutableArray *formattedArray = [[NSMutableArray alloc] init];
+    if ([messages count] == 0) {
+        return formattedArray;
+    }
+    
+    for (EMMessage *message in messages) {
+        //计算時間间隔
+        CGFloat interval = self.messageTimeIntervalTag - message.timestamp;
+        if (self.messageTimeIntervalTag < 0 || interval > 60 || interval < -60) {
+            NSDate *messageDate = [NSDate dateWithTimeIntervalInMilliSecondSince1970:(NSTimeInterval)message.timestamp];
+            [formattedArray addObject:[messageDate formattedTime]];
+            self.messageTimeIntervalTag = message.timestamp;
+        }
+        
+        //构建数据模型
+        id<IMessageModel> model = [[EMMessageModel alloc] initWithMessage:message];
+        if (model) {
+            model.avatarImage = [UIImage imageNamed:@"user"];
+            model.failImageName = @"imageDownloadFail";
+            [formattedArray addObject:model];
+        }
+    }
+    
+    return formattedArray;
+}
+
+- (void)loadMessagesFrom:(long long)timestamp
+                   count:(NSInteger)count
+                  append:(BOOL)append
+{
+    NSArray *moreMessages = [self.conversation loadNumbersOfMessages:count before:timestamp];
+    if ([moreMessages count] == 0) {
+        return;
+    }
+    
+    NSInteger scrollToIndex = 0;
+    [self.messsagesSource insertObjects:moreMessages atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [moreMessages count])]];
+    EMMessage *latest = [self.messsagesSource lastObject];
+    self.messageTimeIntervalTag = latest.timestamp;
+    
+    //格式化消息
+    NSArray *formattedMessages = [self formatMessages:moreMessages];
+    //合并消息
+    id object = [self.dataArray firstObject];
+    if ([object isKindOfClass:[NSString class]])
+    {
+        NSString *timestamp = object;
+        [formattedMessages enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id model, NSUInteger idx, BOOL *stop) {
+            if ([model isKindOfClass:[NSString class]] && [timestamp isEqualToString:model])
+            {
+                [self.dataArray removeObjectAtIndex:0];
+                *stop = YES;
+            }
+        }];
+    }
+    scrollToIndex = [self.dataArray count];
+    [self.dataArray insertObjects:formattedMessages atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [formattedMessages count])]];
+    
+    //刷新页面
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.tableView reloadData];
+        
+        [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:[self.dataArray count] - scrollToIndex - 1 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:NO];
+    });
+    
+    //从数据库导入时重新下载没有下载成功的附件
+    for (EMMessage *message in moreMessages)
+    {
+        [self _downloadMessageAttachments:message];
+    }
+    
+    //发送已读回执
+    NSMutableArray *unreadMessages = [NSMutableArray array];
+    for (NSInteger i = 0; i < [moreMessages count]; i++)
+    {
+        EMMessage *message = moreMessages[i];
+        if ([self _shouldAckMessage:message read:NO])
+        {
+            [unreadMessages addObject:message];
+        }
+    }
+
+    if ([unreadMessages count])
+    {
+        [self sendHasReadResponseForMessages:unreadMessages];
+    }
+}
+
+-(void)addMessage:(EMMessage *)message
+{
+    [self.messsagesSource addObject:message];
+    
+    NSArray *messages = [self formatMessages:@[message]];
+    
+    __weak EMChatViewController *weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [weakSelf.dataArray addObjectsFromArray:messages];
+        [weakSelf.tableView reloadData];
+        [weakSelf.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:[weakSelf.dataArray count] - 1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
     });
 }
 

@@ -15,13 +15,9 @@
 
 @interface ChatViewController ()<UIAlertViewDelegate>
 
-@property (nonatomic) NSTimeInterval timeIntervalTag;
-
 @end
 
 @implementation ChatViewController
-
-@synthesize timeIntervalTag = _timeIntervalTag;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -76,7 +72,7 @@
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
     if (alertView.cancelButtonIndex != buttonIndex) {
-        self.timeIntervalTag = -1;
+        self.messageTimeIntervalTag = -1;
         [self.conversation removeAllMessages];
         [self.dataArray removeAllObjects];
         [self.messsagesSource removeAllObjects];
@@ -134,7 +130,7 @@
         NSString *groupId = (NSString *)[(NSNotification *)sender object];
         BOOL isDelete = [groupId isEqualToString:self.conversation.chatter];
         if (self.conversation.conversationType != eConversationTypeChat && isDelete) {
-            self.timeIntervalTag = -1;
+            self.messageTimeIntervalTag = -1;
             [self.conversation removeAllMessages];
             [self.messsagesSource removeAllObjects];
             [self.dataArray removeAllObjects];
@@ -149,139 +145,5 @@
     }
 }
 
-#pragma mark - data
-
-- (void)_downloadMessageAttachments:(EMMessage *)message
-{
-    __weak typeof(self) weakSelf = self;
-    void (^completion)(EMMessage *aMessage, EMError *error) = ^(EMMessage *aMessage, EMError *error) {
-        if (!error)
-        {
-            //            [weakSelf reloadTableViewDataWithMessage:message];
-        }
-        else
-        {
-            [weakSelf showHint:NSLocalizedString(@"message.thumImageFail", @"thumbnail for failure!")];
-        }
-    };
-    
-    id<IEMMessageBody> messageBody = [message.messageBodies firstObject];
-    if ([messageBody messageBodyType] == eMessageBodyType_Image) {
-        EMImageMessageBody *imageBody = (EMImageMessageBody *)messageBody;
-        if (imageBody.thumbnailDownloadStatus > EMAttachmentDownloadSuccessed)
-        {
-            //下载缩略图
-            [[[EaseMob sharedInstance] chatManager] asyncFetchMessageThumbnail:message progress:nil completion:completion onQueue:nil];
-        }
-    }
-    else if ([messageBody messageBodyType] == eMessageBodyType_Video)
-    {
-        EMVideoMessageBody *videoBody = (EMVideoMessageBody *)messageBody;
-        if (videoBody.thumbnailDownloadStatus > EMAttachmentDownloadSuccessed)
-        {
-            //下载缩略图
-            [[[EaseMob sharedInstance] chatManager] asyncFetchMessageThumbnail:message progress:nil completion:completion onQueue:nil];
-        }
-    }
-    else if ([messageBody messageBodyType] == eMessageBodyType_Voice)
-    {
-        EMVoiceMessageBody *voiceBody = (EMVoiceMessageBody*)messageBody;
-        if (voiceBody.attachmentDownloadStatus > EMAttachmentDownloadSuccessed)
-        {
-            //下载语言
-            [[EaseMob sharedInstance].chatManager asyncFetchMessage:message progress:nil];
-        }
-    }
-}
-
-- (NSArray *)_formatMessages:(NSArray *)messages
-{
-    NSMutableArray *formattedArray = [[NSMutableArray alloc] init];
-    if ([messages count] == 0) {
-        return formattedArray;
-    }
-    
-    for (EMMessage *message in messages) {
-        //计算時間间隔
-        CGFloat interval = self.timeIntervalTag - message.timestamp;
-        if (self.timeIntervalTag < 0 || interval > 60 || interval < -60) {
-            NSDate *messageDate = [NSDate dateWithTimeIntervalInMilliSecondSince1970:(NSTimeInterval)message.timestamp];
-            [formattedArray addObject:[messageDate formattedTime]];
-            self.timeIntervalTag = message.timestamp;
-        }
-        
-        //构建数据模型
-        MessageModel *model = [[MessageModel alloc] initWithMessage:message];
-        if (model) {
-            model.avatarImage = [UIImage imageNamed:@"user"];
-            model.failImageName = @"imageDownloadFail";
-            [formattedArray addObject:model];
-        }
-    }
-    
-    return formattedArray;
-}
-
-- (void)loadMessagesFrom:(long long)timestamp
-                   count:(NSInteger)count
-                  append:(BOOL)append
-{
-    NSArray *moreMessages = [self.conversation loadNumbersOfMessages:count before:timestamp];
-    if ([moreMessages count] == 0) {
-        return;
-    }
-    
-    NSInteger scrollToIndex = 0;
-    [self.messsagesSource insertObjects:moreMessages atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [moreMessages count])]];
-    EMMessage *latest = [self.messsagesSource lastObject];
-    self.timeIntervalTag = latest.timestamp;
-    
-    //格式化消息
-    NSArray *formattedMessages = [self _formatMessages:moreMessages];
-    //合并消息
-    id object = [self.dataArray firstObject];
-    if ([object isKindOfClass:[NSString class]])
-    {
-        NSString *timestamp = object;
-        [formattedMessages enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id model, NSUInteger idx, BOOL *stop) {
-            if ([model isKindOfClass:[NSString class]] && [timestamp isEqualToString:model])
-            {
-                [self.dataArray removeObjectAtIndex:0];
-                *stop = YES;
-            }
-        }];
-    }
-    scrollToIndex = [self.dataArray count];
-    [self.dataArray insertObjects:formattedMessages atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [formattedMessages count])]];
-    
-    //刷新页面
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.tableView reloadData];
-        
-        [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:[self.dataArray count] - scrollToIndex - 1 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:NO];
-    });
-    
-    //从数据库导入时重新下载没有下载成功的附件
-    for (EMMessage *message in moreMessages)
-    {
-        [self _downloadMessageAttachments:message];
-    }
-    
-    //发送已读回执
-//    NSMutableArray *unreadMessages = [NSMutableArray array];
-//    for (NSInteger i = 0; i < [moreMessages count]; i++)
-//    {
-//        EMMessage *message = moreMessages[i];
-//        if ([self shouldAckMessage:message read:NO])
-//        {
-//            [unreadMessages addObject:message];
-//        }
-//    }
-//    
-//    if ([unreadMessages count])
-//    {
-//        [self sendHasReadResponseForMessages:unreadMessages];
-//    }
-}
 
 @end

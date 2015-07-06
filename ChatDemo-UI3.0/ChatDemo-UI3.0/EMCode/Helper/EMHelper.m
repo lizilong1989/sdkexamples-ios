@@ -8,6 +8,8 @@
 
 #import "EMHelper.h"
 
+#import "ConvertToCommonEmoticonsHelper.h"
+
 static EMHelper *helper = nil;
 
 @implementation EMHelper
@@ -45,5 +47,24 @@ static EMHelper *helper = nil;
 
 #pragma mark - public
 
++ (EMMessage *)sendTextMessage:(NSString *)text
+                        toUser:(NSString *)toUser
+                   messageType:(EMMessageType)messageType
+             requireEncryption:(BOOL)requireEncryption
+                    messageExt:(NSDictionary *)messageExt
+
+{
+    // 表情映射。
+    NSString *willSendText = [ConvertToCommonEmoticonsHelper convertToCommonEmoticons:text];
+    EMChatText *textChat = [[EMChatText alloc] initWithText:willSendText];
+    EMTextMessageBody *body = [[EMTextMessageBody alloc] initWithChatObject:textChat];
+    EMMessage *message = [[EMMessage alloc] initWithReceiver:toUser bodies:[NSArray arrayWithObject:body]];
+    message.requireEncryption = requireEncryption;
+    message.messageType = messageType;
+    message.ext = messageExt;
+    EMMessage *retMessage = [[EaseMob sharedInstance].chatManager asyncSendMessage:message progress:nil];
+    
+    return retMessage;
+}
 
 @end

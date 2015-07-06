@@ -1,5 +1,5 @@
 //
-//  MessageModel.h
+//  EMMessageModel.h
 //  ChatDemo-UI3.0
 //
 //  Created by dhc on 15/6/26.
@@ -11,8 +11,7 @@
 #import "IMessageModel.h"
 #import "EMMessage.h"
 
-@class EMChatVoice;
-@interface MessageModel : NSObject<IMessageModel>
+@interface EMMessageModel : NSObject<IMessageModel>
 
 @property (nonatomic) CGFloat cellHeight;
 @property (strong, nonatomic, readonly) EMMessage *message;

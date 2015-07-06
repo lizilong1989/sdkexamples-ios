@@ -37,7 +37,8 @@ typedef enum{
 
 @protocol DXChatBarMoreViewDelegate <NSObject>
 
-@required
+@optional
+
 - (void)moreViewTakePicAction:(DXChatBarMoreView *)moreView;
 - (void)moreViewPhotoAction:(DXChatBarMoreView *)moreView;
 - (void)moreViewLocationAction:(DXChatBarMoreView *)moreView;
