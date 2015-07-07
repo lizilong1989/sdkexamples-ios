@@ -267,7 +267,7 @@ EMSDWebImageManager *manager = [EMSDWebImageManager sharedManager];
 #pragma mark - Deprecated
 
 typedef void(^EMSDWebImageCompletedBlock)(UIImage *image, NSError *error, EMSDImageCacheType cacheType) __deprecated_msg("Block type deprecated. Use `EMSDWebImageCompletionBlock`");
-typedef void(^SDWebImageCompletedWithFinishedBlock)(UIImage *image, NSError *error, EMSDImageCacheType cacheType, BOOL finished) __deprecated_msg("Block type deprecated. Use `EMSDWebImageCompletionWithFinishedBlock`");
+typedef void(^EMSDWebImageCompletedWithFinishedBlock)(UIImage *image, NSError *error, EMSDImageCacheType cacheType, BOOL finished) __deprecated_msg("Block type deprecated. Use `EMSDWebImageCompletionWithFinishedBlock`");
 
 
 @interface EMSDWebImageManager (Deprecated)
@@ -280,6 +280,6 @@ typedef void(^SDWebImageCompletedWithFinishedBlock)(UIImage *image, NSError *err
 - (id <EMSDWebImageOperation>)downloadWithURL:(NSURL *)url
                                     options:(EMSDWebImageOptions)options
                                    progress:(EMSDWebImageDownloaderProgressBlock)progressBlock
-                                  completed:(SDWebImageCompletedWithFinishedBlock)completedBlock __deprecated_msg("Method deprecated. Use `downloadImageWithURL:options:progress:completed:`");
+                                  completed:(EMSDWebImageCompletedWithFinishedBlock)completedBlock __deprecated_msg("Method deprecated. Use `downloadImageWithURL:options:progress:completed:`");
 
 @end

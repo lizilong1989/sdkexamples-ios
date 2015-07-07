@@ -332,7 +332,7 @@
 
 // deprecated method, uses the non deprecated method
 // adapter for the completion block
-- (id <EMSDWebImageOperation>)downloadWithURL:(NSURL *)url options:(EMSDWebImageOptions)options progress:(EMSDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletedWithFinishedBlock)completedBlock {
+- (id <EMSDWebImageOperation>)downloadWithURL:(NSURL *)url options:(EMSDWebImageOptions)options progress:(EMSDWebImageDownloaderProgressBlock)progressBlock completed:(EMSDWebImageCompletedWithFinishedBlock)completedBlock {
     return [self downloadImageWithURL:url
                               options:options
                              progress:progressBlock
