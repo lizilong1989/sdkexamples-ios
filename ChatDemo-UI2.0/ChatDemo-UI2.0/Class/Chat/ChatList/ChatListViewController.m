@@ -19,6 +19,7 @@
 #import "ChatViewController.h"
 #import "EMSearchDisplayController.h"
 #import "ConvertToCommonEmoticonsHelper.h"
+#import "RobotManager.h"
 
 @interface ChatListViewController ()<UITableViewDelegate,UITableViewDataSource, UISearchDisplayDelegate,SRRefreshDelegate, UISearchBarDelegate, IChatManagerDelegate,ChatViewControllerDelegate>
 
@@ -186,7 +187,10 @@
             
             EMConversation *conversation = [weakSelf.searchController.resultsSource objectAtIndex:indexPath.row];
             cell.name = conversation.chatter;
-            if (conversation.conversationType != eConversationTypeChat) {
+            if (conversation.conversationType == eConversationTypeChat) {
+                if ([[RobotManager sharedInstance] isRobotWithUsername:conversation.chatter]) {
+                    cell.name = [[RobotManager sharedInstance] getRobotNickWithUsername:conversation.chatter];
+                }
                 cell.placeholderImage = [UIImage imageNamed:@"chatListCellHead.png"];
             }
             else{
@@ -309,7 +313,11 @@
                 // 表情映射。
                 NSString *didReceiveText = [ConvertToCommonEmoticonsHelper
                                             convertToSystemEmoticons:((EMTextMessageBody *)messageBody).text];
-                ret = didReceiveText;
+                if ([[RobotManager sharedInstance] isRobotMenuMessage:lastMessage]) {
+                    ret = [[RobotManager sharedInstance] getRobotMenuMessageDigest:lastMessage];
+                } else {
+                    ret = didReceiveText;
+                }
             } break;
             case eMessageBodyType_Voice:{
                 ret = NSLocalizedString(@"message.voice1", @"[voice]");
@@ -342,6 +350,9 @@
     EMConversation *conversation = [self.dataSource objectAtIndex:indexPath.row];
     cell.name = conversation.chatter;
     if (conversation.conversationType == eConversationTypeChat) {
+        if ([[RobotManager sharedInstance] isRobotWithUsername:conversation.chatter]) {
+            cell.name = [[RobotManager sharedInstance] getRobotNickWithUsername:conversation.chatter];
+        }
         cell.placeholderImage = [UIImage imageNamed:@"chatListCellHead.png"];
     }
     else{
@@ -416,6 +427,9 @@
     chatController = [[ChatViewController alloc] initWithChatter:chatter conversationType:conversation.conversationType];
     chatController.delelgate = self;
     chatController.title = title;
+    if ([[RobotManager sharedInstance] getRobotNickWithUsername:chatter]) {
+        chatController.title = [[RobotManager sharedInstance] getRobotNickWithUsername:chatter];
+    }
     [self.navigationController pushViewController:chatController animated:YES];
 }
 

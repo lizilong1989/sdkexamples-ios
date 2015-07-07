@@ -19,6 +19,7 @@
 #define LABEL_LINESPACE 0       // 行间距
 
 extern NSString *const kRouterEventTextURLTapEventName;
+extern NSString *const kRouterEventMenuTapEventName;
 
 @interface EMChatTextBubbleView : EMChatBaseBubbleView
 

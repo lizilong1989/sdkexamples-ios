@@ -452,7 +452,13 @@ static NSString *kGroupName = @"GroupName";
     
     notification.alertAction = NSLocalizedString(@"open", @"Open");
     notification.timeZone = [NSTimeZone defaultTimeZone];
-    notification.soundName = UILocalNotificationDefaultSoundName;
+    NSTimeInterval timeInterval = [[NSDate date] timeIntervalSinceDate:self.lastPlaySoundDate];
+    if (timeInterval < kDefaultPlaySoundInterval) {
+        NSLog(@"skip ringing & vibration %@, %@", [NSDate date], self.lastPlaySoundDate);
+    } else {
+        notification.soundName = UILocalNotificationDefaultSoundName;
+        self.lastPlaySoundDate = [NSDate date];
+    }
     
     NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
     [userInfo setObject:[NSNumber numberWithInt:message.messageType] forKey:kMessageType];

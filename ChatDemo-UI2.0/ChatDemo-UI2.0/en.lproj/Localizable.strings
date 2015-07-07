@@ -286,6 +286,7 @@
 "title.groupApply" = "Group Notification";
 "title.groupSubjectChanging" = "Change group name";
 "title.chatroomlist" = "Chatroom List";
+"title.robotlist" = "Robot List";
 
 //setting
 "setting.autoLogin" = "automatic login";
