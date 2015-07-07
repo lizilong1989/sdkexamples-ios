@@ -8,13 +8,10 @@
 
 #import "EMChatViewController.h"
 
-#import "EMHelper.h"
-#import "EMChatToolbar.h"
-#import "EMLocationViewController.h"
 #import "NSObject+EaseMob.h"
 #import "NSDate+Category.h"
 
-@interface EMChatViewController ()<EMChatToolbarDelegate, DXChatBarMoreViewDelegate, EMLocationViewDelegate>
+@interface EMChatViewController ()
 {
     UILongPressGestureRecognizer *_lpgr;
 }
@@ -89,9 +86,10 @@
     [EMCDDeviceManager sharedInstance].delegate = nil;
     [self unregisterEaseMobNotification];
     
-//    if (_imagePicker){
-//        [_imagePicker dismissViewControllerAnimated:NO completion:nil];
-//    }
+    if (_imagePicker){
+        [_imagePicker dismissViewControllerAnimated:NO completion:nil];
+        _imagePicker = nil;
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -99,6 +97,7 @@
     [super viewWillAppear:animated];
     
     self.isViewDidAppear = YES;
+    [[EMHelper shareHelper] setIsShowingimagePicker:NO];
     
     if (self.scrollToBottomWhenAppear) {
         [self _scrollViewToBottom:NO];
@@ -481,9 +480,6 @@
     NSString *mediaType = info[UIImagePickerControllerMediaType];
     if ([mediaType isEqualToString:(NSString *)kUTTypeMovie]) {
         NSURL *videoURL = info[UIImagePickerControllerMediaURL];
-        [picker dismissViewControllerAnimated:YES completion:^{
-            [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:@"isShowPicker"];
-        }];
         // video url:
         // file:///private/var/mobile/Applications/B3CDD0B2-2F19-432B-9CFA-158700F4DE8F/tmp/capture-T0x16e39100.tmp.9R8weF/capturedvideo.mp4
         // we will convert it to mp4 format
@@ -496,22 +492,25 @@
                 NSLog(@"failed to remove file, error:%@.", error);
             }
         }
-        EMChatVideo *chatVideo = [[EMChatVideo alloc] initWithFile:[mp4 relativePath] displayName:@"video.mp4"];
-//        [self sendVideoMessage:chatVideo];
+        [self sendVideoMessageWithURL:mp4];
         
     }else{
         UIImage *orgImage = info[UIImagePickerControllerOriginalImage];
-        [picker dismissViewControllerAnimated:YES completion:^{
-            [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:@"isShowPicker"];
-        }];
-//        [self sendImageMessage:orgImage];
+        [self sendImageMessage:orgImage];
     }
+    
+    [picker dismissViewControllerAnimated:YES completion:nil];
+    
+    self.isViewDidAppear = YES;
+    [[EMHelper shareHelper] setIsShowingimagePicker:NO];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
 {
-    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO] forKey:@"isShowPicker"];
     [self.imagePicker dismissViewControllerAnimated:YES completion:nil];
+    
+    self.isViewDidAppear = YES;
+    [[EMHelper shareHelper] setIsShowingimagePicker:NO];
 }
 
 #pragma mark - EMMessageCellDelegate
@@ -710,9 +709,7 @@
     __weak typeof(self) weakSelf = self;
     [[EMCDDeviceManager sharedInstance] asyncStopRecordingWithCompletion:^(NSString *recordPath, NSInteger aDuration, NSError *error) {
         if (!error) {
-            EMChatVoice *voice = [[EMChatVoice alloc] initWithFile:recordPath displayName:@"audio"];
-            voice.duration = aDuration;
-//            [weakSelf sendAudioMessage:voice];
+            [weakSelf sendAudioMessageWithLocalPath:recordPath duration:aDuration];
         }
         else {
             [weakSelf showHudInView:self.view hint:NSLocalizedString(@"media.timeShort", @"The recording time is too short")];
@@ -728,17 +725,21 @@
 - (void)moreViewPhotoAction:(DXChatBarMoreView *)moreView
 {
     // 隐藏键盘
-    [self keyBoardHidden:nil];
+    [self.chatToolbar endEditing:YES];
     
     // 弹出照片选择
     self.imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
     self.imagePicker.mediaTypes = @[(NSString *)kUTTypeImage];
     [self presentViewController:self.imagePicker animated:YES completion:NULL];
+    
+    self.isViewDidAppear = NO;
+    [[EMHelper shareHelper] setIsShowingimagePicker:YES];
 }
 
 - (void)moreViewTakePicAction:(DXChatBarMoreView *)moreView
 {
-    [self keyBoardHidden:nil];
+    // 隐藏键盘
+    [self.chatToolbar endEditing:YES];
     
 #if TARGET_IPHONE_SIMULATOR
     [self showHint:NSLocalizedString(@"message.simulatorNotSupportCamera", @"simulator does not support taking picture")];
@@ -746,13 +747,16 @@
     self.imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
     self.imagePicker.mediaTypes = @[(NSString *)kUTTypeImage,(NSString *)kUTTypeMovie];
     [self presentViewController:self.imagePicker animated:YES completion:NULL];
+    
+    self.isViewDidAppear = NO;
+    [[EMHelper shareHelper] setIsShowingimagePicker:YES];
 #endif
 }
 
 - (void)moreViewLocationAction:(DXChatBarMoreView *)moreView
 {
     // 隐藏键盘
-    [self keyBoardHidden:nil];
+    [self.chatToolbar endEditing:YES];
     
     EMLocationViewController *locationController = [[EMLocationViewController alloc] init];
     locationController.delegate = self;
@@ -762,15 +766,17 @@
 - (void)moreViewAudioCallAction:(DXChatBarMoreView *)moreView
 {
     // 隐藏键盘
-    [self keyBoardHidden:nil];
-//    [[NSNotificationCenter defaultCenter] postNotificationName:@"callOutWithChatter" object:@{@"chatter":self.chatter, @"type":[NSNumber numberWithInt:eCallSessionTypeAudio]}];
+    [self.chatToolbar endEditing:YES];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATION_CALL object:@{@"chatter":self.conversation.chatter, @"type":[NSNumber numberWithInt:eCallSessionTypeAudio]}];
 }
 
 - (void)moreViewVideoCallAction:(DXChatBarMoreView *)moreView
 {
     // 隐藏键盘
-    [self keyBoardHidden:nil];
-//    [[NSNotificationCenter defaultCenter] postNotificationName:@"callOutWithChatter" object:@{@"chatter":self.chatter, @"type":[NSNumber numberWithInt:eCallSessionTypeVideo]}];
+    [self.chatToolbar endEditing:YES];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATION_CALL object:@{@"chatter":self.conversation.chatter, @"type":[NSNumber numberWithInt:eCallSessionTypeVideo]}];
 }
 
 #pragma mark - EMLocationViewDelegate
@@ -779,8 +785,8 @@
                   longitude:(double)longitude
                  andAddress:(NSString *)address
 {
-//    EMMessage *locationMessage = [ChatSendHelper sendLocationLatitude:latitude longitude:longitude address:address toUsername:_conversation.chatter messageType:[self messageType] requireEncryption:NO ext:nil];
-//    [self addMessage:locationMessage];
+    EMMessage *message = [EMHelper sendLocationMessageWithLatitude:latitude longitude:longitude address:address to:self.conversation.chatter messageType:[self _messageTypeFromConversationType] requireEncryption:NO messageExt:nil];
+    [self addMessage:message];
 }
 
 #pragma mark - EaseMob
@@ -849,7 +855,26 @@
 
 - (void)sendTextMessage:(NSString *)text
 {
-    EMMessage *message = [EMHelper sendTextMessage:text toUser:_conversation.chatter messageType:[self _messageTypeFromConversationType] requireEncryption:NO messageExt:nil];
+    EMMessage *message = [EMHelper sendTextMessage:text to:self.conversation.chatter messageType:[self _messageTypeFromConversationType] requireEncryption:NO messageExt:nil];
+    [self addMessage:message];
+}
+
+- (void)sendImageMessage:(UIImage *)image
+{
+    EMMessage *message = [EMHelper sendImageMessageWithImage:image to:self.conversation.chatter messageType:[self _messageTypeFromConversationType] requireEncryption:NO messageExt:nil];
+    [self addMessage:message];
+}
+
+- (void)sendAudioMessageWithLocalPath:(NSString *)localPath
+                             duration:(NSInteger)duration
+{
+    EMMessage *message = [EMHelper sendVoiceMessageWithLocalPath:localPath duration:duration to:self.conversation.chatter messageType:[self _messageTypeFromConversationType] requireEncryption:NO messageExt:nil];
+    [self addMessage:message];
+}
+
+- (void)sendVideoMessageWithURL:(NSURL *)url
+{
+    EMMessage *message = [EMHelper sendVideoMessageWithURL:url to:self.conversation.chatter messageType:[self _messageTypeFromConversationType] requireEncryption:NO messageExt:nil];
     [self addMessage:message];
 }
 

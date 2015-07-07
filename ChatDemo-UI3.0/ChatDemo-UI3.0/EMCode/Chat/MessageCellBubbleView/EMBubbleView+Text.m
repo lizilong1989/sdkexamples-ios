@@ -40,6 +40,7 @@
     self.textLabel = [[UILabel alloc] init];
     self.textLabel.translatesAutoresizingMaskIntoConstraints = NO;
     self.textLabel.backgroundColor = [UIColor clearColor];
+    self.textLabel.numberOfLines = 0;
     [self.backgroundImageView addSubview:self.textLabel];
     
     [self _setupTextBubbleConstraints];

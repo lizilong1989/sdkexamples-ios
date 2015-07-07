@@ -17,12 +17,14 @@
 #import "EMSendMessageCell.h"
 #import "EMRecvMessageCell.h"
 #import "EMMessageTimeCell.h"
+#import "EMChatToolbar.h"
+#import "EMLocationViewController.h"
 #import "EMCDDeviceManager+Media.h"
 #import "EMCDDeviceManager+ProximitySensor.h"
 #import "UIViewController+HUD.h"
 #import "EMHelper.h"
 
-@interface EMChatViewController : EMRefreshTableViewController<UINavigationControllerDelegate, UIImagePickerControllerDelegate, IChatManagerDelegate, EMCallManagerCallDelegate, EMMessageCellDelegate, EMCDDeviceManagerDelegate>
+@interface EMChatViewController : EMRefreshTableViewController<UINavigationControllerDelegate, UIImagePickerControllerDelegate, IChatManagerDelegate, EMCallManagerCallDelegate, EMMessageCellDelegate, EMCDDeviceManagerDelegate, EMChatToolbarDelegate, DXChatBarMoreViewDelegate, EMLocationViewDelegate>
 
 @property (strong, nonatomic, readonly) EMConversation *conversation;
 

@@ -142,6 +142,7 @@
     
     //转变输入样式
     UIButton *styleChangeButton = [[UIButton alloc] init];
+    styleChangeButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
     [styleChangeButton setImage:[UIImage imageNamed:@"chatBar_record"] forState:UIControlStateNormal];
     [styleChangeButton setImage:[UIImage imageNamed:@"chatBar_keyboard"] forState:UIControlStateSelected];
     [styleChangeButton addTarget:self action:@selector(styleButtonAction:) forControlEvents:UIControlEventTouchUpInside];
@@ -168,6 +169,7 @@
     
     //表情
     self.faceButton = [[UIButton alloc] init];
+    self.faceButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
     [self.faceButton setImage:[UIImage imageNamed:@"chatBar_face"] forState:UIControlStateNormal];
     [self.faceButton setImage:[UIImage imageNamed:@"chatBar_faceSelected"] forState:UIControlStateHighlighted];
     [self.faceButton setImage:[UIImage imageNamed:@"chatBar_keyboard"] forState:UIControlStateSelected];
@@ -176,6 +178,7 @@
     
     //更多
     self.moreButton = [[UIButton alloc] init];
+    self.moreButton.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
     [self.moreButton setImage:[UIImage imageNamed:@"chatBar_more"] forState:UIControlStateNormal];
     [self.moreButton setImage:[UIImage imageNamed:@"chatBar_moreSelected"] forState:UIControlStateHighlighted];
     [self.moreButton setImage:[UIImage imageNamed:@"chatBar_keyboard"] forState:UIControlStateSelected];

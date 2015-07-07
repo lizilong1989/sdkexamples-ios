@@ -8,8 +8,6 @@
 
 #import "ChatViewController.h"
 
-#import "EaseMob.h"
-#import "MessageModel.h"
 #import "UIViewController+HUD.h"
 #import "NSDate+Category.h"
 
