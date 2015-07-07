@@ -10,6 +10,8 @@
 
 @interface EMViewController ()
 
+@property (strong, nonatomic) UITapGestureRecognizer *tapRecognizer;
+
 @end
 
 @implementation EMViewController
@@ -20,6 +22,10 @@
     if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)]){
         [self setEdgesForExtendedLayout:UIRectEdgeNone];
     }
+    
+    _tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapViewAction:)];
+    [self.view addGestureRecognizer:_tapRecognizer];
+    _endEditingWhenTap = YES;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -27,14 +33,29 @@
     // Dispose of any resources that can be recreated.
 }
 
-/*
-#pragma mark - Navigation
+#pragma mark - setter
 
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+- (void)setEndEditingWhenTap:(BOOL)endEditingWhenTap
+{
+    if (_endEditingWhenTap != endEditingWhenTap) {
+        _endEditingWhenTap = endEditingWhenTap;
+        
+        if (_endEditingWhenTap) {
+            [self.view addGestureRecognizer:self.tapRecognizer];
+        }
+        else{
+            [self.view removeGestureRecognizer:self.tapRecognizer];
+        }
+    }
 }
-*/
+
+#pragma mark - action
+
+- (void)tapViewAction:(UITapGestureRecognizer *)tapRecognizer
+{
+    if (tapRecognizer.state == UIGestureRecognizerStateEnded) {
+        [self.view endEditing:YES];
+    }
+}
 
 @end
