@@ -24,6 +24,7 @@
 #import "ChatViewController.h"
 #import "MyChatroomListViewController.h"
 #import "ChatroomListViewController.h"
+#import "RobotListViewController.h"
 
 @interface ContactsViewController ()<UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate, UISearchDisplayDelegate, UIActionSheetDelegate, BaseTableCellDelegate, SRRefreshDelegate, IChatManagerDelegate>
 {
@@ -217,7 +218,7 @@
 {
     // Return the number of rows in the section.
     if (section == 0) {
-        return 3;
+        return 4;
 //        return 1;
     }
     
@@ -255,6 +256,10 @@
         else if (indexPath.section == 0 && indexPath.row == 2) {
             cell.imageView.image = [UIImage imageNamed:@"groupPublicHeader"];
             cell.textLabel.text = NSLocalizedString(@"title.chatroomlist",@"chatroom list");
+        }
+        else if (indexPath.section == 0 && indexPath.row == 3) {
+            cell.imageView.image = [UIImage imageNamed:@"groupPublicHeader"];
+            cell.textLabel.text = NSLocalizedString(@"title.robotlist",@"robot list");
         }
         else{
             EMBuddy *buddy = [[self.dataSource objectAtIndex:(indexPath.section - 1)] objectAtIndex:indexPath.row];
@@ -381,6 +386,11 @@
         else if (indexPath.row == 2)
         {
             ChatroomListViewController *controller = [[ChatroomListViewController alloc] initWithStyle:UITableViewStylePlain];
+            [self.navigationController pushViewController:controller animated:YES];
+        }
+        else if (indexPath.row == 3)
+        {
+            RobotListViewController *controller = [[RobotListViewController alloc] initWithStyle:UITableViewStylePlain];
             [self.navigationController pushViewController:controller animated:YES];
         }
     }
