@@ -198,7 +198,7 @@
 
 - (BOOL)viewController:(EMChooseViewController *)viewController didFinishSelectedSources:(NSArray *)selectedSources
 {
-    NSInteger maxUsersCount = 3;
+    NSInteger maxUsersCount = 200;
     if ([selectedSources count] > (maxUsersCount - 1)) {
         UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"group.maxUserCount", nil) message:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
         [alertView show];

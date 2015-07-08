@@ -309,8 +309,16 @@
 }
 
 #pragma mark - EMChooseViewDelegate
-- (void)viewController:(EMChooseViewController *)viewController didFinishSelectedSources:(NSArray *)selectedSources
+- (BOOL)viewController:(EMChooseViewController *)viewController didFinishSelectedSources:(NSArray *)selectedSources
 {
+    NSInteger maxUsersCount = _chatGroup.groupSetting.groupMaxUsersCount;
+    if (([selectedSources count] + _chatGroup.groupOccupantsCount) > (maxUsersCount - 1)) {
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"group.maxUserCount", nil) message:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
+        [alertView show];
+        
+        return NO;
+    }
+    
     [self showHudInView:self.view hint:NSLocalizedString(@"group.addingOccupant", @"add a group member...")];
     
     __weak typeof(self) weakSelf = self;
@@ -331,11 +339,13 @@
         else
         {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self hideHud];
-                [weakSelf showHint:NSLocalizedString(@"group.addOccupantFail", @"Failed to add group member, please try again later")];
+                [weakSelf hideHud];
+                [weakSelf showHint:error.description];
             });
         }
     });
+    
+    return YES;
 }
 
 - (void)groupBansChanged
