@@ -334,15 +334,19 @@
 
 - (void)doneAction:(id)sender
 {
+    BOOL isPop = YES;
     if (_delegate && [_delegate respondsToSelector:@selector(viewController:didFinishSelectedSources:)]) {
         NSMutableArray *resultArray = [NSMutableArray array];
         for (NSIndexPath *indexPath in self.selectedIndexPaths) {
             [resultArray addObject:[[self.dataSource objectAtIndex:indexPath.section] objectAtIndex:indexPath.row]];
         }
         
-        [_delegate viewController:self didFinishSelectedSources:resultArray];
+        isPop = [_delegate viewController:self didFinishSelectedSources:resultArray];
     }
-    [self.navigationController popViewControllerAnimated:YES];
+    
+    if (isPop) {
+        [self.navigationController popViewControllerAnimated:YES];
+    }
 }
 
 @end

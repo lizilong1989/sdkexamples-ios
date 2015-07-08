@@ -130,6 +130,7 @@
 "group.join.fail" = "加入群组失败，请重新操作";
 "group.sendingApply" = "发送加群申请...";
 "group.sendApplyRepeat" = "申请已发送";
+"group.maxUserCount" = "群成员个数超了最大值了";
 
 //Create Group
 "group.create.addOccupant" = "添加成员";

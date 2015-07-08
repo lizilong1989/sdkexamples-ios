@@ -404,8 +404,10 @@
 {
     if (_delegate && [_delegate respondsToSelector:@selector(viewController:didFinishSelectedSources:)]) {
         if ([_blockSelectedUsernames count] == 0) {
-            [_delegate viewController:self didFinishSelectedSources:self.selectedContacts];
-            [self.navigationController popViewControllerAnimated:NO];
+            BOOL isPop = [_delegate viewController:self didFinishSelectedSources:self.selectedContacts];
+            if (isPop) {
+                [self.navigationController popViewControllerAnimated:NO];
+            }
         }
         else{
             NSMutableArray *resultArray = [NSMutableArray array];

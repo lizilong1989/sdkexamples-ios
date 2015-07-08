@@ -149,6 +149,7 @@
 "group.create.needApply" = "you need administrator agreed to join the group";
 "group.create.group" = "Create a group";
 "group.create.join" = "Join public group";
+"group.maxUserCount" = "Group members more than the upper limit";
 
 //Group Bans
 "group.ban.removing" = "members are removing from the blacklist...";

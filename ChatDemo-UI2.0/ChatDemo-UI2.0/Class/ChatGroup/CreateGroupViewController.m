@@ -196,8 +196,16 @@
 
 #pragma mark - EMChooseViewDelegate
 
-- (void)viewController:(EMChooseViewController *)viewController didFinishSelectedSources:(NSArray *)selectedSources
+- (BOOL)viewController:(EMChooseViewController *)viewController didFinishSelectedSources:(NSArray *)selectedSources
 {
+    NSInteger maxUsersCount = 3;
+    if ([selectedSources count] > (maxUsersCount - 1)) {
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"group.maxUserCount", nil) message:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
+        [alertView show];
+        
+        return NO;
+    }
+    
     [self showHudInView:self.view hint:NSLocalizedString(@"group.create.ongoing", @"create a group...")];
     
     NSMutableArray *source = [NSMutableArray array];
@@ -206,6 +214,8 @@
     }
     
     EMGroupStyleSetting *setting = [[EMGroupStyleSetting alloc] init];
+    setting.groupMaxUsersCount = maxUsersCount;
+    
     if (_isPublic) {
         if(_isMemberOn)
         {
@@ -239,6 +249,8 @@
             [weakSelf showHint:NSLocalizedString(@"group.create.fail", @"Failed to create a group, please operate again")];
         }
     } onQueue:nil];
+    
+    return YES;
 }
 
 #pragma mark - action
