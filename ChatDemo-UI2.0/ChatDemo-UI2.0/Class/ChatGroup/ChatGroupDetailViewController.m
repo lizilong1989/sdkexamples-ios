@@ -312,7 +312,7 @@
 - (BOOL)viewController:(EMChooseViewController *)viewController didFinishSelectedSources:(NSArray *)selectedSources
 {
     NSInteger maxUsersCount = _chatGroup.groupSetting.groupMaxUsersCount;
-    if (([selectedSources count] + _chatGroup.groupOccupantsCount) > (maxUsersCount - 1)) {
+    if (([selectedSources count] + _chatGroup.groupOccupantsCount) > maxUsersCount) {
         UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"group.maxUserCount", nil) message:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
         [alertView show];
         
