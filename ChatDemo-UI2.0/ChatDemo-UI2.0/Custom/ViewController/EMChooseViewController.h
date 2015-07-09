@@ -136,7 +136,8 @@
  *
  *  @param viewController  列表视图
  *  @param selectedSources 选择的联系人信息，每个联系人提供姓名和手机号两个字段，以字典形式返回
+ *  @return 是否隐藏页面
  */
-- (void)viewController:(EMChooseViewController *)viewController didFinishSelectedSources:(NSArray *)selectedSources;
+- (BOOL)viewController:(EMChooseViewController *)viewController didFinishSelectedSources:(NSArray *)selectedSources;
 
 @end

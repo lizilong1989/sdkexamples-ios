@@ -402,10 +402,10 @@
 
 - (void)doneAction:(id)sender
 {
+    BOOL isPop = YES;
     if (_delegate && [_delegate respondsToSelector:@selector(viewController:didFinishSelectedSources:)]) {
         if ([_blockSelectedUsernames count] == 0) {
-            [_delegate viewController:self didFinishSelectedSources:self.selectedContacts];
-            [self.navigationController popViewControllerAnimated:NO];
+            isPop = [_delegate viewController:self didFinishSelectedSources:self.selectedContacts];
         }
         else{
             NSMutableArray *resultArray = [NSMutableArray array];
@@ -415,9 +415,12 @@
                     [resultArray addObject:buddy];
                 }
             }
-            [_delegate viewController:self didFinishSelectedSources:resultArray];
-            [self.navigationController popViewControllerAnimated:NO];
+            isPop = [_delegate viewController:self didFinishSelectedSources:resultArray];
         }
+    }
+    
+    if (isPop) {
+        [self.navigationController popViewControllerAnimated:NO];
     }
 }
 

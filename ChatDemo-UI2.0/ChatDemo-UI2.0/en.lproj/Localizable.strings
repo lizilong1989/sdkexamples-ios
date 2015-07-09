@@ -149,6 +149,7 @@
 "group.create.needApply" = "you need administrator agreed to join the group";
 "group.create.group" = "Create a group";
 "group.create.join" = "Join public group";
+"group.maxUserCount" = "Group members more than the upper limit";
 
 //Group Bans
 "group.ban.removing" = "members are removing from the blacklist...";
@@ -312,6 +313,7 @@
 "setting.iospushname" = "iOS push nickname";
 "setting.useIp" = "Use IP";
 "setting.deleteConWhenLeave" = "Delete conversation when leave a group";
+"setting.showCallInfo" = "Show video call info";
 "setting.microphoneNoAuthority" = "No microphone permissions";
 "setting.microphoneAuthority" = "Please open in \"Setting\"-\"Privacy\"-\"Microphone\".";
 "setting.cameraNoAuthority" = "No camera permissions";
