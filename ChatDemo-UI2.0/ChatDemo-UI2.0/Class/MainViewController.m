@@ -20,6 +20,7 @@
 #import "CallViewController.h"
 #import "ChatViewController.h"
 #import "EMCDDeviceManager.h"
+#import "RobotManager.h"
 //两次提示的默认间隔
 static const CGFloat kDefaultPlaySoundInterval = 3.0;
 static NSString *kMessageType = @"MessageType";
@@ -554,6 +555,36 @@ static NSString *kGroupName = @"GroupName";
         }
         
         [self _removeBuddies:deletedBuddies];
+    } else {
+        // clear conversation
+        NSArray *conversations = [[EaseMob sharedInstance].chatManager conversations];
+        NSMutableArray *deleteConversations = [NSMutableArray arrayWithArray:conversations];
+        NSMutableDictionary *buddyDic = [NSMutableDictionary dictionary];
+        for (EMBuddy *buddy in buddyList) {
+            if ([buddy.username length]) {
+                [buddyDic setObject:buddy forKey:buddy.username];
+            }
+        }
+        for (EMConversation *conversation in conversations) {
+            if (conversation.conversationType == eConversationTypeChat) {
+                if ([buddyDic objectForKey:conversation.chatter]) {
+                    [deleteConversations removeObject:conversation];
+                }
+            } else {
+                [deleteConversations removeObject:conversation];
+            }
+        }
+        if ([deleteConversations count] > 0) {
+            NSMutableArray *deletedBuddies = [NSMutableArray array];
+            for (EMConversation *conversation in deleteConversations) {
+                if (![[RobotManager sharedInstance] isRobotWithUsername:conversation.chatter]) {
+                    [deletedBuddies addObject:conversation.chatter];
+                }
+            }
+            if ([deletedBuddies count] > 0) {
+                [self _removeBuddies:deletedBuddies];
+            }
+        }
     }
     [_contactsVC reloadDataSource];
 }
