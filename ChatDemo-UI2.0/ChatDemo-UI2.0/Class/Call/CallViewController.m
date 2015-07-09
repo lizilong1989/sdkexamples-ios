@@ -29,8 +29,6 @@
     NSTimer *_propertyTimer;
 }
 
-@property (nonatomic) BOOL isShowCallInfo;
-
 @end
 
 @implementation CallViewController
@@ -150,9 +148,10 @@
 
 #pragma mark - getter
 
-- (BOOL)isIsShowCallInfo
+- (BOOL)isShowCallInfo
 {
-    return [[[NSUserDefaults standardUserDefaults] objectForKey:@"showCallInfo"] boolValue];
+    id object = [[NSUserDefaults standardUserDefaults] objectForKey:@"showCallInfo"];
+    return [object boolValue];
 }
 
 #pragma makr - property
@@ -320,7 +319,7 @@
     //7、属性显示层
     _propertyView = [[UIView alloc] initWithFrame:CGRectMake(10, CGRectGetMinY(_actionView.frame) - 90, self.view.frame.size.width - 20, 90)];
     _propertyView.backgroundColor = [UIColor clearColor];
-    _propertyView.hidden = !self.isShowCallInfo;
+    _propertyView.hidden = ![self isShowCallInfo];
     [self.view addSubview:_propertyView];
     
     width = (CGRectGetWidth(_propertyView.frame) - 20) / 2;
@@ -626,9 +625,9 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         [_actionView addSubview:_speakerOutButton];
         [_actionView addSubview:_speakerOutLabel];
         
-        if (self.isShowCallInfo) {
+        if ([self isShowCallInfo]) {
             [self _reloadPropertyData];
-            _propertyTimer = [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(_reloadPropertyData) userInfo:nil repeats:YES];
+            _propertyTimer = [NSTimer scheduledTimerWithTimeInterval:2.0 target:self selector:@selector(_reloadPropertyData) userInfo:nil repeats:YES];
         }
     }
 }

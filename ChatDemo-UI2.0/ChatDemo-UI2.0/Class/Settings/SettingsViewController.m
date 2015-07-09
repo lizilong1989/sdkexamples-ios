@@ -164,6 +164,7 @@
             cell.textLabel.text = NSLocalizedString(@"setting.showCallInfo", nil);
             cell.accessoryType = UITableViewCellAccessoryNone;
             self.showCallInfoSwitch.frame = CGRectMake(self.tableView.frame.size.width - (self.showCallInfoSwitch.frame.size.width + 10), (cell.contentView.frame.size.height - self.showCallInfoSwitch.frame.size.height) / 2, self.showCallInfoSwitch.frame.size.width, self.showCallInfoSwitch.frame.size.height);
+            [cell.contentView addSubview:self.showCallInfoSwitch];
         }
 //        else if (indexPath.row == 8){
 //            cell.textLabel.text = @"聊天记录备份和恢复";
@@ -252,7 +253,9 @@
 
 - (void)showCallInfoChanged:(UISwitch *)control
 {
-    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:control.isOn] forKey:@"showCallInfo"];
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    [userDefaults setObject:[NSNumber numberWithBool:control.isOn] forKey:@"showCallInfo"];
+    [userDefaults synchronize];
 }
 
 - (void)refreshConfig
