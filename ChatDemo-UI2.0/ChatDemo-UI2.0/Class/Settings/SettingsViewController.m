@@ -26,6 +26,7 @@
 @property (strong, nonatomic) UISwitch *autoLoginSwitch;
 @property (strong, nonatomic) UISwitch *ipSwitch;
 @property (strong, nonatomic) UISwitch *delConversationSwitch;
+@property (strong, nonatomic) UISwitch *showCallInfoSwitch;
 
 @end
 
@@ -91,6 +92,17 @@
     return _delConversationSwitch;
 }
 
+- (UISwitch *)showCallInfoSwitch
+{
+    if (!_showCallInfoSwitch)
+    {
+        _showCallInfoSwitch = [[UISwitch alloc] init];
+        _showCallInfoSwitch.on = [[[NSUserDefaults standardUserDefaults] objectForKey:@"showCallInfo"] boolValue];
+        [_showCallInfoSwitch addTarget:self action:@selector(showCallInfoChanged:) forControlEvents:UIControlEventValueChanged];
+    }
+    return _showCallInfoSwitch;
+}
+
 #pragma mark - Table view datasource
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -100,7 +112,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return 7;
+    return 8;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -148,7 +160,12 @@
             cell.textLabel.text = NSLocalizedString(@"setting.iospushname", @"iOS push nickname");
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         }
-//        else if (indexPath.row == 7){
+        else if (indexPath.row == 7){
+            cell.textLabel.text = NSLocalizedString(@"setting.showCallInfo", nil);
+            cell.accessoryType = UITableViewCellAccessoryNone;
+            self.showCallInfoSwitch.frame = CGRectMake(self.tableView.frame.size.width - (self.showCallInfoSwitch.frame.size.width + 10), (cell.contentView.frame.size.height - self.showCallInfoSwitch.frame.size.height) / 2, self.showCallInfoSwitch.frame.size.width, self.showCallInfoSwitch.frame.size.height);
+        }
+//        else if (indexPath.row == 8){
 //            cell.textLabel.text = @"聊天记录备份和恢复";
 //            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 //        }
@@ -184,7 +201,7 @@
         EditNicknameViewController *editName = [[EditNicknameViewController alloc] initWithNibName:nil bundle:nil];
         [self.navigationController pushViewController:editName animated:YES];
     }
-//    else if(indexPath.row == 7){
+//    else if(indexPath.row == 8){
 //        BackupViewController *backupController = [[BackupViewController alloc] initWithNibName:nil bundle:nil];
 //        [self.navigationController pushViewController:backupController animated:YES];
 //    }
@@ -231,6 +248,11 @@
 - (void)delConversationChanged:(UISwitch *)control
 {
     [EaseMob sharedInstance].chatManager.isAutoDeleteConversationWhenLeaveGroup = control.isOn;
+}
+
+- (void)showCallInfoChanged:(UISwitch *)control
+{
+    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:control.isOn] forKey:@"showCallInfo"];
 }
 
 - (void)refreshConfig
