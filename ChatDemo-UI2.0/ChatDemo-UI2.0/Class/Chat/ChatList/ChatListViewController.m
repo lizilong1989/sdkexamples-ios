@@ -318,6 +318,10 @@
                 } else {
                     ret = didReceiveText;
                 }
+                
+                if (lastMessage.isAtMessage) {
+                    ret = [NSString stringWithFormat:@"%@ %@",lastMessage.groupSenderName,NSLocalizedString(@"message.at", @"@ you in group")];
+                }
             } break;
             case eMessageBodyType_Voice:{
                 ret = NSLocalizedString(@"message.voice1", @"[voice]");

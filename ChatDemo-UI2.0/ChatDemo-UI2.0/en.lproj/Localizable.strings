@@ -228,6 +228,7 @@
 "message.location1" = "[location]";
 "message.voice1" = "[audio]";
 "message.video1" = "[video]";
+"message.at" = "@ you in group";
 "message.beginReceiveOffine" = "begin to receive offline messages";
 "message.endReceiveOffine" = "end to receive offline messages";
 "message.toolBar.inputPlaceHolder" = "input a new message";

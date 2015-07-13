@@ -163,6 +163,7 @@
 		90F1BED51930495800121AEC /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90F1BED41930495800121AEC /* MobileCoreServices.framework */; };
 		90F3ED471A75F3A4005A0135 /* ChatViewController+Category.m in Sources */ = {isa = PBXBuildFile; fileRef = 90F3ED461A75F3A4005A0135 /* ChatViewController+Category.m */; };
 		C035E8151AEA40F400283EE9 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C36CA691A1EDB6200CDDD48 /* CoreData.framework */; };
+		D23C3F9B1B537A9C00DDD105 /* ContactAtSelectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D23C3F9A1B537A9C00DDD105 /* ContactAtSelectionViewController.m */; };
 		D25787381B43EC5F00B0E69F /* RobotManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D25787371B43EC5F00B0E69F /* RobotManager.m */; };
 		D257873C1B43EC7000B0E69F /* RobotListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D257873B1B43EC7000B0E69F /* RobotListViewController.m */; };
 		D2BF974F1AEB566B009E0D5C /* group_creategroup@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D2BF974C1AEB566B009E0D5C /* group_creategroup@2x.png */; };
@@ -679,6 +680,8 @@
 		90F1BED41930495800121AEC /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		90F3ED451A75F3A4005A0135 /* ChatViewController+Category.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ChatViewController+Category.h"; sourceTree = "<group>"; };
 		90F3ED461A75F3A4005A0135 /* ChatViewController+Category.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ChatViewController+Category.m"; sourceTree = "<group>"; };
+		D23C3F991B537A9C00DDD105 /* ContactAtSelectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContactAtSelectionViewController.h; sourceTree = "<group>"; };
+		D23C3F9A1B537A9C00DDD105 /* ContactAtSelectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ContactAtSelectionViewController.m; sourceTree = "<group>"; };
 		D25787361B43EC5F00B0E69F /* RobotManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RobotManager.h; sourceTree = "<group>"; };
 		D25787371B43EC5F00B0E69F /* RobotManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RobotManager.m; sourceTree = "<group>"; };
 		D257873A1B43EC7000B0E69F /* RobotListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RobotListViewController.h; sourceTree = "<group>"; };
@@ -957,6 +960,8 @@
 		3C914D7019514BBD0002DAD3 /* ChatGroup */ = {
 			isa = PBXGroup;
 			children = (
+				D23C3F991B537A9C00DDD105 /* ContactAtSelectionViewController.h */,
+				D23C3F9A1B537A9C00DDD105 /* ContactAtSelectionViewController.m */,
 				3C13D94C1A120BA100903622 /* ContactView.h */,
 				3C13D94D1A120BA200903622 /* ContactView.m */,
 				3C13D9491A12095D00903622 /* GroupBansViewController.h */,
@@ -2383,6 +2388,7 @@
 				90A706061A8B63B200376154 /* EMSDWebImageDownloader.m in Sources */,
 				3C13D94B1A12095D00903622 /* GroupBansViewController.m in Sources */,
 				90CE5C121B43C8E500810187 /* AppDelegate+EaseMobDebug.m in Sources */,
+				D23C3F9B1B537A9C00DDD105 /* ContactAtSelectionViewController.m in Sources */,
 				28BFD6371B01D40500D0ADEC /* ChatroomListViewController.m in Sources */,
 				9003D8A61939D8D000DC38A4 /* EMChatViewBaseCell.m in Sources */,
 				90A7060C1A8B63B200376154 /* UIButton+EMWebCache.m in Sources */,

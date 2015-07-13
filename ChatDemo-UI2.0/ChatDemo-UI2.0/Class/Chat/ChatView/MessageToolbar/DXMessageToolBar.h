@@ -173,6 +173,10 @@
  *  当手指再次进入按钮的范围内时，主要也是为了通知外部的HUD
  */
 - (void)didDragInsideAction:(UIView *)recordView;
+/**
+ *  @功能,当输入框输入@时进入联系人选择页面
+ */
+- (void)didAtInputAction:(XHMessageTextView *)messageInputTextView;
 
 @required
 /**

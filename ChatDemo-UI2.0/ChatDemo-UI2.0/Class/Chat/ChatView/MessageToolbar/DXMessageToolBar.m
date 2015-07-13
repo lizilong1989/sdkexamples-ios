@@ -15,6 +15,7 @@
 @interface DXMessageToolBar()<UITextViewDelegate, DXFaceDelegate>
 {
     CGFloat _previousTextViewContentHeight;//上一次inputTextView的contentSize.height
+    NSUInteger _textLength;
 }
 
 @property (nonatomic) CGFloat version;
@@ -188,6 +189,15 @@
 
 - (void)textViewDidChange:(UITextView *)textView
 {
+    if (_textLength < textView.text.length) {
+        NSRange range = [textView.text rangeOfString:@"@" options:NSBackwardsSearch];
+        if (range.length != 0 && range.location + range.length == textView.text .length) {
+            if ([self.delegate respondsToSelector:@selector(didAtInputAction:)]) {
+                [self.delegate didAtInputAction:self.inputTextView];
+            }
+        }
+    }
+    _textLength = textView.text.length;
     [self willShowInputTextViewToHeight:[self getTextViewContentH:textView]];
 }
 

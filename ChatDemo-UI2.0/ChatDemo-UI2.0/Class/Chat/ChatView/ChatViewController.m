@@ -35,10 +35,11 @@
 #import "EMCDDeviceManager.h"
 #import "EMCDDeviceManagerDelegate.h"
 #import "RobotManager.h"
+#import "ContactAtSelectionViewController.h"
 #define KPageCount 20
 #define KHintAdjustY    50
 
-@interface ChatViewController ()<UITableViewDataSource, UITableViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, SRRefreshDelegate, IChatManagerDelegate, DXChatBarMoreViewDelegate, DXMessageToolBarDelegate, LocationViewDelegate, EMCDDeviceManagerDelegate,EMCallManagerDelegate>
+@interface ChatViewController ()<UITableViewDataSource, UITableViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate, SRRefreshDelegate, IChatManagerDelegate, DXChatBarMoreViewDelegate, DXMessageToolBarDelegate, LocationViewDelegate, EMCDDeviceManagerDelegate,EMCallManagerDelegate,EMChooseViewDelegate>
 {
     UIMenuController *_menuController;
     UIMenuItem *_copyMenuItem;
@@ -51,6 +52,8 @@
     
     NSMutableArray *_messages;
     BOOL _isScrollToBottom;
+    
+    NSMutableDictionary *_atmessages;
 }
 
 @property (nonatomic) BOOL isChatGroup;
@@ -1155,6 +1158,16 @@
 {
     if (text && text.length > 0) {
         [self sendTextMessage:text];
+        [_atmessages removeAllObjects];
+    }
+}
+
+- (void)didAtInputAction:(XHMessageTextView *)messageInputTextView
+{
+    if ([self messageType] == eConversationTypeGroupChat) {
+        ContactAtSelectionViewController *selectionController = [[ContactAtSelectionViewController alloc] initWithChatGroupId:_chatter];
+        selectionController.delegate = self;
+        [self.navigationController pushViewController:selectionController animated:YES];
     }
 }
 
@@ -1692,6 +1705,18 @@
     if (_isRobot) {
         ext = @{kRobot_Message_Ext:[NSNumber numberWithBool:YES]};
     }
+    if ([_atmessages count] > 0) {
+        ext = [NSMutableDictionary dictionaryWithDictionary:ext];
+        NSMutableArray *atArray = [NSMutableArray array];
+        for (NSString *username in [_atmessages allKeys]) {
+            if ([textMessage rangeOfString:[NSString stringWithFormat:@"@%@",username]].length !=0 ) {
+                [atArray addObject:username];
+            }
+        }
+        if ([atArray count] > 0) {
+            [ext setValue:atArray forKey:@"em_at_message"];
+        }
+    }
     EMMessage *tempMessage = [ChatSendHelper sendTextMessageWithString:textMessage
                                                             toUsername:_conversation.chatter
                                                            messageType:[self messageType]
@@ -1811,6 +1836,28 @@
         }
     }
 }
+
+#pragma mark - EMChooseViewDelegate
+
+- (BOOL)viewController:(EMChooseViewController *)viewController didFinishSelectedSources:(NSArray *)selectedSources
+{
+    NSString *text = self.chatToolBar.inputTextView.text;
+    NSRange range = [self.chatToolBar.inputTextView.text rangeOfString:@"@" options:NSBackwardsSearch];
+    if (range.length != 0) {
+        if (_atmessages == nil) {
+            _atmessages = [NSMutableDictionary dictionary];
+        }
+        for (EMBuddy *buddy in selectedSources) {
+            text = [text stringByAppendingString:[NSString stringWithFormat:@"@%@ ",buddy.username]];
+            [_atmessages setObject:buddy forKey:buddy.username];
+        }
+        text = [text stringByReplacingCharactersInRange:range withString:@""];
+    }
+    self.chatToolBar.inputTextView.text = text;
+    
+    return YES;
+}
+
 
 #pragma mark - 创建带附件的消息体和批量导入消息的示例
 //- (void)loadMessage
