@@ -12,6 +12,8 @@
 
 #import "ApplyFriendCell.h"
 
+#import "UIImageView+HeadImage.h"
+
 @implementation ApplyFriendCell
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
@@ -94,6 +96,11 @@
     {
         [_delegate applyCellRefuseFriendAtIndexPath:self.indexPath];
     }
+}
+
+- (void)setHeaderImage:(NSString*)username withPlaceholder:(UIImage*)image
+{
+    [self.headerImageView imageWithUsername:username placeholderImage:image];
 }
 
 + (CGFloat)heightWithContent:(NSString *)content

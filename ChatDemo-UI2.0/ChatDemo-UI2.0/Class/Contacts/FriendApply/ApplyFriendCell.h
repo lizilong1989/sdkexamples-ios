@@ -29,6 +29,8 @@
 
 + (CGFloat)heightWithContent:(NSString *)content;
 
+- (void)setHeaderImage:(NSString*)username withPlaceholder:(UIImage*)image;
+
 @end
 
 @protocol ApplyFriendCellDelegate <NSObject>

@@ -151,6 +151,7 @@
             EMBuddy *buddy = [weakSelf.searchController.resultsSource objectAtIndex:indexPath.row];
             cell.imageView.image = [UIImage imageNamed:@"chatListCellHead.png"];
             cell.textLabel.text = buddy.username;
+            cell.username = buddy.username;
             
             return cell;
         }];
@@ -244,6 +245,7 @@
     EMBuddy *buddy = [[_dataSource objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
     cell.imageView.image = [UIImage imageNamed:@"chatListCellHead.png"];
     cell.textLabel.text = buddy.username;
+    cell.username = buddy.username;
     
     return cell;
 }

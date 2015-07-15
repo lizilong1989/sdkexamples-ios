@@ -21,6 +21,7 @@
 #import "ChatViewController.h"
 #import "EMCDDeviceManager.h"
 #import "RobotManager.h"
+#import "UserProfileManager.h"
 //两次提示的默认间隔
 static const CGFloat kDefaultPlaySoundInterval = 3.0;
 static NSString *kMessageType = @"MessageType";
@@ -556,7 +557,7 @@ static NSString *kGroupName = @"GroupName";
         
         [self _removeBuddies:deletedBuddies];
     } else {
-        // clear conversation
+        // 根据好友关系同步会话操作,demo中不保留非好友关系的单聊会话,您的项目根据具体需求处理会话保留逻辑
         NSArray *conversations = [[EaseMob sharedInstance].chatManager conversations];
         NSMutableArray *deleteConversations = [NSMutableArray arrayWithArray:conversations];
         NSMutableDictionary *buddyDic = [NSMutableDictionary dictionary];
@@ -586,6 +587,7 @@ static NSString *kGroupName = @"GroupName";
             }
         }
     }
+    [[UserProfileManager sharedInstance] loadUserProfileInBackgroundWithBuddy:buddyList saveToLoacal:YES completion:NULL];
     [_contactsVC reloadDataSource];
 }
 

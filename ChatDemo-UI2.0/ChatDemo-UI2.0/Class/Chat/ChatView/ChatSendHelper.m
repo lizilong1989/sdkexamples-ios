@@ -14,6 +14,7 @@
 #import "ConvertToCommonEmoticonsHelper.h"
 
 #import "EMCommandMessageBody.h"
+#import "UserProfileManager.h"
 
 @interface ChatImageOptions : NSObject<IChatImageOptions>
 
@@ -146,6 +147,11 @@
         requireEncryption:(BOOL)requireEncryption
                       ext:(NSDictionary *)ext
 {
+    UserProfileEntity *entity = [[UserProfileManager sharedInstance] getCurUserProfile];
+    if (entity.imageUrl && entity.imageUrl.length > 0) {
+        ext = [NSMutableDictionary dictionaryWithDictionary:ext];
+        [ext setValue:entity.imageUrl forKey:@"headImageUrl"];
+    }
     EMMessage *retureMsg = [[EMMessage alloc] initWithReceiver:username bodies:[NSArray arrayWithObject:body]];
     retureMsg.requireEncryption = requireEncryption;
     retureMsg.messageType = type;

@@ -12,6 +12,8 @@
 
 #import "BaseTableViewCell.h"
 
+#import "UIImageView+HeadImage.h"
+
 @implementation BaseTableViewCell
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
@@ -47,6 +49,7 @@
     self.textLabel.frame = rect;
     
     _bottomLineView.frame = CGRectMake(0, self.contentView.frame.size.height - 1, self.contentView.frame.size.width, 1);
+    
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated
@@ -65,5 +68,11 @@
         }
     }
 }
+
+- (void)setUsername:(NSString *)username
+{
+    [self.imageView imageWithUsername:username placeholderImage:nil];
+}
+
 
 @end

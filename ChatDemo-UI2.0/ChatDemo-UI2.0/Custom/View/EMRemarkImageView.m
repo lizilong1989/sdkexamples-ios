@@ -12,6 +12,8 @@
 
 #import "EMRemarkImageView.h"
 
+#import "UIImageView+HeadImage.h"
+
 @implementation EMRemarkImageView
 
 - (id)initWithFrame:(CGRect)frame
@@ -46,6 +48,7 @@
 {
     _remark = remark;
     _remarkLabel.text = _remark;
+    [_imageView imageWithUsername:remark placeholderImage:nil];
 }
 
 - (void)setImage:(UIImage *)image

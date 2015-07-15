@@ -1466,6 +1466,10 @@
                 model.headImageURL = [NSURL URLWithString:[_delelgate avatarWithChatter:model.username]];
             }
             
+            if (message.ext && [message.ext objectForKey:@"headImageUrl"]) {
+                model.headImageURL = [NSURL URLWithString:[message.ext objectForKey:@"headImageUrl"]];
+            }
+            
             if (model) {
                 [formatArray addObject:model];
             }
@@ -1495,6 +1499,10 @@
     
     if ([_delelgate respondsToSelector:@selector(avatarWithChatter:)]) {
         model.headImageURL = [NSURL URLWithString:[_delelgate avatarWithChatter:model.username]];
+    }
+    
+    if (message.ext && [message.ext objectForKey:@"headImageUrl"]) {
+        model.headImageURL = [NSURL URLWithString:[message.ext objectForKey:@"headImageUrl"]];
     }
 
     if (model) {

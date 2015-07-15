@@ -20,6 +20,7 @@
 #import "EMSearchDisplayController.h"
 #import "ConvertToCommonEmoticonsHelper.h"
 #import "RobotManager.h"
+#import "UserProfileManager.h"
 
 @interface ChatListViewController ()<UITableViewDelegate,UITableViewDataSource, UISearchDisplayDelegate,SRRefreshDelegate, UISearchBarDelegate, IChatManagerDelegate,ChatViewControllerDelegate>
 
@@ -192,6 +193,12 @@
                     cell.name = [[RobotManager sharedInstance] getRobotNickWithUsername:conversation.chatter];
                 }
                 cell.placeholderImage = [UIImage imageNamed:@"chatListCellHead.png"];
+                
+                if (conversation.latestMessageFromOthers.ext && [conversation.latestMessageFromOthers.ext objectForKey:@"headImageUrl"]) {
+                    cell.imageURL = [NSURL URLWithString:[conversation.latestMessageFromOthers.ext objectForKey:@"headImageUrl"]];
+                } else {
+                    cell.imageURL = nil;
+                }
             }
             else{
                 NSString *imageName = @"groupPublicHeader";
@@ -204,6 +211,7 @@
                     }
                 }
                 cell.placeholderImage = [UIImage imageNamed:imageName];
+                cell.imageURL = nil;
             }
             cell.detailMsg = [weakSelf subTitleMessageByConversation:conversation];
             cell.time = [weakSelf lastMessageTimeByConversation:conversation];
@@ -354,6 +362,12 @@
             cell.name = [[RobotManager sharedInstance] getRobotNickWithUsername:conversation.chatter];
         }
         cell.placeholderImage = [UIImage imageNamed:@"chatListCellHead.png"];
+        
+        if (conversation.latestMessageFromOthers.ext && [conversation.latestMessageFromOthers.ext objectForKey:@"headImageUrl"]) {
+            cell.imageURL = [NSURL URLWithString:[conversation.latestMessageFromOthers.ext objectForKey:@"headImageUrl"]];
+        } else {
+            cell.imageURL = nil;
+        }
     }
     else{
         NSString *imageName = @"groupPublicHeader";
@@ -379,6 +393,7 @@
             imageName = [[conversation.ext objectForKey:@"isPublic"] boolValue] ? @"groupPublicHeader" : @"groupPrivateHeader";
         }
         cell.placeholderImage = [UIImage imageNamed:imageName];
+        cell.imageURL = nil;
     }
     cell.detailMsg = [self subTitleMessageByConversation:conversation];
     cell.time = [self lastMessageTimeByConversation:conversation];
