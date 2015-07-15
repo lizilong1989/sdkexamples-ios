@@ -132,6 +132,8 @@
              //设置是否自动登录
              [[EaseMob sharedInstance].chatManager setIsAutoLoginEnabled:YES];
              
+             // 旧数据转换 (如果您的sdk是由2.1.2版本升级过来的，需要家这句话)
+             [[EaseMob sharedInstance].chatManager importDataToNewDatabase];
              //获取数据库中数据
              [[EaseMob sharedInstance].chatManager loadDataFromDatabase];
              
