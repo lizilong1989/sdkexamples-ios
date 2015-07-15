@@ -13,7 +13,8 @@
 
 #import "EMBubbleView.h"
 
-#define kEMMessageMaxImageSize 120
+#define kEMMessageImageSizeWidth 120
+#define kEMMessageImageSizeHeight 150
 #define kEMMessageLocationHeight 95
 #define kEMMessageVoiceHeight 23
 

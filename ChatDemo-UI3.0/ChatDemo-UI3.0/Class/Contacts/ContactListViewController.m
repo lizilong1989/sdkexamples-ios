@@ -149,7 +149,7 @@
     
     NSInteger section = indexPath.section;
     NSInteger row = indexPath.row;
-    if (section) {
+    if (section == 0) {
         if (row == 0) {
 //            [self.navigationController pushViewController:[ApplyViewController shareController] animated:YES];
         }
@@ -264,15 +264,17 @@
     [self showHudInView:self.view hint:NSLocalizedString(@"loadData", @"Load data...")];
     __weak ContactListViewController *weakSelf = self;
     [[[EaseMob sharedInstance] chatManager] asyncFetchBuddyListWithCompletion:^(NSArray *buddyList, EMError *error) {
-        [weakSelf tableViewDidFinishTriggerHeader:YES reload:NO];
-        [weakSelf hideHud];
-        
-        if (error == nil) {
-            [weakSelf _reloadWithData:buddyList];
-        }
-        else{
-            [weakSelf showHint:NSLocalizedString(@"loadDataFailed", @"Load data failed.")];
-        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [weakSelf hideHud];
+            if (error == nil) {
+                [weakSelf _reloadWithData:buddyList];
+            }
+            else{
+                [weakSelf showHint:NSLocalizedString(@"loadDataFailed", @"Load data failed.")];
+            }
+            
+            [weakSelf tableViewDidFinishTriggerHeader:YES reload:NO];
+        });
     } onQueue:nil];
 }
 

@@ -91,6 +91,7 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
     _statusButton = [[UIButton alloc] init];
     _statusButton.translatesAutoresizingMaskIntoConstraints = NO;
     _statusButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
+    [_statusButton setImage:[UIImage imageNamed:@"messageSendFail"] forState:UIControlStateNormal];
     [_statusButton addTarget:self action:@selector(statusAction) forControlEvents:UIControlEventTouchUpInside];
     _statusButton.hidden = YES;
     [self.contentView addSubview:_statusButton];
@@ -99,6 +100,8 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
     _bubbleView.translatesAutoresizingMaskIntoConstraints = NO;
     _bubbleView.backgroundColor = [UIColor clearColor];
     _bubbleView.backgroundImageView.image = _bubbleBackgroundImage;
+    [self.contentView addSubview:_bubbleView];
+    
     switch (messageType) {
         case eMessageBodyType_Text:
         {
@@ -111,6 +114,8 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
         case eMessageBodyType_Image:
         {
             [_bubbleView setupImageBubbleView];
+            
+            _bubbleView.imageView.image = [UIImage imageNamed:@"imageDownloadFail"];
         }
             break;
         case eMessageBodyType_Location:
@@ -153,12 +158,11 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
         default:
             break;
     }
-    [self.contentView addSubview:_bubbleView];
+    
+    [self _setupConstraints];
     
     UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(bubbleViewTapAction:)];
     [_bubbleView addGestureRecognizer:tapRecognizer];
-    
-    [self _setupConstraints];
 }
 
 #pragma mark - Setup Constraints
@@ -167,9 +171,6 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
 {
     //bubble view
     [self addConstraint:[NSLayoutConstraint constraintWithItem:self.bubbleView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-EMMessageCellPadding]];
-    
-//    NSLayoutConstraint *constraint = [NSLayoutConstraint constraintWithItem:self.bubbleView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-EMMessageCellPadding];
-//    constraint.active = YES;
     
     self.bubbleMaxWidthConstraint = [NSLayoutConstraint constraintWithItem:self.bubbleView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationLessThanOrEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:self.bubbleMaxWidth];
     [self addConstraint:self.bubbleMaxWidthConstraint];
@@ -180,7 +181,7 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
     [self addConstraint:self.statusWidthConstraint];
     [self addConstraint:[NSLayoutConstraint constraintWithItem:self.statusButton attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self.statusButton attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0]];
     
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.statusButton attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.bubbleView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:self.statusButton attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
 }
 
 #pragma mark - Update Constraint
@@ -562,7 +563,7 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
             NSString *text = model.text;
             UIFont *textFont = cell.messageTextFont;
             CGRect rect = [text boundingRectWithSize:CGSizeMake(bubbleMaxWidth, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:textFont} context:nil];
-            height += (rect.size.height > 20 ? rect.size.height : 20);
+            height += (rect.size.height > 20 ? rect.size.height : 20) + 15;
         }
             break;
         case eMessageBodyType_Image:
@@ -570,18 +571,18 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
         {
             CGSize retSize = model.thumbnailImageSize;
             if (retSize.width == 0 || retSize.height == 0) {
-                retSize.width = kEMMessageMaxImageSize;
-                retSize.height = kEMMessageMaxImageSize;
+                retSize.width = kEMMessageImageSizeWidth;
+                retSize.height = kEMMessageImageSizeHeight;
             }
             else if (retSize.width > retSize.height) {
-                CGFloat height =  kEMMessageMaxImageSize / retSize.width * retSize.height;
+                CGFloat height =  kEMMessageImageSizeWidth / retSize.width * retSize.height;
                 retSize.height = height;
-                retSize.width = kEMMessageMaxImageSize;
+                retSize.width = kEMMessageImageSizeWidth;
             }
             else {
-                CGFloat width = kEMMessageMaxImageSize / retSize.height * retSize.width;
+                CGFloat width = kEMMessageImageSizeHeight / retSize.height * retSize.width;
                 retSize.width = width;
-                retSize.height = kEMMessageMaxImageSize;
+                retSize.height = kEMMessageImageSizeHeight;
             }
 
             height += retSize.height;
