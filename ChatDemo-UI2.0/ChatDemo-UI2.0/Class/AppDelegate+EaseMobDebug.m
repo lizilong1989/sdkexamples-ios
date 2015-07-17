@@ -15,6 +15,15 @@
 
 -(BOOL)isSpecifyServer{
     NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+    
+    NSNumber *useIP = [ud objectForKey:@"identifier_userip_enable"];
+    if (!useIP) {
+        [ud setObject:[NSNumber numberWithBool:YES] forKey:@"identifier_userip_enable"];
+        [ud synchronize];
+    } else {
+        [[EaseMob sharedInstance].chatManager setIsUseIp:[useIP boolValue]];
+    }
+    
     NSNumber *specifyServer = [ud objectForKey:@"identifier_enable"];
     if ([specifyServer boolValue]) {
         NSString *apnsCertName = nil;
@@ -62,6 +71,7 @@
         [easemob performSelector:selector withObject:dic];
         return YES;
     }
+    
     return NO;
 }
 @end
