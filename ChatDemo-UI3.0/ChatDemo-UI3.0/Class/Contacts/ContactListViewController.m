@@ -171,8 +171,7 @@
     }
     else{
         UserModel *model = [[self.dataArray objectAtIndex:(section - 1)] objectAtIndex:row];
-        EMConversation *conversation = [[EaseMob sharedInstance].chatManager conversationForChatter:model.buddy.username conversationType:eConversationTypeChat];
-        ChatViewController *chatController = [[ChatViewController alloc] initWithConversation:conversation];
+        ChatViewController *chatController = [[ChatViewController alloc] initWithConversationChatter:model.buddy.username conversationType:eConversationTypeChat];
         chatController.title = model.buddy.username;
         [self.navigationController pushViewController:chatController animated:YES];
     }

@@ -24,6 +24,8 @@
     // Do any additional setup after loading the view.
     self.showRefreshHeader = YES;
     
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tableViewDidTriggerHeaderRefresh) name:KNOTIFICATIONNAME_RELOADCONLIST object:nil];
+    
     [self tableViewDidTriggerHeaderRefresh];
 }
 
@@ -41,7 +43,7 @@
     ConversationModel *model = [self.dataArray objectAtIndex:indexPath.row];
     EMConversation *conversation = model.conversation;
     if (conversation) {
-        ChatViewController *chatController = [[ChatViewController alloc] initWithConversation:conversation];
+        ChatViewController *chatController = [[ChatViewController alloc] initWithConversationChatter:conversation.chatter conversationType:conversation.conversationType];
         chatController.title = model.title;
         [self.navigationController pushViewController:chatController animated:YES];
     }

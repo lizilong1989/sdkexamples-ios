@@ -50,7 +50,8 @@
 
 @property (strong, nonatomic) UIImagePickerController *imagePicker;
 
-- (instancetype)initWithConversation:(EMConversation *)conversation;
+- (instancetype)initWithConversationChatter:(NSString *)conversationChatter
+                           conversationType:(EMConversationType)conversationType;
 
 /**
  *  获取消息，返回EMMessage类型的数据，可重写
@@ -65,5 +66,23 @@
  *  返回的数据必须是id<IMessageModel>类型的数据
  */
 - (NSArray *)formatMessages:(NSArray *)messages;
+
+/**
+ *  将制定消息插入数据源的最后，并且刷新页面，可重写
+ */
+-(void)addMessageToDataSource:(EMMessage *)message;
+
+/**
+ *  是否发送已读回执，可重写
+ *  message 要发送已读回执的message
+ *  read    message是否已读
+ */
+- (BOOL)shouldSendHasReadAckForMessage:(EMMessage *)message
+                                  read:(BOOL)read;
+
+/**
+ *  指定消息列表发送已读回执， 消息列表中是EMMessage类型数据。可重写
+ */
+- (void)sendHasReadResponseForMessages:(NSArray*)messages;
 
 @end

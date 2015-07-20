@@ -563,7 +563,7 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
             NSString *text = model.text;
             UIFont *textFont = cell.messageTextFont;
             CGRect rect = [text boundingRectWithSize:CGSizeMake(bubbleMaxWidth, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:textFont} context:nil];
-            height += (rect.size.height > 20 ? rect.size.height : 20) + 15;
+            height += (rect.size.height > 20 ? rect.size.height : 20) + 10;
         }
             break;
         case eMessageBodyType_Image:
