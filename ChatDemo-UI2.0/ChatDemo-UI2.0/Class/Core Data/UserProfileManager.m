@@ -78,9 +78,31 @@ static UserProfileManager *sharedInstance = nil;
             }
         }];
     } else {
-        if (completion) {
-            completion(NO, nil);
+        [self loginParseWithCompletion:completion];
+    }
+}
+
+- (void)updateUserProfileInBackground:(NSDictionary*)param
+                           completion:(void (^)(BOOL success, NSError *error))completion
+{
+    PFUser *user = [PFUser currentUser];
+    if (user) {
+        if( param!=nil && [[param allKeys] count] > 0) {
+            for (NSString *key in param) {
+                [user setObject:[param objectForKey:key] forKey:key];
+            }
         }
+        __weak typeof(self) weakSelf = self;
+        [user saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error){
+            if (completion) {
+                PFUser *user = [PFUser currentUser];
+                UserProfileEntity *entity = [UserProfileEntity initWithPFObject:user];
+                [weakSelf.users setObject:entity forKey:entity.username];
+                completion(succeeded,error);
+            }
+        }];
+    } else {
+        [self loginParseWithCompletion:completion];
     }
 }
 
@@ -157,6 +179,22 @@ static UserProfileManager *sharedInstance = nil;
 {
     UserProfileEntity *entity = [UserProfileEntity initWithPFObject:object];
     [_users setObject:entity forKey:entity.username];
+}
+
+- (void)loginParseWithCompletion:(void (^)(BOOL success, NSError *error))completion
+{
+    PFUser *user = [PFUser user];
+    user.username = [[[EaseMob sharedInstance].chatManager loginInfo] objectForKey:kSDKUsername];
+    user.password = [[[EaseMob sharedInstance].chatManager loginInfo] objectForKey:kSDKPassword];
+    [PFUser logOut];
+    [PFUser logInWithUsernameInBackground:user.username password:user.password
+                                    block:^(PFUser *user, NSError *error) {
+                                        if (error && error.code == 101) {
+                                        }
+                                        if (completion) {
+                                            completion(NO, nil);
+                                        }
+                                    }];
 }
 
 @end

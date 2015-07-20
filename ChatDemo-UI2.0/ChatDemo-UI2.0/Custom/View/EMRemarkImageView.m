@@ -47,7 +47,7 @@
 - (void)setRemark:(NSString *)remark
 {
     _remark = remark;
-    _remarkLabel.text = _remark;
+    [_remarkLabel setTextWithUsername:_remark];
     [_imageView imageWithUsername:remark placeholderImage:nil];
 }
 

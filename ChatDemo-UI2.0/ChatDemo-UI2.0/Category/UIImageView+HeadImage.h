@@ -18,3 +18,9 @@
 - (void)imageWithUsername:(NSString*)username placeholderImage:(UIImage*)placeholderImage;
 
 @end
+
+@interface UILabel (Prase)
+
+- (void)setTextWithUsername:(NSString *)username;
+
+@end

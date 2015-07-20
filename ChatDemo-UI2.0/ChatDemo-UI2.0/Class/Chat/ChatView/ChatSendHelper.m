@@ -152,6 +152,11 @@
         ext = [NSMutableDictionary dictionaryWithDictionary:ext];
         [ext setValue:entity.imageUrl forKey:@"headImageUrl"];
     }
+    if (entity.nickname && entity.nickname.length > 0) {
+        ext = [NSMutableDictionary dictionaryWithDictionary:ext];
+        [ext setValue:entity.nickname forKey:@"nickname"];
+    }
+    
     EMMessage *retureMsg = [[EMMessage alloc] initWithReceiver:username bodies:[NSArray arrayWithObject:body]];
     retureMsg.requireEncryption = requireEncryption;
     retureMsg.messageType = type;

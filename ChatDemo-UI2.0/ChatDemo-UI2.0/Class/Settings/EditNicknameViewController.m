@@ -8,6 +8,8 @@
 
 #import "EditNicknameViewController.h"
 
+#import "UserProfileManager.h"
+
 #define kTextFieldWidth 290.0
 #define kTextFieldHeight 40.0
 #define kButtonHeight 40.0
@@ -104,7 +106,11 @@
     {
         //设置推送设置
         [[EaseMob sharedInstance].chatManager setApnsNickname:_nickTextField.text];
-        [self.navigationController popViewControllerAnimated:YES];
+        [self showHint:@"修改中...."];
+        [[UserProfileManager sharedInstance] updateUserProfileInBackground:@{@"nickname":_nickTextField.text} completion:^(BOOL success, NSError *error) {
+            [self hideHud];
+            [self.navigationController popViewControllerAnimated:YES];
+        }];
     } else {
         [EMAlertView showAlertWithTitle:NSLocalizedString(@"prompt", @"Prompt")
                                 message:NSLocalizedString(@"setting.namenotempty", @"Name cannot be empty")

@@ -12,6 +12,7 @@
 
 #import "BaseTableViewCell.h"
 
+#import "UserProfileManager.h"
 #import "UIImageView+HeadImage.h"
 
 @implementation BaseTableViewCell
@@ -71,6 +72,7 @@
 
 - (void)setUsername:(NSString *)username
 {
+    [self.textLabel setTextWithUsername:username];
     [self.imageView imageWithUsername:username placeholderImage:nil];
 }
 

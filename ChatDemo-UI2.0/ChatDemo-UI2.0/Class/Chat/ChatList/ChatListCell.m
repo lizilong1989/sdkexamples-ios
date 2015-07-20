@@ -89,7 +89,7 @@
 //    [self.imageView sd_setImageWithURL:_imageURL placeholderImage:_placeholderImage];
     self.imageView.frame = CGRectMake(10, 7, 45, 45);
     
-    self.textLabel.text = _name;
+//    self.textLabel.text = _name;
     self.textLabel.frame = CGRectMake(65, 7, 175, 20);
     
     _detailLabel.text = _detailMsg;
@@ -116,7 +116,6 @@
 
 -(void)setName:(NSString *)name{
     _name = name;
-    self.textLabel.text = name;
 }
 
 -(void)setImageURL:(NSURL *)imageURL
@@ -127,6 +126,24 @@
     } else {
         [self.imageView imageWithUsername:_name placeholderImage:_placeholderImage];
     }
+}
+
+-(void)setExt:(NSDictionary *)ext
+{
+    _ext = ext;
+    if (ext && [ext objectForKey:@"headImageUrl"]) {
+        [self setImageURL:[NSURL URLWithString:[ext objectForKey:@"headImageUrl"]]];
+    } else {
+        [self setImageURL:nil];
+    }
+    
+    if(ext && [ext objectForKey:@"nickname"]) {
+        [self setName:[ext objectForKey:@"nickname"]];
+        self.textLabel.text = _name;
+    } else {
+        [self.textLabel setTextWithUsername:_name];
+    }
+    
 }
 
 +(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath

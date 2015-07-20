@@ -193,12 +193,7 @@
                     cell.name = [[RobotManager sharedInstance] getRobotNickWithUsername:conversation.chatter];
                 }
                 cell.placeholderImage = [UIImage imageNamed:@"chatListCellHead.png"];
-                
-                if (conversation.latestMessageFromOthers.ext && [conversation.latestMessageFromOthers.ext objectForKey:@"headImageUrl"]) {
-                    cell.imageURL = [NSURL URLWithString:[conversation.latestMessageFromOthers.ext objectForKey:@"headImageUrl"]];
-                } else {
-                    cell.imageURL = nil;
-                }
+                cell.ext = conversation.latestMessageFromOthers.ext;
             }
             else{
                 NSString *imageName = @"groupPublicHeader";
@@ -362,12 +357,7 @@
             cell.name = [[RobotManager sharedInstance] getRobotNickWithUsername:conversation.chatter];
         }
         cell.placeholderImage = [UIImage imageNamed:@"chatListCellHead.png"];
-        
-        if (conversation.latestMessageFromOthers.ext && [conversation.latestMessageFromOthers.ext objectForKey:@"headImageUrl"]) {
-            cell.imageURL = [NSURL URLWithString:[conversation.latestMessageFromOthers.ext objectForKey:@"headImageUrl"]];
-        } else {
-            cell.imageURL = nil;
-        }
+        cell.ext = conversation.latestMessageFromOthers.ext;
     }
     else{
         NSString *imageName = @"groupPublicHeader";
@@ -393,7 +383,7 @@
             imageName = [[conversation.ext objectForKey:@"isPublic"] boolValue] ? @"groupPublicHeader" : @"groupPrivateHeader";
         }
         cell.placeholderImage = [UIImage imageNamed:imageName];
-        cell.imageURL = nil;
+        cell.ext = nil;
     }
     cell.detailMsg = [self subTitleMessageByConversation:conversation];
     cell.time = [self lastMessageTimeByConversation:conversation];
@@ -434,6 +424,15 @@
                     title = group.groupSubject;
                     break;
                 }
+            }
+        }
+    } else if (conversation.conversationType == eConversationTypeChat) {
+        if ([[conversation.latestMessageFromOthers.ext objectForKey:@"nickname"] length]) {
+            title = [conversation.latestMessageFromOthers.ext objectForKey:@"nickname"];
+        } else {
+            UserProfileEntity* entity = [[UserProfileManager sharedInstance] getUserProfileByUsername:conversation.chatter];
+            if (entity && entity.nickname.length > 0) {
+                title = entity.nickname;
             }
         }
     }

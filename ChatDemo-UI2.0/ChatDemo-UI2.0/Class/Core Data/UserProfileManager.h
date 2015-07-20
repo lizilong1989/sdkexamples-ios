@@ -22,6 +22,9 @@
 - (void)uploadUserHeadImageProfileInBackground:(UIImage*)image
                                     completion:(void (^)(BOOL success, NSError *error))completion;
 
+- (void)updateUserProfileInBackground:(NSDictionary*)param
+                                    completion:(void (^)(BOOL success, NSError *error))completion;
+
 - (void)loadUserProfileInBackground:(NSArray*)usernames
                        saveToLoacal:(BOOL)save
                          completion:(void (^)(BOOL success, NSError *error))completion;

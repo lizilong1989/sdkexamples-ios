@@ -100,6 +100,7 @@
 
 - (void)setHeaderImage:(NSString*)username withPlaceholder:(UIImage*)image
 {
+    [self.titleLabel setTextWithUsername:username];
     [self.headerImageView imageWithUsername:username placeholderImage:image];
 }
 
