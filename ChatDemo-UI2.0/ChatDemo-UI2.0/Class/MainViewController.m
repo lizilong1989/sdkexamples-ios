@@ -587,7 +587,6 @@ static NSString *kGroupName = @"GroupName";
             }
         }
     }
-    [[UserProfileManager sharedInstance] loadUserProfileInBackgroundWithBuddy:buddyList saveToLoacal:YES completion:NULL];
     [_contactsVC reloadDataSource];
 }
 

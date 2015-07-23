@@ -27,16 +27,7 @@
     if (profileEntity) {
         [self sd_setImageWithURL:[NSURL URLWithString:profileEntity.imageUrl] placeholderImage:placeholderImage];
     } else {
-        __weak typeof(self) weakSelf = self;
-        [[UserProfileManager sharedInstance] loadUserProfileInBackground:@[username] saveToLoacal:YES completion:^(BOOL success, NSError *error) {
-            if (success) {
-                UserProfileEntity *profileEntity = [[UserProfileManager sharedInstance] getUserProfileByUsername:username];
-                if (profileEntity) {
-                    [weakSelf sd_setImageWithURL:[NSURL URLWithString:profileEntity.imageUrl] placeholderImage:placeholderImage];
-                }
-            }
-        }];
-        [weakSelf sd_setImageWithURL:nil placeholderImage:placeholderImage];
+        self.image = placeholderImage;
     }
 }
 
@@ -48,25 +39,13 @@
 {
     UserProfileEntity *profileEntity = [[UserProfileManager sharedInstance] getUserProfileByUsername:username];
     if (profileEntity) {
-        if (profileEntity.nickname.length > 0) {
+        if (profileEntity.nickname && profileEntity.nickname.length > 0) {
             [self setText:profileEntity.nickname];
             [self setNeedsLayout];
         } else {
             [self setText:username];
         }
     } else {
-        __weak typeof(self) weakSelf = self;
-        [[UserProfileManager sharedInstance] loadUserProfileInBackground:@[username] saveToLoacal:YES completion:^(BOOL success, NSError *error) {
-            if (success) {
-                UserProfileEntity *profileEntity = [[UserProfileManager sharedInstance] getUserProfileByUsername:username];
-                if (profileEntity) {
-                    if (profileEntity.nickname.length > 0) {
-                        [weakSelf setText:profileEntity.nickname];
-                        [self setNeedsLayout];
-                    }
-                }
-            }
-        }];
         [self setText:username];
     }
     

@@ -193,7 +193,6 @@
                     cell.name = [[RobotManager sharedInstance] getRobotNickWithUsername:conversation.chatter];
                 }
                 cell.placeholderImage = [UIImage imageNamed:@"chatListCellHead.png"];
-                cell.ext = conversation.latestMessageFromOthers.ext;
             }
             else{
                 NSString *imageName = @"groupPublicHeader";
@@ -357,7 +356,6 @@
             cell.name = [[RobotManager sharedInstance] getRobotNickWithUsername:conversation.chatter];
         }
         cell.placeholderImage = [UIImage imageNamed:@"chatListCellHead.png"];
-        cell.ext = conversation.latestMessageFromOthers.ext;
     }
     else{
         NSString *imageName = @"groupPublicHeader";
@@ -383,7 +381,6 @@
             imageName = [[conversation.ext objectForKey:@"isPublic"] boolValue] ? @"groupPublicHeader" : @"groupPrivateHeader";
         }
         cell.placeholderImage = [UIImage imageNamed:imageName];
-        cell.ext = nil;
     }
     cell.detailMsg = [self subTitleMessageByConversation:conversation];
     cell.time = [self lastMessageTimeByConversation:conversation];
@@ -431,7 +428,7 @@
             title = [conversation.latestMessageFromOthers.ext objectForKey:@"nickname"];
         } else {
             UserProfileEntity* entity = [[UserProfileManager sharedInstance] getUserProfileByUsername:conversation.chatter];
-            if (entity && entity.nickname.length > 0) {
+            if (entity.nickname && entity.nickname.length > 0) {
                 title = entity.nickname;
             }
         }

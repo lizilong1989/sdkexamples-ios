@@ -10,7 +10,14 @@
  * from EaseMob Technologies.
  */
 
+//  用来处理UIDemo上Parse相关逻辑
+
 #import <Foundation/Foundation.h>
+
+#define kPARSE_HXUSER @"hxuser"
+#define kPARSE_HXUSER_USERNAME @"username"
+#define kPARSE_HXUSER_NICKNAME @"nickname"
+#define kPARSE_HXUSER_AVATAR @"avatar"
 
 @class PFObject;
 @class UserProfileEntity;
@@ -43,6 +50,7 @@
 
 + (instancetype)initWithPFObject:(PFObject*)object;
 
+@property (nonatomic,strong) NSString *objectId;
 @property (nonatomic,strong) NSString *username;
 @property (nonatomic,strong) NSString *nickname;
 @property (nonatomic,strong) NSString *imageUrl;

@@ -177,6 +177,7 @@
 		D2BF97501AEB566B009E0D5C /* group_header@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D2BF974D1AEB566B009E0D5C /* group_header@2x.png */; };
 		D2BF97511AEB566B009E0D5C /* group_joinpublicgroup@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D2BF974E1AEB566B009E0D5C /* group_joinpublicgroup@2x.png */; };
 		D2BF98B31AEDD780009E0D5C /* EditNicknameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D2BF98B21AEDD780009E0D5C /* EditNicknameViewController.m */; };
+		D2CB225C1B60CB08001BC741 /* UserProfileViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D2CB225B1B60CB08001BC741 /* UserProfileViewController.m */; };
 		EB1975B21ADE0C77002E7E27 /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1975B11ADE0C77002E7E27 /* libc++.dylib */; };
 		EB19768C1ADE463D002E7E27 /* chatBar_colorMore_videoCall@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EB19768A1ADE463D002E7E27 /* chatBar_colorMore_videoCall@2x.png */; };
 		EB19768D1ADE463D002E7E27 /* chatBar_colorMore_videoCallSelected@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EB19768B1ADE463D002E7E27 /* chatBar_colorMore_videoCallSelected@2x.png */; };
@@ -708,6 +709,8 @@
 		D2BF974E1AEB566B009E0D5C /* group_joinpublicgroup@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "group_joinpublicgroup@2x.png"; sourceTree = "<group>"; };
 		D2BF98B11AEDD780009E0D5C /* EditNicknameViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditNicknameViewController.h; sourceTree = "<group>"; };
 		D2BF98B21AEDD780009E0D5C /* EditNicknameViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EditNicknameViewController.m; sourceTree = "<group>"; };
+		D2CB225A1B60CB08001BC741 /* UserProfileViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserProfileViewController.h; sourceTree = "<group>"; };
+		D2CB225B1B60CB08001BC741 /* UserProfileViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserProfileViewController.m; sourceTree = "<group>"; };
 		EB1975B11ADE0C77002E7E27 /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
 		EB19768A1ADE463D002E7E27 /* chatBar_colorMore_videoCall@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chatBar_colorMore_videoCall@2x.png"; sourceTree = "<group>"; };
 		EB19768B1ADE463D002E7E27 /* chatBar_colorMore_videoCallSelected@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chatBar_colorMore_videoCallSelected@2x.png"; sourceTree = "<group>"; };
@@ -1372,6 +1375,7 @@
 		90911120192EEBB8008A48AA /* Class */ = {
 			isa = PBXGroup;
 			children = (
+				D2CB22591B60CB08001BC741 /* Profile */,
 				D24C3E421B56329600F16AA8 /* AppDelegate+Parse.h */,
 				D24C3E431B56329600F16AA8 /* AppDelegate+Parse.m */,
 				D25787391B43EC7000B0E69F /* Robot */,
@@ -1699,6 +1703,15 @@
 				D257873B1B43EC7000B0E69F /* RobotListViewController.m */,
 			);
 			path = Robot;
+			sourceTree = "<group>";
+		};
+		D2CB22591B60CB08001BC741 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				D2CB225A1B60CB08001BC741 /* UserProfileViewController.h */,
+				D2CB225B1B60CB08001BC741 /* UserProfileViewController.m */,
+			);
+			path = Profile;
 			sourceTree = "<group>";
 		};
 		EB3CC39E1ACD343D00FB8662 /* Call */ = {
@@ -2385,6 +2398,7 @@
 				90C641691B09ACFD00E1E6C9 /* EMVoiceConverter.mm in Sources */,
 				9026F6621961856500653E79 /* ConvertToCommonEmoticonsHelper.m in Sources */,
 				9003D8701939D8D000DC38A4 /* DXMessageToolBar.m in Sources */,
+				D2CB225C1B60CB08001BC741 /* UserProfileViewController.m in Sources */,
 				90A706091A8B63B200376154 /* EMSDWebImagePrefetcher.m in Sources */,
 				90C641671B09ACFD00E1E6C9 /* amrFileCodec.mm in Sources */,
 				90A705FB1A8B63B200376154 /* MWGridCell.m in Sources */,

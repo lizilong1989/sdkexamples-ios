@@ -107,9 +107,13 @@
         //设置推送设置
         [[EaseMob sharedInstance].chatManager setApnsNickname:_nickTextField.text];
         [self showHint:@"修改中...."];
-        [[UserProfileManager sharedInstance] updateUserProfileInBackground:@{@"nickname":_nickTextField.text} completion:^(BOOL success, NSError *error) {
+        [[UserProfileManager sharedInstance] updateUserProfileInBackground:@{kPARSE_HXUSER_NICKNAME:_nickTextField.text} completion:^(BOOL success, NSError *error) {
             [self hideHud];
-            [self.navigationController popViewControllerAnimated:YES];
+            if (success) {
+                [self.navigationController popViewControllerAnimated:YES];
+            } else {
+                [self showHint:@"修改失败" yOffset:0];
+            }
         }];
     } else {
         [EMAlertView showAlertWithTitle:NSLocalizedString(@"prompt", @"Prompt")

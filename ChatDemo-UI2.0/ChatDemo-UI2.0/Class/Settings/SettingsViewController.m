@@ -169,6 +169,10 @@
         } else if (indexPath.row == 8){
             cell.textLabel.text = NSLocalizedString(@"setting.personalInfo", nil);
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            while (cell.contentView.subviews.count) {
+                UIView* child = cell.contentView.subviews.lastObject;
+                [child removeFromSuperview];
+            }
         }
 //        else if (indexPath.row == 8){
 //            cell.textLabel.text = @"聊天记录备份和恢复";

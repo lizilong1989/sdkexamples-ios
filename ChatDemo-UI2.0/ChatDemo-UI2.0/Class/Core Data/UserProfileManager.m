@@ -66,7 +66,7 @@ static UserProfileManager *sharedInstance = nil;
     if (user) {
         NSData *imageData = UIImageJPEGRepresentation(image, 0.1);
         PFFile *imageFile = [PFFile fileWithName:@"image.png" data:imageData];
-        user[@"imageFile"] = imageFile;
+        user[kPARSE_HXUSER_AVATAR] = imageFile;
         
         __weak typeof(self) weakSelf = self;
         [user saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error){
@@ -126,7 +126,7 @@ static UserProfileManager *sharedInstance = nil;
                          completion:(void (^)(BOOL success, NSError *error))completion
 {
     PFQuery *query = [PFUser query];
-    [query whereKey:@"username" containedIn:usernames];
+    [query whereKey:kPARSE_HXUSER_USERNAME containedIn:usernames];
     [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
         if (!error) {
             for (id user in objects) {
@@ -204,9 +204,9 @@ static UserProfileManager *sharedInstance = nil;
 + (instancetype) initWithPFObject:(PFObject *)object
 {
     UserProfileEntity *entity = [[UserProfileEntity alloc] init];
-    entity.username = object[@"username"];
-    entity.nickname = object[@"nickname"];
-    PFFile *userImageFile = object[@"imageFile"];
+    entity.username = object[kPARSE_HXUSER_USERNAME];
+    entity.nickname = object[kPARSE_HXUSER_NICKNAME];
+    PFFile *userImageFile = object[kPARSE_HXUSER_AVATAR];
     if (userImageFile) {
         entity.imageUrl = userImageFile.url;
     }

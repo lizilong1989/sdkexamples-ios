@@ -19,7 +19,6 @@
 @property (nonatomic, strong) NSString *detailMsg;
 @property (nonatomic, strong) NSString *time;
 @property (nonatomic) NSInteger unreadCount;
-@property (nonatomic, strong) NSDictionary *ext;
 
 +(CGFloat)tableView:(UITableView *)tableView
 heightForRowAtIndexPath:(NSIndexPath *)indexPath;

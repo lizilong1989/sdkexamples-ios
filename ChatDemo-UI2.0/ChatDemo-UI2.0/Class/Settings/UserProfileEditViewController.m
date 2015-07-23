@@ -14,6 +14,7 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 
 #import "UserProfileManager.h"
+#import "EditNicknameViewController.h"
 
 @interface UserProfileEditViewController () <UINavigationControllerDelegate,UIImagePickerControllerDelegate>
 
@@ -63,7 +64,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return 1;
+    return 2;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -75,6 +76,9 @@
     }
     if (indexPath.row == 0) {
         cell.textLabel.text = NSLocalizedString(@"setting.personalInfoUpload", @"Upload HeadImage");
+        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    } else if (indexPath.row == 1) {
+        cell.textLabel.text = NSLocalizedString(@"setting.iospushname", @"iOS push nickname");
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     }
     return cell;
@@ -94,6 +98,9 @@
         self.imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
         self.imagePicker.mediaTypes = @[(NSString *)kUTTypeImage];
         [self presentViewController:self.imagePicker animated:YES completion:NULL];
+    } else if (indexPath.row == 1) {
+        EditNicknameViewController *editName = [[EditNicknameViewController alloc] initWithNibName:nil bundle:nil];
+        [self.navigationController pushViewController:editName animated:YES];
     }
 }
 

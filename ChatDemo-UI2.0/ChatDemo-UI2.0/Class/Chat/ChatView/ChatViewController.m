@@ -35,6 +35,7 @@
 #import "EMCDDeviceManager.h"
 #import "EMCDDeviceManagerDelegate.h"
 #import "RobotManager.h"
+#import "UserProfileViewController.h"
 #define KPageCount 20
 #define KHintAdjustY    50
 
@@ -317,7 +318,7 @@
         [[EaseMob sharedInstance].chatManager removeConversationByChatter:_conversation.chatter deleteMessages:NO append2Chat:YES];
     }
     
-    [self.navigationController popViewControllerAnimated:YES];
+    [self.navigationController popToRootViewControllerAnimated:YES];
 }
 
 - (void)setIsInvisible:(BOOL)isInvisible
@@ -652,6 +653,9 @@
         [self chatVideoCellPressed:model];
     }else if ([eventName isEqualToString:kRouterEventMenuTapEventName]) {
         [self sendTextMessage:[userInfo objectForKey:@"text"]];
+    }else if ([eventName isEqualToString:kRouterEventChatHeadImageTapEventName]) {
+        UserProfileViewController *userprofile = [[UserProfileViewController alloc] initWithUsername:model.nickName];
+        [self.navigationController pushViewController:userprofile animated:YES];
     }
 }
 
@@ -1466,10 +1470,6 @@
                 model.headImageURL = [NSURL URLWithString:[_delelgate avatarWithChatter:model.username]];
             }
             
-            if (message.ext && [message.ext objectForKey:@"headImageUrl"]) {
-                model.headImageURL = [NSURL URLWithString:[message.ext objectForKey:@"headImageUrl"]];
-            }
-            
             if (model) {
                 [formatArray addObject:model];
             }
@@ -1499,10 +1499,6 @@
     
     if ([_delelgate respondsToSelector:@selector(avatarWithChatter:)]) {
         model.headImageURL = [NSURL URLWithString:[_delelgate avatarWithChatter:model.username]];
-    }
-    
-    if (message.ext && [message.ext objectForKey:@"headImageUrl"]) {
-        model.headImageURL = [NSURL URLWithString:[message.ext objectForKey:@"headImageUrl"]];
     }
 
     if (model) {
