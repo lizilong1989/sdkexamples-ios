@@ -136,6 +136,8 @@
 		90A7061E1A8B63B200376154 /* PSTGridLayoutRow.m in Sources */ = {isa = PBXBuildFile; fileRef = 90A705F61A8B63B200376154 /* PSTGridLayoutRow.m */; };
 		90A7061F1A8B63B200376154 /* PSTGridLayoutSection.m in Sources */ = {isa = PBXBuildFile; fileRef = 90A705F81A8B63B200376154 /* PSTGridLayoutSection.m */; };
 		90A706201A8B63B200376154 /* MWPhotoBrowser.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 90A705F91A8B63B200376154 /* MWPhotoBrowser.bundle */; };
+		90B42A371B65E62C00968342 /* RobotChatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 90B42A341B65E62C00968342 /* RobotChatViewController.m */; };
+		90B42A381B65E62C00968342 /* RobotManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 90B42A361B65E62C00968342 /* RobotManager.m */; };
 		90C641601B09ACFD00E1E6C9 /* EMAudioPlayerUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 90C641421B09ACFD00E1E6C9 /* EMAudioPlayerUtil.m */; };
 		90C641611B09ACFD00E1E6C9 /* EMAudioRecorderUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 90C641441B09ACFD00E1E6C9 /* EMAudioRecorderUtil.m */; };
 		90C641621B09ACFD00E1E6C9 /* EMCDDeviceManager+Media.m in Sources */ = {isa = PBXBuildFile; fileRef = 90C641461B09ACFD00E1E6C9 /* EMCDDeviceManager+Media.m */; };
@@ -629,6 +631,10 @@
 		90A705F71A8B63B200376154 /* PSTGridLayoutSection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PSTGridLayoutSection.h; sourceTree = "<group>"; };
 		90A705F81A8B63B200376154 /* PSTGridLayoutSection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PSTGridLayoutSection.m; sourceTree = "<group>"; };
 		90A705F91A8B63B200376154 /* MWPhotoBrowser.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = MWPhotoBrowser.bundle; sourceTree = "<group>"; };
+		90B42A331B65E62C00968342 /* RobotChatViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RobotChatViewController.h; sourceTree = "<group>"; };
+		90B42A341B65E62C00968342 /* RobotChatViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RobotChatViewController.m; sourceTree = "<group>"; };
+		90B42A351B65E62C00968342 /* RobotManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RobotManager.h; sourceTree = "<group>"; };
+		90B42A361B65E62C00968342 /* RobotManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RobotManager.m; sourceTree = "<group>"; };
 		90C640CC1B09AAB300E1E6C9 /* libEaseMobClientSDK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libEaseMobClientSDK.a; path = "../../emclient-ios2/EaseMobClientSDK/build/Debug-iphoneos/libEaseMobClientSDK.a"; sourceTree = "<group>"; };
 		90C6413E1B09ACFD00E1E6C9 /* EMCDDeviceManagerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EMCDDeviceManagerDelegate.h; sourceTree = "<group>"; };
 		90C6413F1B09ACFD00E1E6C9 /* EMCDDeviceManagerProximitySensorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EMCDDeviceManagerProximitySensorDelegate.h; sourceTree = "<group>"; };
@@ -1653,6 +1659,10 @@
 			children = (
 				D257873A1B43EC7000B0E69F /* RobotListViewController.h */,
 				D257873B1B43EC7000B0E69F /* RobotListViewController.m */,
+				90B42A331B65E62C00968342 /* RobotChatViewController.h */,
+				90B42A341B65E62C00968342 /* RobotChatViewController.m */,
+				90B42A351B65E62C00968342 /* RobotManager.h */,
+				90B42A361B65E62C00968342 /* RobotManager.m */,
 			);
 			path = Robot;
 			sourceTree = "<group>";
@@ -2289,6 +2299,7 @@
 				905326B519333E8E00F064D7 /* TTGlobalUICommon.m in Sources */,
 				90011F921AE4BF090088D549 /* EMAlertView.m in Sources */,
 				90A705FC1A8B63B200376154 /* MWGridViewController.m in Sources */,
+				90B42A371B65E62C00968342 /* RobotChatViewController.m in Sources */,
 				90A7060F1A8B63B200376154 /* UIImage+EMWebP.m in Sources */,
 				3C6BBA0619419EBD00A64684 /* EMRemarkImageView.m in Sources */,
 				9003D8A21939D8D000DC38A4 /* EMChatLocationBubbleView.m in Sources */,
@@ -2373,6 +2384,7 @@
 				3C6FFA2419A2F5560003EB25 /* DebugViewController.m in Sources */,
 				9003D9071939D8D000DC38A4 /* MessageReadManager.m in Sources */,
 				90C641621B09ACFD00E1E6C9 /* EMCDDeviceManager+Media.m in Sources */,
+				90B42A381B65E62C00968342 /* RobotManager.m in Sources */,
 				3C35365C19A22164003EF79E /* GroupSettingViewController.m in Sources */,
 				90C641651B09ACFD00E1E6C9 /* EMCDDeviceManager+Remind.m in Sources */,
 				905325CF1932ED8B00F064D7 /* EMSearchBar.m in Sources */,
