@@ -19,7 +19,7 @@
 #import "EMRobot.h"
 #import "RobotManager.h"
 #import "SRRefreshView.h"
-
+#import "RobotChatViewController.h"
 @interface RobotListViewController ()<EMChatManagerDelegate,SRRefreshDelegate>
 
 @property (strong, nonatomic) NSMutableArray *dataSource;
@@ -132,7 +132,9 @@
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
     EMRobot *robot = [self.dataSource objectAtIndex:indexPath.row];
-    ChatViewController *chatVC = [[ChatViewController alloc] initWithChatter:robot.username isGroup:NO];
+    ChatViewController *chatVC = [[RobotChatViewController alloc]
+                                  initWithChatter:robot.username
+                                  isGroup:NO];
     if ([robot.nickname length]) {
         chatVC.title = robot.nickname;
     }

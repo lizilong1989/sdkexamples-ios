@@ -34,7 +34,11 @@
                                     ext:(NSDictionary *)ext
 {
     EMMessageType type = isChatGroup ? eMessageTypeGroupChat : eMessageTypeChat;
-    return [self sendTextMessageWithString:str toUsername:username messageType:type requireEncryption:requireEncryption ext:ext];
+    return [self sendTextMessageWithString:str
+                                toUsername:username
+                               messageType:type
+                         requireEncryption:requireEncryption
+                                       ext:ext];
 }
 
 +(EMMessage *)sendTextMessageWithString:(NSString *)str
@@ -47,7 +51,11 @@
     NSString *willSendText = [ConvertToCommonEmoticonsHelper convertToCommonEmoticons:str];
     EMChatText *text = [[EMChatText alloc] initWithText:willSendText];
     EMTextMessageBody *body = [[EMTextMessageBody alloc] initWithChatObject:text];
-    return [self sendMessage:username messageBody:body messageType:type requireEncryption:requireEncryption ext:ext];
+    return [self sendMessage:username
+                 messageBody:body
+                 messageType:type
+           requireEncryption:requireEncryption
+                         ext:ext];
 }
 
 +(EMMessage *)sendImageMessageWithImage:(UIImage *)image
@@ -57,7 +65,11 @@
                                     ext:(NSDictionary *)ext
 {
     EMMessageType type = isChatGroup ? eMessageTypeGroupChat : eMessageTypeChat;
-    return [self sendImageMessageWithImage:image toUsername:username messageType:type requireEncryption:requireEncryption ext:ext];
+    return [self sendImageMessageWithImage:image
+                                toUsername:username
+                               messageType:type
+                         requireEncryption:requireEncryption
+                                       ext:ext];
 }
 
 +(EMMessage *)sendImageMessageWithImage:(UIImage *)image
@@ -70,8 +82,13 @@
     id <IChatImageOptions> options = [[ChatImageOptions alloc] init];
     [options setCompressionQuality:0.6];
     [chatImage setImageOptions:options];
-    EMImageMessageBody *body = [[EMImageMessageBody alloc] initWithImage:chatImage thumbnailImage:nil];
-    return [self sendMessage:username messageBody:body messageType:type requireEncryption:requireEncryption ext:ext];
+    EMImageMessageBody *body = [[EMImageMessageBody alloc] initWithImage:chatImage
+                                                          thumbnailImage:nil];
+    return [self sendMessage:username
+                 messageBody:body
+                 messageType:type
+           requireEncryption:requireEncryption
+                         ext:ext];
 }
 
 +(EMMessage *)sendVoice:(EMChatVoice *)voice
@@ -81,7 +98,11 @@
                     ext:(NSDictionary *)ext
 {
     EMMessageType type = isChatGroup ? eMessageTypeGroupChat : eMessageTypeChat;
-    return [self sendVoice:voice toUsername:username messageType:type requireEncryption:requireEncryption ext:ext];
+    return [self sendVoice:voice
+                toUsername:username
+               messageType:type
+         requireEncryption:requireEncryption
+                       ext:ext];
 }
 
 +(EMMessage *)sendVoice:(EMChatVoice *)voice
@@ -91,7 +112,11 @@
                     ext:(NSDictionary *)ext
 {
     EMVoiceMessageBody *body = [[EMVoiceMessageBody alloc] initWithChatObject:voice];
-    return [self sendMessage:username messageBody:body messageType:type requireEncryption:requireEncryption ext:ext];
+    return [self sendMessage:username
+                 messageBody:body
+                 messageType:type
+           requireEncryption:requireEncryption
+                         ext:ext];
 }
 
 +(EMMessage *)sendVideo:(EMChatVideo *)video
@@ -101,7 +126,11 @@
                     ext:(NSDictionary *)ext
 {
     EMMessageType type = isChatGroup ? eMessageTypeGroupChat : eMessageTypeChat;
-    return [self sendVideo:video toUsername:username messageType:type requireEncryption:requireEncryption ext:ext];
+    return [self sendVideo:video
+                toUsername:username
+               messageType:type
+         requireEncryption:requireEncryption
+                       ext:ext];
 }
 
 +(EMMessage *)sendVideo:(EMChatVideo *)video
@@ -111,7 +140,11 @@
                     ext:(NSDictionary *)ext
 {
     EMVideoMessageBody *body = [[EMVideoMessageBody alloc] initWithChatObject:video];
-    return [self sendMessage:username messageBody:body messageType:type requireEncryption:requireEncryption ext:ext];
+    return [self sendMessage:username
+                 messageBody:body
+                 messageType:type
+           requireEncryption:requireEncryption
+                         ext:ext];
 }
 
 +(EMMessage *)sendLocationLatitude:(double)latitude
@@ -123,7 +156,13 @@
                                ext:(NSDictionary *)ext
 {
     EMMessageType type = isChatGroup ? eMessageTypeGroupChat : eMessageTypeChat;
-    return [self sendLocationLatitude:latitude longitude:longitude address:address toUsername:username messageType:type requireEncryption:requireEncryption ext:ext];
+    return [self sendLocationLatitude:latitude
+                            longitude:longitude
+                              address:address
+                           toUsername:username
+                          messageType:type
+                    requireEncryption:requireEncryption
+                                  ext:ext];
 }
 
 +(EMMessage *)sendLocationLatitude:(double)latitude
@@ -134,9 +173,15 @@
                  requireEncryption:(BOOL)requireEncryption
                                ext:(NSDictionary *)ext
 {
-    EMChatLocation *chatLocation = [[EMChatLocation alloc] initWithLatitude:latitude longitude:longitude address:address];
+    EMChatLocation *chatLocation = [[EMChatLocation alloc] initWithLatitude:latitude
+                                                                  longitude:longitude
+                                                                    address:address];
     EMLocationMessageBody *body = [[EMLocationMessageBody alloc] initWithChatObject:chatLocation];
-    return [self sendMessage:username messageBody:body messageType:type requireEncryption:requireEncryption ext:ext];
+    return [self sendMessage:username
+                 messageBody:body
+                 messageType:type
+           requireEncryption:requireEncryption
+                         ext:ext];
 }
 
 // 发送消息
@@ -146,11 +191,14 @@
         requireEncryption:(BOOL)requireEncryption
                       ext:(NSDictionary *)ext
 {
-    EMMessage *retureMsg = [[EMMessage alloc] initWithReceiver:username bodies:[NSArray arrayWithObject:body]];
+    EMMessage *retureMsg = [[EMMessage alloc] initWithReceiver:username
+                                                        bodies:@[body]];
     retureMsg.requireEncryption = requireEncryption;
     retureMsg.messageType = type;
     retureMsg.ext = ext;
-    EMMessage *message = [[EaseMob sharedInstance].chatManager asyncSendMessage:retureMsg progress:nil];
+    EMMessage *message = [[EaseMob sharedInstance].chatManager
+                          asyncSendMessage:retureMsg
+                          progress:nil];
     
     return message;
 }

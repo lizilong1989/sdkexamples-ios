@@ -24,7 +24,7 @@
 @property (strong, nonatomic, readonly) NSString *chatter;
 @property (nonatomic) BOOL isInvisible;
 @property (nonatomic, assign) id <ChatViewControllerDelegate> delelgate;
-
+@property (strong, nonatomic) EMConversation *conversation;//会话管理者
 - (instancetype)initWithChatter:(NSString *)chatter isGroup:(BOOL)isGroup;
 - (instancetype)initWithChatter:(NSString *)chatter conversationType:(EMConversationType)type;
 
@@ -32,4 +32,14 @@
 
 - (void)hideImagePicker;
 
+#pragma mark - sendMessage
+-(void)sendTextMessage:(NSString *)textMessage;
+-(void)sendImageMessage:(UIImage *)image;
+-(void)sendAudioMessage:(EMChatVoice *)voice;
+-(void)sendVideoMessage:(EMChatVideo *)video;
+-(void)sendLocationLatitude:(double)latitude
+                  longitude:(double)longitude
+                 andAddress:(NSString *)address;
+-(void)addMessage:(EMMessage *)message;
+- (EMMessageType)messageType;
 @end
