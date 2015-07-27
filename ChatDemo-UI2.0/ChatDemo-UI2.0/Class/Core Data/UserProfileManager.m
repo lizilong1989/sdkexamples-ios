@@ -13,10 +13,14 @@
 #import "UserProfileManager.h"
 #import <Parse/Parse.h>
 
+#define kCURRENT_USERNAME [[[EaseMob sharedInstance].chatManager loginInfo] objectForKey:kSDKUsername]
+
 static UserProfileManager *sharedInstance = nil;
 @interface UserProfileManager ()
 
 @property (nonatomic, strong) NSMutableDictionary *users;
+@property (nonatomic, strong) NSString *objectId;
+@property (nonatomic, strong) PFACL *defaultACL;
 
 @end
 
@@ -35,15 +39,35 @@ static UserProfileManager *sharedInstance = nil;
     self = [super init];
     if (self) {
         _users = [NSMutableDictionary dictionary];
-        [self initData];
+        
+        _defaultACL = [PFACL ACL];
+        [_defaultACL setPublicReadAccess:YES];
+        [_defaultACL setPublicWriteAccess:YES];
     }
     return self;
 }
 
+- (void)initParse
+{
+    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+    id objectId = [ud objectForKey:[NSString stringWithFormat:@"%@%@",kPARSE_HXUSER,kCURRENT_USERNAME]];
+    if (objectId) {
+        self.objectId = objectId;
+    }
+    [self initData];
+}
+
+- (void)clearParse
+{
+    self.objectId = nil;
+    [self.users removeAllObjects];
+}
+
 - (void)initData
 {
-    PFQuery *query = [PFUser query];
-    [query fromLocalDatastore];
+    [self.users removeAllObjects];
+    PFQuery *query = [PFQuery queryWithClassName:kPARSE_HXUSER];
+    [query fromPinWithName:kCURRENT_USERNAME];
     [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error){
         if (objects && [objects count] > 0) {
             for (id user in objects) {
@@ -62,47 +86,72 @@ static UserProfileManager *sharedInstance = nil;
 - (void)uploadUserHeadImageProfileInBackground:(UIImage*)image
                            completion:(void (^)(BOOL success, NSError *error))completion
 {
-    PFUser *user = [PFUser currentUser];
-    if (user) {
+    if (_objectId && _objectId.length > 0) {
+        PFObject *object = [PFObject objectWithoutDataWithClassName:kPARSE_HXUSER objectId:_objectId];
         NSData *imageData = UIImageJPEGRepresentation(image, 0.1);
         PFFile *imageFile = [PFFile fileWithName:@"image.png" data:imageData];
-        user[kPARSE_HXUSER_AVATAR] = imageFile;
-        
-        __weak typeof(self) weakSelf = self;
-        [user saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error){
+        object[kPARSE_HXUSER_AVATAR] = imageFile;
+        [object saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error){
             if (completion) {
-                PFUser *user = [PFUser currentUser];
-                UserProfileEntity *entity = [UserProfileEntity initWithPFObject:user];
-                [weakSelf.users setObject:entity forKey:entity.username];
                 completion(succeeded,error);
             }
         }];
     } else {
-        [self loginParseWithCompletion:completion];
+        
+        [self queryPFObjectWithCompletion:^(PFObject *object, NSError *error) {
+            if (object) {
+                NSData *imageData = UIImageJPEGRepresentation(image, 0.1);
+                PFFile *imageFile = [PFFile fileWithName:@"image.png" data:imageData];
+                object[kPARSE_HXUSER_AVATAR] = imageFile;
+                [object saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error){
+                    if (completion) {
+                        completion(succeeded,error);
+                    }
+                }];
+            } else {
+                if (completion) {
+                    completion(NO,error);
+                }
+
+            }
+        }];
     }
 }
 
 - (void)updateUserProfileInBackground:(NSDictionary*)param
                            completion:(void (^)(BOOL success, NSError *error))completion
 {
-    PFUser *user = [PFUser currentUser];
-    if (user) {
+    if (_objectId && _objectId.length > 0) {
+        PFObject *object = [PFObject objectWithoutDataWithClassName:kPARSE_HXUSER objectId:_objectId];
         if( param!=nil && [[param allKeys] count] > 0) {
             for (NSString *key in param) {
-                [user setObject:[param objectForKey:key] forKey:key];
+                [object setObject:[param objectForKey:key] forKey:key];
             }
         }
-        __weak typeof(self) weakSelf = self;
-        [user saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error){
+        [object saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error){
             if (completion) {
-                PFUser *user = [PFUser currentUser];
-                UserProfileEntity *entity = [UserProfileEntity initWithPFObject:user];
-                [weakSelf.users setObject:entity forKey:entity.username];
                 completion(succeeded,error);
             }
         }];
     } else {
-        [self loginParseWithCompletion:completion];
+        [self queryPFObjectWithCompletion:^(PFObject *object, NSError *error) {
+            if (object) {
+                if( param!=nil && [[param allKeys] count] > 0) {
+                    for (NSString *key in param) {
+                        [object setObject:[param objectForKey:key] forKey:key];
+                    }
+                }
+                [object saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error){
+                    if (completion) {
+                        completion(succeeded,error);
+                    }
+                }];
+            } else {
+                if (completion) {
+                    completion(NO,error);
+                }
+            }
+        }];
     }
 }
 
@@ -125,7 +174,7 @@ static UserProfileManager *sharedInstance = nil;
                        saveToLoacal:(BOOL)save
                          completion:(void (^)(BOOL success, NSError *error))completion
 {
-    PFQuery *query = [PFUser query];
+    PFQuery *query = [PFQuery queryWithClassName:kPARSE_HXUSER];
     [query whereKey:kPARSE_HXUSER_USERNAME containedIn:usernames];
     [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
         if (!error) {
@@ -169,9 +218,11 @@ static UserProfileManager *sharedInstance = nil;
     return nil;
 }
 
+#pragma mark - private
+
 - (void)savePFUserInDisk:(PFObject*)object
 {
-    [object pinInBackground];
+    [object pinInBackgroundWithName:kCURRENT_USERNAME];
     [self savePFUserInMemory:object];
 }
 
@@ -181,20 +232,34 @@ static UserProfileManager *sharedInstance = nil;
     [_users setObject:entity forKey:entity.username];
 }
 
-- (void)loginParseWithCompletion:(void (^)(BOOL success, NSError *error))completion
+- (void)queryPFObjectWithCompletion:(void (^)(PFObject *object, NSError *error))completion
 {
-    PFUser *user = [PFUser user];
-    user.username = [[[EaseMob sharedInstance].chatManager loginInfo] objectForKey:kSDKUsername];
-    user.password = [[[EaseMob sharedInstance].chatManager loginInfo] objectForKey:kSDKPassword];
-    [PFUser logOut];
-    [PFUser logInWithUsernameInBackground:user.username password:user.password
-                                    block:^(PFUser *user, NSError *error) {
-                                        if (error && error.code == 101) {
-                                        }
-                                        if (completion) {
-                                            completion(NO, nil);
-                                        }
-                                    }];
+    PFQuery *query = [PFQuery queryWithClassName:kPARSE_HXUSER];
+    [query whereKey:kPARSE_HXUSER_USERNAME equalTo:kCURRENT_USERNAME];
+    __weak typeof(self) weakSelf = self;
+    [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error){
+        if (!error) {
+            if (objects && [objects count] > 0) {
+                PFObject *object = [objects objectAtIndex:0];
+                [object setACL:weakSelf.defaultACL];
+                weakSelf.objectId = object.objectId;
+                NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+                [ud setObject:object.objectId forKey:[NSString stringWithFormat:@"%@%@",kPARSE_HXUSER,kCURRENT_USERNAME]];
+                [ud synchronize];
+                if (completion) {
+                    completion (object, error);
+                }
+            } else {
+                PFObject *object = [PFObject objectWithClassName:kPARSE_HXUSER];
+                object[kPARSE_HXUSER_USERNAME] = kCURRENT_USERNAME;
+                completion (object, error);
+            }
+        } else {
+            if (completion) {
+                completion (nil, error);
+            }
+        }
+    }];
 }
 
 @end

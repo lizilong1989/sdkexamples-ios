@@ -91,13 +91,17 @@
         }else{
             nav  = _mainController.navigationController;
         }
-        [self loginParse];
+        
+        // 环信UIdemo中有用到Parse，您的项目中不需要添加，可忽略此处。
+        [self initParse];
     }else{//登陆失败加载登陆页面控制器
         _mainController = nil;
         LoginViewController *loginController = [[LoginViewController alloc] init];
         nav = [[UINavigationController alloc] initWithRootViewController:loginController];
         loginController.title = NSLocalizedString(@"AppName", @"EaseMobDemo");
-        [self logoutParse];
+        
+        // 环信UIdemo中有用到Parse，您的项目中不需要添加，可忽略此处。
+        [self clearParse];
     }
     
     //设置7.0以下的导航栏

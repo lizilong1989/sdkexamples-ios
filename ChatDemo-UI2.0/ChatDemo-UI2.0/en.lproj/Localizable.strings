@@ -305,6 +305,7 @@
 "setting.sdkVersion" = "SDK version";
 "setting.uploading" = "uploading...";
 "setting.uploadSuccess" = "uploaded successfully";
+"setting.uploadFail" = "uploaded failed";
 "setting.editName" = "Edit NickName";
 "setting.inputName" = "Please input nickname";
 "setting.saveName" = "Save Nickname";

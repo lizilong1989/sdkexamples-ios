@@ -205,7 +205,6 @@
                     }
                 }
                 cell.placeholderImage = [UIImage imageNamed:imageName];
-                cell.imageURL = nil;
             }
             cell.detailMsg = [weakSelf subTitleMessageByConversation:conversation];
             cell.time = [weakSelf lastMessageTimeByConversation:conversation];
@@ -424,13 +423,9 @@
             }
         }
     } else if (conversation.conversationType == eConversationTypeChat) {
-        if ([[conversation.latestMessageFromOthers.ext objectForKey:@"nickname"] length]) {
-            title = [conversation.latestMessageFromOthers.ext objectForKey:@"nickname"];
-        } else {
-            UserProfileEntity* entity = [[UserProfileManager sharedInstance] getUserProfileByUsername:conversation.chatter];
-            if (entity.nickname && entity.nickname.length > 0) {
-                title = entity.nickname;
-            }
+        UserProfileEntity* entity = [[UserProfileManager sharedInstance] getUserProfileByUsername:conversation.chatter];
+        if (entity.nickname && entity.nickname.length > 0) {
+            title = entity.nickname;
         }
     }
     

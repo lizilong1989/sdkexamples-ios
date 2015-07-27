@@ -32,45 +32,19 @@
     PFACL *defaultACL = [PFACL ACL];
 
     [defaultACL setPublicReadAccess:YES];
-    [defaultACL setPublicWriteAccess:NO];
+    [defaultACL setPublicWriteAccess:YES];
     
     [PFACL setDefaultACL:defaultACL withAccessForCurrentUser:YES];
 }
 
-- (void)loginParse
+- (void)initParse
 {
-    PFUser *user = [PFUser currentUser];
-    if (!(user && [user isAuthenticated])) {
-        if ([[EaseMob sharedInstance].chatManager loginInfo]) {
-            PFUser *user = [PFUser user];
-            user.username = [[[EaseMob sharedInstance].chatManager loginInfo] objectForKey:kSDKUsername];
-            user.password = [[[EaseMob sharedInstance].chatManager loginInfo] objectForKey:kSDKPassword];
-            [PFUser logOut];
-            [PFUser logInWithUsernameInBackground:user.username password:user.password
-                                            block:^(PFUser *user, NSError *error) {
-                                                if (error && error.code == 101) {
-                                                    [self signUpParse];
-                                                }
-                                            }];
-        }
-    }
+    [[UserProfileManager sharedInstance] initParse];
 }
 
-- (void)logoutParse
+- (void)clearParse
 {
-    [PFUser logOut];
-}
-
-- (void)signUpParse
-{
-    PFUser *user = [PFUser user];
-    user.username = [[[EaseMob sharedInstance].chatManager loginInfo] objectForKey:kSDKUsername];
-    user.password = [[[EaseMob sharedInstance].chatManager loginInfo] objectForKey:kSDKPassword];
-    [user signUpInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
-        if (!error) {
-        } else {
-        }
-    }];
+    [[UserProfileManager sharedInstance] clearParse];
 }
 
 @end

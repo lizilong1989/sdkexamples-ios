@@ -68,7 +68,9 @@
         if (success) {
             weakself.user = [[UserProfileManager sharedInstance] getUserProfileByUsername:weakself.username];
             [weakself.headImageView imageWithUsername:weakself.username placeholderImage:nil];
-            weakself.nicknameLabel.text = weakself.user.nickname;
+            if (weakself.user.nickname && weakself.user.nickname.length > 0) {
+                weakself.nicknameLabel.text = weakself.user.nickname;
+            }
             [weakself.tableView reloadData];
         }
     }];
@@ -100,6 +102,7 @@
 
 - (void)setupFooterView
 {
+    /*
     NSDictionary *loginInfo = [[[EaseMob sharedInstance] chatManager] loginInfo];
     NSString *loginUsername = [loginInfo objectForKey:kSDKUsername];
     if (![self.username isEqualToString:loginUsername]) {
@@ -117,6 +120,8 @@
     } else {
         self.tableView.tableFooterView = [[UIView alloc] init];
     }
+    */
+    self.tableView.tableFooterView = [[UIView alloc] init];
 }
 
 - (void)back

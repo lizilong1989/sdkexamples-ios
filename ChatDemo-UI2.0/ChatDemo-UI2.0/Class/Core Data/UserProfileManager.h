@@ -26,23 +26,46 @@
 
 + (instancetype)sharedInstance;
 
+- (void)initParse;
+
+- (void)clearParse;
+
+/*
+ *  上传个人头像
+ */
 - (void)uploadUserHeadImageProfileInBackground:(UIImage*)image
                                     completion:(void (^)(BOOL success, NSError *error))completion;
 
+/*
+ *  上传个人信息
+ */
 - (void)updateUserProfileInBackground:(NSDictionary*)param
                                     completion:(void (^)(BOOL success, NSError *error))completion;
 
+/*
+ *  获取用户信息 by username
+ */
 - (void)loadUserProfileInBackground:(NSArray*)usernames
                        saveToLoacal:(BOOL)save
                          completion:(void (^)(BOOL success, NSError *error))completion;
 
+/*
+ *  获取用户信息 by buddy
+ */
 - (void)loadUserProfileInBackgroundWithBuddy:(NSArray*)buddyList
                                 saveToLoacal:(BOOL)save
                                   completion:(void (^)(BOOL success, NSError *error))completion;
 
+/*
+ *  获取本地用户信息
+ */
 - (UserProfileEntity*)getUserProfileByUsername:(NSString*)username;
 
+/*
+ *  获取当前用户信息
+ */
 - (UserProfileEntity*)getCurUserProfile;
+
 @end
 
 

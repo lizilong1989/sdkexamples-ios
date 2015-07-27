@@ -14,7 +14,6 @@
 #import "ConvertToCommonEmoticonsHelper.h"
 
 #import "EMCommandMessageBody.h"
-#import "UserProfileManager.h"
 
 @interface ChatImageOptions : NSObject<IChatImageOptions>
 

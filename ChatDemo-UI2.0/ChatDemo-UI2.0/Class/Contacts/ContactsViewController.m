@@ -25,6 +25,7 @@
 #import "MyChatroomListViewController.h"
 #import "ChatroomListViewController.h"
 #import "RobotListViewController.h"
+#import "UserProfileManager.h"
 
 @interface ContactsViewController ()<UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate, UISearchDisplayDelegate, UIActionSheetDelegate, BaseTableCellDelegate, SRRefreshDelegate, IChatManagerDelegate>
 {
@@ -598,6 +599,8 @@
     [self.dataSource addObjectsFromArray:[self sortDataArray:self.contactsSource]];
     
     [_tableView reloadData];
+    
+    [[UserProfileManager sharedInstance] loadUserProfileInBackgroundWithBuddy:buddyList saveToLoacal:YES completion:NULL];
 }
 
 #pragma mark - action

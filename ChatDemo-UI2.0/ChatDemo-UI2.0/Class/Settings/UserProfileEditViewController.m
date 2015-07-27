@@ -78,7 +78,7 @@
         cell.textLabel.text = NSLocalizedString(@"setting.personalInfoUpload", @"Upload HeadImage");
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     } else if (indexPath.row == 1) {
-        cell.textLabel.text = NSLocalizedString(@"setting.iospushname", @"iOS push nickname");
+        cell.textLabel.text = NSLocalizedString(@"修改昵称", @"iOS push nickname");
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     }
     return cell;
@@ -118,7 +118,9 @@
         [[UserProfileManager sharedInstance] uploadUserHeadImageProfileInBackground:orgImage completion:^(BOOL success, NSError *error) {
             [weakSelf hideHud];
             if (success) {
-                
+                [self showHint:NSLocalizedString(@"setting.uploadSuccess", @"uploaded successfully")];
+            } else {
+                [self showHint:NSLocalizedString(@"setting.uploadFail", @"uploaded failed")];
             }
         }];
     }
