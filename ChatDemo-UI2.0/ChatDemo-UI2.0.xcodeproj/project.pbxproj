@@ -165,7 +165,6 @@
 		90F1BED51930495800121AEC /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90F1BED41930495800121AEC /* MobileCoreServices.framework */; };
 		90F3ED471A75F3A4005A0135 /* ChatViewController+Category.m in Sources */ = {isa = PBXBuildFile; fileRef = 90F3ED461A75F3A4005A0135 /* ChatViewController+Category.m */; };
 		C035E8151AEA40F400283EE9 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C36CA691A1EDB6200CDDD48 /* CoreData.framework */; };
-		D25787381B43EC5F00B0E69F /* RobotManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D25787371B43EC5F00B0E69F /* RobotManager.m */; };
 		D257873C1B43EC7000B0E69F /* RobotListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D257873B1B43EC7000B0E69F /* RobotListViewController.m */; };
 		D2BF974F1AEB566B009E0D5C /* group_creategroup@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D2BF974C1AEB566B009E0D5C /* group_creategroup@2x.png */; };
 		D2BF97501AEB566B009E0D5C /* group_header@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D2BF974D1AEB566B009E0D5C /* group_header@2x.png */; };
@@ -685,8 +684,6 @@
 		90F1BED41930495800121AEC /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		90F3ED451A75F3A4005A0135 /* ChatViewController+Category.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ChatViewController+Category.h"; sourceTree = "<group>"; };
 		90F3ED461A75F3A4005A0135 /* ChatViewController+Category.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ChatViewController+Category.m"; sourceTree = "<group>"; };
-		D25787361B43EC5F00B0E69F /* RobotManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RobotManager.h; sourceTree = "<group>"; };
-		D25787371B43EC5F00B0E69F /* RobotManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RobotManager.m; sourceTree = "<group>"; };
 		D257873A1B43EC7000B0E69F /* RobotListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RobotListViewController.h; sourceTree = "<group>"; };
 		D257873B1B43EC7000B0E69F /* RobotListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RobotListViewController.m; sourceTree = "<group>"; };
 		D2BF974C1AEB566B009E0D5C /* group_creategroup@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "group_creategroup@2x.png"; sourceTree = "<group>"; };
@@ -943,8 +940,6 @@
 		3C16149C1973D1A600564BF5 /* Core Data */ = {
 			isa = PBXGroup;
 			children = (
-				D25787361B43EC5F00B0E69F /* RobotManager.h */,
-				D25787371B43EC5F00B0E69F /* RobotManager.m */,
 				90985E461A8A08D400976DD6 /* InvitationManager.h */,
 				90985E471A8A08D400976DD6 /* InvitationManager.m */,
 			);
@@ -2377,7 +2372,6 @@
 				90A706021A8B63B200376154 /* DACircularProgressView.m in Sources */,
 				3C3EB2FF195465D100E1AE9E /* PublicGroupDetailViewController.m in Sources */,
 				90A705FD1A8B63B200376154 /* MWPhoto.m in Sources */,
-				D25787381B43EC5F00B0E69F /* RobotManager.m in Sources */,
 				90911137192EEC91008A48AA /* LoginViewController.m in Sources */,
 				90911119192EEAED008A48AA /* NSDate+Category.m in Sources */,
 				90C641601B09ACFD00E1E6C9 /* EMAudioPlayerUtil.m in Sources */,
