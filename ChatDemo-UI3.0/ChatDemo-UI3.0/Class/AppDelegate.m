@@ -29,7 +29,11 @@
 #else
     apnsCertName = @"chatdemoui";
 #endif
-    [self easemobApplication:application didFinishLaunchingWithOptions:launchOptions appkey:@"easemob-demo#chatdemoui" apnsCertName:apnsCertName otherConfig:@{kSDKConfigEnableConsoleLogger:[NSNumber numberWithBool:YES]}];
+    [self easemobApplication:application
+didFinishLaunchingWithOptions:launchOptions
+                      appkey:@"easemob-demo#chatdemoui"
+                apnsCertName:apnsCertName
+                 otherConfig:@{kSDKConfigEnableConsoleLogger:[NSNumber numberWithBool:YES]}];
     
     [self.window makeKeyAndVisible];
     

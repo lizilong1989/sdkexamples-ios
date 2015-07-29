@@ -14,7 +14,6 @@
 #import "EMAudioPlayerUtil.h"
 #import "EMAudioRecorderUtil.h"
 #import "EMVoiceConverter.h"
-#import "EMErrorCode.h"
 #import "EMErrorDefs.h"
 
 typedef NS_ENUM(NSInteger, EMAudioSession){
@@ -51,7 +50,7 @@ typedef NS_ENUM(NSInteger, EMAudioSession){
         if (!covertRet) {
             if (completon) {
                 completon([NSError errorWithDomain:NSLocalizedString(@"error.initRecorderFail", @"File format conversion failed")
-                                              code:EMErrorFileTypeConvertionFailure
+                                              code:-101
                                           userInfo:nil]);
             }
             return ;
@@ -108,7 +107,7 @@ typedef NS_ENUM(NSInteger, EMAudioSession){
     if ([self isRecording]) {
         if (completion) {
             error = [NSError errorWithDomain:NSLocalizedString(@"error.recordStoping", @"Record voice is not over yet")
-                                        code:EMErrorAudioRecordStoping
+                                        code:-102
                                     userInfo:nil];
             completion(error);
         }
@@ -159,7 +158,7 @@ typedef NS_ENUM(NSInteger, EMAudioSession){
     if(![self isRecording]){
         if (completion) {
             error = [NSError errorWithDomain:NSLocalizedString(@"error.recordNotBegin", @"Recording has not yet begun")
-                                        code:EMErrorAudioRecordNotStarted
+                                        code:-103
                                     userInfo:nil];
             completion(nil,0,error);
             return;
@@ -172,7 +171,7 @@ typedef NS_ENUM(NSInteger, EMAudioSession){
     if([_recorderEndDate timeIntervalSinceDate:_recorderStartDate] < [EMCDDeviceManager recordMinDuration]){
         if (completion) {
             error = [NSError errorWithDomain:NSLocalizedString(@"error.recordTooShort", @"Recording time is too short")
-                                        code:EMErrorAudioRecordDurationTooShort
+                                        code:-100
                                     userInfo:nil];
             completion(nil,0,error);
         }

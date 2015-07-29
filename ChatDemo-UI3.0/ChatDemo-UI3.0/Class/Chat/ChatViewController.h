@@ -6,12 +6,10 @@
 //  Copyright (c) 2015年 easemob.com. All rights reserved.
 //
 
-#import "EMChatViewController.h"
+#import "EMMessageViewController.h"
 
 #define KNOTIFICATIONNAME_DELETEALLMESSAGE @"DeleteAllMessages"
 
-#define KNOTIFICATIONNAME_RELOADCONLIST @"reloadConversationList"
-
-@interface ChatViewController : EMChatViewController
+@interface ChatViewController : EMMessageViewController
 
 @end

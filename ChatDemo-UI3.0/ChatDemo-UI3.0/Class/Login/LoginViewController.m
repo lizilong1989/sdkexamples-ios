@@ -9,7 +9,7 @@
 #import "LoginViewController.h"
 
 #import "EaseMob.h"
-#import "EMHelper.h"
+#import "EMSDKHelper.h"
 #import "NSString+Valid.h"
 #import "UIViewController+HUD.h"
 

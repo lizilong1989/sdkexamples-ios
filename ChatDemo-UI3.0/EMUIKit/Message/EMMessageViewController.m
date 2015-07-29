@@ -1,17 +1,17 @@
 //
-//  EMChatViewController.m
+//  EMMessageViewController.m
 //  ChatDemo-UI3.0
 //
 //  Created by dhc on 15/6/26.
 //  Copyright (c) 2015年 easemob.com. All rights reserved.
 //
 
-#import "EMChatViewController.h"
+#import "EMMessageViewController.h"
 
 #import "NSObject+EaseMob.h"
 #import "NSDate+Category.h"
 
-@interface EMChatViewController ()
+@interface EMMessageViewController ()<EMMessageCellDelegate>
 {
     UILongPressGestureRecognizer *_lpgr;
 }
@@ -21,11 +21,11 @@
 
 @end
 
-@implementation EMChatViewController
+@implementation EMMessageViewController
 
 @synthesize conversation = _conversation;
 @synthesize deleteConversationIfNull = _deleteConversationIfNull;
-@synthesize pageCount = _pageCount;
+@synthesize messageCountOfPage = _messageCountOfPage;
 @synthesize timeCellHeight = _timeCellHeight;
 @synthesize messageTimeIntervalTag = _messageTimeIntervalTag;
 
@@ -38,10 +38,9 @@
     
     self = [super initWithStyle:UITableViewStylePlain];
     if (self) {
-        _conversation = [[EaseMob sharedInstance].chatManager conversationForChatter:conversationChatter conversationType:conversationType];;
-        [_conversation markAllMessagesAsRead:YES];
+        _conversation = [[EaseMob sharedInstance].chatManager conversationForChatter:conversationChatter conversationType:conversationType];
         
-        _pageCount = 50;
+        _messageCountOfPage = 5;
         _timeCellHeight = 30;
         _deleteConversationIfNull = YES;
         _scrollToBottomWhenAppear = YES;
@@ -57,6 +56,9 @@
     self.view.backgroundColor = [UIColor colorWithRed:248 / 255.0 green:248 / 255.0 blue:248 / 255.0 alpha:1.0];
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     
+    //将所有消息置为已读
+    [_conversation markAllMessagesAsRead:YES];
+    
     //初始化页面
     CGFloat chatbarHeight = [EMChatToolbar defaultHeight];
     EMChatToolbarType barType = self.conversation.conversationType == eConversationTypeChat ? EMChatToolbarTypeChat : EMChatToolbarTypeGroup;
@@ -67,7 +69,10 @@
     //初始化手势
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(keyBoardHidden:)];
     [self.view addGestureRecognizer:tap];
-//    self.showMessageMenuController = YES;
+    
+    _lpgr = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
+    _lpgr.minimumPressDuration = 0.5;
+    [self.tableView addGestureRecognizer:_lpgr];
     
     //注册代理
     [EMCDDeviceManager sharedInstance].delegate = self;
@@ -98,7 +103,7 @@
     [super viewWillAppear:animated];
     
     self.isViewDidAppear = YES;
-    [[EMHelper shareHelper] setIsShowingimagePicker:NO];
+    [[EMSDKHelper shareHelper] setIsShowingimagePicker:NO];
     
     if (self.scrollToBottomWhenAppear) {
         [self _scrollViewToBottom:NO];
@@ -153,22 +158,6 @@
     CGRect tableFrame = self.tableView.frame;
     tableFrame.size.height = self.view.frame.size.height - _chatToolbar.frame.size.height;
     self.tableView.frame = tableFrame;
-}
-
-- (void)setShowMessageMenuController:(BOOL)showMessageMenuController
-{
-    if (_showMessageMenuController != showMessageMenuController) {
-        _showMessageMenuController = showMessageMenuController;
-        
-        if (_showMessageMenuController) {
-            _lpgr = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
-            _lpgr.minimumPressDuration = 0.5;
-            [self.tableView addGestureRecognizer:_lpgr];
-        }
-        else{
-            [self.tableView removeGestureRecognizer:_lpgr];
-        }
-    }
 }
 
 #pragma mark - private helper
@@ -341,6 +330,150 @@
     }
 }
 
+- (BOOL)_shouldSendHasReadAckForMessage:(EMMessage *)message
+                                   read:(BOOL)read
+{
+    NSString *account = [[EaseMob sharedInstance].chatManager loginInfo][kSDKUsername];
+    if (message.messageType != eMessageTypeChat || message.isReadAcked || [account isEqualToString:message.from] || ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) || !self.isViewDidAppear)
+    {
+        return NO;
+    }
+    
+    id<IEMMessageBody> body = [message.messageBodies firstObject];
+    if (((body.messageBodyType == eMessageBodyType_Video) ||
+         (body.messageBodyType == eMessageBodyType_Voice) ||
+         (body.messageBodyType == eMessageBodyType_Image)) &&
+        !read)
+    {
+        return NO;
+    }
+    else
+    {
+        return YES;
+    }
+}
+
+
+- (void)_sendHasReadResponseForMessages:(NSArray*)messages
+                                 isRead:(BOOL)isRead
+{
+    NSMutableArray *unreadMessages = [NSMutableArray array];
+    for (NSInteger i = 0; i < [messages count]; i++)
+    {
+        EMMessage *message = messages[i];
+        BOOL isSend = YES;
+        if (_dataSource && [_dataSource respondsToSelector:@selector(messageViewController:shouldSendHasReadAckForMessage:read:)]) {
+            isSend = [_dataSource messageViewController:self
+                         shouldSendHasReadAckForMessage:message read:NO];
+        }
+        else{
+            isSend = [self _shouldSendHasReadAckForMessage:message
+                                                      read:isRead];
+        }
+        
+        if (isSend)
+        {
+            [unreadMessages addObject:message];
+        }
+    }
+    
+    if ([unreadMessages count])
+    {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            for (EMMessage *message in messages)
+            {
+                [[EaseMob sharedInstance].chatManager sendReadAckForMessage:message];
+            }
+        });
+    }
+}
+
+- (BOOL)_shouldMarkMessageAsRead
+{
+    BOOL isMark = YES;
+    if (_dataSource && [_dataSource respondsToSelector:@selector(messageViewControllerShouldMarkMessagesAsRead:)]) {
+        isMark = [_dataSource messageViewControllerShouldMarkMessagesAsRead:self];
+    }
+    else{
+        if (([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) || !self.isViewDidAppear)
+        {
+            isMark = NO;
+        }
+    }
+    
+    return isMark;
+}
+
+#pragma mark - pivate data
+
+- (void)_loadMessagesBefore:(long long)timestamp
+                      count:(NSInteger)count
+                     append:(BOOL)isAppend
+{
+    NSArray *moreMessages = nil;
+    if (_dataSource && [_dataSource respondsToSelector:@selector(messageViewController:loadMessageFromTimestamp:count:)]) {
+        moreMessages = [_dataSource messageViewController:self loadMessageFromTimestamp:timestamp count:count];
+    }
+    else{
+        moreMessages = [self.conversation loadNumbersOfMessages:count before:timestamp];;
+    }
+    
+    if ([moreMessages count] == 0) {
+        return;
+    }
+    
+    //格式化消息
+    NSArray *formattedMessages = [self formatMessages:moreMessages];
+    
+    NSInteger scrollToIndex = 0;
+    if (isAppend) {
+        [self.messsagesSource insertObjects:moreMessages atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [moreMessages count])]];
+        
+        //合并消息
+        id object = [self.dataArray firstObject];
+        if ([object isKindOfClass:[NSString class]])
+        {
+            NSString *timestamp = object;
+            [formattedMessages enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id model, NSUInteger idx, BOOL *stop) {
+                if ([model isKindOfClass:[NSString class]] && [timestamp isEqualToString:model])
+                {
+                    [self.dataArray removeObjectAtIndex:0];
+                    *stop = YES;
+                }
+            }];
+        }
+        scrollToIndex = [self.dataArray count];
+        [self.dataArray insertObjects:formattedMessages atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [formattedMessages count])]];
+    }
+    else{
+        [self.messsagesSource removeAllObjects];
+        [self.messsagesSource addObjectsFromArray:moreMessages];
+        
+        [self.dataArray removeAllObjects];
+        [self.dataArray addObjectsFromArray:formattedMessages];
+    }
+    
+    EMMessage *latest = [self.messsagesSource lastObject];
+    self.messageTimeIntervalTag = latest.timestamp;
+    
+    //刷新页面
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.tableView reloadData];
+        
+        [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:[self.dataArray count] - scrollToIndex - 1 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:NO];
+    });
+    
+    //从数据库导入时重新下载没有下载成功的附件
+    for (EMMessage *message in moreMessages)
+    {
+        [self _downloadMessageAttachments:message];
+    }
+    
+    //发送已读回执
+    [self _sendHasReadResponseForMessages:moreMessages
+                                   isRead:NO];
+}
+
 #pragma mark - GestureRecognizer
 
 // 点击背景隐藏
@@ -357,13 +490,28 @@
     {
         CGPoint location = [recognizer locationInView:self.tableView];
         NSIndexPath * indexPath = [self.tableView indexPathForRowAtPoint:location];
-        id object = [self.dataArray objectAtIndex:indexPath.row];
-        if (![object isKindOfClass:[NSString class]]) {
-            EMMessageCell *cell = (EMMessageCell *)[self.tableView cellForRowAtIndexPath:indexPath];
-            //            [cell becomeFirstResponder];
-            
-            _menuIndexPath = indexPath;
-            [self _showMenuViewController:cell andIndexPath:indexPath messageType:cell.model.bodyType];
+        BOOL canLongPress = NO;
+        if (_dataSource && [_dataSource respondsToSelector:@selector(messageViewController:canLongPressRowAtIndexPath:)]) {
+            canLongPress = [_dataSource messageViewController:self
+                                   canLongPressRowAtIndexPath:indexPath];
+        }
+        
+        if (!canLongPress) {
+            return;
+        }
+        
+        if (_dataSource && [_dataSource respondsToSelector:@selector(messageViewController:didLongPressRowAtIndexPath:)]) {
+            [_dataSource messageViewController:self
+                    didLongPressRowAtIndexPath:indexPath];
+        }
+        else{
+            id object = [self.dataArray objectAtIndex:indexPath.row];
+            if (![object isKindOfClass:[NSString class]]) {
+                EMMessageCell *cell = (EMMessageCell *)[self.tableView cellForRowAtIndexPath:indexPath];
+                
+                _menuIndexPath = indexPath;
+                [self _showMenuViewController:cell andIndexPath:indexPath messageType:cell.model.bodyType];
+            }
         }
     }
 }
@@ -443,11 +591,16 @@
     }
     else{
         id<IMessageModel> model = object;
-        if (model.isSender) {
-            return [EMSendMessageCell cellHeightWithModel:model];
+        if (_delegate && [_delegate respondsToSelector:@selector(messageViewController:heightForMessageModel:withCellWidth:)]) {
+            return [_delegate messageViewController:self heightForMessageModel:model withCellWidth:tableView.frame.size.width];
         }
         else{
-            return [EMRecvMessageCell cellHeightWithModel:model];
+            if (model.isSender) {
+                return [EMSendMessageCell cellHeightWithModel:model];
+            }
+            else{
+                return [EMRecvMessageCell cellHeightWithModel:model];
+            }
         }
     }
 }
@@ -481,7 +634,7 @@
     [picker dismissViewControllerAnimated:YES completion:nil];
     
     self.isViewDidAppear = YES;
-    [[EMHelper shareHelper] setIsShowingimagePicker:NO];
+    [[EMSDKHelper shareHelper] setIsShowingimagePicker:NO];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
@@ -489,13 +642,19 @@
     [self.imagePicker dismissViewControllerAnimated:YES completion:nil];
     
     self.isViewDidAppear = YES;
-    [[EMHelper shareHelper] setIsShowingimagePicker:NO];
+    [[EMSDKHelper shareHelper] setIsShowingimagePicker:NO];
 }
 
 #pragma mark - EMMessageCellDelegate
 
 - (void)locationMessageCellSelcted:(id<IMessageModel>)model
 {
+    if (_delegate && [_delegate respondsToSelector:@selector(messageViewController:didSelectLocationMessageModel:)]) {
+        [_delegate messageViewController:self didSelectLocationMessageModel:model];
+        
+        return;
+    }
+    
     _scrollToBottomWhenAppear = NO;
     
     EMLocationViewController *locationController = [[EMLocationViewController alloc] initWithLocation:CLLocationCoordinate2DMake(model.latitude, model.longitude)];
@@ -504,6 +663,12 @@
 
 - (void)voiceMessageCellSelcted:(id<IMessageModel>)model
 {
+    if (_delegate && [_delegate respondsToSelector:@selector(messageViewController:didSelectVoiceMessageModel:)]) {
+        [_delegate messageViewController:self didSelectVoiceMessageModel:model];
+        
+        return;
+    }
+    
     _scrollToBottomWhenAppear = NO;
     
     //如果存在正在播放的语音，停止播放
@@ -546,7 +711,7 @@
     if (model.bodyType == eMessageBodyType_Voice)
     {
         self.playingVoiceModel = model;
-        __weak EMChatViewController *weakSelf = self;
+        __weak EMMessageViewController *weakSelf = self;
         [[EMCDDeviceManager sharedInstance] enableProximitySensor];
         [[EMCDDeviceManager sharedInstance] asyncPlayingWithPath:localPath completion:^(NSError *error) {
             weakSelf.playingVoiceModel.isMediaPlaying = NO;
@@ -556,10 +721,8 @@
         }];
         
         //发送已读回执
-        BOOL sendReadAck = [self shouldSendHasReadAckForMessage:model.message read:YES];
-        if (sendReadAck){
-            [self sendHasReadResponseForMessages:@[model.message]];
-        }
+        [self _sendHasReadResponseForMessages:@[model.message]
+                                       isRead:YES];
         
         //更新message.ext中是否已播放字段
         model.isMediaPlayed = YES;
@@ -574,6 +737,12 @@
 
 - (void)videoMessageCellSelcted:(id<IMessageModel>)model
 {
+    if (_delegate && [_delegate respondsToSelector:@selector(messageViewController:didSelectVideoMessageModel:)]) {
+        [_delegate messageViewController:self didSelectVideoMessageModel:model];
+        
+        return;
+    }
+    
     _scrollToBottomWhenAppear = NO;
     
     EMVideoMessageBody *videoBody = (EMVideoMessageBody*)[model.message.messageBodies firstObject];
@@ -587,10 +756,8 @@
     
     dispatch_block_t block = ^{
         //发送已读回执
-        BOOL sendReadAck = [self shouldSendHasReadAckForMessage:model.message read:YES];
-        if (sendReadAck){
-            [self sendHasReadResponseForMessages:@[model.message]];
-        }
+        [self _sendHasReadResponseForMessages:@[model.message]
+                                       isRead:YES];
         
         NSURL *videoURL = [NSURL fileURLWithPath:localPath];
         MPMoviePlayerViewController *moviePlayerController = [[MPMoviePlayerViewController alloc] initWithContentURL:videoURL];
@@ -606,7 +773,7 @@
     }
     
     [self showHudInView:self.view hint:NSLocalizedString(@"message.downloadingVideo", @"downloading video...")];
-    __weak EMChatViewController *weakSelf = self;
+    __weak EMMessageViewController *weakSelf = self;
     id<IChatManager> chatManager = [[EaseMob sharedInstance] chatManager];
     [chatManager asyncFetchMessage:model.message progress:nil completion:^(EMMessage *aMessage, EMError *error) {
         [weakSelf hideHud];
@@ -620,6 +787,12 @@
 
 - (void)fileMessageCellSelcted:(id<IMessageModel>)model
 {
+    if (_delegate && [_delegate respondsToSelector:@selector(messageViewController:didSelectFileMessageModel:)]) {
+        [_delegate messageViewController:self didSelectFileMessageModel:model];
+        
+        return;
+    }
+    
     _scrollToBottomWhenAppear = NO;
     
     [self showHint:@"Custom implementation!"];
@@ -690,7 +863,7 @@
     __weak typeof(self) weakSelf = self;
     [[EMCDDeviceManager sharedInstance] asyncStopRecordingWithCompletion:^(NSString *recordPath, NSInteger aDuration, NSError *error) {
         if (!error) {
-            [weakSelf sendAudioMessageWithLocalPath:recordPath duration:aDuration];
+            [weakSelf sendVoiceMessageWithLocalPath:recordPath duration:aDuration];
         }
         else {
             [weakSelf showHudInView:self.view hint:NSLocalizedString(@"media.timeShort", @"The recording time is too short")];
@@ -714,7 +887,7 @@
     [self presentViewController:self.imagePicker animated:YES completion:NULL];
     
     self.isViewDidAppear = NO;
-    [[EMHelper shareHelper] setIsShowingimagePicker:YES];
+    [[EMSDKHelper shareHelper] setIsShowingimagePicker:YES];
 }
 
 - (void)moreViewTakePicAction:(DXChatBarMoreView *)moreView
@@ -730,7 +903,7 @@
     [self presentViewController:self.imagePicker animated:YES completion:NULL];
     
     self.isViewDidAppear = NO;
-    [[EMHelper shareHelper] setIsShowingimagePicker:YES];
+    [[EMSDKHelper shareHelper] setIsShowingimagePicker:YES];
 #endif
 }
 
@@ -766,11 +939,215 @@
                   longitude:(double)longitude
                  andAddress:(NSString *)address
 {
-    EMMessage *message = [EMHelper sendLocationMessageWithLatitude:latitude longitude:longitude address:address to:self.conversation.chatter messageType:[self _messageTypeFromConversationType] requireEncryption:NO messageExt:nil];
-    [self addMessageToDataSource:message];
+    [self sendLocationLatitude:latitude longitude:longitude andAddress:address];
 }
 
 #pragma mark - EaseMob
+
+#pragma mark - EMChatManagerChatDelegate
+
+- (void)didReceiveOfflineMessages:(NSArray *)offlineMessages
+{
+    if (![offlineMessages count])
+    {
+        return;
+    }
+    
+    if ([self _shouldMarkMessageAsRead])
+    {
+        [self.conversation markAllMessagesAsRead:YES];
+    }
+    
+    long long timestamp = 0;
+    if(self.conversation.latestMessage){
+        timestamp = self.conversation.latestMessage.timestamp + 1;
+    }
+    else{
+        timestamp = [[NSDate date] timeIntervalSince1970] * 1000 + 1;
+    }
+    [self _loadMessagesBefore:timestamp
+                        count:[self.messsagesSource count] + [offlineMessages count]
+                       append:NO];
+}
+
+-(void)didReceiveMessage:(EMMessage *)message
+{
+    if ([self.conversation.chatter isEqualToString:message.conversationChatter]) {
+        [self addMessageToDataSource:message progress:nil];
+        
+        [self _sendHasReadResponseForMessages:@[message]
+                                       isRead:NO];
+        
+        if ([self _shouldMarkMessageAsRead])
+        {
+            [self.conversation markMessageWithId:message.messageId asRead:YES];
+        }
+    }
+}
+
+-(void)didReceiveCmdMessage:(EMMessage *)message
+{
+    if ([self.conversation.chatter isEqualToString:message.conversationChatter]) {
+        [self showHint:NSLocalizedString(@"receiveCmd", @"receive cmd message")];
+    }
+}
+
+- (void)didReceiveMessageId:(NSString *)messageId
+                    chatter:(NSString *)conversationChatter
+                      error:(EMError *)error
+{
+    if (error && [self.conversation.chatter isEqualToString:conversationChatter])
+    {
+        __weak typeof(self) weakSelf = self;
+        id<IMessageModel> model = nil;
+        for (int i = 0; i < self.dataArray.count; i ++) {
+            id object = [self.dataArray objectAtIndex:i];
+            if ([object conformsToProtocol:@protocol(IMessageModel)]) {
+                model = (id<IMessageModel>)object;
+                if ([messageId isEqualToString:model.message.messageId]) {
+                    model.message.deliveryState = eMessageDeliveryState_Failure;
+                    
+                    if (_delegate && [_delegate respondsToSelector:@selector(messageViewController:didFailSendingMessageModel:error:)]) {
+                        [_delegate messageViewController:self didFailSendingMessageModel:model error:error];
+                    }
+                    else{
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [weakSelf.tableView beginUpdates];
+                            [weakSelf.tableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:i inSection:0]] withRowAnimation:UITableViewRowAnimationNone];
+                            [weakSelf.tableView endUpdates];
+                            
+                        });
+                        
+                        if (error && error.errorCode == EMErrorMessageContainSensitiveWords)
+                        {
+                            CGRect frame = self.chatToolbar.frame;
+                            [self showHint:NSLocalizedString(@"message.forbiddenWords", @"Your message contains forbidden words") yOffset:-frame.size.height + 50];
+                        }
+                    }
+                    
+                    break;
+                }
+            }
+        }
+    }
+}
+
+- (void)didReceiveHasReadResponse:(EMReceipt *)receipt
+{
+    if (![self.conversation.chatter isEqualToString:receipt.conversationChatter]){
+        return;
+    }
+    
+    __block id<IMessageModel> model = nil;
+    __block BOOL isHave = NO;
+    [self.dataArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop)
+     {
+         if ([obj conformsToProtocol:@protocol(IMessageModel)])
+         {
+             model = (id<IMessageModel>)obj;
+             if ([model.messageId isEqualToString:receipt.chatId])
+             {
+                 model.message.isReadAcked = YES;
+                 isHave = YES;
+                 *stop = YES;
+             }
+         }
+     }];
+    
+    if(!isHave){
+        return;
+    }
+    
+    if (_delegate && [_delegate respondsToSelector:@selector(messageViewController:didReceiveHasReadAckForModel:)]) {
+        [_delegate messageViewController:self didReceiveHasReadAckForModel:model];
+    }
+    else{
+        [self.tableView reloadData];
+    }
+}
+
+- (void)didSendMessage:(EMMessage *)message
+                 error:(EMError *)error
+{
+    if (![self.conversation.chatter isEqualToString:message.conversationChatter]){
+        return;
+    }
+    
+    __block id<IMessageModel> model = nil;
+    __block BOOL isHave = NO;
+    [self.dataArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop)
+     {
+         if ([obj conformsToProtocol:@protocol(IMessageModel)])
+         {
+             model = (id<IMessageModel>)obj;
+             if ([model.messageId isEqualToString:message.messageId])
+             {
+                 model.message.deliveryState = message.deliveryState;
+                 isHave = YES;
+                 *stop = YES;
+             }
+         }
+     }];
+    
+    if(!isHave){
+        return;
+    }
+    
+    if (error) {
+        if (_delegate && [_delegate respondsToSelector:@selector(messageViewController:didFailSendingMessageModel:error:)]) {
+            [_delegate messageViewController:self didFailSendingMessageModel:model error:error];
+        }
+        else{
+            [self.tableView reloadData];
+        }
+    }
+    else{
+        if (_delegate && [_delegate respondsToSelector:@selector(messageViewController:didSendMessageModel:)]) {
+            [_delegate messageViewController:self didSendMessageModel:model];
+        }
+        else{
+            [self.tableView reloadData];
+        }
+    }
+}
+
+#pragma mark - IEMChatProgressDelegate
+
+- (void)setProgress:(float)progress
+         forMessage:(EMMessage *)message
+     forMessageBody:(id<IEMMessageBody>)messageBody
+{
+    if (![self.conversation.chatter isEqualToString:message.conversationChatter]){
+        return;
+    }
+    
+    __block id<IMessageModel> model = nil;
+    __block BOOL isHave = NO;
+    [self.dataArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop)
+     {
+         if ([obj conformsToProtocol:@protocol(IMessageModel)])
+         {
+             model = (id<IMessageModel>)obj;
+             if ([model.messageId isEqualToString:message.messageId])
+             {
+                 model.progress = progress;
+                 isHave = YES;
+                 *stop = YES;
+             }
+         }
+     }];
+    
+    if(!isHave){
+        return;
+    }
+    
+    if (_dataSource && [_dataSource respondsToSelector:@selector(messageViewController:updateProgress:messageModel:messageBody:)]) {
+        [_dataSource messageViewController:self
+                            updateProgress:progress
+                              messageModel:model
+                               messageBody:messageBody];
+    }
+}
 
 #pragma mark - EMCDDeviceManagerProximitySensorDelegate
 
@@ -822,33 +1199,6 @@
     self.menuIndexPath = nil;
 }
 
-#pragma mark - send message
-
-- (void)sendTextMessage:(NSString *)text
-{
-    EMMessage *message = [EMHelper sendTextMessage:text to:self.conversation.chatter messageType:[self _messageTypeFromConversationType] requireEncryption:NO messageExt:nil];
-    [self addMessageToDataSource:message];
-}
-
-- (void)sendImageMessage:(UIImage *)image
-{
-    EMMessage *message = [EMHelper sendImageMessageWithImage:image to:self.conversation.chatter messageType:[self _messageTypeFromConversationType] requireEncryption:NO messageExt:nil];
-    [self addMessageToDataSource:message];
-}
-
-- (void)sendAudioMessageWithLocalPath:(NSString *)localPath
-                             duration:(NSInteger)duration
-{
-    EMMessage *message = [EMHelper sendVoiceMessageWithLocalPath:localPath duration:duration to:self.conversation.chatter messageType:[self _messageTypeFromConversationType] requireEncryption:NO messageExt:nil];
-    [self addMessageToDataSource:message];
-}
-
-- (void)sendVideoMessageWithURL:(NSURL *)url
-{
-    EMMessage *message = [EMHelper sendVideoMessageWithURL:url to:self.conversation.chatter messageType:[self _messageTypeFromConversationType] requireEncryption:NO messageExt:nil];
-    [self addMessageToDataSource:message];
-}
-
 #pragma mark - public 
 
 - (NSArray *)formatMessages:(NSArray *)messages
@@ -860,18 +1210,33 @@
     
     for (EMMessage *message in messages) {
         //计算時間间隔
-        CGFloat interval = self.messageTimeIntervalTag - message.timestamp;
+        CGFloat interval = (self.messageTimeIntervalTag - message.timestamp) / 1000;
         if (self.messageTimeIntervalTag < 0 || interval > 60 || interval < -60) {
             NSDate *messageDate = [NSDate dateWithTimeIntervalInMilliSecondSince1970:(NSTimeInterval)message.timestamp];
-            [formattedArray addObject:[messageDate formattedTime]];
+            NSString *timeStr = @"";
+            
+            if (_dataSource && [_dataSource respondsToSelector:@selector(messageViewController:stringForDate:)]) {
+                timeStr = [_dataSource messageViewController:self stringForDate:messageDate];
+            }
+            else{
+                timeStr = [messageDate formattedTime];
+            }
+            [formattedArray addObject:timeStr];
             self.messageTimeIntervalTag = message.timestamp;
         }
         
         //构建数据模型
-        id<IMessageModel> model = [[EMMessageModel alloc] initWithMessage:message];
-        if (model) {
+        id<IMessageModel> model = nil;
+        if (_dataSource && [_dataSource respondsToSelector:@selector(messageViewController:modelForMessage:)]) {
+            model = [_dataSource messageViewController:self modelForMessage:message];
+        }
+        else{
+            model = [[EMMessageModel alloc] initWithMessage:message];
             model.avatarImage = [UIImage imageNamed:@"user"];
             model.failImageName = @"imageDownloadFail";
+        }
+
+        if (model) {
             [formattedArray addObject:model];
         }
     }
@@ -879,76 +1244,14 @@
     return formattedArray;
 }
 
-- (void)loadMessagesFrom:(long long)timestamp
-                   count:(NSInteger)count
-                  append:(BOOL)append
-{
-    NSArray *moreMessages = [self.conversation loadNumbersOfMessages:count before:timestamp];
-    if ([moreMessages count] == 0) {
-        return;
-    }
-    
-    NSInteger scrollToIndex = 0;
-    [self.messsagesSource insertObjects:moreMessages atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [moreMessages count])]];
-    EMMessage *latest = [self.messsagesSource lastObject];
-    self.messageTimeIntervalTag = latest.timestamp;
-    
-    //格式化消息
-    NSArray *formattedMessages = [self formatMessages:moreMessages];
-    
-    //合并消息
-    id object = [self.dataArray firstObject];
-    if ([object isKindOfClass:[NSString class]])
-    {
-        NSString *timestamp = object;
-        [formattedMessages enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id model, NSUInteger idx, BOOL *stop) {
-            if ([model isKindOfClass:[NSString class]] && [timestamp isEqualToString:model])
-            {
-                [self.dataArray removeObjectAtIndex:0];
-                *stop = YES;
-            }
-        }];
-    }
-    scrollToIndex = [self.dataArray count];
-    [self.dataArray insertObjects:formattedMessages atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [formattedMessages count])]];
-    
-    //刷新页面
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.tableView reloadData];
-        
-        [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:[self.dataArray count] - scrollToIndex - 1 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:NO];
-    });
-    
-    //从数据库导入时重新下载没有下载成功的附件
-    for (EMMessage *message in moreMessages)
-    {
-        [self _downloadMessageAttachments:message];
-    }
-    
-    //发送已读回执
-    NSMutableArray *unreadMessages = [NSMutableArray array];
-    for (NSInteger i = 0; i < [moreMessages count]; i++)
-    {
-        EMMessage *message = moreMessages[i];
-        if ([self shouldSendHasReadAckForMessage:message read:NO])
-        {
-            [unreadMessages addObject:message];
-        }
-    }
-    
-    if ([unreadMessages count])
-    {
-        [self sendHasReadResponseForMessages:unreadMessages];
-    }
-}
-
 -(void)addMessageToDataSource:(EMMessage *)message
+                     progress:(id<IEMChatProgressDelegate>)progress
 {
     [self.messsagesSource addObject:message];
     
     NSArray *messages = [self formatMessages:@[message]];
     
-    __weak EMChatViewController *weakSelf = self;
+    __weak EMMessageViewController *weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         [weakSelf.dataArray addObjectsFromArray:messages];
         [weakSelf.tableView reloadData];
@@ -956,38 +1259,119 @@
     });
 }
 
-- (BOOL)shouldSendHasReadAckForMessage:(EMMessage *)message
-                                  read:(BOOL)read
+#pragma mark - public
+
+- (void)tableViewDidTriggerHeaderRefresh
 {
-    NSString *account = [[EaseMob sharedInstance].chatManager loginInfo][kSDKUsername];
-    if (message.messageType != eMessageTypeChat || message.isReadAcked || [account isEqualToString:message.from] || ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) || !self.isViewDidAppear)
-    {
-        return NO;
+    self.messageTimeIntervalTag = -1;
+    long long timestamp = 0;
+    if ([self.messsagesSource count] > 0) {
+        timestamp = [(EMMessage *)self.messsagesSource.firstObject timestamp];
     }
+    else if(self.conversation.latestMessage){
+        timestamp = self.conversation.latestMessage.timestamp + 1;
+    }
+    else{
+        timestamp = [[NSDate date] timeIntervalSince1970] * 1000 + 1;
+    }
+    [self _loadMessagesBefore:timestamp count:self.messageCountOfPage append:YES];
     
-    id<IEMMessageBody> body = [message.messageBodies firstObject];
-    if (((body.messageBodyType == eMessageBodyType_Video) ||
-         (body.messageBodyType == eMessageBodyType_Voice) ||
-         (body.messageBodyType == eMessageBodyType_Image)) &&
-        !read)
-    {
-        return NO;
-    }
-    else
-    {
-        return YES;
-    }
+    [self tableViewDidFinishTriggerHeader:YES reload:YES];
 }
 
-
-- (void)sendHasReadResponseForMessages:(NSArray*)messages
+- (void)reloadConversationList
 {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        for (EMMessage *message in messages)
-        {
-            [[EaseMob sharedInstance].chatManager sendReadAckForMessage:message];
-        }
-    });
+    [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATIONNAME_RELOADCONLIST object:nil];
+}
+
+#pragma mark - send message
+
+- (void)sendTextMessage:(NSString *)text
+{
+    EMMessage *message = [EMSDKHelper sendTextMessage:text
+                                                   to:self.conversation.chatter
+                                          messageType:[self _messageTypeFromConversationType]
+                                    requireEncryption:NO
+                                           messageExt:nil];
+    [self addMessageToDataSource:message
+                        progress:nil];
+}
+
+- (void)sendLocationMessageLatitude:(double)latitude
+                          longitude:(double)longitude
+                         andAddress:(NSString *)address
+{
+    EMMessage *message = [EMSDKHelper sendLocationMessageWithLatitude:latitude
+                                                            longitude:longitude
+                                                              address:address
+                                                                   to:self.conversation.chatter
+                                                          messageType:[self _messageTypeFromConversationType]
+                                                    requireEncryption:NO
+                                                           messageExt:nil];
+    [self addMessageToDataSource:message
+                        progress:nil];
+}
+
+- (void)sendImageMessage:(UIImage *)image
+{
+    id<IEMChatProgressDelegate> progress = nil;
+    if (_dataSource && [_dataSource respondsToSelector:@selector(messageViewController:progressDelegateForMessageBodyType:)]) {
+        progress = [_dataSource messageViewController:self progressDelegateForMessageBodyType:eMessageBodyType_Image];
+    }
+    else{
+        progress = self;
+    }
+    
+    EMMessage *message = [EMSDKHelper sendImageMessageWithImage:image
+                                                             to:self.conversation.chatter
+                                                    messageType:[self _messageTypeFromConversationType]
+                                              requireEncryption:NO
+                                                     messageExt:nil
+                                                       progress:progress];
+    [self addMessageToDataSource:message
+                        progress:progress];
+}
+
+- (void)sendVoiceMessageWithLocalPath:(NSString *)localPath
+                             duration:(NSInteger)duration
+{
+    id<IEMChatProgressDelegate> progress = nil;
+    if (_dataSource && [_dataSource respondsToSelector:@selector(messageViewController:progressDelegateForMessageBodyType:)]) {
+        progress = [_dataSource messageViewController:self progressDelegateForMessageBodyType:eMessageBodyType_Voice];
+    }
+    else{
+        progress = self;
+    }
+    
+    EMMessage *message = [EMSDKHelper sendVoiceMessageWithLocalPath:localPath
+                                                           duration:duration
+                                                                 to:self.conversation.chatter
+                                                        messageType:[self _messageTypeFromConversationType]
+                                                  requireEncryption:NO
+                                                         messageExt:nil
+                                                           progress:progress];
+    [self addMessageToDataSource:message
+                        progress:progress];
+}
+
+- (void)sendVideoMessageWithURL:(NSURL *)url
+{
+    id<IEMChatProgressDelegate> progress = nil;
+    if (_dataSource && [_dataSource respondsToSelector:@selector(messageViewController:progressDelegateForMessageBodyType:)]) {
+        progress = [_dataSource messageViewController:self progressDelegateForMessageBodyType:eMessageBodyType_Video];
+    }
+    else{
+        progress = self;
+    }
+    
+    EMMessage *message = [EMSDKHelper sendVideoMessageWithURL:url
+                                                           to:self.conversation.chatter
+                                                  messageType:[self _messageTypeFromConversationType]
+                                            requireEncryption:NO
+                                                   messageExt:nil
+                                                     progress:progress];
+    [self addMessageToDataSource:message
+                        progress:progress];
 }
 
 @end

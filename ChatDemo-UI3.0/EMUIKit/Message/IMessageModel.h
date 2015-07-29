@@ -10,14 +10,15 @@
 #import <Foundation/Foundation.h>
 
 #import "EMChatManagerDefs.h"
+#import "IEMChatProgressDelegate.h"
 
 @class EMMessage;
 @protocol IMessageModel <NSObject>
 
-//数据模型对应的cell的高度，只需要计算一次并赋值，以后就无需计算了
+//缓存数据模型对应的cell的高度，只需要计算一次并赋值，以后就无需计算了
 @property (nonatomic) CGFloat cellHeight;
 
-//SDK中的消息模型
+//SDK中的消息
 @property (strong, nonatomic, readonly) EMMessage *message;
 
 //消息ID
@@ -68,6 +69,9 @@
 @property (strong, nonatomic) NSString *fileName;
 //文件消息：文件大小描述
 @property (strong, nonatomic) NSString *fileSizeDes;
+
+//带附件的消息的上传或下载进度
+@property (nonatomic) float progress;
 
 //消息：附件本地地址
 @property (strong, nonatomic) NSString *fileLocalPath;

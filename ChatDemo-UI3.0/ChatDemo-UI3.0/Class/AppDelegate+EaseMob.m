@@ -12,7 +12,7 @@
 
 #import "AppDelegate+EaseMob.h"
 
-#import "EMHelper.h"
+#import "EMSDKHelper.h"
 #import "LoginViewController.h"
 #import "NSObject+EaseMob.h"
 
@@ -28,31 +28,17 @@ didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
               apnsCertName:(NSString *)apnsCertName
                otherConfig:(NSDictionary *)otherConfig
 {
-    //初始化helper
-    [EMHelper shareHelper];
+    [[EMSDKHelper shareHelper] easemobApplication:application
+                 didFinishLaunchingWithOptions:launchOptions
+                                        appkey:@"easemob-demo#chatdemoui"
+                                  apnsCertName:apnsCertName
+                                   otherConfig:@{kSDKConfigEnableConsoleLogger:[NSNumber numberWithBool:YES]}];
     
     //注册登录状态监听
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(loginStateChange:)
                                                  name:KNOTIFICATION_LOGINCHANGE
                                                object:nil];
-    
-    //注册AppDelegate默认回调监听
-    [self _setupAppDelegateNotifications];
-    
-    //注册apns
-    [self _registerRemoteNotification];
-    
-    //注册easemob sdk
-    [[EaseMob sharedInstance] registerSDKWithAppKey:appkey
-                                       apnsCertName:apnsCertName
-                                        otherConfig:otherConfig];
-    
-    // 注册环信监听
-    [self registerEaseMobLiteNotification];
-    
-    //启动easemob sdk
-    [[EaseMob sharedInstance] application:application didFinishLaunchingWithOptions:launchOptions];
     
     [self loginStateChange:nil];
 }
@@ -76,135 +62,6 @@ didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
                                           cancelButtonTitle:NSLocalizedString(@"ok", @"OK")
                                           otherButtonTitles:nil];
     [alert show];
-}
-
-#pragma mark - private
-
-#pragma mark - app delegate notifications
-
-// 监听系统生命周期回调，以便将需要的事件传给SDK
-- (void)_setupAppDelegateNotifications
-{
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(appDidEnterBackgroundNotif:)
-                                                 name:UIApplicationDidEnterBackgroundNotification
-                                               object:nil];
-    
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(appWillEnterForeground:)
-                                                 name:UIApplicationWillEnterForegroundNotification
-                                               object:nil];
-    
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(appDidFinishLaunching:)
-                                                 name:UIApplicationDidFinishLaunchingNotification
-                                               object:nil];
-    
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(appDidBecomeActiveNotif:)
-                                                 name:UIApplicationDidBecomeActiveNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(appWillResignActiveNotif:)
-                                                 name:UIApplicationWillResignActiveNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(appDidReceiveMemoryWarning:)
-                                                 name:UIApplicationDidReceiveMemoryWarningNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(appWillTerminateNotif:)
-                                                 name:UIApplicationWillTerminateNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(appProtectedDataWillBecomeUnavailableNotif:)
-                                                 name:UIApplicationProtectedDataWillBecomeUnavailable
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(appProtectedDataDidBecomeAvailableNotif:)
-                                                 name:UIApplicationProtectedDataDidBecomeAvailable
-                                               object:nil];
-}
-
-- (void)appDidEnterBackgroundNotif:(NSNotification*)notif
-{
-    [[EaseMob sharedInstance] applicationDidEnterBackground:notif.object];
-}
-
-- (void)appWillEnterForeground:(NSNotification*)notif
-{
-    [[EaseMob sharedInstance] applicationWillEnterForeground:notif.object];
-}
-
-- (void)appDidFinishLaunching:(NSNotification*)notif
-{
-    [[EaseMob sharedInstance] applicationDidFinishLaunching:notif.object];
-}
-
-- (void)appDidBecomeActiveNotif:(NSNotification*)notif
-{
-    [[EaseMob sharedInstance] applicationDidBecomeActive:notif.object];
-}
-
-- (void)appWillResignActiveNotif:(NSNotification*)notif
-{
-    [[EaseMob sharedInstance] applicationWillResignActive:notif.object];
-}
-
-- (void)appDidReceiveMemoryWarning:(NSNotification*)notif
-{
-    [[EaseMob sharedInstance] applicationDidReceiveMemoryWarning:notif.object];
-}
-
-- (void)appWillTerminateNotif:(NSNotification*)notif
-{
-    [[EaseMob sharedInstance] applicationWillTerminate:notif.object];
-}
-
-- (void)appProtectedDataWillBecomeUnavailableNotif:(NSNotification*)notif
-{
-    [[EaseMob sharedInstance] applicationProtectedDataWillBecomeUnavailable:notif.object];
-}
-
-- (void)appProtectedDataDidBecomeAvailableNotif:(NSNotification*)notif
-{
-    [[EaseMob sharedInstance] applicationProtectedDataDidBecomeAvailable:notif.object];
-}
-
-#pragma mark - register apns
-
-// 注册推送
-- (void)_registerRemoteNotification
-{
-    UIApplication *application = [UIApplication sharedApplication];
-    application.applicationIconBadgeNumber = 0;
-
-    if([application respondsToSelector:@selector(registerUserNotificationSettings:)])
-    {
-        UIUserNotificationType notificationTypes = UIUserNotificationTypeBadge | UIUserNotificationTypeSound | UIUserNotificationTypeAlert;
-        UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:notificationTypes categories:nil];
-        [application registerUserNotificationSettings:settings];
-    }
-
-#if !TARGET_IPHONE_SIMULATOR
-    //iOS8 注册APNS
-    if ([application respondsToSelector:@selector(registerForRemoteNotifications)]) {
-        [application registerForRemoteNotifications];
-    }else{
-        UIRemoteNotificationType notificationTypes = UIRemoteNotificationTypeBadge |
-        UIRemoteNotificationTypeSound |
-        UIRemoteNotificationTypeAlert;
-        [[UIApplication sharedApplication] registerForRemoteNotificationTypes:notificationTypes];
-    }
-#endif
 }
 
 #pragma mark - login changed
@@ -382,8 +239,7 @@ didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 - (void)didAcceptInvitationFromGroup:(EMGroup *)group
                                error:(EMError *)error
 {
-    if(error)
-    {
+    if(error){
         return;
     }
     

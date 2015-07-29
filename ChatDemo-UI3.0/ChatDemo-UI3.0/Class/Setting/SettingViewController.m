@@ -9,7 +9,7 @@
 #import "SettingViewController.h"
 
 #import "EaseMob.h"
-#import "EMHelper.h"
+#import "EMSDKHelper.h"
 #import "UIViewController+HUD.h"
 
 #import "PushNotificationViewController.h"

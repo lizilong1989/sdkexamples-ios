@@ -1,5 +1,5 @@
 //
-//  EMHelper.h
+//  EMSDKHelper.h
 //  ChatDemo-UI3.0
 //
 //  Created by dhc on 15/6/24.
@@ -10,15 +10,31 @@
 #import <Foundation/Foundation.h>
 
 #import "EaseMob.h"
+#import "NSObject+EaseMob.h"
 
 #define KNOTIFICATION_LOGINCHANGE @"loginStateChange"
 #define KNOTIFICATION_CALL @"call"
 
-@interface EMHelper : NSObject
+#define KNOTIFICATIONNAME_RELOADCONLIST @"reloadConversationList"
+
+@interface EMSDKHelper : NSObject
 
 @property (nonatomic) BOOL isShowingimagePicker;
 
 + (instancetype)shareHelper;
+
+#pragma mark - init easemob
+
+- (void)easemobApplication:(UIApplication *)application
+didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+                    appkey:(NSString *)appkey
+              apnsCertName:(NSString *)apnsCertName
+               otherConfig:(NSDictionary *)otherConfig;
+
+#pragma mark - login easemob
+
+- (void)loginWithUsername:(NSString *)username
+                 password:(NSString *)password;
 
 #pragma mark - send message
 
@@ -40,20 +56,23 @@
                                       to:(NSString *)to
                              messageType:(EMMessageType)messageType
                        requireEncryption:(BOOL)requireEncryption
-                              messageExt:(NSDictionary *)messageExt;
+                              messageExt:(NSDictionary *)messageExt
+                                progress:(id<IEMChatProgressDelegate>)progress;
 
 + (EMMessage *)sendVoiceMessageWithLocalPath:(NSString *)localPath
                                     duration:(NSInteger)duration
                                           to:(NSString *)to
                            messageType:(EMMessageType)messageType
                      requireEncryption:(BOOL)requireEncryption
-                            messageExt:(NSDictionary *)messageExt;
+                            messageExt:(NSDictionary *)messageExt
+                                    progress:(id<IEMChatProgressDelegate>)progress;
 
 + (EMMessage *)sendVideoMessageWithURL:(NSURL *)url
                                     to:(NSString *)to
                            messageType:(EMMessageType)messageType
                      requireEncryption:(BOOL)requireEncryption
-                            messageExt:(NSDictionary *)messageExt;
+                            messageExt:(NSDictionary *)messageExt
+                              progress:(id<IEMChatProgressDelegate>)progress;
 
 #pragma mark - call
 

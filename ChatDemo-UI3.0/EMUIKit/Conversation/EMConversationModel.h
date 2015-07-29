@@ -1,5 +1,5 @@
 //
-//  ConversationModel.h
+//  EMConversationModel.h
 //  ChatDemo-UI3.0
 //
 //  Created by dhc on 15/6/25.
@@ -10,7 +10,7 @@
 
 #import "IConversationModel.h"
 
-@interface ConversationModel : NSObject<IConversationModel>
+@interface EMConversationModel : NSObject<IConversationModel>
 
 @property (strong, nonatomic, readonly) EMConversation *conversation;
 @property (strong, nonatomic) NSString *title;

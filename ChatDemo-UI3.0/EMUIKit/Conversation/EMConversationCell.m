@@ -40,10 +40,10 @@ CGFloat const EMConversationCellPadding = 10;
 
 - (instancetype)initWithStyle:(UITableViewCellStyle)style
               reuseIdentifier:(NSString *)reuseIdentifier
-                        model:(id)model
 {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
+        _showAvatar = YES;
         [self _setupSubview];
     }
     
@@ -161,11 +161,13 @@ CGFloat const EMConversationCellPadding = 10;
         self.titleLabel.text = _model.conversation.chatter;
     }
     
-    if (_model.avatarImage) {
-        self.avatarView.image = _model.avatarImage;
-    }
-    else if ([_model.avatarURLPath length] > 0){
-        
+    if (self.showAvatar) {
+        if (_model.avatarImage) {
+            self.avatarView.image = _model.avatarImage;
+        }
+        else if ([_model.avatarURLPath length] > 0){
+            
+        }
     }
     
     if (_model.conversation.unreadMessagesCount == 0) {
