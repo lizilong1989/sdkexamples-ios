@@ -50,6 +50,12 @@
     [super viewDidLoad];
     [self setupForDismissKeyboard];
     _usernameTextField.delegate = self;
+    _passwordTextField.delegate = self;
+    
+    NSString *username = [self lastLoginUsername];
+    if (username && username.length > 0) {
+        _usernameTextField.text = username;
+    }
     
     [_useIpSwitch setOn:[[EaseMob sharedInstance].chatManager isUseIp] animated:YES];
     
@@ -143,6 +149,8 @@
              //发送自动登陆状态通知
              [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATION_LOGINCHANGE object:@YES];
              
+             //保存最近一次登录用户名
+             [self saveLastLoginUsername];
          }
          else
          {
@@ -251,6 +259,39 @@
     }
     
     return YES;
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    if (textField == _usernameTextField) {
+        [_usernameTextField resignFirstResponder];
+        [_passwordTextField becomeFirstResponder];
+    } else if (textField == _passwordTextField) {
+        [_passwordTextField resignFirstResponder];
+        [self doLogin:nil];
+    }
+    return YES;
+}
+
+#pragma  mark - private
+- (void)saveLastLoginUsername
+{
+    NSString *username = [[[EaseMob sharedInstance].chatManager loginInfo] objectForKey:kSDKUsername];
+    if (username && username.length > 0) {
+        NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+        [ud setObject:username forKey:[NSString stringWithFormat:@"em_lastLogin_%@",kSDKUsername]];
+        [ud synchronize];
+    }
+}
+
+- (NSString*)lastLoginUsername
+{
+    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+    NSString *username = [ud objectForKey:[NSString stringWithFormat:@"em_lastLogin_%@",kSDKUsername]];
+    if (username && username.length > 0) {
+        return username;
+    }
+    return nil;
 }
 
 @end

@@ -10,6 +10,8 @@
 
 #define KNOTIFICATIONNAME_DELETEALLMESSAGE @"DeleteAllMessages"
 
+#define KNOTIFICATIONNAME_RELOADCONLIST @"reloadConversationList"
+
 @interface ChatViewController : EMChatViewController
 
 @end

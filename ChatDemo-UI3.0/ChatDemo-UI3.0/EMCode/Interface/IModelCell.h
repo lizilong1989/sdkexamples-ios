@@ -14,12 +14,14 @@
 
 @property (strong, nonatomic) id model;
 
-- (instancetype)initWithStyle:(UITableViewCellStyle)style
-              reuseIdentifier:(NSString *)reuseIdentifier
-                        model:(id)model;
-
 + (NSString *)cellIdentifierWithModel:(id)model;
 
 + (CGFloat)cellHeightWithModel:(id)model;
+
+@optional
+
+- (instancetype)initWithStyle:(UITableViewCellStyle)style
+              reuseIdentifier:(NSString *)reuseIdentifier
+                        model:(id)model;
 
 @end

@@ -149,7 +149,7 @@
     
     NSInteger section = indexPath.section;
     NSInteger row = indexPath.row;
-    if (section) {
+    if (section == 0) {
         if (row == 0) {
 //            [self.navigationController pushViewController:[ApplyViewController shareController] animated:YES];
         }
@@ -171,8 +171,7 @@
     }
     else{
         UserModel *model = [[self.dataArray objectAtIndex:(section - 1)] objectAtIndex:row];
-        EMConversation *conversation = [[EaseMob sharedInstance].chatManager conversationForChatter:model.buddy.username conversationType:eConversationTypeChat];
-        ChatViewController *chatController = [[ChatViewController alloc] initWithConversation:conversation];
+        ChatViewController *chatController = [[ChatViewController alloc] initWithConversationChatter:model.buddy.username conversationType:eConversationTypeChat];
         chatController.title = model.buddy.username;
         [self.navigationController pushViewController:chatController animated:YES];
     }
@@ -264,15 +263,17 @@
     [self showHudInView:self.view hint:NSLocalizedString(@"loadData", @"Load data...")];
     __weak ContactListViewController *weakSelf = self;
     [[[EaseMob sharedInstance] chatManager] asyncFetchBuddyListWithCompletion:^(NSArray *buddyList, EMError *error) {
-        [weakSelf tableViewDidFinishTriggerHeader:YES reload:NO];
-        [weakSelf hideHud];
-        
-        if (error == nil) {
-            [weakSelf _reloadWithData:buddyList];
-        }
-        else{
-            [weakSelf showHint:NSLocalizedString(@"loadDataFailed", @"Load data failed.")];
-        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [weakSelf hideHud];
+            if (error == nil) {
+                [weakSelf _reloadWithData:buddyList];
+            }
+            else{
+                [weakSelf showHint:NSLocalizedString(@"loadDataFailed", @"Load data failed.")];
+            }
+            
+            [weakSelf tableViewDidFinishTriggerHeader:YES reload:NO];
+        });
     } onQueue:nil];
 }
 

@@ -700,16 +700,24 @@ static NSString *kGroupName = @"GroupName";
 #pragma mark - 自动登录回调
 
 - (void)willAutoReconnect{
-    [self hideHud];
-    [self showHint:NSLocalizedString(@"reconnection.ongoing", @"reconnecting...")];
+    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+    NSNumber *showreconnect = [ud objectForKey:@"identifier_showreconnect_enable"];
+    if (showreconnect && [showreconnect boolValue]) {
+        [self hideHud];
+        [self showHint:NSLocalizedString(@"reconnection.ongoing", @"reconnecting...")];
+    }
 }
 
 - (void)didAutoReconnectFinishedWithError:(NSError *)error{
-    [self hideHud];
-    if (error) {
-        [self showHint:NSLocalizedString(@"reconnection.fail", @"reconnection failure, later will continue to reconnection")];
-    }else{
-        [self showHint:NSLocalizedString(@"reconnection.success", @"reconnection successful！")];
+    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+    NSNumber *showreconnect = [ud objectForKey:@"identifier_showreconnect_enable"];
+    if (showreconnect && [showreconnect boolValue]) {
+        [self hideHud];
+        if (error) {
+            [self showHint:NSLocalizedString(@"reconnection.fail", @"reconnection failure, later will continue to reconnection")];
+        }else{
+            [self showHint:NSLocalizedString(@"reconnection.success", @"reconnection successful！")];
+        }
     }
 }
 

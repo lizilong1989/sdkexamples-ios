@@ -29,15 +29,16 @@
 @synthesize timeCellHeight = _timeCellHeight;
 @synthesize messageTimeIntervalTag = _messageTimeIntervalTag;
 
-- (instancetype)initWithConversation:(EMConversation *)conversation
+- (instancetype)initWithConversationChatter:(NSString *)conversationChatter
+                           conversationType:(EMConversationType)conversationType
 {
-    if (!conversation) {
+    if ([conversationChatter length] == 0) {
         return nil;
     }
     
     self = [super initWithStyle:UITableViewStylePlain];
     if (self) {
-        _conversation = conversation;
+        _conversation = [[EaseMob sharedInstance].chatManager conversationForChatter:conversationChatter conversationType:conversationType];;
         [_conversation markAllMessagesAsRead:YES];
         
         _pageCount = 50;
@@ -208,28 +209,6 @@
     
     [_menuController setTargetRect:showInView.frame inView:showInView.superview];
     [_menuController setMenuVisible:YES animated:YES];
-}
-
-- (BOOL)_shouldAckMessage:(EMMessage *)message read:(BOOL)read
-{
-    NSString *account = [[EaseMob sharedInstance].chatManager loginInfo][kSDKUsername];
-    if (message.messageType != eMessageTypeChat || message.isReadAcked || [account isEqualToString:message.from] || ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) || !self.isViewDidAppear)
-    {
-        return NO;
-    }
-    
-    id<IEMMessageBody> body = [message.messageBodies firstObject];
-    if (((body.messageBodyType == eMessageBodyType_Video) ||
-         (body.messageBodyType == eMessageBodyType_Voice) ||
-         (body.messageBodyType == eMessageBodyType_Image)) &&
-        !read)
-    {
-        return NO;
-    }
-    else
-    {
-        return YES;
-    }
 }
 
 - (void)_stopAudioPlayingWithChangeCategory:(BOOL)isChange
@@ -577,7 +556,8 @@
         }];
         
         //发送已读回执
-        if ([self _shouldAckMessage:model.message read:YES]){
+        BOOL sendReadAck = [self shouldSendHasReadAckForMessage:model.message read:YES];
+        if (sendReadAck){
             [self sendHasReadResponseForMessages:@[model.message]];
         }
         
@@ -607,7 +587,8 @@
     
     dispatch_block_t block = ^{
         //发送已读回执
-        if ([self _shouldAckMessage:model.message read:YES]){
+        BOOL sendReadAck = [self shouldSendHasReadAckForMessage:model.message read:YES];
+        if (sendReadAck){
             [self sendHasReadResponseForMessages:@[model.message]];
         }
         
@@ -786,7 +767,7 @@
                  andAddress:(NSString *)address
 {
     EMMessage *message = [EMHelper sendLocationMessageWithLatitude:latitude longitude:longitude address:address to:self.conversation.chatter messageType:[self _messageTypeFromConversationType] requireEncryption:NO messageExt:nil];
-    [self addMessage:message];
+    [self addMessageToDataSource:message];
 }
 
 #pragma mark - EaseMob
@@ -843,42 +824,32 @@
 
 #pragma mark - send message
 
-- (void)sendHasReadResponseForMessages:(NSArray*)messages
-{
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        for (EMMessage *message in messages)
-        {
-            [[EaseMob sharedInstance].chatManager sendReadAckForMessage:message];
-        }
-    });
-}
-
 - (void)sendTextMessage:(NSString *)text
 {
     EMMessage *message = [EMHelper sendTextMessage:text to:self.conversation.chatter messageType:[self _messageTypeFromConversationType] requireEncryption:NO messageExt:nil];
-    [self addMessage:message];
+    [self addMessageToDataSource:message];
 }
 
 - (void)sendImageMessage:(UIImage *)image
 {
     EMMessage *message = [EMHelper sendImageMessageWithImage:image to:self.conversation.chatter messageType:[self _messageTypeFromConversationType] requireEncryption:NO messageExt:nil];
-    [self addMessage:message];
+    [self addMessageToDataSource:message];
 }
 
 - (void)sendAudioMessageWithLocalPath:(NSString *)localPath
                              duration:(NSInteger)duration
 {
     EMMessage *message = [EMHelper sendVoiceMessageWithLocalPath:localPath duration:duration to:self.conversation.chatter messageType:[self _messageTypeFromConversationType] requireEncryption:NO messageExt:nil];
-    [self addMessage:message];
+    [self addMessageToDataSource:message];
 }
 
 - (void)sendVideoMessageWithURL:(NSURL *)url
 {
     EMMessage *message = [EMHelper sendVideoMessageWithURL:url to:self.conversation.chatter messageType:[self _messageTypeFromConversationType] requireEncryption:NO messageExt:nil];
-    [self addMessage:message];
+    [self addMessageToDataSource:message];
 }
 
-#pragma mark - data
+#pragma mark - public 
 
 - (NSArray *)formatMessages:(NSArray *)messages
 {
@@ -924,6 +895,7 @@
     
     //格式化消息
     NSArray *formattedMessages = [self formatMessages:moreMessages];
+    
     //合并消息
     id object = [self.dataArray firstObject];
     if ([object isKindOfClass:[NSString class]])
@@ -958,19 +930,19 @@
     for (NSInteger i = 0; i < [moreMessages count]; i++)
     {
         EMMessage *message = moreMessages[i];
-        if ([self _shouldAckMessage:message read:NO])
+        if ([self shouldSendHasReadAckForMessage:message read:NO])
         {
             [unreadMessages addObject:message];
         }
     }
-
+    
     if ([unreadMessages count])
     {
         [self sendHasReadResponseForMessages:unreadMessages];
     }
 }
 
--(void)addMessage:(EMMessage *)message
+-(void)addMessageToDataSource:(EMMessage *)message
 {
     [self.messsagesSource addObject:message];
     
@@ -981,6 +953,40 @@
         [weakSelf.dataArray addObjectsFromArray:messages];
         [weakSelf.tableView reloadData];
         [weakSelf.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:[weakSelf.dataArray count] - 1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+    });
+}
+
+- (BOOL)shouldSendHasReadAckForMessage:(EMMessage *)message
+                                  read:(BOOL)read
+{
+    NSString *account = [[EaseMob sharedInstance].chatManager loginInfo][kSDKUsername];
+    if (message.messageType != eMessageTypeChat || message.isReadAcked || [account isEqualToString:message.from] || ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) || !self.isViewDidAppear)
+    {
+        return NO;
+    }
+    
+    id<IEMMessageBody> body = [message.messageBodies firstObject];
+    if (((body.messageBodyType == eMessageBodyType_Video) ||
+         (body.messageBodyType == eMessageBodyType_Voice) ||
+         (body.messageBodyType == eMessageBodyType_Image)) &&
+        !read)
+    {
+        return NO;
+    }
+    else
+    {
+        return YES;
+    }
+}
+
+
+- (void)sendHasReadResponseForMessages:(NSArray*)messages
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        for (EMMessage *message in messages)
+        {
+            [[EaseMob sharedInstance].chatManager sendReadAckForMessage:message];
+        }
     });
 }
 

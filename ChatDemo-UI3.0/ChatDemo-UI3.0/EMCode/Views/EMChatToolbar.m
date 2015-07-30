@@ -97,7 +97,7 @@
         _activityButtomView = nil;
         _isShowButtomView = NO;
         
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillChangeFrame:) name:UIKeyboardWillChangeFrameNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(chatKeyboardWillChangeFrame:) name:UIKeyboardWillChangeFrameNotification object:nil];
         
         [self _setupSubviews];
     }
@@ -569,10 +569,9 @@
     }
 }
 
-
 #pragma mark - UIKeyboardNotification
 
-- (void)keyboardWillChangeFrame:(NSNotification *)notification
+- (void)chatKeyboardWillChangeFrame:(NSNotification *)notification
 {
     NSDictionary *userInfo = notification.userInfo;
     CGRect endFrame = [userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];

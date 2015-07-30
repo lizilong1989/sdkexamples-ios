@@ -34,9 +34,9 @@
 #import "ChatroomDetailViewController.h"
 #import "EMCDDeviceManager.h"
 #import "EMCDDeviceManagerDelegate.h"
-#import "RobotManager.h"
 #import "UserProfileViewController.h"
 #import "UserProfileManager.h"
+
 #define KPageCount 20
 #define KHintAdjustY    50
 
@@ -67,7 +67,6 @@
 @property (strong, nonatomic) UIImagePickerController *imagePicker;
 
 @property (strong, nonatomic) MessageReadManager *messageReadManager;//message阅读的管理者
-@property (strong, nonatomic) EMConversation *conversation;//会话管理者
 @property (strong, nonatomic) NSDate *chatTagDate;
 
 @property (strong, nonatomic) NSMutableArray *messages;
@@ -97,8 +96,6 @@
         _chatter = chatter;
         _conversationType = type;
         _messages = [NSMutableArray array];
-        _isRobot = [[RobotManager sharedInstance] isRobotWithUsername:chatter];
-        
         //根据接收者的username获取当前会话的管理者
         _conversation = [[EaseMob sharedInstance].chatManager conversationForChatter:chatter
                                                                     conversationType:type];
@@ -1141,9 +1138,6 @@
 -(void)sendLocationLatitude:(double)latitude longitude:(double)longitude andAddress:(NSString *)address
 {
     NSDictionary *ext = nil;
-    if (_isRobot) {
-        ext = @{kRobot_Message_Ext:[NSNumber numberWithBool:YES]};
-    }
     EMMessage *locationMessage = [ChatSendHelper sendLocationLatitude:latitude longitude:longitude address:address toUsername:_conversation.chatter messageType:[self messageType] requireEncryption:NO ext:ext];
     [self addMessage:locationMessage];
 }
@@ -1706,9 +1700,6 @@
 -(void)sendTextMessage:(NSString *)textMessage
 {
     NSDictionary *ext = nil;
-    if (_isRobot) {
-        ext = @{kRobot_Message_Ext:[NSNumber numberWithBool:YES]};
-    }
     EMMessage *tempMessage = [ChatSendHelper sendTextMessageWithString:textMessage
                                                             toUsername:_conversation.chatter
                                                            messageType:[self messageType]
@@ -1720,9 +1711,6 @@
 -(void)sendImageMessage:(UIImage *)image
 {
     NSDictionary *ext = nil;
-    if (_isRobot) {
-        ext = @{kRobot_Message_Ext:[NSNumber numberWithBool:YES]};
-    }
     EMMessage *tempMessage = [ChatSendHelper sendImageMessageWithImage:image
                                                             toUsername:_conversation.chatter
                                                            messageType:[self messageType]
@@ -1734,9 +1722,6 @@
 -(void)sendAudioMessage:(EMChatVoice *)voice
 {
     NSDictionary *ext = nil;
-    if (_isRobot) {
-        ext = @{kRobot_Message_Ext:[NSNumber numberWithBool:YES]};
-    }
     EMMessage *tempMessage = [ChatSendHelper sendVoice:voice
                                             toUsername:_conversation.chatter
                                            messageType:[self messageType]
@@ -1747,9 +1732,6 @@
 -(void)sendVideoMessage:(EMChatVideo *)video
 {
     NSDictionary *ext = nil;
-    if (_isRobot) {
-        ext = @{kRobot_Message_Ext:[NSNumber numberWithBool:YES]};
-    }
     EMMessage *tempMessage = [ChatSendHelper sendVideo:video
                                             toUsername:_conversation.chatter
                                            messageType:[self messageType]

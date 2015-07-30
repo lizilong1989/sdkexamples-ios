@@ -21,6 +21,7 @@
 #import "ConvertToCommonEmoticonsHelper.h"
 #import "RobotManager.h"
 #import "UserProfileManager.h"
+#import "RobotChatViewController.h"
 
 @interface ChatListViewController ()<UITableViewDelegate,UITableViewDataSource, UISearchDisplayDelegate,SRRefreshDelegate, UISearchBarDelegate, IChatManagerDelegate,ChatViewControllerDelegate>
 
@@ -430,12 +431,17 @@
     }
     
     NSString *chatter = conversation.chatter;
-    chatController = [[ChatViewController alloc] initWithChatter:chatter conversationType:conversation.conversationType];
-    chatController.delelgate = self;
-    chatController.title = title;
     if ([[RobotManager sharedInstance] getRobotNickWithUsername:chatter]) {
+        chatController = [[RobotChatViewController alloc] initWithChatter:chatter
+                                                    conversationType:conversation.conversationType];
         chatController.title = [[RobotManager sharedInstance] getRobotNickWithUsername:chatter];
+    }else {
+        chatController = [[ChatViewController alloc] initWithChatter:chatter
+                                                    conversationType:conversation.conversationType];
+        chatController.title = title;
     }
+    
+    chatController.delelgate = self;
     [self.navigationController pushViewController:chatController animated:YES];
 }
 
