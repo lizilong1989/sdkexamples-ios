@@ -424,10 +424,7 @@
             }
         }
     } else if (conversation.conversationType == eConversationTypeChat) {
-        UserProfileEntity* entity = [[UserProfileManager sharedInstance] getUserProfileByUsername:conversation.chatter];
-        if (entity.nickname && entity.nickname.length > 0) {
-            title = entity.nickname;
-        }
+        title = [[UserProfileManager sharedInstance] getNickNameWithUsername:conversation.chatter];
     }
     
     NSString *chatter = conversation.chatter;

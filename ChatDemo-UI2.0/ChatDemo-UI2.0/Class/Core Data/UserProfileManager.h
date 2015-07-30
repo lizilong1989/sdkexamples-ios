@@ -68,9 +68,9 @@
 - (UserProfileEntity*)getCurUserProfile;
 
 /*
- *
+ *  给MessageModel附加用户个人信息
  */
-- (void)formatMessageModel:(MessageModel*)model;
+- (void)appendProfileToMessageModel:(MessageModel*)model;
 
 /*
  *  根据username获取当前用户昵称

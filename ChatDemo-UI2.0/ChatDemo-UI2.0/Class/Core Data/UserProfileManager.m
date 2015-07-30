@@ -235,7 +235,7 @@ static UserProfileManager *sharedInstance = nil;
     return nil;
 }
 
-- (void)formatMessageModel:(MessageModel*)model
+- (void)appendProfileToMessageModel:(MessageModel*)model
 {
     UserProfileEntity *user = [[UserProfileManager sharedInstance] getUserProfileByUsername:model.username];
     

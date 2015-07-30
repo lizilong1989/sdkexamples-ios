@@ -12,7 +12,6 @@
 
 
 #import "ChatListCell.h"
-#import "UIImageView+EMWebCache.h"
 #import "UIImageView+HeadImage.h"
 
 @interface ChatListCell (){

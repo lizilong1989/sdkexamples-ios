@@ -13,7 +13,6 @@
 #import "EMChatViewCell.h"
 #import "EMChatVideoBubbleView.h"
 #import "UIResponder+Router.h"
-#import "UIImageView+EMWebCache.h"
 
 NSString *const kResendButtonTapEventName = @"kResendButtonTapEventName";
 NSString *const kShouldResendCell = @"kShouldResendCell";

@@ -316,7 +316,7 @@
         [[EaseMob sharedInstance].chatManager removeConversationByChatter:_conversation.chatter deleteMessages:NO append2Chat:YES];
     }
     
-    [self.navigationController popToRootViewControllerAnimated:YES];
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 - (void)setIsInvisible:(BOOL)isInvisible
@@ -917,7 +917,7 @@
                             cellModel.headImageURL = [NSURL URLWithString:[self->_delelgate avatarWithChatter:cellModel.username]];
                         }
                         
-                        [[UserProfileManager sharedInstance] formatMessageModel:model];
+                        [[UserProfileManager sharedInstance] appendProfileToMessageModel:model];
                         
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [weakSelf.tableView beginUpdates];
@@ -1473,7 +1473,7 @@
                 model.headImageURL = [NSURL URLWithString:[_delelgate avatarWithChatter:model.username]];
             }
             
-            [[UserProfileManager sharedInstance] formatMessageModel:model];
+            [[UserProfileManager sharedInstance] appendProfileToMessageModel:model];
             
             if (model) {
                 [formatArray addObject:model];
@@ -1506,7 +1506,7 @@
         model.headImageURL = [NSURL URLWithString:[_delelgate avatarWithChatter:model.username]];
     }
     
-    [[UserProfileManager sharedInstance] formatMessageModel:model];
+    [[UserProfileManager sharedInstance] appendProfileToMessageModel:model];
 
     if (model) {
         [ret addObject:model];

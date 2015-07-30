@@ -133,9 +133,8 @@ static ApplyViewController *controller = nil;
                 cell.headerImageView.image = [UIImage imageNamed:@"groupPrivateHeader"];
             }
             else if(applyStyle == ApplyStyleFriend){
-                //cell.titleLabel.text = entity.applicantUsername;
-                //cell.headerImageView.image = [UIImage imageNamed:@"chatListCellHead"];
-                [cell setHeaderImage:entity.applicantUsername withPlaceholder:[UIImage imageNamed:@"chatListCellHead"]];
+                cell.titleLabel.text = entity.applicantUsername;
+                cell.headerImageView.image = [UIImage imageNamed:@"chatListCellHead"];
             }
             cell.contentLabel.text = entity.reason;
         }
