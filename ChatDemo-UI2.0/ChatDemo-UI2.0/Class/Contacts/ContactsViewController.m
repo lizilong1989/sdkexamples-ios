@@ -200,7 +200,7 @@
             
             [weakSelf.searchController.searchBar endEditing:YES];
             ChatViewController *chatVC = [[ChatViewController alloc] initWithChatter:buddy.username isGroup:NO];
-            chatVC.title = buddy.username;
+            chatVC.title = [[UserProfileManager sharedInstance] getNickNameWithUsername:buddy.username];
             [weakSelf.navigationController pushViewController:chatVC animated:YES];
         }];
     }
@@ -411,7 +411,7 @@
         }
         
         ChatViewController *chatVC = [[ChatViewController alloc] initWithChatter:buddy.username isGroup:NO];
-        chatVC.title = buddy.username;
+        chatVC.title = [[UserProfileManager sharedInstance] getNickNameWithUsername:buddy.username];
         [self.navigationController pushViewController:chatVC animated:YES];
     }
 }

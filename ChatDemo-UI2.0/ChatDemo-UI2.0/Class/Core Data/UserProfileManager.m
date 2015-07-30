@@ -13,6 +13,8 @@
 #import "UserProfileManager.h"
 #import <Parse/Parse.h>
 
+#import "MessageModel.h"
+
 #define kCURRENT_USERNAME [[[EaseMob sharedInstance].chatManager loginInfo] objectForKey:kSDKUsername]
 
 static UserProfileManager *sharedInstance = nil;
@@ -91,8 +93,12 @@ static UserProfileManager *sharedInstance = nil;
         NSData *imageData = UIImageJPEGRepresentation(image, 0.1);
         PFFile *imageFile = [PFFile fileWithName:@"image.png" data:imageData];
         object[kPARSE_HXUSER_AVATAR] = imageFile;
+        __weak PFObject* weakObj = object;
         [object saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error){
             if (completion) {
+                if (succeeded) {
+                    [self savePFUserInDisk:weakObj];
+                }
                 completion(succeeded,error);
             }
         }];
@@ -103,8 +109,12 @@ static UserProfileManager *sharedInstance = nil;
                 NSData *imageData = UIImageJPEGRepresentation(image, 0.1);
                 PFFile *imageFile = [PFFile fileWithName:@"image.png" data:imageData];
                 object[kPARSE_HXUSER_AVATAR] = imageFile;
+                __weak PFObject* weakObj = object;
                 [object saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error){
                     if (completion) {
+                        if (succeeded) {
+                            [self savePFUserInDisk:weakObj];
+                        }
                         completion(succeeded,error);
                     }
                 }];
@@ -128,8 +138,12 @@ static UserProfileManager *sharedInstance = nil;
                 [object setObject:[param objectForKey:key] forKey:key];
             }
         }
+        __weak PFObject* weakObj = object;
         [object saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error){
             if (completion) {
+                if (succeeded) {
+                    [self savePFUserInDisk:weakObj];
+                }
                 completion(succeeded,error);
             }
         }];
@@ -141,8 +155,12 @@ static UserProfileManager *sharedInstance = nil;
                         [object setObject:[param objectForKey:key] forKey:key];
                     }
                 }
+                __weak PFObject* weakObj = object;
                 [object saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error){
                     if (completion) {
+                        if (succeeded) {
+                            [self savePFUserInDisk:weakObj];
+                        }
                         completion(succeeded,error);
                     }
                 }];
@@ -210,12 +228,34 @@ static UserProfileManager *sharedInstance = nil;
 
 - (UserProfileEntity*)getCurUserProfile
 {
-    PFUser *user = [PFUser currentUser];
-    if (user && [_users objectForKey:user.username]) {
-        return [_users objectForKey:user.username];
+    if ([_users objectForKey:kCURRENT_USERNAME]) {
+        return [_users objectForKey:kCURRENT_USERNAME];
     }
     
     return nil;
+}
+
+- (void)formatMessageModel:(MessageModel*)model
+{
+    UserProfileEntity *user = [[UserProfileManager sharedInstance] getUserProfileByUsername:model.username];
+    
+    if (user && user.imageUrl.length > 0) {
+        model.headImageURL = [NSURL URLWithString:user.imageUrl];
+    }
+    
+    if (user && user.nickname.length > 0) {
+        model.nickName = user.nickname;
+    }
+}
+
+- (NSString*)getNickNameWithUsername:(NSString*)username
+{
+    UserProfileEntity* entity = [self getUserProfileByUsername:username];
+    if (entity.nickname && entity.nickname.length > 0) {
+        return entity.nickname;
+    } else {
+        return username;
+    }
 }
 
 #pragma mark - private

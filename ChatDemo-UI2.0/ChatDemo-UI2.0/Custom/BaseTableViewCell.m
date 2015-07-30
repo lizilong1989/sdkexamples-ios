@@ -70,8 +70,9 @@
 
 - (void)setUsername:(NSString *)username
 {
-    [self.textLabel setTextWithUsername:username];
-    [self.imageView imageWithUsername:username placeholderImage:nil];
+    _username = username;
+    [self.textLabel setTextWithUsername:_username];
+    [self.imageView imageWithUsername:_username placeholderImage:nil];
 }
 
 

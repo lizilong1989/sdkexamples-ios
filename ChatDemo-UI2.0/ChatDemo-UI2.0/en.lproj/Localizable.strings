@@ -288,6 +288,7 @@
 "title.groupSubjectChanging" = "Change group name";
 "title.chatroomlist" = "Chatroom List";
 "title.robotlist" = "Robot List";
+"title.profile" = "Profile";
 
 //setting
 "setting.autoLogin" = "automatic login";
@@ -311,7 +312,7 @@
 "setting.saveName" = "Save Nickname";
 "setting.namenotempty" = "Name cannot be empty";
 "setting.personalInfo" = "Personal Information";
-"setting.personalInfoUpload" = "Upload HeadImage";
+"setting.personalInfoUpload" = "HeadImage";
 "setting.edittips" = "After setting this nickname, chat with the iOS client demo project, iOS will display this nickname is not a EaseMob ID, if the other party to use the Android client this setting is not effective";
 "setting.iospushname" = "iOS push nickname";
 "setting.useIp" = "Use IP";
@@ -321,6 +322,11 @@
 "setting.microphoneAuthority" = "Please open in \"Setting\"-\"Privacy\"-\"Microphone\".";
 "setting.cameraNoAuthority" = "No camera permissions";
 "setting.cameraAuthority" = "Please open in \"Setting\"-\"Privacy\"-\"Camera\".";
+"setting.cameraUpload" = "Take photo";
+"setting.localUpload" = "Images";
+"setting.profileNickname" = "NickName";
+"setting.saving" = "saving...";
+"setting.saveFailed" = "save failed";
 
 //NSDateCategory
 "NSDateCategory.text1" = "one minute";

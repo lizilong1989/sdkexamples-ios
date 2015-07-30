@@ -13,7 +13,7 @@
 #import "EMChatViewCell.h"
 #import "EMChatVideoBubbleView.h"
 #import "UIResponder+Router.h"
-#import "UIImageView+HeadImage.h"
+#import "UIImageView+EMWebCache.h"
 
 NSString *const kResendButtonTapEventName = @"kResendButtonTapEventName";
 NSString *const kShouldResendCell = @"kShouldResendCell";
@@ -114,8 +114,7 @@ NSString *const kShouldResendCell = @"kShouldResendCell";
     [super setMessageModel:model];
     
     if (model.messageType != eMessageTypeChat) {
-        //_nameLabel.text = model.nickName;
-        [_nameLabel setTextWithUsername:model.nickName];
+        _nameLabel.text = model.nickName;
         _nameLabel.hidden = model.isSender;
     }
     

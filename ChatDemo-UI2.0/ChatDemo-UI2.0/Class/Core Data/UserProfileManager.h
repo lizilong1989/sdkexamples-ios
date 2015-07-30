@@ -19,6 +19,7 @@
 #define kPARSE_HXUSER_NICKNAME @"nickname"
 #define kPARSE_HXUSER_AVATAR @"avatar"
 
+@class MessageModel;
 @class PFObject;
 @class UserProfileEntity;
 
@@ -65,6 +66,16 @@
  *  获取当前用户信息
  */
 - (UserProfileEntity*)getCurUserProfile;
+
+/*
+ *
+ */
+- (void)formatMessageModel:(MessageModel*)model;
+
+/*
+ *  根据username获取当前用户昵称
+ */
+- (NSString*)getNickNameWithUsername:(NSString*)username;
 
 @end
 
