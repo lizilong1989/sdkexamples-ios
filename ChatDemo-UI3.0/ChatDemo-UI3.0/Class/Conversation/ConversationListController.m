@@ -81,7 +81,7 @@
                 latestMessageTitle = NSLocalizedString(@"message.location1", @"[location]");
             } break;
             case eMessageBodyType_Video: {
-                latestMessageTitle = NSLocalizedString(@"message.vidio1", @"[vidio]");
+                latestMessageTitle = NSLocalizedString(@"message.video1", @"[video]");
             } break;
             case eMessageBodyType_File: {
                 latestMessageTitle = NSLocalizedString(@"message.file1", @"[file]");
