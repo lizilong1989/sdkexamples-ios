@@ -8,8 +8,6 @@
 
 #import "ContactListViewController.h"
 
-#import "EaseMob.h"
-#import "UserModel.h"
 #import "ChineseToPinyin.h"
 #import "ChatViewController.h"
 #import "UIViewController+HUD.h"
@@ -97,7 +95,7 @@
     }
     else{
         NSArray *userSection = [self.dataArray objectAtIndex:(indexPath.section - 1)];
-        UserModel *model = [userSection objectAtIndex:indexPath.row];
+        EMUserModel *model = [userSection objectAtIndex:indexPath.row];
         cell.model = model;
     }
     
@@ -170,7 +168,7 @@
         }
     }
     else{
-        UserModel *model = [[self.dataArray objectAtIndex:(section - 1)] objectAtIndex:row];
+        EMUserModel *model = [[self.dataArray objectAtIndex:(section - 1)] objectAtIndex:row];
         ChatViewController *chatController = [[ChatViewController alloc] initWithConversationChatter:model.buddy.username conversationType:eConversationTypeChat];
         chatController.title = model.buddy.username;
         [self.navigationController pushViewController:chatController animated:YES];
@@ -214,7 +212,7 @@
     
     //按首字母分组
     for (EMBuddy *buddy in contactsSource) {
-        UserModel *model = [[UserModel alloc] initWithBuddy:buddy];
+        EMUserModel *model = [[EMUserModel alloc] initWithBuddy:buddy];
         if (model) {
             model.avatarImage = [UIImage imageNamed:@"user"];
             model.nickname = buddy.username;
@@ -229,7 +227,7 @@
     
     //每个section内的数组排序
     for (int i = 0; i < [sortedArray count]; i++) {
-        NSArray *array = [[sortedArray objectAtIndex:i] sortedArrayUsingComparator:^NSComparisonResult(UserModel *obj1, UserModel *obj2) {
+        NSArray *array = [[sortedArray objectAtIndex:i] sortedArrayUsingComparator:^NSComparisonResult(EMUserModel *obj1, EMUserModel *obj2) {
             NSString *firstLetter1 = [ChineseToPinyin pinyinFromChineseString:obj1.buddy.username];
             firstLetter1 = [[firstLetter1 substringToIndex:1] uppercaseString];
             
@@ -272,7 +270,7 @@
                 [weakSelf showHint:NSLocalizedString(@"loadDataFailed", @"Load data failed.")];
             }
             
-            [weakSelf tableViewDidFinishTriggerHeader:YES reload:NO];
+            [weakSelf tableViewDidFinishTriggerHeader:YES reload:YES];
         });
     } onQueue:nil];
 }

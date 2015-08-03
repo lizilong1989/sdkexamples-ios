@@ -10,12 +10,12 @@
  * from EaseMob Technologies.
  */
 
-#import "EMCDDeviceManager.h"
+#ifndef ChatDemo_UI2_0_DemoErrorCode_h
+#define ChatDemo_UI2_0_DemoErrorCode_h
 
-@interface EMCDDeviceManager (Microphone)
-// 判断麦克风是否可用
-- (BOOL)emCheckMicrophoneAvailability;
+#define EMErrorAudioRecordDurationTooShort -100
+#define EMErrorFileTypeConvertionFailure -101
+#define EMErrorAudioRecordStoping -102
+#define EMErrorAudioRecordNotStarted -103
 
-// 获取录制音频时的音量(0~1)
-- (double)emPeekRecorderVoiceMeter;
-@end
+#endif

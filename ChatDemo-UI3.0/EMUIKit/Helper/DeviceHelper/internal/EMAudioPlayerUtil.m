@@ -10,10 +10,8 @@
  * from EaseMob Technologies.
  */
 
-#import <AVFoundation/AVFoundation.h>
 #import "EMAudioPlayerUtil.h"
-
-#import "EMErrorDefs.h"
+#import <AVFoundation/AVFoundation.h>
 
 static EMAudioPlayerUtil *audioPlayerUtil = nil;
 
@@ -80,7 +78,7 @@ static EMAudioPlayerUtil *audioPlayerUtil = nil;
     NSFileManager *fm = [NSFileManager defaultManager];
     if (![fm fileExistsAtPath:aFilePath]) {
         error = [NSError errorWithDomain:NSLocalizedString(@"error.notFound", @"File path not exist")
-                                    code:EMErrorAttachmentNotFound
+                                    code:-1
                                 userInfo:nil];
         if (playFinish) {
             playFinish(error);
@@ -95,7 +93,7 @@ static EMAudioPlayerUtil *audioPlayerUtil = nil;
     if (error || !_player) {
         _player = nil;
         error = [NSError errorWithDomain:NSLocalizedString(@"error.initPlayerFail", @"Failed to initialize AVAudioPlayer")
-                                    code:EMErrorInitFailure
+                                    code:-1
                                 userInfo:nil];
         if (playFinish) {
             playFinish(error);
@@ -147,7 +145,7 @@ static EMAudioPlayerUtil *audioPlayerUtil = nil;
                                  error:(NSError *)error{
     if (playFinish) {
         NSError *error = [NSError errorWithDomain:NSLocalizedString(@"error.palyFail", @"Play failure")
-                                             code:EMErrorFailure
+                                             code:-1
                                          userInfo:nil];
         playFinish(error);
     }

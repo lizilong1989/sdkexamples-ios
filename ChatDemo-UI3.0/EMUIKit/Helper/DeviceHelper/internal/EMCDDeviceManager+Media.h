@@ -10,7 +10,7 @@
  * from EaseMob Technologies.
  */
 
-#import "EMCDDeviceManager.h"
+#import "EMCDDeviceManagerBase.h"
 
 @interface EMCDDeviceManager (Media)
 

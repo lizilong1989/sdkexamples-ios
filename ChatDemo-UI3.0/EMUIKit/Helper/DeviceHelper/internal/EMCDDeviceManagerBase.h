@@ -11,16 +11,23 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "EMCDDeviceManagerDelegate.h"
 
-@protocol EMCDDeviceManagerProximitySensorDelegate <NSObject>
+@interface EMCDDeviceManager : NSObject{
+    // recorder
+    NSDate              *_recorderStartDate;
+    NSDate              *_recorderEndDate;
+    NSString            *_currCategory;
+    BOOL                _currActive;
 
-/*!
- @method
- @brief 当手机靠近耳朵时或者离开耳朵时的回调方法
- @param isCloseToUser YES为靠近了用户, NO为远离了用户
- @discussion
- @result
- */
-- (void)proximitySensorChanged:(BOOL)isCloseToUser;
+    // proximitySensor
+    BOOL _isSupportProximitySensor;
+    BOOL _isCloseToUser;
+}
+
+@property (nonatomic, assign) id <EMCDDeviceManagerDelegate> delegate;
+
++(EMCDDeviceManager *)sharedInstance;
+
 
 @end

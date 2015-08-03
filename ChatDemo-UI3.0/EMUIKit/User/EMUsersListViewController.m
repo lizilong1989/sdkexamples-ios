@@ -8,7 +8,6 @@
 
 #import "EMUsersListViewController.h"
 
-#import "EaseMob.h"
 #import "EMSearchDisplayController.h"
 
 @interface EMUsersListViewController ()
@@ -70,8 +69,17 @@
         cell = [[EMUserCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
     
-    id<IUserModel> model = [self.dataArray objectAtIndex:indexPath.row];
-    cell.model = model;
+    id<IUserModel> model = nil;
+    if ([_dataSource respondsToSelector:@selector(userListViewController:userModelForIndexPath:)]) {
+        model = [_dataSource userListViewController:self userModelForIndexPath:indexPath];
+    }
+    else if ([_dataSource respondsToSelector:@selector(user)]){
+        model = [self.dataArray objectAtIndex:indexPath.row];
+    }
+    
+    if (model) {
+        cell.model = model;
+    }
     
     return cell;
 }
@@ -93,7 +101,7 @@
             model = [_dataSource userListViewController:self userModelForIndexPath:indexPath];
         }
         else if ([_dataSource respondsToSelector:@selector(user)]){
-            
+            model = [self.dataArray objectAtIndex:indexPath.row];
         }
         
         if (model) {

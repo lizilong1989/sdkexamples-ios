@@ -10,6 +10,7 @@
  * from EaseMob Technologies.
  */
 
+#import <UIKit/UIKit.h>
 #import "EMCDDeviceManager+ProximitySensor.h"
 
 @implementation EMCDDeviceManager (ProximitySensor)

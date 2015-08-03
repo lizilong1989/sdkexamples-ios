@@ -12,7 +12,6 @@
 
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
-
 @interface EMAudioRecorderUtil : NSObject
 
 // 当前是否正在录音
@@ -29,5 +28,4 @@
 
 // current recorder
 +(AVAudioRecorder *)recorder;
-
 @end

@@ -14,7 +14,7 @@
 #import "EMAudioPlayerUtil.h"
 #import "EMAudioRecorderUtil.h"
 #import "EMVoiceConverter.h"
-#import "EMErrorDefs.h"
+#import "DemoErrorCode.h"
 
 typedef NS_ENUM(NSInteger, EMAudioSession){
     EM_DEFAULT = 0,
@@ -23,13 +23,10 @@ typedef NS_ENUM(NSInteger, EMAudioSession){
 };
 
 @implementation EMCDDeviceManager (Media)
-
 #pragma mark - AudioPlayer
-
 // 播放音频
 - (void)asyncPlayingWithPath:(NSString *)aFilePath
-                  completion:(void(^)(NSError *error))completon
-{
+                  completion:(void(^)(NSError *error))completon{
     BOOL isNeedSetActive = YES;
     // 如果正在播放音频，停止当前播放。
     if([EMAudioPlayerUtil isPlaying]){
@@ -50,7 +47,7 @@ typedef NS_ENUM(NSInteger, EMAudioSession){
         if (!covertRet) {
             if (completon) {
                 completon([NSError errorWithDomain:NSLocalizedString(@"error.initRecorderFail", @"File format conversion failed")
-                                              code:-101
+                                              code:EMErrorFileTypeConvertionFailure
                                           userInfo:nil]);
             }
             return ;
@@ -68,15 +65,13 @@ typedef NS_ENUM(NSInteger, EMAudioSession){
 }
 
 // 停止播放
-- (void)stopPlaying
-{
+- (void)stopPlaying{
     [EMAudioPlayerUtil stopCurrentPlaying];
     [self setupAudioSessionCategory:EM_DEFAULT
                            isActive:NO];
 }
 
-- (void)stopPlayingWithChangeCategory:(BOOL)isChange
-{
+- (void)stopPlayingWithChangeCategory:(BOOL)isChange{
     [EMAudioPlayerUtil stopCurrentPlaying];
     if (isChange) {
         [self setupAudioSessionCategory:EM_DEFAULT
@@ -85,29 +80,26 @@ typedef NS_ENUM(NSInteger, EMAudioSession){
 }
 
 // 获取播放状态
-- (BOOL)isPlaying
-{
+- (BOOL)isPlaying{
     return [EMAudioPlayerUtil isPlaying];
 }
 
 #pragma mark - Recorder
 
-+ (NSTimeInterval)recordMinDuration
-{
++(NSTimeInterval)recordMinDuration{
     return 1.0;
 }
 
 // 开始录音
 - (void)asyncStartRecordingWithFileName:(NSString *)fileName
-                             completion:(void(^)(NSError *error))completion
-{
+                             completion:(void(^)(NSError *error))completion{
     NSError *error = nil;
     
     // 判断当前是否是录音状态
     if ([self isRecording]) {
         if (completion) {
             error = [NSError errorWithDomain:NSLocalizedString(@"error.recordStoping", @"Record voice is not over yet")
-                                        code:-102
+                                        code:EMErrorAudioRecordStoping
                                     userInfo:nil];
             completion(error);
         }
@@ -117,7 +109,7 @@ typedef NS_ENUM(NSInteger, EMAudioSession){
     // 文件名不存在
     if (!fileName || [fileName length] == 0) {
         error = [NSError errorWithDomain:NSLocalizedString(@"error.notFound", @"File path not exist")
-                                    code:EMErrorAttachmentNotFound
+                                    code:-1
                                 userInfo:nil];
         completion(error);
         return ;
@@ -149,16 +141,15 @@ typedef NS_ENUM(NSInteger, EMAudioSession){
 }
 
 // 停止录音
-- (void)asyncStopRecordingWithCompletion:(void(^)(NSString *recordPath,
+-(void)asyncStopRecordingWithCompletion:(void(^)(NSString *recordPath,
                                                  NSInteger aDuration,
-                                                 NSError *error))completion
-{
+                                                 NSError *error))completion{
     NSError *error = nil;
     // 当前是否在录音
     if(![self isRecording]){
         if (completion) {
             error = [NSError errorWithDomain:NSLocalizedString(@"error.recordNotBegin", @"Recording has not yet begun")
-                                        code:-103
+                                        code:EMErrorAudioRecordNotStarted
                                     userInfo:nil];
             completion(nil,0,error);
             return;
@@ -171,7 +162,7 @@ typedef NS_ENUM(NSInteger, EMAudioSession){
     if([_recorderEndDate timeIntervalSinceDate:_recorderStartDate] < [EMCDDeviceManager recordMinDuration]){
         if (completion) {
             error = [NSError errorWithDomain:NSLocalizedString(@"error.recordTooShort", @"Recording time is too short")
-                                        code:-100
+                                        code:EMErrorAudioRecordDurationTooShort
                                     userInfo:nil];
             completion(nil,0,error);
         }
@@ -205,22 +196,18 @@ typedef NS_ENUM(NSInteger, EMAudioSession){
 }
 
 // 取消录音
-- (void)cancelCurrentRecording
-{
+-(void)cancelCurrentRecording{
     [EMAudioRecorderUtil cancelCurrentRecording];
 }
 
 // 获取录音状态
-- (BOOL)isRecording
-{
+-(BOOL)isRecording{
     return [EMAudioRecorderUtil isRecording];
 }
 
 #pragma mark - Private
-
-- (NSError *)setupAudioSessionCategory:(EMAudioSession)session
-                             isActive:(BOOL)isActive
-{
+-(NSError *)setupAudioSessionCategory:(EMAudioSession)session
+                             isActive:(BOOL)isActive{
     BOOL isNeedActive = NO;
     if (isActive != _currActive) {
         isNeedActive = YES;
@@ -254,7 +241,7 @@ typedef NS_ENUM(NSInteger, EMAudioSession){
                                          error:&error];
         if(!success || error){
             error = [NSError errorWithDomain:NSLocalizedString(@"error.initPlayerFail", @"Failed to initialize AVAudioPlayer")
-                                        code:EMErrorInitFailure
+                                        code:-1
                                     userInfo:nil];
             return error;
         }
@@ -283,8 +270,7 @@ typedef NS_ENUM(NSInteger, EMAudioSession){
 }
 
 - (BOOL)convertWAV:(NSString *)wavFilePath
-             toAMR:(NSString *)amrFilePath
-{
+             toAMR:(NSString *)amrFilePath {
     BOOL ret = NO;
     BOOL isFileExists = [[NSFileManager defaultManager] fileExistsAtPath:wavFilePath];
     if (isFileExists) {

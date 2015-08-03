@@ -10,6 +10,7 @@
 
 #import "EMUserModel.h"
 #import "EMUserCell.h"
+#import "EMSDKHelper.h"
 
 @class EMUsersListViewController;
 
@@ -29,6 +30,7 @@
 @protocol EMUserListViewControllerDataSource <NSObject>
 
 @optional
+
 
 - (id<IUserModel>)userListViewController:(EMUsersListViewController *)userListViewController
                            modelForBuddy:(EMBuddy *)buddy;

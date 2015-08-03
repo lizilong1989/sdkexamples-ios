@@ -12,8 +12,6 @@
 
 #import "EMAudioRecorderUtil.h"
 
-#import "EMErrorDefs.h"
-
 static EMAudioRecorderUtil *audioRecorderUtil = nil;
 
 @interface EMAudioRecorderUtil () <AVAudioRecorderDelegate> {
@@ -119,7 +117,7 @@ static EMAudioRecorderUtil *audioRecorderUtil = nil;
         _recorder = nil;
         if (completion) {
             error = [NSError errorWithDomain:NSLocalizedString(@"error.initRecorderFail", @"Failed to initialize AVAudioRecorder")
-                                        code:EMErrorInitFailure
+                                        code:-1
                                     userInfo:nil];
             completion(error);
         }
