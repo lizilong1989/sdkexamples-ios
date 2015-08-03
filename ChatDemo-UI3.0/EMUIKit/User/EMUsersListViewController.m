@@ -8,6 +8,7 @@
 
 #import "EMUsersListViewController.h"
 
+#import "EaseMob.h"
 #import "EMSearchDisplayController.h"
 
 @interface EMUsersListViewController ()
@@ -85,6 +86,56 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    if (_delegate && [_delegate respondsToSelector:@selector(userListViewController:didSelectUserModel:)]) {
+        id<IUserModel> model = nil;
+        if ([_dataSource respondsToSelector:@selector(userListViewController:userModelForIndexPath:)]) {
+            model = [_dataSource userListViewController:self userModelForIndexPath:indexPath];
+        }
+        else if ([_dataSource respondsToSelector:@selector(user)]){
+            
+        }
+        
+        if (model) {
+            [_delegate userListViewController:self didSelectUserModel:model];
+        }
+    }
+}
+
+#pragma mark - data
+
+- (void)tableViewDidTriggerHeaderRefresh
+{
+    __weak typeof(self) weakSelf = self;
+    [[[EaseMob sharedInstance] chatManager] asyncFetchBuddyListWithCompletion:^(NSArray *buddyList, EMError *error) {
+        if (!error) {
+            [weakSelf.dataArray removeAllObjects];
+            NSMutableArray *contactsSource = [NSMutableArray arrayWithArray:buddyList];
+            
+            //从获取的数据中剔除黑名单中的好友
+            NSArray *blockList = [[EaseMob sharedInstance].chatManager blockedList];
+            for (NSInteger i = (buddyList.count - 1); i >= 0; i--) {
+                EMBuddy *buddy = [buddyList objectAtIndex:i];
+                if (![blockList containsObject:buddy.username]) {
+                    [contactsSource addObject:buddy];
+                    
+                    id<IUserModel> model = nil;
+                    if (_dataSource && [_dataSource respondsToSelector:@selector(userListViewController:modelForBuddy:)]) {
+                        model = [_dataSource userListViewController:self modelForBuddy:buddy];
+                    }
+                    else{
+                        model = [[EMUserModel alloc] initWithBuddy:buddy];
+                    }
+                    
+                    if(model){
+                        [weakSelf.dataArray addObject:model];
+                    }
+                }
+            }
+        }
+        
+        [weakSelf tableViewDidFinishTriggerHeader:YES reload:YES];
+    } onQueue:nil];
 }
 
 @end

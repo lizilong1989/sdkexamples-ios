@@ -8,6 +8,7 @@
 
 #import "EMRefreshTableViewController.h"
 
+#import "EMUserModel.h"
 #import "EMUserCell.h"
 
 @class EMUsersListViewController;
@@ -32,6 +33,9 @@
 - (id<IUserModel>)userListViewController:(EMUsersListViewController *)userListViewController
                            modelForBuddy:(EMBuddy *)buddy;
 
+- (id<IUserModel>)userListViewController:(EMUsersListViewController *)userListViewController
+                   userModelForIndexPath:(NSIndexPath *)indexPath;
+
 @end
 
 @interface EMUsersListViewController : EMRefreshTableViewController
@@ -41,5 +45,7 @@
 @property (weak, nonatomic) id<EMUserListViewControllerDataSource> dataSource;
 
 @property (nonatomic) BOOL showSearchBar;
+
+- (void)tableViewDidTriggerHeaderRefresh;
 
 @end

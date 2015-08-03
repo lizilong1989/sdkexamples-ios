@@ -108,7 +108,7 @@
 		EB433EC71B68803100A2EBB0 /* EMBubbleView.m in Sources */ = {isa = PBXBuildFile; fileRef = EB433EBA1B68803100A2EBB0 /* EMBubbleView.m */; };
 		EB433ED31B68FF0600A2EBB0 /* libEaseMobClientSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EB433ED21B68FF0600A2EBB0 /* libEaseMobClientSDK.a */; };
 		EB433F3F1B68FF1000A2EBB0 /* EaseMob.bundle in Resources */ = {isa = PBXBuildFile; fileRef = EB433F3E1B68FF1000A2EBB0 /* EaseMob.bundle */; };
-		EB433F431B69045D00A2EBB0 /* UserModel.m in Sources */ = {isa = PBXBuildFile; fileRef = EB433F421B69045D00A2EBB0 /* UserModel.m */; };
+		EB433F431B69045D00A2EBB0 /* EMUserModel.m in Sources */ = {isa = PBXBuildFile; fileRef = EB433F421B69045D00A2EBB0 /* EMUserModel.m */; };
 		EB433F461B6904C600A2EBB0 /* group@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EB433F441B6904C600A2EBB0 /* group@2x.png */; };
 		EB433F471B6904C600A2EBB0 /* user@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EB433F451B6904C600A2EBB0 /* user@2x.png */; };
 		EB4799F21B3A607100598A21 /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB4799F11B3A607100598A21 /* LoginViewController.m */; };
@@ -449,8 +449,8 @@
 		EB433F3C1B68FF1000A2EBB0 /* EMErrorDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EMErrorDefs.h; sourceTree = "<group>"; };
 		EB433F3E1B68FF1000A2EBB0 /* EaseMob.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = EaseMob.bundle; sourceTree = "<group>"; };
 		EB433F401B69041E00A2EBB0 /* IUserModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IUserModel.h; sourceTree = "<group>"; };
-		EB433F411B69045D00A2EBB0 /* UserModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserModel.h; sourceTree = "<group>"; };
-		EB433F421B69045D00A2EBB0 /* UserModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserModel.m; sourceTree = "<group>"; };
+		EB433F411B69045D00A2EBB0 /* EMUserModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EMUserModel.h; sourceTree = "<group>"; };
+		EB433F421B69045D00A2EBB0 /* EMUserModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EMUserModel.m; sourceTree = "<group>"; };
 		EB433F441B6904C600A2EBB0 /* group@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "group@2x.png"; sourceTree = "<group>"; };
 		EB433F451B6904C600A2EBB0 /* user@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "user@2x.png"; sourceTree = "<group>"; };
 		EB4799F01B3A607100598A21 /* LoginViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoginViewController.h; sourceTree = "<group>"; };
@@ -833,8 +833,8 @@
 			isa = PBXGroup;
 			children = (
 				EB433F401B69041E00A2EBB0 /* IUserModel.h */,
-				EB433F411B69045D00A2EBB0 /* UserModel.h */,
-				EB433F421B69045D00A2EBB0 /* UserModel.m */,
+				EB433F411B69045D00A2EBB0 /* EMUserModel.h */,
+				EB433F421B69045D00A2EBB0 /* EMUserModel.m */,
 				EB1787531B665C8A00BEC128 /* EMUserCell.h */,
 				EB1787541B665C8A00BEC128 /* EMUserCell.m */,
 				EB1787551B665C8A00BEC128 /* EMUsersListViewController.h */,
@@ -1668,7 +1668,7 @@
 				EB17878A1B665C8A00BEC128 /* EMAudioRecorderUtil.m in Sources */,
 				EB1787D01B665C8B00BEC128 /* FacialView.m in Sources */,
 				EBE4D5FE1B3BD42F005C3643 /* BlackListViewController.m in Sources */,
-				EB433F431B69045D00A2EBB0 /* UserModel.m in Sources */,
+				EB433F431B69045D00A2EBB0 /* EMUserModel.m in Sources */,
 				EB433EC31B68803100A2EBB0 /* EMBubbleView+Location.m in Sources */,
 				EB479ABF1B3AA51D00598A21 /* SettingViewController.m in Sources */,
 				EBE67AFA1B391CA3000DA203 /* AppDelegate.m in Sources */,

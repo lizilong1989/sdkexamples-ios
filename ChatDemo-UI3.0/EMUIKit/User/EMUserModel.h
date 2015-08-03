@@ -1,5 +1,5 @@
 //
-//  UserModel.h
+//  EMUserModel.h
 //  ChatDemo-UI3.0
 //
 //  Created by dhc on 15/6/24.
@@ -10,7 +10,7 @@
 
 #import "IUserModel.h"
 
-@interface UserModel : NSObject<IUserModel>
+@interface EMUserModel : NSObject<IUserModel>
 
 @property (strong, nonatomic, readonly) EMBuddy *buddy;
 @property (strong, nonatomic) NSString *nickname;
