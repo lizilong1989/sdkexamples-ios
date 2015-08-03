@@ -10,7 +10,35 @@
 
 #import "EMUserCell.h"
 
+@class EMUsersListViewController;
+
+@protocol EMUserListViewControllerDelegate <NSObject>
+
+- (void)userListViewController:(EMUsersListViewController *)userListViewController
+            didSelectUserModel:(id<IUserModel>)userModel;
+
+@optional
+
+- (void)userListViewController:(EMUsersListViewController *)userListViewController
+            didDeleteUserModel:(id<IUserModel>)userModel;
+
+
+@end
+
+@protocol EMUserListViewControllerDataSource <NSObject>
+
+@optional
+
+- (id<IUserModel>)userListViewController:(EMUsersListViewController *)userListViewController
+                           modelForBuddy:(EMBuddy *)buddy;
+
+@end
+
 @interface EMUsersListViewController : EMRefreshTableViewController
+
+@property (weak, nonatomic) id<EMUserListViewControllerDelegate> delegate;
+
+@property (weak, nonatomic) id<EMUserListViewControllerDataSource> dataSource;
 
 @property (nonatomic) BOOL showSearchBar;
 

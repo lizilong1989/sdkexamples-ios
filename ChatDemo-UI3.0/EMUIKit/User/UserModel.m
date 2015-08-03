@@ -18,6 +18,7 @@
     if (self) {
         _buddy = buddy;
         _nickname = _buddy.username;
+        _avatarImage = [UIImage imageNamed:@"user"];
     }
     
     return self;

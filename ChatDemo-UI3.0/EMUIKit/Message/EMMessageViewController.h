@@ -29,41 +29,58 @@
 
 @optional
 
-//消息cell高度
+/**
+ *  消息cell高度
+ */
 - (CGFloat)messageViewController:(EMMessageViewController *)viewController
            heightForMessageModel:(id<IMessageModel>)messageModel
                    withCellWidth:(CGFloat)cellWidth;
-
-//发送消息成功
+/**
+ *  发送消息成功
+ */
 - (void)messageViewController:(EMMessageViewController *)viewController
           didSendMessageModel:(id<IMessageModel>)messageModel;
 
-//发送消息失败
+/**
+ *  发送消息失败
+ */
 - (void)messageViewController:(EMMessageViewController *)viewController
    didFailSendingMessageModel:(id<IMessageModel>)messageModel
                         error:(EMError *)error;
 
-//接收到消息的已读回执
+/**
+ *  接收到消息的已读回执
+ */
 - (void)messageViewController:(EMMessageViewController *)viewController
  didReceiveHasReadAckForModel:(id<IMessageModel>)messageModel;
 
-//选中图片类型的消息
+/**
+ *  选中图片类型的消息
+ */
 - (void)messageViewController:(EMMessageViewController *)viewController
    didSelectImageMessageModel:(id<IMessageModel>)messageModel;
 
-//选中位置类型的消息
+/**
+ *  选中位置类型的消息
+ */
 - (void)messageViewController:(EMMessageViewController *)viewController
 didSelectLocationMessageModel:(id<IMessageModel>)messageModel;
 
-//选中语音类型的消息
+/**
+ *  选中语音类型的消息
+ */
 - (void)messageViewController:(EMMessageViewController *)viewController
    didSelectVoiceMessageModel:(id<IMessageModel>)messageModel;
 
-//选中视频类型的消息
+/**
+ *  选中视频类型的消息
+ */
 - (void)messageViewController:(EMMessageViewController *)viewController
    didSelectVideoMessageModel:(id<IMessageModel>)messageModel;
 
-//选中文件类型的消息
+/**
+ *  选中文件类型的消息
+ */
 - (void)messageViewController:(EMMessageViewController *)viewController
     didSelectFileMessageModel:(id<IMessageModel>)messageModel;
 
@@ -74,17 +91,23 @@ didSelectLocationMessageModel:(id<IMessageModel>)messageModel;
 
 @optional
 
-//指定消息附件上传或者下载进度的监听者， 默认self
+/**
+ *  指定消息附件上传或者下载进度的监听者， 默认self
+ */
 - (id<IEMChatProgressDelegate>)messageViewController:(EMMessageViewController *)viewController
                   progressDelegateForMessageBodyType:(MessageBodyType)messageBodyType;
 
-//附件进度有更新
+/**
+ *  附件进度有更新
+ */
 - (void)messageViewController:(EMMessageViewController *)viewController
                updateProgress:(float)progress
                  messageModel:(id<IMessageModel>)messageModel
                   messageBody:(id<IEMMessageBody>)messageBody;
 
-//消息时间间隔描述
+/**
+ *  消息时间间隔描述
+ */
 - (NSString *)messageViewController:(EMMessageViewController *)viewController
                       stringForDate:(NSDate *)date;
 
@@ -101,11 +124,15 @@ didSelectLocationMessageModel:(id<IMessageModel>)messageModel;
 - (id<IMessageModel>)messageViewController:(EMMessageViewController *)viewController
                            modelForMessage:(EMMessage *)message;
 
-//是否允许长按
+/**
+ *  是否允许长按
+ */
 - (BOOL)messageViewController:(EMMessageViewController *)viewController
    canLongPressRowAtIndexPath:(NSIndexPath *)indexPath;
 
-//触发长按手势
+/**
+ *  触发长按手势
+ */
 - (BOOL)messageViewController:(EMMessageViewController *)viewController
    didLongPressRowAtIndexPath:(NSIndexPath *)indexPath;
 
@@ -163,21 +190,42 @@ shouldSendHasReadAckForMessage:(EMMessage *)message
 - (instancetype)initWithConversationChatter:(NSString *)conversationChatter
                            conversationType:(EMConversationType)conversationType;
 
+/**
+ *  下拉加载更多
+ */
 - (void)tableViewDidTriggerHeaderRefresh;
 
+/**
+ *  刷新conversation list页面
+ */
 - (void)reloadConversationList;
 
+/**
+ *  发送文本消息
+ */
 - (void)sendTextMessage:(NSString *)text;
 
+/**
+ *  发送图片消息
+ */
 - (void)sendImageMessage:(UIImage *)image;
 
+/**
+ *  发送位置消息
+ */
 - (void)sendLocationMessageLatitude:(double)latitude
                           longitude:(double)longitude
                          andAddress:(NSString *)address;
 
+/**
+ *  发送语音消息
+ */
 - (void)sendVoiceMessageWithLocalPath:(NSString *)localPath
                              duration:(NSInteger)duration;
 
+/**
+ *  发送视频消息
+ */
 - (void)sendVideoMessageWithURL:(NSURL *)url;
 
 @end
