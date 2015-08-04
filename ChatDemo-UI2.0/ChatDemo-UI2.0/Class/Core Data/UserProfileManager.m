@@ -19,6 +19,9 @@
 
 static UserProfileManager *sharedInstance = nil;
 @interface UserProfileManager ()
+{
+    NSString *_curusername;
+}
 
 @property (nonatomic, strong) NSMutableDictionary *users;
 @property (nonatomic, strong) NSString *objectId;
@@ -56,12 +59,16 @@ static UserProfileManager *sharedInstance = nil;
     if (objectId) {
         self.objectId = objectId;
     }
+    _curusername = kCURRENT_USERNAME;
     [self initData];
 }
 
 - (void)clearParse
 {
     self.objectId = nil;
+    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+    [ud removeObjectForKey:[NSString stringWithFormat:@"%@%@",kPARSE_HXUSER,_curusername]];
+     _curusername = nil;
     [self.users removeAllObjects];
 }
 
@@ -262,14 +269,18 @@ static UserProfileManager *sharedInstance = nil;
 
 - (void)savePFUserInDisk:(PFObject*)object
 {
-    [object pinInBackgroundWithName:kCURRENT_USERNAME];
-    [self savePFUserInMemory:object];
+    if (object) {
+        [object pinInBackgroundWithName:kCURRENT_USERNAME];
+        [self savePFUserInMemory:object];
+    }
 }
 
 - (void)savePFUserInMemory:(PFObject*)object
 {
-    UserProfileEntity *entity = [UserProfileEntity initWithPFObject:object];
-    [_users setObject:entity forKey:entity.username];
+    if (object) {
+        UserProfileEntity *entity = [UserProfileEntity initWithPFObject:object];
+        [_users setObject:entity forKey:entity.username];
+    }
 }
 
 - (void)queryPFObjectWithCompletion:(void (^)(PFObject *object, NSError *error))completion

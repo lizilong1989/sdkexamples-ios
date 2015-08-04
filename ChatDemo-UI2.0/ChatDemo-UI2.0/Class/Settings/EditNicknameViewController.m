@@ -106,15 +106,7 @@
     {
         //设置推送设置
         [[EaseMob sharedInstance].chatManager setApnsNickname:_nickTextField.text];
-        [self showHint:@"修改中...."];
-        [[UserProfileManager sharedInstance] updateUserProfileInBackground:@{kPARSE_HXUSER_NICKNAME:_nickTextField.text} completion:^(BOOL success, NSError *error) {
-            [self hideHud];
-            if (success) {
-                [self.navigationController popViewControllerAnimated:YES];
-            } else {
-                [self showHint:@"修改失败" yOffset:0];
-            }
-        }];
+        [self.navigationController popViewControllerAnimated:YES];
     } else {
         [EMAlertView showAlertWithTitle:NSLocalizedString(@"prompt", @"Prompt")
                                 message:NSLocalizedString(@"setting.namenotempty", @"Name cannot be empty")

@@ -63,6 +63,7 @@
     if (_imagePicker == nil) {
         _imagePicker = [[UIImagePickerController alloc] init];
         _imagePicker.modalPresentationStyle= UIModalPresentationOverFullScreen;
+        _imagePicker.allowsEditing = YES;
         _imagePicker.delegate = self;
     }
     
@@ -186,9 +187,16 @@
 #if TARGET_IPHONE_SIMULATOR
         [self showHint:NSLocalizedString(@"message.simulatorNotSupportCamera", @"simulator does not support taking picture")];
 #elif TARGET_OS_IPHONE
-        self.imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
-        self.imagePicker.mediaTypes = @[(NSString *)kUTTypeImage,(NSString *)kUTTypeMovie];
-        [self presentViewController:self.imagePicker animated:YES completion:NULL];
+        if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
+            self.imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
+            if ([UIImagePickerController isCameraDeviceAvailable:UIImagePickerControllerCameraDeviceFront]) {
+                _imagePicker.cameraDevice = UIImagePickerControllerCameraDeviceFront;
+            }
+            self.imagePicker.mediaTypes = @[(NSString *)kUTTypeImage,(NSString *)kUTTypeMovie];
+            [self presentViewController:self.imagePicker animated:YES completion:NULL];
+        } else {
+        
+        }
 #endif
     } else if (buttonIndex == 1) {
         self.imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;

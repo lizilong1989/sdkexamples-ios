@@ -165,6 +165,7 @@
             
             EMGroup *group = [weakSelf.searchController.resultsSource objectAtIndex:indexPath.row];
             ChatViewController *chatVC = [[ChatViewController alloc] initWithChatter:group.groupId isGroup:YES];
+            chatVC.title = group.groupSubject;
             [weakSelf.navigationController pushViewController:chatVC animated:YES];
         }];
     }

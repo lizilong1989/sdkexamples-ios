@@ -27,6 +27,16 @@
 #import "RobotListViewController.h"
 #import "UserProfileManager.h"
 
+@implementation EMBuddy (search)
+
+//根据用户昵称进行搜索
+- (NSString*)showName
+{
+    return [[UserProfileManager sharedInstance] getNickNameWithUsername:self.username];
+}
+
+@end
+
 @interface ContactsViewController ()<UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate, UISearchDisplayDelegate, UIActionSheetDelegate, BaseTableCellDelegate, SRRefreshDelegate, IChatManagerDelegate>
 {
     NSIndexPath *_currentLongPressIndex;
@@ -428,7 +438,7 @@
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
 {
     __weak typeof(self) weakSelf = self;
-    [[RealtimeSearchUtil currentUtil] realtimeSearchWithSource:self.contactsSource searchText:(NSString *)searchText collationStringSelector:@selector(username) resultBlock:^(NSArray *results) {
+    [[RealtimeSearchUtil currentUtil] realtimeSearchWithSource:self.contactsSource searchText:(NSString *)searchText collationStringSelector:@selector(showName) resultBlock:^(NSArray *results) {
         if (results) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [weakSelf.searchController.resultsSource removeAllObjects];
@@ -548,7 +558,7 @@
     //名字分section
     for (EMBuddy *buddy in dataArray) {
         //getUserName是实现中文拼音检索的核心，见NameIndex类
-        NSString *firstLetter = [ChineseToPinyin pinyinFromChineseString:buddy.username];
+        NSString *firstLetter = [ChineseToPinyin pinyinFromChineseString:[[UserProfileManager sharedInstance] getNickNameWithUsername:buddy.username]];
         NSInteger section = [indexCollation sectionForObject:[firstLetter substringToIndex:1] collationStringSelector:@selector(uppercaseString)];
         
         NSMutableArray *array = [sortedArray objectAtIndex:section];
@@ -558,10 +568,10 @@
     //每个section内的数组排序
     for (int i = 0; i < [sortedArray count]; i++) {
         NSArray *array = [[sortedArray objectAtIndex:i] sortedArrayUsingComparator:^NSComparisonResult(EMBuddy *obj1, EMBuddy *obj2) {
-            NSString *firstLetter1 = [ChineseToPinyin pinyinFromChineseString:obj1.username];
+            NSString *firstLetter1 = [ChineseToPinyin pinyinFromChineseString:[[UserProfileManager sharedInstance] getNickNameWithUsername:obj1.username]];
             firstLetter1 = [[firstLetter1 substringToIndex:1] uppercaseString];
             
-            NSString *firstLetter2 = [ChineseToPinyin pinyinFromChineseString:obj2.username];
+            NSString *firstLetter2 = [ChineseToPinyin pinyinFromChineseString:[[UserProfileManager sharedInstance] getNickNameWithUsername:obj2.username]];
             firstLetter2 = [[firstLetter2 substringToIndex:1] uppercaseString];
             
             return [firstLetter1 caseInsensitiveCompare:firstLetter2];
@@ -600,7 +610,7 @@
     
     [_tableView reloadData];
     
-    [[UserProfileManager sharedInstance] loadUserProfileInBackgroundWithBuddy:buddyList saveToLoacal:YES completion:NULL];
+    [[UserProfileManager sharedInstance] loadUserProfileInBackgroundWithBuddy:self.contactsSource saveToLoacal:YES completion:NULL];
 }
 
 #pragma mark - action
