@@ -8,8 +8,6 @@
 
 #import "EditNicknameViewController.h"
 
-#import "UserProfileManager.h"
-
 #define kTextFieldWidth 290.0
 #define kTextFieldHeight 40.0
 #define kButtonHeight 40.0
