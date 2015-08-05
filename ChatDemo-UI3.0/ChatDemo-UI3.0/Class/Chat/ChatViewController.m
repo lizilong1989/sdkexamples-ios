@@ -11,7 +11,7 @@
 #import "UIViewController+HUD.h"
 #import "NSDate+Category.h"
 
-@interface ChatViewController ()<UIAlertViewDelegate>
+@interface ChatViewController ()<UIAlertViewDelegate, EMMessageViewControllerDelegate, EMMessageViewControllerDataSource>
 
 @end
 
@@ -20,6 +20,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    self.showRefreshHeader = YES;
+    self.delegate = self;
+    self.dataSource = self;
     
     [[EMSendMessageCell appearance] setBubbleBackgroundImage:[[UIImage imageNamed:@"chat_sender_bg"] stretchableImageWithLeftCapWidth:10 topCapHeight:35]];
     [[EMRecvMessageCell appearance] setBubbleBackgroundImage:[[UIImage imageNamed:@"chat_receiver_bg"] stretchableImageWithLeftCapWidth:35 topCapHeight:35]];
@@ -31,8 +34,7 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deleteAllMessages:) name:KNOTIFICATIONNAME_DELETEALLMESSAGE object:nil];
     
     //通过会话管理者获取已收发消息
-    long long timestamp = self.conversation.latestMessage.timestamp + 1;
-    [self loadMessagesFrom:timestamp count:self.pageCount append:NO];
+    [self tableViewDidTriggerHeaderRefresh];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -79,104 +81,15 @@
     }
 }
 
-#pragma mark - EMMessageCellDelegate
+#pragma mark - EMMessageViewControllerDelegate
 
-- (void)imageMessageCellSelcted:(id<IMessageModel>)model
+- (void)messageViewController:(EMMessageViewController *)viewController
+   didSelectImageMessageModel:(id<IMessageModel>)messageModel
 {
     
-}
-
-#pragma makr - private helper
-
-- (BOOL)_shouldMarkMessageAsRead
-{
-    if (([UIApplication sharedApplication].applicationState == UIApplicationStateBackground) || !self.isViewDidAppear)
-    {
-        return NO;
-    }
-    
-    return YES;
 }
 
 #pragma mark - EaseMob
-
-#pragma mark - EMChatManagerChatDelegate
-
-- (void)didReceiveOfflineMessages:(NSArray *)offlineMessages
-{
-    if (![offlineMessages count])
-    {
-        return;
-    }
-    
-    if ([self _shouldMarkMessageAsRead])
-    {
-        [self.conversation markAllMessagesAsRead:YES];
-    }
-    
-    self.messageTimeIntervalTag = 0;
-    long long timestamp = [[NSDate date] timeIntervalSince1970] * 1000 + 1;
-    [self loadMessagesFrom:timestamp
-                     count:[self.messsagesSource count] + [offlineMessages count]
-                    append:NO];
-}
-
--(void)didReceiveMessage:(EMMessage *)message
-{
-    if ([self.conversation.chatter isEqualToString:message.conversationChatter]) {
-        [self addMessageToDataSource:message];
-        
-        if ([self shouldSendHasReadAckForMessage:message read:NO])
-        {
-            [self sendHasReadResponseForMessages:@[message]];
-        }
-        
-        if ([self _shouldMarkMessageAsRead])
-        {
-            [self.conversation markMessageWithId:message.messageId asRead:YES];
-        }
-    }
-}
-
--(void)didReceiveCmdMessage:(EMMessage *)message
-{
-    if ([self.conversation.chatter isEqualToString:message.conversationChatter]) {
-        [self showHint:NSLocalizedString(@"receiveCmd", @"receive cmd message")];
-    }
-}
-
-- (void)didReceiveMessageId:(NSString *)messageId
-                    chatter:(NSString *)conversationChatter
-                      error:(EMError *)error
-{
-    if (error && [self.conversation.chatter isEqualToString:conversationChatter]) {
-        
-        __weak ChatViewController *weakSelf = self;
-        for (int i = 0; i < self.dataArray.count; i ++) {
-            id object = [self.dataArray objectAtIndex:i];
-            if ([object isKindOfClass:[EMMessageModel class]]) {
-                EMMessageModel *model = [self.dataArray objectAtIndex:i];
-                EMMessage *message = model.message;
-                if ([messageId isEqualToString:message.messageId]) {
-                    message.deliveryState = eMessageDeliveryState_Failure;
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [weakSelf.tableView beginUpdates];
-                        [weakSelf.tableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:i inSection:0]] withRowAnimation:UITableViewRowAnimationNone];
-                        [weakSelf.tableView endUpdates];
-                        
-                    });
-                    
-                    if (error && error.errorCode == EMErrorMessageContainSensitiveWords)
-                    {
-                        CGRect frame = self.chatToolbar.frame;
-                        [self showHint:NSLocalizedString(@"message.forbiddenWords", @"Your message contains forbidden words") yOffset:-frame.size.height + 50];
-                    }
-                    break;
-                }
-            }
-        }
-    }
-}
 
 #pragma mark - EMChatManagerLoginDelegate
 
@@ -200,7 +113,7 @@
 
 - (void)backAction
 {
-    [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATIONNAME_RELOADCONLIST object:nil];
+    [self reloadConversationList];
     
     if (self.deleteConversationIfNull) {
         //判断当前会话是否为空，若符合则删除该会话

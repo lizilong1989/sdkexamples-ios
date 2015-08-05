@@ -8,12 +8,11 @@
 
 #import "ConversationListController.h"
 
-#import "EaseMob.h"
-#import "ConversationModel.h"
+#import "NSDate+Category.h"
+#import "ConvertToCommonEmoticonsHelper.h"
 #import "ChatViewController.h"
-#import "UIViewController+HUD.h"
 
-@interface ConversationListController ()
+@interface ConversationListController ()<EMConversationListViewControllerDelegate, EMConversationListViewControllerDataSource>
 
 @end
 
@@ -23,8 +22,8 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     self.showRefreshHeader = YES;
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tableViewDidTriggerHeaderRefresh) name:KNOTIFICATIONNAME_RELOADCONLIST object:nil];
+    self.delegate = self;
+    self.dataSource = self;
     
     [self tableViewDidTriggerHeaderRefresh];
 }
@@ -34,49 +33,78 @@
     // Dispose of any resources that can be recreated.
 }
 
-#pragma mark - Table view delegate
+#pragma mark - EMConversationListViewControllerDelegate
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+- (void)conversationListViewController:(EMConversationListViewController *)conversationListViewController
+            didSelectConversationModel:(id<IConversationModel>)conversationModel
 {
-    [tableView deselectRowAtIndexPath:indexPath animated:YES];
-    
-    ConversationModel *model = [self.dataArray objectAtIndex:indexPath.row];
-    EMConversation *conversation = model.conversation;
-    if (conversation) {
-        ChatViewController *chatController = [[ChatViewController alloc] initWithConversationChatter:conversation.chatter conversationType:conversation.conversationType];
-        chatController.title = model.title;
-        [self.navigationController pushViewController:chatController animated:YES];
+    if (conversationModel) {
+        EMConversation *conversation = conversationModel.conversation;
+        if (conversation) {
+            ChatViewController *chatController = [[ChatViewController alloc] initWithConversationChatter:conversation.chatter conversationType:conversation.conversationType];
+            chatController.title = conversationModel.title;
+            [self.navigationController pushViewController:chatController animated:YES];
+        }
     }
 }
 
-#pragma mark - data
+#pragma mark - EMConversationListViewControllerDataSource
 
-- (void)tableViewDidTriggerHeaderRefresh
+- (id<IConversationModel>)conversationListViewController:(EMConversationListViewController *)conversationListViewController
+                                    modelForConversation:(EMConversation *)conversation
 {
-    [self showHudInView:self.view hint:NSLocalizedString(@"loadData", @"Load data...")];
-    NSArray *conversations = [[EaseMob sharedInstance].chatManager loadAllConversationsFromDatabaseWithAppend2Chat:NO];
-    NSArray* sorted = [conversations sortedArrayUsingComparator:
-                      ^(EMConversation *obj1, EMConversation* obj2){
-                          EMMessage *message1 = [obj1 latestMessage];
-                          EMMessage *message2 = [obj2 latestMessage];
-                          if(message1.timestamp > message2.timestamp) {
-                              return(NSComparisonResult)NSOrderedAscending;
-                          }else {
-                              return(NSComparisonResult)NSOrderedDescending;
-                          }
-                      }];
-    
-    
-    [self.dataArray removeAllObjects];
-    for (EMConversation *converstion in sorted) {
-        ConversationModel *model = [[ConversationModel alloc] initWithConversation:converstion];
-        if (model) {
-            [self.dataArray addObject:model];
+    EMConversationModel *model = [[EMConversationModel alloc] initWithConversation:conversation];
+    return model;
+}
+
+- (NSString *)conversationListViewController:(EMConversationListViewController *)conversationListViewController
+      latestMessageTitleForConversationModel:(id<IConversationModel>)conversationModel
+{
+    NSString *latestMessageTitle = @"";
+    EMMessage *lastMessage = [conversationModel.conversation latestMessage];
+    if (lastMessage) {
+        id<IEMMessageBody> messageBody = lastMessage.messageBodies.lastObject;
+        switch (messageBody.messageBodyType) {
+            case eMessageBodyType_Image:{
+                latestMessageTitle = NSLocalizedString(@"message.image1", @"[image]");
+            } break;
+            case eMessageBodyType_Text:{
+                // 表情映射。
+                NSString *didReceiveText = [ConvertToCommonEmoticonsHelper
+                                            convertToSystemEmoticons:((EMTextMessageBody *)messageBody).text];
+                latestMessageTitle = didReceiveText;
+            } break;
+            case eMessageBodyType_Voice:{
+                latestMessageTitle = NSLocalizedString(@"message.voice1", @"[voice]");
+            } break;
+            case eMessageBodyType_Location: {
+                latestMessageTitle = NSLocalizedString(@"message.location1", @"[location]");
+            } break;
+            case eMessageBodyType_Video: {
+                latestMessageTitle = NSLocalizedString(@"message.video1", @"[video]");
+            } break;
+            case eMessageBodyType_File: {
+                latestMessageTitle = NSLocalizedString(@"message.file1", @"[file]");
+            } break;
+            default: {
+            } break;
         }
     }
     
-    [self hideHud];
-    [self tableViewDidFinishTriggerHeader:YES reload:YES];
+    return latestMessageTitle;
+}
+
+- (NSString *)conversationListViewController:(EMConversationListViewController *)conversationListViewController
+       latestMessageTimeForConversationModel:(id<IConversationModel>)conversationModel
+{
+    NSString *latestMessageTime = @"";
+    EMMessage *lastMessage = [conversationModel.conversation latestMessage];;
+    if (lastMessage) {
+        latestMessageTime = [NSDate formattedTimeFromTimeInterval:lastMessage.timestamp];
+    }
+
+    
+    return latestMessageTime;
 }
 
 @end
