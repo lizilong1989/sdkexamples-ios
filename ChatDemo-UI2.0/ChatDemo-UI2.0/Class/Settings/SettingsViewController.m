@@ -220,7 +220,7 @@
         line.backgroundColor = [UIColor lightGrayColor];
         [_footerView addSubview:line];
         
-        UIButton *logoutButton = [[UIButton alloc] initWithFrame:CGRectMake(40, 20, _footerView.frame.size.width - 80, 40)];
+        UIButton *logoutButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 20, _footerView.frame.size.width - 20, 45)];
         [logoutButton setBackgroundColor:RGBACOLOR(0xfe, 0x64, 0x50, 1)];
         NSDictionary *loginInfo = [[EaseMob sharedInstance].chatManager loginInfo];
         NSString *username = [loginInfo objectForKey:kSDKUsername];
@@ -244,6 +244,9 @@
 - (void)useIpChanged:(UISwitch *)ipSwitch
 {
     [[EaseMob sharedInstance].chatManager setIsUseIp:ipSwitch.isOn];
+    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+    [ud setObject:[NSNumber numberWithBool:ipSwitch.isOn] forKey:@"identifier_userip_enable"];
+    [ud synchronize];
 }
 
 - (void)delConversationChanged:(UISwitch *)control
