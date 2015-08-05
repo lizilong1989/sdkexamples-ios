@@ -18,10 +18,6 @@ NSString *const kRouterEventMenuTapEventName = @"kRouterEventMenuTapEventName";
 NSString *const kRouterEventTextURLTapEventName = @"kRouterEventTextURLTapEventName";
 
 @interface EMChatTextBubbleView ()
-{
-    NSDataDetector *_detector;
-    NSArray *_urlMatches;
-}
 
 @end
 
@@ -93,24 +89,7 @@ NSString *const kRouterEventTextURLTapEventName = @"kRouterEventTextURLTapEventN
 - (void)setModel:(MessageModel *)model
 {
     [super setModel:model];
-    
-    if ([[RobotManager sharedInstance] isRobotMenuMessage:self.model.message]) {
-        if ([self.model.message.ext objectForKey:kRobot_Message_Type]) {
-            NSDictionary *dic = [self.model.message.ext objectForKey:kRobot_Message_Type];
-            if ([dic objectForKey:kRobot_Message_Choice]) {
-                NSMutableArray *array = [NSMutableArray array];
-                NSDictionary *choice = [dic objectForKey:kRobot_Message_Choice];
-                NSArray *menu = [choice objectForKey:kRobot_Message_List];
-                self.model.content = [[RobotManager sharedInstance] getRobotMenuMessageContent:self.model.message];
-                for (NSString *string in menu) {
-                    [array addObject:[NSTextCheckingResult replacementCheckingResultWithRange:[self.model.content rangeOfString:string] replacementString:string]];
-                }
-                _urlMatches = array;
-            }
-        }
-    } else {
-        _urlMatches = [_detector matchesInString:self.model.content options:0 range:NSMakeRange(0, self.model.content.length)];
-    }
+    _urlMatches = [_detector matchesInString:self.model.content options:0 range:NSMakeRange(0, self.model.content.length)];
     NSMutableAttributedString * attributedString = [[NSMutableAttributedString alloc]
                                                     initWithString:self.model.content];
     NSMutableParagraphStyle * paragraphStyle = [[NSMutableParagraphStyle alloc] init];
