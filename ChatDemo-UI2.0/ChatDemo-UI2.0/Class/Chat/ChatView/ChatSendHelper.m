@@ -78,7 +78,7 @@
                       requireEncryption:(BOOL)requireEncryption
                                     ext:(NSDictionary *)ext
 {
-    EMChatImage *chatImage = [[EMChatImage alloc] initWithUIImage:image displayName:@"image.jpg"];
+    EMChatImage *chatImage = [[EMChatImage alloc] initWithUIImage:image displayName:@"image"];
     id <IChatImageOptions> options = [[ChatImageOptions alloc] init];
     [options setCompressionQuality:0.6];
     [chatImage setImageOptions:options];

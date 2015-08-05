@@ -9,6 +9,8 @@
 #import "RobotChatViewController.h"
 #import "RobotManager.h"
 #import "ChatSendHelper.h"
+#import "EMRotbotChatViewCell.h"
+#import "EMChatTimeCell.h"
 @implementation RobotChatViewController
 
 -(void)sendImageMessage:(UIImage *)image{
@@ -66,5 +68,39 @@
                                      requireEncryption:NO
                                                    ext:ext];
     [self addMessage:tempMessage];
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (indexPath.row < [self.dataSource count]) {
+        id obj = [self.dataSource objectAtIndex:indexPath.row];
+        if ([obj isKindOfClass:[NSString class]]) {
+            EMChatTimeCell *timeCell = (EMChatTimeCell *)[tableView dequeueReusableCellWithIdentifier:@"MessageCellTime"];
+            if (timeCell == nil) {
+                timeCell = [[EMChatTimeCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"MessageCellTime"];
+                timeCell.backgroundColor = [UIColor clearColor];
+                timeCell.selectionStyle = UITableViewCellSelectionStyleNone;
+            }
+            
+            timeCell.textLabel.text = (NSString *)obj;
+            
+            return timeCell;
+        }
+        else{
+            MessageModel *model = (MessageModel *)obj;
+            NSString *cellIdentifier = [EMRotbotChatViewCell cellIdentifierForMessageModel:model];
+            EMRotbotChatViewCell *cell = (EMRotbotChatViewCell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+            if (cell == nil) {
+                cell = [[EMRotbotChatViewCell alloc] initWithMessageModel:model reuseIdentifier:cellIdentifier];
+                cell.backgroundColor = [UIColor clearColor];
+                cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            }
+            cell.messageModel = model;
+            
+            return cell;
+        }
+    }
+    
+    return nil;
 }
 @end

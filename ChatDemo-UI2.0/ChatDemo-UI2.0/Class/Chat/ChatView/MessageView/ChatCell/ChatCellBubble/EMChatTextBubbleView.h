@@ -21,11 +21,14 @@
 extern NSString *const kRouterEventTextURLTapEventName;
 extern NSString *const kRouterEventMenuTapEventName;
 
-@interface EMChatTextBubbleView : EMChatBaseBubbleView
+@interface EMChatTextBubbleView : EMChatBaseBubbleView{
+    NSDataDetector *_detector;
+    NSArray *_urlMatches;
+}
 
 @property (nonatomic, strong) UILabel *textLabel;
 + (CGFloat)lineSpacing;
 + (UIFont *)textLabelFont;
 + (NSLineBreakMode)textLabelLineBreakModel;
-
+- (void)highlightLinksWithIndex:(CFIndex)index;
 @end
