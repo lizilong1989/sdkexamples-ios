@@ -112,6 +112,7 @@
     NSString *username = [[self.dataSource objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
     cell.imageView.image = [UIImage imageNamed:@"chatListCellHead.png"];
     cell.textLabel.text = username;
+    cell.username = username;
     
     return cell;
 }

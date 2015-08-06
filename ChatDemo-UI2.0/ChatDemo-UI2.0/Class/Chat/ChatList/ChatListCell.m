@@ -12,7 +12,7 @@
 
 
 #import "ChatListCell.h"
-#import "UIImageView+EMWebCache.h"
+#import "UIImageView+HeadImage.h"
 
 @interface ChatListCell (){
     UILabel *_timeLabel;
@@ -85,10 +85,12 @@
     [super layoutSubviews];
     CGRect frame = self.imageView.frame;
     
-    [self.imageView sd_setImageWithURL:_imageURL placeholderImage:_placeholderImage];
+//    [self.imageView sd_setImageWithURL:_imageURL placeholderImage:_placeholderImage];
+    [self.imageView imageWithUsername:_name placeholderImage:_placeholderImage];
     self.imageView.frame = CGRectMake(10, 7, 45, 45);
     
-    self.textLabel.text = _name;
+//    self.textLabel.text = _name;
+    [self.textLabel setTextWithUsername:_name];
     self.textLabel.frame = CGRectMake(65, 7, 175, 20);
     
     _detailLabel.text = _detailMsg;
@@ -115,7 +117,6 @@
 
 -(void)setName:(NSString *)name{
     _name = name;
-    self.textLabel.text = name;
 }
 
 +(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath

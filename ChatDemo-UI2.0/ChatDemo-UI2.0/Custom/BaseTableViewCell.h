@@ -21,6 +21,7 @@
 @property (weak, nonatomic) id<BaseTableCellDelegate> delegate;
 @property (strong, nonatomic) NSIndexPath *indexPath;
 @property (strong, nonatomic) UIView *bottomLineView;
+@property (strong, nonatomic) NSString *username;
 
 @end
 
