@@ -57,7 +57,7 @@ static RobotManager *sharedInstance = nil;
         EMRobot *robot = [_robotSource objectForKey:[username lowercaseString]];
         return robot.nickname;
     }
-    return nil;
+    return username;
 }
 
 - (void)addRobotsToMemory:(NSArray *)robots

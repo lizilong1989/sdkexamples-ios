@@ -25,6 +25,17 @@
 #import "MyChatroomListViewController.h"
 #import "ChatroomListViewController.h"
 #import "RobotListViewController.h"
+#import "UserProfileManager.h"
+
+@implementation EMBuddy (search)
+
+//根据用户昵称进行搜索
+- (NSString*)showName
+{
+    return [[UserProfileManager sharedInstance] getNickNameWithUsername:self.username];
+}
+
+@end
 
 @interface ContactsViewController ()<UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate, UISearchDisplayDelegate, UIActionSheetDelegate, BaseTableCellDelegate, SRRefreshDelegate, IChatManagerDelegate>
 {
@@ -72,6 +83,8 @@
     [self.tableView addSubview:self.slimeView];
     
     [self reloadDataSource];
+    // 环信UIdemo中有用到Parse, 加载用户好友个人信息
+    [[UserProfileManager sharedInstance] loadUserProfileInBackgroundWithBuddy:self.contactsSource saveToLoacal:YES completion:NULL];
 }
 
 - (void)didReceiveMemoryWarning
@@ -173,6 +186,7 @@
             EMBuddy *buddy = [weakSelf.searchController.resultsSource objectAtIndex:indexPath.row];
             cell.imageView.image = [UIImage imageNamed:@"chatListCellHead.png"];
             cell.textLabel.text = buddy.username;
+            cell.username = buddy.username;
             
             return cell;
         }];
@@ -198,7 +212,7 @@
             
             [weakSelf.searchController.searchBar endEditing:YES];
             ChatViewController *chatVC = [[ChatViewController alloc] initWithChatter:buddy.username isGroup:NO];
-            chatVC.title = buddy.username;
+            chatVC.title = [[UserProfileManager sharedInstance] getNickNameWithUsername:buddy.username];
             [weakSelf.navigationController pushViewController:chatVC animated:YES];
         }];
     }
@@ -265,6 +279,7 @@
             EMBuddy *buddy = [[self.dataSource objectAtIndex:(indexPath.section - 1)] objectAtIndex:indexPath.row];
             cell.imageView.image = [UIImage imageNamed:@"chatListCellHead.png"];
             cell.textLabel.text = buddy.username;
+            cell.username = buddy.username;
         }
     }
     
@@ -408,7 +423,7 @@
         }
         
         ChatViewController *chatVC = [[ChatViewController alloc] initWithChatter:buddy.username isGroup:NO];
-        chatVC.title = buddy.username;
+        chatVC.title = [[UserProfileManager sharedInstance] getNickNameWithUsername:buddy.username];
         [self.navigationController pushViewController:chatVC animated:YES];
     }
 }
@@ -425,7 +440,7 @@
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
 {
     __weak typeof(self) weakSelf = self;
-    [[RealtimeSearchUtil currentUtil] realtimeSearchWithSource:self.contactsSource searchText:(NSString *)searchText collationStringSelector:@selector(username) resultBlock:^(NSArray *results) {
+    [[RealtimeSearchUtil currentUtil] realtimeSearchWithSource:self.contactsSource searchText:(NSString *)searchText collationStringSelector:@selector(showName) resultBlock:^(NSArray *results) {
         if (results) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [weakSelf.searchController.resultsSource removeAllObjects];
@@ -545,7 +560,7 @@
     //名字分section
     for (EMBuddy *buddy in dataArray) {
         //getUserName是实现中文拼音检索的核心，见NameIndex类
-        NSString *firstLetter = [ChineseToPinyin pinyinFromChineseString:buddy.username];
+        NSString *firstLetter = [ChineseToPinyin pinyinFromChineseString:[[UserProfileManager sharedInstance] getNickNameWithUsername:buddy.username]];
         NSInteger section = [indexCollation sectionForObject:[firstLetter substringToIndex:1] collationStringSelector:@selector(uppercaseString)];
         
         NSMutableArray *array = [sortedArray objectAtIndex:section];
@@ -555,10 +570,10 @@
     //每个section内的数组排序
     for (int i = 0; i < [sortedArray count]; i++) {
         NSArray *array = [[sortedArray objectAtIndex:i] sortedArrayUsingComparator:^NSComparisonResult(EMBuddy *obj1, EMBuddy *obj2) {
-            NSString *firstLetter1 = [ChineseToPinyin pinyinFromChineseString:obj1.username];
+            NSString *firstLetter1 = [ChineseToPinyin pinyinFromChineseString:[[UserProfileManager sharedInstance] getNickNameWithUsername:obj1.username]];
             firstLetter1 = [[firstLetter1 substringToIndex:1] uppercaseString];
             
-            NSString *firstLetter2 = [ChineseToPinyin pinyinFromChineseString:obj2.username];
+            NSString *firstLetter2 = [ChineseToPinyin pinyinFromChineseString:[[UserProfileManager sharedInstance] getNickNameWithUsername:obj2.username]];
             firstLetter2 = [[firstLetter2 substringToIndex:1] uppercaseString];
             
             return [firstLetter1 caseInsensitiveCompare:firstLetter2];

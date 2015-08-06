@@ -34,6 +34,9 @@
 #import "ChatroomDetailViewController.h"
 #import "EMCDDeviceManager.h"
 #import "EMCDDeviceManagerDelegate.h"
+#import "UserProfileViewController.h"
+#import "UserProfileManager.h"
+
 #define KPageCount 20
 #define KHintAdjustY    50
 
@@ -647,7 +650,15 @@
         [self chatVideoCellPressed:model];
     }else if ([eventName isEqualToString:kRouterEventMenuTapEventName]) {
         [self sendTextMessage:[userInfo objectForKey:@"text"]];
+    }else if ([eventName isEqualToString:kRouterEventChatHeadImageTapEventName]) {
+        [self chatHeadImagePressed:model];
     }
+}
+
+- (void)chatHeadImagePressed:(MessageModel *)model
+{
+    UserProfileViewController *userprofile = [[UserProfileViewController alloc] initWithUsername:model.username];
+    [self.navigationController pushViewController:userprofile animated:YES];
 }
 
 //链接被点击
@@ -904,6 +915,9 @@
                         if ([self->_delelgate respondsToSelector:@selector(avatarWithChatter:)]) {
                             cellModel.headImageURL = [NSURL URLWithString:[self->_delelgate avatarWithChatter:cellModel.username]];
                         }
+                        
+                        [[UserProfileManager sharedInstance] appendProfileToMessageModel:model];
+                        
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [weakSelf.tableView beginUpdates];
                             [weakSelf.dataSource replaceObjectAtIndex:i withObject:cellModel];
@@ -1458,6 +1472,8 @@
                 model.headImageURL = [NSURL URLWithString:[_delelgate avatarWithChatter:model.username]];
             }
             
+            [[UserProfileManager sharedInstance] appendProfileToMessageModel:model];
+            
             if (model) {
                 [formatArray addObject:model];
             }
@@ -1488,6 +1504,8 @@
     if ([_delelgate respondsToSelector:@selector(avatarWithChatter:)]) {
         model.headImageURL = [NSURL URLWithString:[_delelgate avatarWithChatter:model.username]];
     }
+    
+    [[UserProfileManager sharedInstance] appendProfileToMessageModel:model];
 
     if (model) {
         [ret addObject:model];

@@ -12,6 +12,8 @@
 
 #import "BaseTableViewCell.h"
 
+#import "UIImageView+HeadImage.h"
+
 @implementation BaseTableViewCell
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
@@ -65,5 +67,13 @@
         }
     }
 }
+
+- (void)setUsername:(NSString *)username
+{
+    _username = username;
+    [self.textLabel setTextWithUsername:_username];
+    [self.imageView imageWithUsername:_username placeholderImage:nil];
+}
+
 
 @end

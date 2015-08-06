@@ -16,6 +16,7 @@
 
 #import "AppDelegate+EaseMob.h"
 #import "AppDelegate+UMeng.h"
+#import "AppDelegate+Parse.h"
 
 
 @interface AppDelegate ()
@@ -47,6 +48,9 @@
 
     // 初始化环信SDK，详细内容在AppDelegate+EaseMob.m 文件中
     [self easemobApplication:application didFinishLaunchingWithOptions:launchOptions];
+    
+    // 环信UIdemo中有用到Parse，您的项目中不需要添加，可忽略此处。
+    [self parseApplication:application didFinishLaunchingWithOptions:launchOptions];
 
 
     [self loginStateChange:nil];
@@ -87,11 +91,17 @@
         }else{
             nav  = _mainController.navigationController;
         }
+        
+        // 环信UIdemo中有用到Parse，您的项目中不需要添加，可忽略此处。
+        [self initParse];
     }else{//登陆失败加载登陆页面控制器
         _mainController = nil;
         LoginViewController *loginController = [[LoginViewController alloc] init];
         nav = [[UINavigationController alloc] initWithRootViewController:loginController];
         loginController.title = NSLocalizedString(@"AppName", @"EaseMobDemo");
+        
+        // 环信UIdemo中有用到Parse，您的项目中不需要添加，可忽略此处。
+        [self clearParse];
     }
     
     //设置7.0以下的导航栏

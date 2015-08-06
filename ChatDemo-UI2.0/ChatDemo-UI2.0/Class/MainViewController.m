@@ -556,7 +556,7 @@ static NSString *kGroupName = @"GroupName";
         
         [self _removeBuddies:deletedBuddies];
     } else {
-        // clear conversation
+        // 根据好友关系同步会话操作,demo中不保留非好友关系的单聊会话,您的项目根据具体需求处理会话保留逻辑
         NSArray *conversations = [[EaseMob sharedInstance].chatManager conversations];
         NSMutableArray *deleteConversations = [NSMutableArray arrayWithArray:conversations];
         NSMutableDictionary *buddyDic = [NSMutableDictionary dictionary];
