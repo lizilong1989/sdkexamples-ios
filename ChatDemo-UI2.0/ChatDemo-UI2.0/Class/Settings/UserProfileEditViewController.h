@@ -10,8 +10,6 @@
  * from EaseMob Technologies.
  */
 
-#import "BaseViewController.h"
-
 @interface UserProfileEditViewController : UITableViewController
 
 @end
