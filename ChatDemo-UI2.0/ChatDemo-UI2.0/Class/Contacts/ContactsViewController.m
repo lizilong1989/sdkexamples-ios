@@ -83,6 +83,8 @@
     [self.tableView addSubview:self.slimeView];
     
     [self reloadDataSource];
+    // 环信UIdemo中有用到Parse, 加载用户好友个人信息
+    [[UserProfileManager sharedInstance] loadUserProfileInBackgroundWithBuddy:self.contactsSource saveToLoacal:YES completion:NULL];
 }
 
 - (void)didReceiveMemoryWarning
@@ -609,8 +611,6 @@
     [self.dataSource addObjectsFromArray:[self sortDataArray:self.contactsSource]];
     
     [_tableView reloadData];
-    
-    [[UserProfileManager sharedInstance] loadUserProfileInBackgroundWithBuddy:self.contactsSource saveToLoacal:YES completion:NULL];
 }
 
 #pragma mark - action

@@ -189,10 +189,18 @@ static UserProfileManager *sharedInstance = nil;
     {
         if ([buddy.username length])
         {
-            [usernames addObject:buddy.username];
+            if (![self getUserProfileByUsername:buddy.username]) {
+                [usernames addObject:buddy.username];
+            }
         }
     }
-    [[UserProfileManager sharedInstance] loadUserProfileInBackground:usernames saveToLoacal:save completion:completion];
+    if ([usernames count] == 0) {
+        if (completion) {
+            completion(YES,nil);
+        }
+        return;
+    }
+    [self loadUserProfileInBackground:usernames saveToLoacal:save completion:completion];
 }
 
 - (void)loadUserProfileInBackground:(NSArray*)usernames
@@ -244,7 +252,7 @@ static UserProfileManager *sharedInstance = nil;
 
 - (void)appendProfileToMessageModel:(MessageModel*)model
 {
-    UserProfileEntity *user = [[UserProfileManager sharedInstance] getUserProfileByUsername:model.username];
+    UserProfileEntity *user = [self getUserProfileByUsername:model.username];
     
     if (user && user.imageUrl.length > 0) {
         model.headImageURL = [NSURL URLWithString:user.imageUrl];
