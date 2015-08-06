@@ -916,7 +916,16 @@
                             cellModel.headImageURL = [NSURL URLWithString:[self->_delelgate avatarWithChatter:cellModel.username]];
                         }
                         
-                        [[UserProfileManager sharedInstance] appendProfileToMessageModel:model];
+                        //Demo集成Parse,获取用户个人信息
+                        UserProfileEntity *user = [[UserProfileManager sharedInstance] getUserProfileByUsername:model.username];
+                        
+                        if (user && user.imageUrl.length > 0) {
+                            model.headImageURL = [NSURL URLWithString:user.imageUrl];
+                        }
+                        
+                        if (user && user.nickname.length > 0) {
+                            model.nickName = user.nickname;
+                        }
                         
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [weakSelf.tableView beginUpdates];
@@ -1472,7 +1481,16 @@
                 model.headImageURL = [NSURL URLWithString:[_delelgate avatarWithChatter:model.username]];
             }
             
-            [[UserProfileManager sharedInstance] appendProfileToMessageModel:model];
+            //Demo集成Parse,获取用户个人信息
+            UserProfileEntity *user = [[UserProfileManager sharedInstance] getUserProfileByUsername:model.username];
+            
+            if (user && user.imageUrl.length > 0) {
+                model.headImageURL = [NSURL URLWithString:user.imageUrl];
+            }
+            
+            if (user && user.nickname.length > 0) {
+                model.nickName = user.nickname;
+            }
             
             if (model) {
                 [formatArray addObject:model];
@@ -1505,7 +1523,16 @@
         model.headImageURL = [NSURL URLWithString:[_delelgate avatarWithChatter:model.username]];
     }
     
-    [[UserProfileManager sharedInstance] appendProfileToMessageModel:model];
+    //Demo集成Parse,获取用户个人信息
+    UserProfileEntity *user = [[UserProfileManager sharedInstance] getUserProfileByUsername:model.username];
+    
+    if (user && user.imageUrl.length > 0) {
+        model.headImageURL = [NSURL URLWithString:user.imageUrl];
+    }
+    
+    if (user && user.nickname.length > 0) {
+        model.nickName = user.nickname;
+    }
 
     if (model) {
         [ret addObject:model];

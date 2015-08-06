@@ -250,19 +250,6 @@ static UserProfileManager *sharedInstance = nil;
     return nil;
 }
 
-- (void)appendProfileToMessageModel:(MessageModel*)model
-{
-    UserProfileEntity *user = [self getUserProfileByUsername:model.username];
-    
-    if (user && user.imageUrl.length > 0) {
-        model.headImageURL = [NSURL URLWithString:user.imageUrl];
-    }
-    
-    if (user && user.nickname.length > 0) {
-        model.nickName = user.nickname;
-    }
-}
-
 - (NSString*)getNickNameWithUsername:(NSString*)username
 {
     UserProfileEntity* entity = [self getUserProfileByUsername:username];

@@ -68,11 +68,6 @@
 - (UserProfileEntity*)getCurUserProfile;
 
 /*
- *  给MessageModel附加用户个人信息
- */
-- (void)appendProfileToMessageModel:(MessageModel*)model;
-
-/*
  *  根据username获取当前用户昵称
  */
 - (NSString*)getNickNameWithUsername:(NSString*)username;
