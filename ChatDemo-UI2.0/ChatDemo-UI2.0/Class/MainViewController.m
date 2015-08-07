@@ -348,11 +348,25 @@ static NSString *kGroupName = @"GroupName";
     if (needShowNotification) {
 #if !TARGET_IPHONE_SIMULATOR
         
-        BOOL isAppActivity = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
-        if (!isAppActivity) {
-            [self showNotificationWithMessage:message];
-        }else {
-            [self playSoundAndVibration];
+        //        BOOL isAppActivity = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
+        //        if (!isAppActivity) {
+        //            [self showNotificationWithMessage:message];
+        //        }else {
+        //            [self playSoundAndVibration];
+        //        }
+        UIApplicationState state = [[UIApplication sharedApplication] applicationState];
+        switch (state) {
+            case UIApplicationStateActive:
+                [self playSoundAndVibration];
+                break;
+            case UIApplicationStateInactive:
+                [self playSoundAndVibration];
+                break;
+            case UIApplicationStateBackground:
+                [self showNotificationWithMessage:message];
+                break;
+            default:
+                break;
         }
 #endif
     }

@@ -165,12 +165,15 @@
             [weakSelf hideHud];
             if (success) {
                 UserProfileEntity *user = [[UserProfileManager sharedInstance] getCurUserProfile];
-                [weakSelf.headImageView imageWithUsername:user.username placeholderImage:nil];
+                [weakSelf.headImageView imageWithUsername:user.username placeholderImage:orgImage];
                 [self showHint:NSLocalizedString(@"setting.uploadSuccess", @"uploaded successfully")];
             } else {
                 [self showHint:NSLocalizedString(@"setting.uploadFail", @"uploaded failed")];
             }
         }];
+    } else {
+        [self hideHud];
+        [self showHint:NSLocalizedString(@"setting.uploadFail", @"uploaded failed")];
     }
 }
 
@@ -192,7 +195,7 @@
             if ([UIImagePickerController isCameraDeviceAvailable:UIImagePickerControllerCameraDeviceFront]) {
                 _imagePicker.cameraDevice = UIImagePickerControllerCameraDeviceFront;
             }
-            self.imagePicker.mediaTypes = @[(NSString *)kUTTypeImage,(NSString *)kUTTypeMovie];
+            self.imagePicker.mediaTypes = @[(NSString *)kUTTypeImage];
             [self presentViewController:self.imagePicker animated:YES completion:NULL];
         } else {
         
