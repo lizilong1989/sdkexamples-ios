@@ -21,7 +21,7 @@
 @property (strong, nonatomic) UserProfileEntity *user;
 
 @property (strong, nonatomic) UIImageView *headImageView;
-@property (strong, nonatomic) UILabel *nicknameLabel;
+@property (strong, nonatomic) UILabel *usernameLabel;
 
 @end
 
@@ -56,11 +56,22 @@
 {
     if (!_headImageView) {
         _headImageView = [[UIImageView alloc] init];
-        _headImageView.frame = CGRectMake(CGRectGetWidth(self.tableView.frame) - 80, 10, 60, 60);
+        _headImageView.frame = CGRectMake(20, 10, 60, 60);
         _headImageView.contentMode = UIViewContentModeScaleToFill;
     }
     [_headImageView imageWithUsername:_username placeholderImage:nil];
     return _headImageView;
+}
+
+- (UILabel*)usernameLabel
+{
+    if (!_usernameLabel) {
+        _usernameLabel = [[UILabel alloc] init];
+        _usernameLabel.frame = CGRectMake(CGRectGetMaxX(_headImageView.frame) + 10.f, 10, 200, 20);
+        _usernameLabel.text = _username;
+        _usernameLabel.textColor = [UIColor lightGrayColor];
+    }
+    return _usernameLabel;
 }
 
 #pragma mark - Table view datasource
@@ -83,8 +94,9 @@
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:cellIdentifier];
     }
     if (indexPath.row == 0) {
-        cell.textLabel.text = NSLocalizedString(@"setting.personalInfoUpload", @"Upload HeadImage");
+        //cell.textLabel.text = NSLocalizedString(@"setting.personalInfoUpload", @"Upload HeadImage");
         [cell.contentView addSubview:self.headImageView];
+        [cell.contentView addSubview:self.usernameLabel];
     } else if (indexPath.row == 1) {
         cell.textLabel.text = NSLocalizedString(@"setting.profileNickname", @"Nickname");
         UserProfileEntity *entity = [[UserProfileManager sharedInstance] getUserProfileByUsername:_username];

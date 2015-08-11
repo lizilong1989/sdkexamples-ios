@@ -21,6 +21,7 @@
 #import "ChatViewController.h"
 #import "EMCDDeviceManager.h"
 #import "RobotManager.h"
+#import "UserProfileManager.h"
 //两次提示的默认间隔
 static const CGFloat kDefaultPlaySoundInterval = 3.0;
 static NSString *kMessageType = @"MessageType";
@@ -434,7 +435,7 @@ static NSString *kGroupName = @"GroupName";
                 break;
         }
         
-        NSString *title = message.from;
+        NSString *title = [[UserProfileManager sharedInstance] getNickNameWithUsername:message.from];
         if (message.messageType == eMessageTypeGroupChat) {
             NSArray *groupArray = [[EaseMob sharedInstance].chatManager groupList];
             for (EMGroup *group in groupArray) {
