@@ -27,7 +27,7 @@
     if (profileEntity) {
         [self sd_setImageWithURL:[NSURL URLWithString:profileEntity.imageUrl] placeholderImage:placeholderImage];
     } else {
-        self.image = placeholderImage;
+        [self sd_setImageWithURL:nil placeholderImage:placeholderImage];
     }
 }
 
