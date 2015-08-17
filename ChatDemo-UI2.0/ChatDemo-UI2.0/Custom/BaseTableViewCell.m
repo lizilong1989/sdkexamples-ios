@@ -72,7 +72,7 @@
 {
     _username = username;
     [self.textLabel setTextWithUsername:_username];
-    [self.imageView imageWithUsername:_username placeholderImage:nil];
+    [self.imageView imageWithUsername:_username placeholderImage:self.imageView.image];
 }
 
 

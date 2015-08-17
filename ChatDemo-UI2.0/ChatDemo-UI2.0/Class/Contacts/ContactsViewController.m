@@ -265,20 +265,19 @@
         cell.indexPath = indexPath;
         if (indexPath.section == 0 && indexPath.row == 1) {
             cell.imageView.image = [UIImage imageNamed:@"groupPrivateHeader"];
-            cell.textLabel.text = NSLocalizedString(@"title.group", @"Group");
+            cell.username = NSLocalizedString(@"title.group", @"Group");
         }
         else if (indexPath.section == 0 && indexPath.row == 2) {
             cell.imageView.image = [UIImage imageNamed:@"groupPublicHeader"];
-            cell.textLabel.text = NSLocalizedString(@"title.chatroomlist",@"chatroom list");
+            cell.username = NSLocalizedString(@"title.chatroomlist",@"chatroom list");
         }
         else if (indexPath.section == 0 && indexPath.row == 3) {
             cell.imageView.image = [UIImage imageNamed:@"groupPublicHeader"];
-            cell.textLabel.text = NSLocalizedString(@"title.robotlist",@"robot list");
+            cell.username = NSLocalizedString(@"title.robotlist",@"robot list");
         }
         else{
             EMBuddy *buddy = [[self.dataSource objectAtIndex:(indexPath.section - 1)] objectAtIndex:indexPath.row];
             cell.imageView.image = [UIImage imageNamed:@"chatListCellHead.png"];
-            cell.textLabel.text = buddy.username;
             cell.username = buddy.username;
         }
     }
