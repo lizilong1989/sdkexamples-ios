@@ -8,6 +8,8 @@
 
 #import "EMBubbleView+Voice.h"
 
+#define ISREAD_VIEW_SIZE 10.f
+
 @implementation EMBubbleView (Voice)
 
 #pragma mark - private
@@ -47,6 +49,11 @@
         
         NSLayoutConstraint *durationRightConstraint = [NSLayoutConstraint constraintWithItem:self.voiceDurationLabel attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.backgroundImageView attribute:NSLayoutAttributeRight multiplier:1.0 constant:-self.margin.right];
         [self.marginConstraints addObject:durationRightConstraint];
+        
+        [self.marginConstraints addObject:[NSLayoutConstraint constraintWithItem:self.isReadView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.backgroundImageView attribute:NSLayoutAttributeRight multiplier:1.0 constant:ISREAD_VIEW_SIZE/2]];
+        [self.marginConstraints addObject:[NSLayoutConstraint constraintWithItem:self.isReadView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.backgroundImageView attribute:NSLayoutAttributeRight multiplier:1.0 constant:-ISREAD_VIEW_SIZE/2]];
+        [self.marginConstraints addObject:[NSLayoutConstraint constraintWithItem:self.isReadView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.backgroundImageView attribute:NSLayoutAttributeTop multiplier:1.0 constant:0]];
+        [self.marginConstraints addObject:[NSLayoutConstraint constraintWithItem:self.isReadView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.backgroundImageView attribute:NSLayoutAttributeTop multiplier:1.0 constant:ISREAD_VIEW_SIZE]];
     }
     
     [self addConstraints:self.marginConstraints];
@@ -54,6 +61,9 @@
 
 - (void)_setupVoiceBubbleConstraints
 {
+    if (self.isSender) {
+        self.isReadView.hidden = YES;
+    }
     [self _setupVoiceBubbleMarginConstraints];
 }
 
@@ -71,6 +81,13 @@
     self.voiceDurationLabel.translatesAutoresizingMaskIntoConstraints = NO;
     self.voiceDurationLabel.backgroundColor = [UIColor clearColor];
     [self.backgroundImageView addSubview:self.voiceDurationLabel];
+    
+    self.isReadView = [[UIImageView alloc] init];
+    self.isReadView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.isReadView.layer.cornerRadius = ISREAD_VIEW_SIZE/2;
+    self.isReadView.clipsToBounds = YES;
+    self.isReadView.backgroundColor = [UIColor redColor];
+    [self.backgroundImageView addSubview:self.isReadView];
     
     [self _setupVoiceBubbleConstraints];
 }

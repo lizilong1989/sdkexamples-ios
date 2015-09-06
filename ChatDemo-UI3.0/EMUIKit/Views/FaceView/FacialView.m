@@ -12,8 +12,13 @@
 
 #import "FacialView.h"
 #import "Emoji.h"
+#import "DXFaceView.h"
+#import "EMEmotionManager.h"
 
-@interface FacialView ()
+@interface FacialView () <UIScrollViewDelegate>
+
+@property (nonatomic, strong) UIScrollView *scrollview;
+@property (nonatomic, strong) UIPageControl *pageControl;
 
 @end
 
@@ -23,51 +28,99 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-        _faces = [Emoji allEmoji];
+        _faces = [NSMutableArray arrayWithArray:[Emoji allEmoji]];
+        _scrollview = [[UIScrollView alloc] initWithFrame:frame];
+        _scrollview.pagingEnabled = YES;
+        _scrollview.showsHorizontalScrollIndicator = NO;
+        _scrollview.showsVerticalScrollIndicator = NO;
+        _scrollview.delegate = self;
+        _pageControl = [[UIPageControl alloc] init];
+        [self addSubview:_scrollview];
+        [self addSubview:_pageControl];
     }
     return self;
 }
 
 
 //给faces设置位置
--(void)loadFacialView:(int)page size:(CGSize)size
+-(void)loadFacialView:(EMEmotionManager*)emotionManager size:(CGSize)size
 {
-	int maxRow = 5;
-    int maxCol = 8;
+    for (UIView *view in [self.scrollview subviews]) {
+        [view removeFromSuperview];
+    }
+    
+    [_scrollview setContentOffset:CGPointZero];
+	NSInteger maxRow = emotionManager.emotionRow + 1;
+    NSInteger maxCol = emotionManager.emotionCol;
+    NSInteger pageSize = emotionManager.emotionRow * emotionManager.emotionCol;
     CGFloat itemWidth = self.frame.size.width / maxCol;
     CGFloat itemHeight = self.frame.size.height / maxRow;
     
-    UIButton *deleteButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [deleteButton setBackgroundColor:[UIColor clearColor]];
-    [deleteButton setFrame:CGRectMake((maxCol - 1) * itemWidth, (maxRow - 1) * itemHeight, itemWidth, itemHeight)];
-    [deleteButton setImage:[UIImage imageNamed:@"faceDelete"] forState:UIControlStateNormal];
-    deleteButton.tag = 10000;
-    [deleteButton addTarget:self action:@selector(selected:) forControlEvents:UIControlEventTouchUpInside];
-    [self addSubview:deleteButton];
+    CGRect frame = self.frame;
+    frame.size.height -= itemHeight;
+    _scrollview.frame = frame;
     
-    UIButton *sendButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [sendButton setTitle:NSLocalizedString(@"send", @"Send") forState:UIControlStateNormal];
-    [sendButton setFrame:CGRectMake((maxCol - 2) * itemWidth - 10, (maxRow - 1) * itemHeight + 5, itemWidth + 10, itemHeight - 10)];
-    [sendButton addTarget:self action:@selector(sendAction:) forControlEvents:UIControlEventTouchUpInside];
-    [sendButton setBackgroundColor:[UIColor colorWithRed:10 / 255.0 green:82 / 255.0 blue:104 / 255.0 alpha:1.0]];
-    [self addSubview:sendButton];
+    _faces = [NSMutableArray arrayWithArray:emotionManager.emotions];
+    NSInteger totalPage = [_faces count]%pageSize == 0 ? [_faces count]/pageSize : [_faces count]/pageSize + 1;
+    [_scrollview setContentSize:CGSizeMake(totalPage * CGRectGetWidth(self.frame), CGRectGetHeight(self.frame))];
     
-    for (int row = 0; row < maxRow; row++) {
-        for (int col = 0; col < maxCol; col++) {
-            int index = row * maxCol + col;
-            if (index < [_faces count]) {
-                UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-                [button setBackgroundColor:[UIColor clearColor]];
-                [button setFrame:CGRectMake(col * itemWidth, row * itemHeight, itemWidth, itemHeight)];
-                [button.titleLabel setFont:[UIFont fontWithName:@"AppleColorEmoji" size:29.0]];
-                [button setTitle: [_faces objectAtIndex:(row * maxCol + col)] forState:UIControlStateNormal];
-                button.tag = row * maxCol + col;
-                [button addTarget:self action:@selector(selected:) forControlEvents:UIControlEventTouchUpInside];
-                [self addSubview:button];
+    _pageControl.currentPage = 0;
+    _pageControl.numberOfPages = totalPage;
+    _pageControl.frame = CGRectMake(0, (maxRow - 1) * itemHeight + 5, CGRectGetWidth(self.frame), itemHeight - 10);
+    
+//    UIButton *deleteButton = [UIButton buttonWithType:UIButtonTypeCustom];
+//    [deleteButton setBackgroundColor:[UIColor clearColor]];
+//    [deleteButton setFrame:CGRectMake((maxCol - 1) * itemWidth, (maxRow - 1) * itemHeight, itemWidth, itemHeight)];
+//    [deleteButton setImage:[UIImage imageNamed:@"faceDelete"] forState:UIControlStateNormal];
+//    deleteButton.tag = 10000;
+//    [deleteButton addTarget:self action:@selector(selected:) forControlEvents:UIControlEventTouchUpInside];
+//    [self addSubview:deleteButton];
+    
+//    UIButton *sendButton = [UIButton buttonWithType:UIButtonTypeCustom];
+//    [sendButton setTitle:NSLocalizedString(@"send", @"Send") forState:UIControlStateNormal];
+//    [sendButton setFrame:CGRectMake((maxCol - 1) * itemWidth - 10, (maxRow - 1) * itemHeight + 5, itemWidth + 10, itemHeight - 10)];
+//    [sendButton addTarget:self action:@selector(sendAction:) forControlEvents:UIControlEventTouchUpInside];
+//    [sendButton setBackgroundColor:[UIColor colorWithRed:10 / 255.0 green:82 / 255.0 blue:104 / 255.0 alpha:1.0]];
+//    [self addSubview:sendButton];
+    
+    for (int i = 0; i < totalPage; i ++) {
+        for (int row = 0; row < maxRow; row++) {
+            for (int col = 0; col < maxCol; col++) {
+                NSInteger index = i * pageSize + row * maxCol + col;
+                if (emotionManager.emotionType != EMEmotionGif) {
+                    if (index != 0 && (index - (pageSize-1))%pageSize == 0) {
+                        [_faces insertObject:@"" atIndex:index];
+                        break;
+                    }
+                }
+                if (index < [_faces count]) {
+                    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+                    [button setBackgroundColor:[UIColor clearColor]];
+                    [button setFrame:CGRectMake(i * CGRectGetWidth(self.frame) + col * itemWidth, row * itemHeight, itemWidth, itemHeight)];
+                    [button.titleLabel setFont:[UIFont fontWithName:@"AppleColorEmoji" size:29.0]];
+                    if (emotionManager.emotionType != EMEmotionDefault) {
+                        [button setImage:[UIImage imageNamed:[_faces objectAtIndex:index]] forState:UIControlStateNormal];
+                    } else {
+                        [button setTitle: [_faces objectAtIndex:index] forState:UIControlStateNormal];
+                    }
+                    button.tag = index;
+                    [button addTarget:self action:@selector(selected:) forControlEvents:UIControlEventTouchUpInside];
+                    [_scrollview addSubview:button];
+                }
+                else{
+                    break;
+                }
             }
-            else{
-                break;
-            }
+        }
+        if (emotionManager.emotionType != EMEmotionGif) {
+            UIButton *deleteButton = [UIButton buttonWithType:UIButtonTypeCustom];
+            [deleteButton setBackgroundColor:[UIColor clearColor]];
+            [deleteButton setFrame:CGRectMake(i * CGRectGetWidth(self.frame) + (emotionManager.emotionCol - 1) * itemWidth, (emotionManager.emotionRow - 1) * itemHeight, itemWidth, itemHeight)];
+            [deleteButton setImage:[UIImage imageNamed:@"faceDelete"] forState:UIControlStateNormal];
+            [deleteButton setImage:[UIImage imageNamed:@"faceDelete_select"] forState:UIControlStateHighlighted];
+            deleteButton.tag = 10000;
+            [deleteButton addTarget:self action:@selector(selected:) forControlEvents:UIControlEventTouchUpInside];
+            [_scrollview addSubview:deleteButton];
         }
     }
 }
@@ -89,6 +142,19 @@
 {
     if (_delegate) {
         [_delegate sendFace];
+    }
+}
+
+
+#pragma mark - UIScrollViewDelegate
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    CGPoint offset =  scrollView.contentOffset;
+    if (offset.x == 0) {
+        _pageControl.currentPage = 0;
+    } else {
+        int page = offset.x / CGRectGetWidth(scrollView.frame);
+        _pageControl.currentPage = page;
     }
 }
 

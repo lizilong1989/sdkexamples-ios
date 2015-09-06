@@ -76,8 +76,9 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         _messageType = model.bodyType;
-        [self _setupSubviewsWithType:model.bodyType
-                            isSender:model.isSender];
+        [self _setupSubviewsWithType:_messageType
+                            isSender:model.isSender
+                               model:model];
     }
     
     return self;
@@ -87,6 +88,7 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
 
 - (void)_setupSubviewsWithType:(MessageBodyType)messageType
                       isSender:(BOOL)isSender
+                         model:(id<IMessageModel>)model
 {
     _statusButton = [[UIButton alloc] init];
     _statusButton.translatesAutoresizingMaskIntoConstraints = NO;
@@ -99,70 +101,79 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
     _bubbleView = [[EMBubbleView alloc] initWithMargin:_bubbleMargin isSender:isSender];
     _bubbleView.translatesAutoresizingMaskIntoConstraints = NO;
     _bubbleView.backgroundColor = [UIColor clearColor];
-    _bubbleView.backgroundImageView.image = _bubbleBackgroundImage;
     [self.contentView addSubview:_bubbleView];
     
-    switch (messageType) {
-        case eMessageBodyType_Text:
-        {
-            [_bubbleView setupTextBubbleView];
-            
-            _bubbleView.textLabel.font = _messageTextFont;
-            _bubbleView.textLabel.textColor = _messageTextColor;
-        }
-            break;
-        case eMessageBodyType_Image:
-        {
-            [_bubbleView setupImageBubbleView];
-            
-            _bubbleView.imageView.image = [UIImage imageNamed:@"imageDownloadFail"];
-        }
-            break;
-        case eMessageBodyType_Location:
-        {
-            [_bubbleView setupLocationBubbleView];
-            
-            _bubbleView.locationImageView.image = [[UIImage imageNamed:@"chat_location_preview"] stretchableImageWithLeftCapWidth:10 topCapHeight:10];
-            _bubbleView.locationLabel.font = _messageLocationFont;
-            _bubbleView.locationLabel.textColor = _messageLocationColor;
-        }
-            break;
-        case eMessageBodyType_Voice:
-        {
-            [_bubbleView setupVoiceBubbleView];
-            
-            if ([_messageVoiceAnimationImages count] > 0) {
-                _bubbleView.voiceImageView.image = [_messageVoiceAnimationImages objectAtIndex:0];
+    _avatarView = [[UIImageView alloc] init];
+    _avatarView.translatesAutoresizingMaskIntoConstraints = NO;
+    _avatarView.backgroundColor = [UIColor clearColor];
+    _avatarView.clipsToBounds = YES;
+    _avatarView.userInteractionEnabled = YES;
+    [self.contentView addSubview:_avatarView];
+    
+    if ([self isCustomBubbleView:model]) {
+        [self setCustomBubbleView:model];
+    } else {
+        switch (messageType) {
+            case eMessageBodyType_Text:
+            {
+                [_bubbleView setupTextBubbleView];
+                
+                _bubbleView.textLabel.font = _messageTextFont;
+                _bubbleView.textLabel.textColor = _messageTextColor;
             }
-            _bubbleView.voiceImageView.animationImages = _messageVoiceAnimationImages;
-            _bubbleView.voiceDurationLabel.textColor = _messageVoiceDurationColor;
-            _bubbleView.voiceDurationLabel.font = _messageVoiceDurationFont;
+                break;
+            case eMessageBodyType_Image:
+            {
+                [_bubbleView setupImageBubbleView];
+                
+                _bubbleView.imageView.image = [UIImage imageNamed:@"imageDownloadFail"];
+            }
+                break;
+            case eMessageBodyType_Location:
+            {
+                [_bubbleView setupLocationBubbleView];
+                
+                _bubbleView.locationImageView.image = [[UIImage imageNamed:@"chat_location_preview"] stretchableImageWithLeftCapWidth:10 topCapHeight:10];
+                _bubbleView.locationLabel.font = _messageLocationFont;
+                _bubbleView.locationLabel.textColor = _messageLocationColor;
+            }
+                break;
+            case eMessageBodyType_Voice:
+            {
+                [_bubbleView setupVoiceBubbleView];
+                
+                _bubbleView.voiceDurationLabel.textColor = _messageVoiceDurationColor;
+                _bubbleView.voiceDurationLabel.font = _messageVoiceDurationFont;
+            }
+                break;
+            case eMessageBodyType_Video:
+            {
+                [_bubbleView setupVideoBubbleView];
+                
+                _bubbleView.videoTagView.image = [UIImage imageNamed:@"messageVideo"];
+            }
+                break;
+            case eMessageBodyType_File:
+            {
+                [_bubbleView setupFileBubbleView];
+                
+                _bubbleView.fileNameLabel.font = _messageFileNameFont;
+                _bubbleView.fileNameLabel.textColor = _messageFileNameColor;
+                _bubbleView.fileSizeLabel.font = _messageFileSizeFont;
+            }
+                break;
+            default:
+                break;
         }
-            break;
-        case eMessageBodyType_Video:
-        {
-            [_bubbleView setupVideoBubbleView];
-            
-            _bubbleView.videoTagView.image = [UIImage imageNamed:@"messageVideo"];
-        }
-            break;
-        case eMessageBodyType_File:
-        {
-            [_bubbleView setupFileBubbleView];
-            
-            _bubbleView.fileNameLabel.font = _messageFileNameFont;
-            _bubbleView.fileNameLabel.textColor = _messageFileNameColor;
-            _bubbleView.fileSizeLabel.font = _messageFileSizeFont;
-        }
-            break;
-        default:
-            break;
     }
     
     [self _setupConstraints];
     
     UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(bubbleViewTapAction:)];
     [_bubbleView addGestureRecognizer:tapRecognizer];
+    
+    UITapGestureRecognizer *tapRecognizer2 = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(avatarViewTapAction:)];
+    [_avatarView addGestureRecognizer:tapRecognizer2];
 }
 
 #pragma mark - Setup Constraints
@@ -211,63 +222,66 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
 - (void)setModel:(id<IMessageModel>)model
 {
     _model = model;
-    
-    switch (model.bodyType) {
-        case eMessageBodyType_Text:
-        {
-            _bubbleView.textLabel.text = model.text;
-        }
-            break;
-        case eMessageBodyType_Image:
-        {
-            UIImage *image = _model.thumbnailImage;
-            if (!image) {
-                image = _model.image;
+    if ([self isCustomBubbleView:model]) {
+        [self setCustomModel:model];
+    } else {
+        switch (model.bodyType) {
+            case eMessageBodyType_Text:
+            {
+                _bubbleView.textLabel.text = model.text;
+            }
+                break;
+            case eMessageBodyType_Image:
+            {
+                UIImage *image = _model.thumbnailImage;
                 if (!image) {
-                    image = [UIImage imageNamed:_model.failImageName];
+                    image = _model.image;
+                    if (!image) {
+                        image = [UIImage imageNamed:_model.failImageName];
+                    }
                 }
+                _bubbleView.imageView.image = image;
             }
-            _bubbleView.imageView.image = image;
-        }
-            break;
-        case eMessageBodyType_Location:
-        {
-            _bubbleView.locationLabel.text = _model.address;
-        }
-            break;
-        case eMessageBodyType_Voice:
-        {
-            if (_model.isMediaPlaying) {
-                [_bubbleView.voiceImageView startAnimating];
+                break;
+            case eMessageBodyType_Location:
+            {
+                _bubbleView.locationLabel.text = _model.address;
             }
-            else{
-                [_bubbleView.voiceImageView stopAnimating];
+                break;
+            case eMessageBodyType_Voice:
+            {
+                if (_model.isMediaPlaying) {
+                    [_bubbleView.voiceImageView startAnimating];
+                }
+                else{
+                    [_bubbleView.voiceImageView stopAnimating];
+                }
+                
+                _bubbleView.voiceDurationLabel.text = [NSString stringWithFormat:@"%d''",(int)_model.mediaDuration];
             }
-            
-            _bubbleView.voiceDurationLabel.text = [NSString stringWithFormat:@"%d''",(int)_model.mediaDuration];
-        }
-            break;
-        case eMessageBodyType_Video:
-        {
-            UIImage *image = _model.thumbnailImage;
-            if (!image) {
-                image = _model.image;
+                break;
+            case eMessageBodyType_Video:
+            {
+                UIImage *image = _model.thumbnailImage;
                 if (!image) {
-                    image = [UIImage imageNamed:_model.failImageName];
+                    image = _model.image;
+                    if (!image) {
+                        image = [UIImage imageNamed:_model.failImageName];
+                    }
                 }
+                _bubbleView.videoImageView.image = image;
             }
-            _bubbleView.videoImageView.image = image;
+                break;
+            case eMessageBodyType_File:
+            {
+                _bubbleView.fileIconView.image = [UIImage imageNamed:_model.fileIconName];
+                _bubbleView.fileNameLabel.text = _model.fileName;
+                _bubbleView.fileSizeLabel.text = _model.fileSizeDes;
+            }
+                break;
+            default:
+                break;
         }
-            break;
-        case eMessageBodyType_File:
-        {
-            _bubbleView.fileIconView.image = [UIImage imageNamed:_model.fileIconName];
-            _bubbleView.fileNameLabel.text = _model.fileName;
-            _bubbleView.fileSizeLabel.text = _model.fileSizeDes;
-        }
-            break;
-        default:
-            break;
     }
 }
 
@@ -277,12 +291,14 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
     [self _updateStatusButtonWidthConstraint];
 }
 
-- (void)setBubbleBackgroundImage:(UIImage *)bubbleBackgroundImage
+- (void)setSendBubbleBackgroundImage:(UIImage *)sendBubbleBackgroundImage
 {
-    _bubbleBackgroundImage = bubbleBackgroundImage;
-    if (_bubbleView) {
-        _bubbleView.backgroundImageView.image = _bubbleBackgroundImage;
-    }
+    _sendBubbleBackgroundImage = sendBubbleBackgroundImage;
+}
+
+- (void)setRecvBubbleBackgroundImage:(UIImage *)recvBubbleBackgroundImage
+{
+    _recvBubbleBackgroundImage = recvBubbleBackgroundImage;
 }
 
 - (void)setBubbleMaxWidth:(CGFloat)bubbleMaxWidth
@@ -294,42 +310,46 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
 - (void)setBubbleMargin:(UIEdgeInsets)bubbleMargin
 {
     _bubbleMargin = bubbleMargin;
-    if (_bubbleView) {
-        switch (_messageType) {
-            case eMessageBodyType_Text:
-            {
-                [_bubbleView updateTextMargin:_bubbleMargin];
+    if ([self isCustomBubbleView:_model]) {
+        [self updateCustomBubbleViewMargin:bubbleMargin model:_model];
+    } else {
+        if (_bubbleView) {
+            switch (_messageType) {
+                case eMessageBodyType_Text:
+                {
+                    [_bubbleView updateTextMargin:_bubbleMargin];
+                }
+                    break;
+                case eMessageBodyType_Image:
+                {
+                    [_bubbleView updateImageMargin:_bubbleMargin];
+                }
+                    break;
+                case eMessageBodyType_Location:
+                {
+                    [_bubbleView updateLocationMargin:_bubbleMargin];
+                }
+                    break;
+                case eMessageBodyType_Voice:
+                {
+                    [_bubbleView updateVoiceMargin:_bubbleMargin];
+                }
+                    break;
+                case eMessageBodyType_Video:
+                {
+                    [_bubbleView updateVideoMargin:_bubbleMargin];
+                }
+                    break;
+                case eMessageBodyType_File:
+                {
+                    [_bubbleView updateFileMargin:_bubbleMargin];
+                }
+                    break;
+                default:
+                    break;
             }
-                break;
-            case eMessageBodyType_Image:
-            {
-                [_bubbleView updateImageMargin:_bubbleMargin];
-            }
-                break;
-            case eMessageBodyType_Location:
-            {
-                [_bubbleView updateLocationMargin:_bubbleMargin];
-            }
-                break;
-            case eMessageBodyType_Voice:
-            {
-                [_bubbleView updateVoiceMargin:_bubbleMargin];
-            }
-                break;
-            case eMessageBodyType_Video:
-            {
-                [_bubbleView updateVideoMargin:_bubbleMargin];
-            }
-                break;
-            case eMessageBodyType_File:
-            {
-                [_bubbleView updateFileMargin:_bubbleMargin];
-            }
-                break;
-            default:
-                break;
+            
         }
-
     }
 }
 
@@ -365,16 +385,14 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
     }
 }
 
-- (void)setMessageVoiceAnimationImages:(NSArray *)messageVoiceAnimationImages
+- (void)setSendMessageVoiceAnimationImages:(NSArray *)sendMessageVoiceAnimationImages
 {
-    _messageVoiceAnimationImages = messageVoiceAnimationImages;
-    if (_bubbleView.voiceImageView) {
-        if ([_messageVoiceAnimationImages count] > 0) {
-            _bubbleView.voiceImageView.image = [_messageVoiceAnimationImages objectAtIndex:0];
-        }
-        
-        _bubbleView.voiceImageView.animationImages = _messageVoiceAnimationImages;
-    }
+    _sendMessageVoiceAnimationImages = sendMessageVoiceAnimationImages;
+}
+
+- (void)setRecvMessageVoiceAnimationImages:(NSArray *)recvMessageVoiceAnimationImages
+{
+    _recvMessageVoiceAnimationImages = recvMessageVoiceAnimationImages;
 }
 
 - (void)setMessageVoiceDurationColor:(UIColor *)messageVoiceDurationColor
@@ -484,9 +502,40 @@ NSString *const EMMessageCellIdentifierSendFile = @"EMMessageCellSendFile";
     }
 }
 
+- (void)avatarViewTapAction:(UITapGestureRecognizer *)tapRecognizer
+{
+    if ([_delegate respondsToSelector:@selector(avatarViewSelcted:)]) {
+        [_delegate avatarViewSelcted:_model];
+    }
+}
+
 - (void)statusAction
 {
-    
+    if ([_delegate respondsToSelector:@selector(statusButtonSelcted:withMessageCell:)]) {
+        [_delegate statusButtonSelcted:_model withMessageCell:self];
+    }
+}
+
+#pragma mark - IModelCell
+
+- (BOOL)isCustomBubbleView:(id<IMessageModel>)model
+{
+    return NO;
+}
+
+- (void)setCustomModel:(id<IMessageModel>)model
+{
+
+}
+
+- (void)setCustomBubbleView:(id<IMessageModel>)model
+{
+
+}
+
+- (void)updateCustomBubbleViewMargin:(UIEdgeInsets)bubbleMargin model:(id<IMessageModel>)model
+{
+
 }
 
 #pragma mark - public

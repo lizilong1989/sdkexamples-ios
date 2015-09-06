@@ -51,6 +51,7 @@ extern NSString *const EMMessageCellIdentifierRecvFile;
 //voice views
 @property (strong, nonatomic) UIImageView *voiceImageView;
 @property (strong, nonatomic) UILabel *voiceDurationLabel;
+@property (strong, nonatomic) UIImageView *isReadView;
 
 //video views
 @property (strong, nonatomic) UIImageView *videoImageView;

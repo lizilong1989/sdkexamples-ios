@@ -54,6 +54,7 @@
     _usernameTextField.leftViewMode = UITextFieldViewModeAlways;
     _usernameTextField.clearButtonMode = UITextFieldViewModeWhileEditing;
     _usernameTextField.placeholder = NSLocalizedString(@"username", @"Username");
+    _usernameTextField.autocorrectionType = UITextAutocorrectionTypeNo;
     UIImageView *userLeftView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"account"]];
     userLeftView.contentMode = UIViewContentModeScaleAspectFit;
     userLeftView.frame = CGRectMake(0, 0, 30, 20);
@@ -68,6 +69,7 @@
     _passwordTextField.leftViewMode = UITextFieldViewModeAlways;
     _passwordTextField.clearButtonMode = UITextFieldViewModeWhileEditing;
     _passwordTextField.placeholder = NSLocalizedString(@"password", @"Password");
+    _passwordTextField.secureTextEntry = YES;
     UIImageView *pswdLeftView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"password"]];
     pswdLeftView.contentMode = UIViewContentModeScaleAspectFit;
     pswdLeftView.frame = CGRectMake(0, 0, 30, 20);

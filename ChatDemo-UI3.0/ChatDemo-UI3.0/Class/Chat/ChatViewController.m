@@ -8,8 +8,11 @@
 
 #import "ChatViewController.h"
 
+#import "CustomMessageCell.h"
 #import "UIViewController+HUD.h"
 #import "NSDate+Category.h"
+#import "Emoji.h"
+#import "EMEmotionManager.h"
 
 @interface ChatViewController ()<UIAlertViewDelegate, EMMessageViewControllerDelegate, EMMessageViewControllerDataSource>
 
@@ -24,17 +27,40 @@
     self.delegate = self;
     self.dataSource = self;
     
-    [[EMSendMessageCell appearance] setBubbleBackgroundImage:[[UIImage imageNamed:@"chat_sender_bg"] stretchableImageWithLeftCapWidth:10 topCapHeight:35]];
-    [[EMRecvMessageCell appearance] setBubbleBackgroundImage:[[UIImage imageNamed:@"chat_receiver_bg"] stretchableImageWithLeftCapWidth:35 topCapHeight:35]];
+    [[EMSendMessageCell appearance] setSendBubbleBackgroundImage:[[UIImage imageNamed:@"chat_sender_bg"] stretchableImageWithLeftCapWidth:5 topCapHeight:35]];
+    [[EMSendMessageCell appearance] setRecvBubbleBackgroundImage:[[UIImage imageNamed:@"chat_receiver_bg"] stretchableImageWithLeftCapWidth:35 topCapHeight:35]];
     
-    [[EMSendMessageCell appearance] setMessageVoiceAnimationImages:@[[UIImage imageNamed:@"chat_sender_audio_playing_000"], [UIImage imageNamed:@"chat_sender_audio_playing_001"], [UIImage imageNamed:@"chat_sender_audio_playing_002"], [UIImage imageNamed:@"chat_sender_audio_playing_003"]]];
-    [[EMRecvMessageCell appearance] setMessageVoiceAnimationImages:@[[UIImage imageNamed:@"chat_receiver_audio_playing000"], [UIImage imageNamed:@"chat_receiver_audio_playing001"], [UIImage imageNamed:@"chat_receiver_audio_playing002"], [UIImage imageNamed:@"chat_receiver_audio_playing003"]]];
+    [[EMSendMessageCell appearance] setSendMessageVoiceAnimationImages:@[[UIImage imageNamed:@"chat_sender_audio_playing_000"], [UIImage imageNamed:@"chat_sender_audio_playing_001"], [UIImage imageNamed:@"chat_sender_audio_playing_002"], [UIImage imageNamed:@"chat_sender_audio_playing_003"]]];
+    [[EMSendMessageCell appearance] setRecvMessageVoiceAnimationImages:@[[UIImage imageNamed:@"chat_receiver_audio_playing000"], [UIImage imageNamed:@"chat_receiver_audio_playing001"], [UIImage imageNamed:@"chat_receiver_audio_playing002"], [UIImage imageNamed:@"chat_receiver_audio_playing003"]]];
+    
+    [[EMRecvMessageCell appearance] setAvatarSize:40.f];
+    [[EMRecvMessageCell appearance] setAvatarCornerRadius:20.f];
+    [[EMSendMessageCell appearance] setAvatarSize:40.f];
+    [[EMSendMessageCell appearance] setAvatarCornerRadius:20.f];
+    
+    [[DXChatBarMoreView appearance] setMoreViewBackgroundColor:[UIColor colorWithRed:240 / 255.0 green:242 / 255.0 blue:247 / 255.0 alpha:1.0]];
     
     [self _setupBarButtonItem];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deleteAllMessages:) name:KNOTIFICATIONNAME_DELETEALLMESSAGE object:nil];
     
     //通过会话管理者获取已收发消息
     [self tableViewDidTriggerHeaderRefresh];
+    
+    [self.chatBarMoreView insertItemWithImage:[UIImage imageNamed:@"chatBar_colorMore_videoCall"] highlightedImage:[UIImage imageNamed:@"chatBar_colorMore_videoCallSelected"] title:nil];
+    [self.chatBarMoreView insertItemWithImage:[UIImage imageNamed:@"chatBar_colorMore_videoCall"] highlightedImage:[UIImage imageNamed:@"chatBar_colorMore_videoCallSelected"] title:nil];
+    [self.chatBarMoreView insertItemWithImage:[UIImage imageNamed:@"chatBar_colorMore_videoCall"] highlightedImage:[UIImage imageNamed:@"chatBar_colorMore_videoCallSelected"] title:nil];
+    [self.chatBarMoreView insertItemWithImage:[UIImage imageNamed:@"chatBar_colorMore_videoCall"] highlightedImage:[UIImage imageNamed:@"chatBar_colorMore_videoCallSelected"] title:nil];
+//    [self.chatBarMoreView updateItemWithImage:[UIImage imageNamed:@"chatBar_colorMore_videoCall"] highlightedImage:[UIImage imageNamed:@"chatBar_colorMore_videoCallSelected"] title:nil atIndex:0];
+//    [self.chatBarMoreView removeItematIndex:0];
+    EMEmotionManager *manager= [[EMEmotionManager alloc] initWithType:EMEmotionDefault emotionRow:3 emotionCol:7 emotions:[Emoji allEmoji]];
+    
+    NSMutableArray *emotions = [[NSMutableArray alloc] init];
+    for (int i = 0; i < 30; i++) {
+        NSString *str = [NSString stringWithFormat:@"b%d.gif",i];
+        [emotions addObject:str];
+    }
+    EMEmotionManager *manager2= [[EMEmotionManager alloc] initWithType:EMEmotionGif emotionRow:2 emotionCol:4 emotions:emotions];
+    [self.faceView setNumberOfEmotionManagers:2 emotionManagers:@[manager,manager2]];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -83,10 +109,63 @@
 
 #pragma mark - EMMessageViewControllerDelegate
 
+- (EMMessageCell *)messageViewController:(UITableView *)tableView cellForMessageModel:(id<IMessageModel>)model
+{
+    if (model.bodyType == eMessageBodyType_Text) {
+        NSString *CellIdentifier = [CustomMessageCell cellIdentifierWithModel:model];
+        //发送cell
+        CustomMessageCell *sendCell = (CustomMessageCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+        
+        // Configure the cell...
+        if (sendCell == nil) {
+            sendCell = [[CustomMessageCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier model:model];
+            sendCell.selectionStyle = UITableViewCellSelectionStyleNone;
+        }
+        
+        sendCell.model = model;
+        return sendCell;
+    }
+    return nil;
+}
+
+- (CGFloat)messageViewController:(EMMessageViewController *)viewController
+           heightForMessageModel:(id<IMessageModel>)messageModel
+                   withCellWidth:(CGFloat)cellWidth
+{
+    if (messageModel.bodyType == eMessageBodyType_Text) {
+        return [CustomMessageCell cellHeightWithModel:messageModel];
+    }
+    return 0.f;
+}
+
 - (void)messageViewController:(EMMessageViewController *)viewController
    didSelectImageMessageModel:(id<IMessageModel>)messageModel
 {
     
+}
+
+- (void)messageViewController:(EMMessageViewController *)viewController
+   didSelectAvatarMessageModel:(id<IMessageModel>)messageModel
+{
+    
+}
+
+
+- (void)messageViewController:(EMMessageViewController *)viewController
+            didSelectMoreView:(DXChatBarMoreView *)moreView
+                      AtIndex:(NSInteger)index
+{
+    // 隐藏键盘
+    [self.chatToolbar endEditing:YES];
+    if (self.conversation.conversationType == EMChatToolbarTypeChat) {
+        if  (index == 5) {
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://www.easemob.com"]];
+        }
+    } else {
+        if  (index == 3) {
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://www.easemob.com"]];
+        }
+    }
 }
 
 #pragma mark - EaseMob
@@ -113,15 +192,15 @@
 
 - (void)backAction
 {
-    [self reloadConversationList];
-    
-    if (self.deleteConversationIfNull) {
+//    if (self.deleteConversationIfNull) {
         //判断当前会话是否为空，若符合则删除该会话
         EMMessage *message = [self.conversation latestMessage];
         if (message == nil) {
             [[EaseMob sharedInstance].chatManager removeConversationByChatter:self.conversation.chatter deleteMessages:NO append2Chat:YES];
         }
-    }
+//    }
+    
+    [self reloadConversationList];
     
     [self.navigationController popViewControllerAnimated:YES];
 }

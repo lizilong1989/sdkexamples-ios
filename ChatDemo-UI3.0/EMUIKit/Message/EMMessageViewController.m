@@ -64,7 +64,9 @@
     EMChatToolbarType barType = self.conversation.conversationType == eConversationTypeChat ? EMChatToolbarTypeChat : EMChatToolbarTypeGroup;
     self.chatToolbar = [[EMChatToolbar alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height - chatbarHeight, self.view.frame.size.width, chatbarHeight) type:barType];
     [(EMChatToolbar *)self.chatToolbar setDelegate:self];
-    self.chatToolbar.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;
+    self.chatBarMoreView = (DXChatBarMoreView*)[(EMChatToolbar *)self.chatToolbar moreView];
+    self.faceView = (DXFaceView*)[(EMChatToolbar *)self.chatToolbar faceView];
+    self.chatToolbar.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;    
     
     //初始化手势
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(keyBoardHidden:)];
@@ -549,8 +551,30 @@
     }
     else{
         id<IMessageModel> model = object;
+        if (_delegate && [_delegate respondsToSelector:@selector(messageViewController:cellForMessageModel:)]) {
+            EMMessageCell *cell = [_delegate messageViewController:tableView cellForMessageModel:model];
+            if (cell) {
+                if (cell.delegate == nil) {
+                    cell.delegate = self;
+                }
+                return cell;
+            }
+        }
+        
         NSString *CellIdentifier = [EMMessageCell cellIdentifierWithModel:model];
         
+        EMSendMessageCell *sendCell = (EMSendMessageCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+        
+        // Configure the cell...
+        if (sendCell == nil) {
+            sendCell = [[EMSendMessageCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier model:model];
+            sendCell.selectionStyle = UITableViewCellSelectionStyleNone;
+            sendCell.delegate = self;
+        }
+        
+        sendCell.model = model;
+        return sendCell;
+        /*
         //发送cell
         if (model.isSender) {
             EMSendMessageCell *sendCell = (EMSendMessageCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
@@ -577,7 +601,7 @@
             
             recvCell.model = model;
             return recvCell;
-        }
+        }*/
     }
 }
 
@@ -592,15 +616,17 @@
     else{
         id<IMessageModel> model = object;
         if (_delegate && [_delegate respondsToSelector:@selector(messageViewController:heightForMessageModel:withCellWidth:)]) {
-            return [_delegate messageViewController:self heightForMessageModel:model withCellWidth:tableView.frame.size.width];
+            CGFloat height = [_delegate messageViewController:self heightForMessageModel:model withCellWidth:tableView.frame.size.width];
+            if (height) {
+                return height;
+            }
+        }
+        
+        if (model.isSender) {
+            return [EMSendMessageCell cellHeightWithModel:model];
         }
         else{
-            if (model.isSender) {
-                return [EMSendMessageCell cellHeightWithModel:model];
-            }
-            else{
-                return [EMRecvMessageCell cellHeightWithModel:model];
-            }
+            return [EMRecvMessageCell cellHeightWithModel:model];
         }
     }
 }
@@ -646,6 +672,17 @@
 }
 
 #pragma mark - EMMessageCellDelegate
+
+- (void)imageMessageCellSelcted:(id<IMessageModel>)model
+{
+    if (_delegate && [_delegate respondsToSelector:@selector(messageViewController:didSelectImageMessageModel:)]) {
+        [_delegate messageViewController:self didSelectImageMessageModel:model];
+        return;
+    }
+    
+    _scrollToBottomWhenAppear = NO;
+
+}
 
 - (void)locationMessageCellSelcted:(id<IMessageModel>)model
 {
@@ -798,6 +835,32 @@
     [self showHint:@"Custom implementation!"];
 }
 
+- (void)statusButtonSelcted:(id<IMessageModel>)model withMessageCell:(EMMessageCell*)messageCell
+{
+    if ((model.messageStatus != eMessageDeliveryState_Failure) && (model.messageStatus != eMessageDeliveryState_Pending))
+    {
+        return;
+    }
+    id <IChatManager> chatManager = [[EaseMob sharedInstance] chatManager];
+    [chatManager asyncResendMessage:model.message progress:nil];
+    NSIndexPath *indexPath = [self.tableView indexPathForCell:messageCell];
+    [self.tableView beginUpdates];
+    [self.tableView reloadRowsAtIndexPaths:@[indexPath]
+                          withRowAnimation:UITableViewRowAnimationNone];
+    [self.tableView endUpdates];
+}
+
+- (void)avatarViewSelcted:(id<IMessageModel>)model
+{
+    if (_delegate && [_delegate respondsToSelector:@selector(messageViewController:didSelectAvatarMessageModel:)]) {
+        [_delegate messageViewController:self didSelectAvatarMessageModel:model];
+        
+        return;
+    }
+    
+    _scrollToBottomWhenAppear = NO;
+}
+
 #pragma mark - EMChatToolbarDelegate
 
 - (void)chatToolbarDidChangeFrameToHeight:(CGFloat)toHeight
@@ -876,6 +939,14 @@
 
 #pragma mark - EMChatBarMoreViewDelegate
 
+- (void)moreView:(DXChatBarMoreView *)moreView didItemInMoreViewAtIndex:(NSInteger)index
+{
+    if ([self.delegate respondsToSelector:@selector(messageViewController:didSelectMoreView:AtIndex:)]) {
+        [self.delegate messageViewController:self didSelectMoreView:moreView AtIndex:index];
+        return;
+    }
+}
+
 - (void)moreViewPhotoAction:(DXChatBarMoreView *)moreView
 {
     // 隐藏键盘
@@ -939,7 +1010,7 @@
                   longitude:(double)longitude
                  andAddress:(NSString *)address
 {
-    [self sendLocationLatitude:latitude longitude:longitude andAddress:address];
+    [self sendLocationMessageLatitude:latitude longitude:longitude andAddress:address];
 }
 
 #pragma mark - EaseMob

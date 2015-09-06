@@ -129,4 +129,9 @@
     return self.firstMessageBody.messageBodyType;
 }
 
+- (BOOL)isMessageRead
+{
+    return _message.isRead;
+}
+
 @end

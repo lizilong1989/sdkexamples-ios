@@ -23,8 +23,12 @@
 
 //消息ID
 @property (strong, nonatomic, readonly) NSString *messageId;
+//消息发送状态
+@property (nonatomic, readonly) MessageDeliveryState messageStatus;
 //消息类型
 @property (nonatomic, readonly) MessageBodyType bodyType;
+//是否已读
+@property (nonatomic) BOOL isMessageRead;
 
 //是否是当前登录者发送的消息
 @property (nonatomic) BOOL isSender;

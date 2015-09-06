@@ -21,16 +21,18 @@
 
 @end
 
-
+@class EMEmotionManager;
 @interface FacialView : UIView
 {
-	NSArray *_faces;
+	NSMutableArray *_faces;
 }
 
 @property(nonatomic) id<FacialViewDelegate> delegate;
 
 @property(strong, nonatomic, readonly) NSArray *faces;
 
--(void)loadFacialView:(int)page size:(CGSize)size;
+-(void)loadFacialView:(EMEmotionManager*)emotionManager size:(CGSize)size;
+
+//-(void)loadFacialView:(int)page size:(CGSize)size;
 
 @end

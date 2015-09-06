@@ -212,6 +212,36 @@ didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
     [[EaseMob sharedInstance] application:application didFinishLaunchingWithOptions:launchOptions];
 }
 
+#pragma mark - EMChatManagerLoginDelegate
+
+// 自动登录开始回调
+-(void)willAutoLoginWithInfo:(NSDictionary *)loginInfo error:(EMError *)error
+{
+    if (error) {
+        //发送自动登陆状态通知
+        [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATION_LOGINCHANGE object:@NO];
+    }
+    else{
+        //将旧版的coredata数据导入新的数据库
+        EMError *error = [[EaseMob sharedInstance].chatManager importDataToNewDatabase];
+        if (!error) {
+            error = [[EaseMob sharedInstance].chatManager loadDataFromDatabase];
+        }
+    }
+}
+
+// 自动登录结束回调
+-(void)didAutoLoginWithInfo:(NSDictionary *)loginInfo error:(EMError *)error
+{
+    if (error) {
+    }
+    else{
+        //获取群组列表
+        [[EaseMob sharedInstance].chatManager asyncFetchMyGroupsList];
+    }
+}
+
+
 #pragma make - login easemob
 
 - (void)loginWithUsername:(NSString *)username

@@ -22,11 +22,20 @@
 
 @end
 
-
 @interface DXFaceView : UIView <FacialViewDelegate>
 
 @property (nonatomic, assign) id<DXFaceDelegate> delegate;
 
 - (BOOL)stringIsFace:(NSString *)string;
+
+/*!
+ @method
+ @brief 通过数据源获取表情分组数,
+ @discussion
+ @param number 分组数
+ @param emotionManagers 表情分组列表
+ @result
+ */
+- (void)setNumberOfEmotionManagers:(NSInteger)number emotionManagers:(NSArray*)emotionManagers;
 
 @end

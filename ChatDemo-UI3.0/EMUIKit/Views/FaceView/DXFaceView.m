@@ -11,10 +11,16 @@
   */
 
 #import "DXFaceView.h"
+#import "Emoji.h"
 
 @interface DXFaceView ()
 {
     FacialView *_facialView;
+    UIScrollView *_bottomScrollView;
+    NSInteger _currentSelectIndex;
+    NSInteger _numberOfEmotion;
+    NSArray *_emotionManagers;
+
 }
 
 @end
@@ -25,12 +31,89 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-        _facialView = [[FacialView alloc] initWithFrame: CGRectMake(5, 5, frame.size.width - 10, self.bounds.size.height - 10)];
-        [_facialView loadFacialView:1 size:CGSizeMake(30, 30)];
+        _facialView = [[FacialView alloc] initWithFrame: CGRectMake(0, 0, frame.size.width, 150)];
+//        [_facialView loadFacialView:1 size:CGSizeMake(30, 30)];
         _facialView.delegate = self;
         [self addSubview:_facialView];
+        [self _setupButtom];
     }
     return self;
+}
+
+- (void)willMoveToSuperview:(UIView *)newSuperview
+{
+    if (newSuperview) {
+        [self reloadEmotionData];
+    }
+}
+
+
+#pragma mark - private
+
+- (void)_setupButtom
+{
+    _currentSelectIndex = 1000;
+    
+    _bottomScrollView = [[UIScrollView alloc] initWithFrame: CGRectMake(0, CGRectGetMaxY(_facialView.frame), self.frame.size.width - CGRectGetWidth(_bottomScrollView.frame)/5, self.frame.size.height - CGRectGetHeight(_facialView.frame))];
+    _bottomScrollView.showsHorizontalScrollIndicator = NO;
+    [self addSubview:_bottomScrollView];
+    [self _setupButtonScrollView];
+    
+    UIButton *sendButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    sendButton.frame = CGRectMake(4*CGRectGetWidth(_bottomScrollView.frame)/5, CGRectGetMaxY(_facialView.frame), CGRectGetWidth(_bottomScrollView.frame)/5, CGRectGetHeight(_bottomScrollView.frame));
+    [sendButton setBackgroundColor:[UIColor colorWithRed:10 / 255.0 green:82 / 255.0 blue:104 / 255.0 alpha:1.0]];
+    [sendButton setTitle:NSLocalizedString(@"send", @"Send") forState:UIControlStateNormal];
+    [sendButton addTarget:self action:@selector(sendFace) forControlEvents:UIControlEventTouchUpInside];
+    [self addSubview:sendButton];
+}
+
+- (void)_setupButtonScrollView
+{
+    NSInteger number = _numberOfEmotion;
+    if (number <= 1) {
+        return;
+    }
+//    if ([self.dataSource respondsToSelector:@selector(numberOfEmotionManagers)]) {
+//        number = [self.dataSource numberOfEmotionManagers];
+//    }
+    for (int i = 0; i < number; i++) {
+        UIButton *defaultButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        defaultButton.frame = CGRectMake(i * CGRectGetWidth(_bottomScrollView.frame)/5, 0, CGRectGetWidth(_bottomScrollView.frame)/5, CGRectGetHeight(_bottomScrollView.frame));
+        [defaultButton setTitle:[Emoji emojiWithCode:0x1F60a] forState:UIControlStateNormal];
+        [defaultButton setBackgroundColor:[UIColor clearColor]];
+        defaultButton.layer.borderWidth = 0.5;
+        defaultButton.layer.borderColor = [UIColor whiteColor].CGColor;
+        [defaultButton addTarget:self action:@selector(didSelect:) forControlEvents:UIControlEventTouchUpInside];
+        defaultButton.tag = 1000 + i;
+        [_bottomScrollView addSubview:defaultButton];
+    }
+    [_bottomScrollView setContentSize:CGSizeMake(number*CGRectGetWidth(_bottomScrollView.frame)/5, CGRectGetHeight(_bottomScrollView.frame))];
+}
+
+- (void)_clearupButtomScrollView
+{
+    for (UIView *view in [_bottomScrollView subviews]) {
+        [view removeFromSuperview];
+    }
+}
+
+#pragma mark - action
+
+- (void)didSelect:(id)sender
+{
+    UIButton *btn = (UIButton*)sender;
+    NSInteger index = btn.tag - 1000;
+    if (index < [_emotionManagers count]) {
+        [_facialView loadFacialView:[_emotionManagers objectAtIndex:index] size:CGSizeMake(30, 30)];
+    }
+}
+
+- (void)reloadEmotionData
+{
+    NSInteger index = _currentSelectIndex - 1000;
+    if (index < [_emotionManagers count]) {
+        [_facialView loadFacialView:[_emotionManagers objectAtIndex:index] size:CGSizeMake(30, 30)];
+    }
 }
 
 #pragma mark - FacialViewDelegate
@@ -64,5 +147,13 @@
     
     return NO;
 }
+
+- (void)setNumberOfEmotionManagers:(NSInteger)number emotionManagers:(NSArray *)emotionManagers
+{
+    _numberOfEmotion = number;
+    _emotionManagers = emotionManagers;
+    [self _setupButtonScrollView];
+}
+
 
 @end

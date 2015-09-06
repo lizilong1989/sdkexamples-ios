@@ -13,7 +13,8 @@
 #import "NSObject+EaseMob.h"
 
 #define KNOTIFICATION_LOGINCHANGE @"loginStateChange"
-#define KNOTIFICATION_CALL @"call"
+#define KNOTIFICATION_CALL @"callOutWithChatter"
+#define KNOTIFICATION_CALL_CLOSE @"callControllerClose"
 
 #define KNOTIFICATIONNAME_RELOADCONLIST @"reloadConversationList"
 

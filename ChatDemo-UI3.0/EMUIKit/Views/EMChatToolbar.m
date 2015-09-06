@@ -188,6 +188,15 @@
     [self setInputViewRightItems:@[faceItem, moreItem]];
 }
 
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillChangeFrameNotification object:nil];
+    
+    _delegate = nil;
+    _inputTextView.delegate = nil;
+    _inputTextView = nil;
+}
+
 #pragma mark - getter
 
 - (UIView *)recordView
@@ -202,7 +211,7 @@
 - (UIView *)faceView
 {
     if (_faceView == nil) {
-        _faceView = [[DXFaceView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_toolbarView.frame), self.frame.size.width, 200)];
+        _faceView = [[DXFaceView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_toolbarView.frame), self.frame.size.width, 180)];
         [(DXFaceView *)_faceView setDelegate:self];
         _faceView.backgroundColor = [UIColor colorWithRed:240 / 255.0 green:242 / 255.0 blue:247 / 255.0 alpha:1.0];
         _faceView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin;

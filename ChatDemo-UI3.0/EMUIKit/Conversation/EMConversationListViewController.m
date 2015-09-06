@@ -14,11 +14,25 @@
 #import "ConvertToCommonEmoticonsHelper.h"
 #import "NSDate+Category.h"
 
-@interface EMConversationListViewController ()
+@interface EMConversationListViewController () <IChatManagerDelegate>
 
 @end
 
 @implementation EMConversationListViewController
+
+-(void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    
+    [self tableViewDidTriggerHeaderRefresh];
+    [self registerNotifications];
+}
+
+-(void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    [self unregisterNotifications];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -121,6 +135,32 @@
     }
 
     [self tableViewDidFinishTriggerHeader:YES reload:YES];
+}
+
+#pragma mark - IChatMangerDelegate
+
+-(void)didUnreadMessagesCountChanged
+{
+    [self tableViewDidTriggerHeaderRefresh];
+}
+
+- (void)didUpdateGroupList:(NSArray *)allGroups error:(EMError *)error
+{
+    [self tableViewDidTriggerHeaderRefresh];
+}
+
+#pragma mark - registerNotifications
+-(void)registerNotifications{
+    [self unregisterNotifications];
+    [[EaseMob sharedInstance].chatManager addDelegate:self delegateQueue:nil];
+}
+
+-(void)unregisterNotifications{
+    [[EaseMob sharedInstance].chatManager removeDelegate:self];
+}
+
+- (void)dealloc{
+    [self unregisterNotifications];
 }
 
 @end

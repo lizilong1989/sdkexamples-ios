@@ -47,7 +47,9 @@ extern CGFloat const EMMessageCellPadding;
 
 @property (nonatomic) UIEdgeInsets bubbleMargin UI_APPEARANCE_SELECTOR; //default UIEdgeInsetsMake(8, 15, 8, 10);
 
-@property (strong, nonatomic) UIImage *bubbleBackgroundImage UI_APPEARANCE_SELECTOR;
+@property (strong, nonatomic) UIImage *sendBubbleBackgroundImage UI_APPEARANCE_SELECTOR;
+
+@property (strong, nonatomic) UIImage *recvBubbleBackgroundImage UI_APPEARANCE_SELECTOR;
 
 @property (nonatomic) UIFont *messageTextFont UI_APPEARANCE_SELECTOR; //default [UIFont systemFontOfSize:15];
 
@@ -57,7 +59,9 @@ extern CGFloat const EMMessageCellPadding;
 
 @property (nonatomic) UIColor *messageLocationColor UI_APPEARANCE_SELECTOR; //default [UIColor whiteColor];
 
-@property (nonatomic) NSArray *messageVoiceAnimationImages UI_APPEARANCE_SELECTOR;
+@property (nonatomic) NSArray *sendMessageVoiceAnimationImages UI_APPEARANCE_SELECTOR;
+
+@property (nonatomic) NSArray *recvMessageVoiceAnimationImages UI_APPEARANCE_SELECTOR;
 
 @property (nonatomic) UIColor *messageVoiceDurationColor UI_APPEARANCE_SELECTOR; //default [UIColor grayColor];
 
@@ -94,6 +98,10 @@ extern CGFloat const EMMessageCellPadding;
 - (void)videoMessageCellSelcted:(id<IMessageModel>)model;
 
 - (void)fileMessageCellSelcted:(id<IMessageModel>)model;
+
+- (void)statusButtonSelcted:(id<IMessageModel>)model withMessageCell:(EMMessageCell*)messageCell;
+
+- (void)avatarViewSelcted:(id<IMessageModel>)model;
 
 @end
 

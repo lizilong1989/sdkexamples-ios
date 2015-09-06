@@ -30,7 +30,7 @@
 @property (nonatomic, readonly) EMMessageType messageType;
 
 //是否已读
-@property (nonatomic) BOOL isRead;
+@property (nonatomic) BOOL isMessageRead;
 //是否是当前登录者发送的消息
 @property (nonatomic) BOOL isSender;
 //消息显示的昵称

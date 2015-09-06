@@ -30,11 +30,18 @@
 @optional
 
 /**
+ *  获取消息自定义cell
+ */
+- (EMMessageCell *)messageViewController:(UITableView *)tableView
+                       cellForMessageModel:(id<IMessageModel>)messageModel;
+
+/**
  *  消息cell高度
  */
 - (CGFloat)messageViewController:(EMMessageViewController *)viewController
            heightForMessageModel:(id<IMessageModel>)messageModel
                    withCellWidth:(CGFloat)cellWidth;
+
 /**
  *  发送消息成功
  */
@@ -83,6 +90,19 @@ didSelectLocationMessageModel:(id<IMessageModel>)messageModel;
  */
 - (void)messageViewController:(EMMessageViewController *)viewController
     didSelectFileMessageModel:(id<IMessageModel>)messageModel;
+
+/**
+ *  选中消息头像
+ */
+- (void)messageViewController:(EMMessageViewController *)viewController
+    didSelectAvatarMessageModel:(id<IMessageModel>)messageModel;
+
+/**
+ *  选中底部功能按钮
+ */
+- (void)messageViewController:(EMMessageViewController *)viewController
+            didSelectMoreView:(DXChatBarMoreView *)moreView
+                      AtIndex:(NSInteger)index;
 
 @end
 
@@ -183,9 +203,15 @@ shouldSendHasReadAckForMessage:(EMMessage *)message
 
 @property (strong, nonatomic) UIView *chatToolbar;
 
+@property(strong, nonatomic) DXChatBarMoreView *chatBarMoreView;
+
+@property(strong, nonatomic) DXFaceView *faceView;
+
 @property (strong, nonatomic) UIMenuController *menuController;
 
 @property (strong, nonatomic) UIImagePickerController *imagePicker;
+
+@property (nonatomic) BOOL isInvisible;
 
 - (instancetype)initWithConversationChatter:(NSString *)conversationChatter
                            conversationType:(EMConversationType)conversationType;

@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
+#import "DXFaceView.h"
 #import "DXTextView.h"
 #import "DXRecordView.h"
 #import "DXChatBarMoreView.h"
