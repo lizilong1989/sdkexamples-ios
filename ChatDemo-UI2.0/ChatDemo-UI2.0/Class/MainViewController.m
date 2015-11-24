@@ -10,6 +10,7 @@
   * from EaseMob Technologies.
   */
 
+#import <AVFoundation/AVFoundation.h>
 #import "MainViewController.h"
 
 #import "UIViewController+HUD.h"

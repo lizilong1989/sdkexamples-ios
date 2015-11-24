@@ -13,8 +13,6 @@
 #import "ChatSendHelper.h"
 #import "ConvertToCommonEmoticonsHelper.h"
 
-#import "EMCommandMessageBody.h"
-
 @interface ChatImageOptions : NSObject<IChatImageOptions>
 
 @property (assign, nonatomic) CGFloat compressionQuality;
