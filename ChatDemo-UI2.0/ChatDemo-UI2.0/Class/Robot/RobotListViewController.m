@@ -16,7 +16,7 @@
 #import "BaseTableViewCell.h"
 #import "ChatViewController.h"
 #import "EMCursorResult.h"
-#import "EMRobot.h"
+//#import "EMRobot.h"
 #import "RobotManager.h"
 #import "SRRefreshView.h"
 #import "RobotChatViewController.h"
@@ -28,7 +28,7 @@
 @end
 
 @implementation RobotListViewController
-
+/*
 - (id)initWithStyle:(UITableViewStyle)style
 {
     self = [super initWithStyle:style];
@@ -47,7 +47,7 @@
     {
         [self setEdgesForExtendedLayout:UIRectEdgeNone];
     }
-    [[EaseMob sharedInstance].chatManager addDelegate:self delegateQueue:nil];
+    [[EMClient shareClient].chatManager addDelegate:self delegateQueue:nil];
 
     self.title = NSLocalizedString(@"title.robotlist",@"robot list");
     
@@ -171,7 +171,7 @@
     [self showHudInView:self.view hint:NSLocalizedString(@"loadData", @"Load data...")];
     
     __weak typeof(self) weakSelf = self;
-    [[EaseMob sharedInstance].chatManager asyncFetchRobotsFromServerWithCompletion:^(NSArray *robots, EMError *error) {
+    [[EMClient shareClient].chatManager asyncFetchRobotsFromServerWithCompletion:^(NSArray *robots, EMError *error) {
         [weakSelf hideHud];
         if (!error) {
             [weakSelf.dataSource removeAllObjects];
@@ -179,7 +179,7 @@
             [weakSelf.tableView reloadData];
             [[RobotManager sharedInstance] addRobotsToMemory:robots];
         } else {
-            NSArray *robots = [[EaseMob sharedInstance].chatManager robotList];
+            NSArray *robots = [[EMClient shareClient].chatManager robotList];
             if (robots) {
                 [weakSelf.dataSource removeAllObjects];
                 [weakSelf.dataSource addObjectsFromArray:robots];
@@ -200,7 +200,7 @@
             [robots removeAllObjects];
         });
     }
-    [[EaseMob sharedInstance].chatManager removeDelegate:self];
+    [[EMClient shareClient].chatManager removeDelegate:self];
 }
-
+*/
 @end

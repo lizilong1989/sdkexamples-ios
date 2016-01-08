@@ -19,12 +19,12 @@
     BOOL _isPlaying;
 }
 
-@property (nonatomic) MessageBodyType type;
-@property (nonatomic, readonly) MessageDeliveryState status;
+@property (nonatomic) EMMessageBodyType type;
+@property (nonatomic, readonly) EMMessageStatus status;
 
 @property (nonatomic) BOOL isSender;    //是否是发送者
 @property (nonatomic) BOOL isRead;      //是否已读
-@property (nonatomic) EMMessageType messageType;  // 消息类型（单聊，群里，聊天室）
+@property (nonatomic) EMChatType messageType;  // 消息类型（单聊，群里，聊天室）
 
 @property (nonatomic, strong, readonly) NSString *messageId;
 @property (nonatomic, strong) NSURL *headImageURL;
@@ -46,7 +46,7 @@
 @property (nonatomic, strong) NSString *localPath;
 @property (nonatomic, strong) NSString *remotePath;
 @property (nonatomic) NSInteger time;
-@property (nonatomic, strong) EMChatVoice *chatVoice;
+//@property (nonatomic, strong) EMChatVoice *chatVoice;
 @property (nonatomic) BOOL isPlaying;
 @property (nonatomic) BOOL isPlayed;
 
@@ -55,7 +55,7 @@
 @property (nonatomic) double latitude;
 @property (nonatomic) double longitude;
 
-@property (nonatomic, strong)id<IEMMessageBody> messageBody;
+@property (nonatomic, strong)EMMessageBody *messageBody;
 @property (nonatomic, strong)EMMessage *message;
 
 @end

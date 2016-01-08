@@ -79,7 +79,7 @@ NSString *const kRouterEventChatHeadImageTapEventName = @"kRouterEventChatHeadIm
 {
     _messageModel = messageModel;
     
-    _nameLabel.hidden = (messageModel.messageType == eMessageTypeChat);
+    _nameLabel.hidden = (messageModel.type == EMChatTypeChat);
     
     UIImage *placeholderImage = [UIImage imageNamed:@"chatListCellHead"];
     [self.headImageView sd_setImageWithURL:_messageModel.headImageURL placeholderImage:placeholderImage];
@@ -120,27 +120,27 @@ NSString *const kRouterEventChatHeadImageTapEventName = @"kRouterEventChatHeadIm
     }
     
     switch (model.type) {
-        case eMessageBodyType_Text:
+        case EMMessageBodyTypeText:
         {
             identifier = [identifier stringByAppendingString:@"Text"];
         }
             break;
-        case eMessageBodyType_Image:
+        case EMMessageBodyTypeImage:
         {
             identifier = [identifier stringByAppendingString:@"Image"];
         }
             break;
-        case eMessageBodyType_Voice:
+        case EMMessageBodyTypeVoice:
         {
             identifier = [identifier stringByAppendingString:@"Audio"];
         }
             break;
-        case eMessageBodyType_Location:
+        case EMMessageBodyTypeLocation:
         {
             identifier = [identifier stringByAppendingString:@"Location"];
         }
             break;
-        case eMessageBodyType_Video:
+        case EMMessageBodyTypeVideo:
         {
             identifier = [identifier stringByAppendingString:@"Video"];
         }

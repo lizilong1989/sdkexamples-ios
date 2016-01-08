@@ -24,7 +24,7 @@
 #define kColOfRow 5
 #define kContactSize 60
 
-@interface ChatGroupDetailViewController ()<IChatManagerDelegate, EMChooseViewDelegate, UIActionSheetDelegate>
+@interface ChatGroupDetailViewController ()<EMChooseViewDelegate, UIActionSheetDelegate>
 
 - (void)unregisterNotifications;
 - (void)registerNotifications;
@@ -55,11 +55,9 @@
 
 - (void)registerNotifications {
     [self unregisterNotifications];
-    [[EaseMob sharedInstance].chatManager addDelegate:self delegateQueue:nil];
 }
 
 - (void)unregisterNotifications {
-    [[EaseMob sharedInstance].chatManager removeDelegate:self];
 }
 
 - (void)dealloc {
@@ -82,7 +80,7 @@
 - (instancetype)initWithGroupId:(NSString *)chatGroupId
 {
     EMGroup *chatGroup = nil;
-    NSArray *groupArray = [[EaseMob sharedInstance].chatManager groupList];
+    NSArray *groupArray = [[EMClient shareClient].groupManager getAllGroups];
     for (EMGroup *group in groupArray) {
         if ([group.groupId isEqualToString:chatGroupId]) {
             chatGroup = group;
@@ -159,7 +157,7 @@
 {
     if (_clearButton == nil) {
         _clearButton = [[UIButton alloc] init];
-        [_clearButton setTitle:NSLocalizedString(@"group.removeAllMessages", @"remove all messages") forState:UIControlStateNormal];
+        [_clearButton setTitle:NSLocalizedString(@"group.deleteAllMessages", @"remove all messages") forState:UIControlStateNormal];
         [_clearButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
         [_clearButton addTarget:self action:@selector(clearAction) forControlEvents:UIControlEventTouchUpInside];
         [_clearButton setBackgroundColor:[UIColor colorWithRed:87 / 255.0 green:186 / 255.0 blue:205 / 255.0 alpha:1.0]];
@@ -255,16 +253,16 @@
     {
         cell.textLabel.text = NSLocalizedString(@"group.occupantCount", @"members count");
         cell.accessoryType = UITableViewCellAccessoryNone;
-        cell.detailTextLabel.text = [NSString stringWithFormat:@"%i / %i", (int)[_chatGroup.occupants count], (int)_chatGroup.groupSetting.groupMaxUsersCount];
+        cell.detailTextLabel.text = [NSString stringWithFormat:@"%i / %i", (int)[_chatGroup.occupants count], (int)_chatGroup.setting.maxUsersCount];
     }
     else if (indexPath.row == 3)
     {
-        cell.textLabel.text = NSLocalizedString(@"title.groupSetting", @"Group Setting");
+        cell.textLabel.text = NSLocalizedString(@"title.setting", @"Group Setting");
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     }
     else if (indexPath.row == 4)
     {
-        cell.textLabel.text = NSLocalizedString(@"title.groupSubjectChanging", @"Change group name");
+        cell.textLabel.text = NSLocalizedString(@"title.subjectChanging", @"Change group name");
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     }
     else if (indexPath.row == 5)
@@ -311,8 +309,8 @@
 #pragma mark - EMChooseViewDelegate
 - (BOOL)viewController:(EMChooseViewController *)viewController didFinishSelectedSources:(NSArray *)selectedSources
 {
-    NSInteger maxUsersCount = _chatGroup.groupSetting.groupMaxUsersCount;
-    if (([selectedSources count] + _chatGroup.groupOccupantsCount) > maxUsersCount) {
+    NSInteger maxUsersCount = _chatGroup.setting.maxUsersCount;
+    if (([selectedSources count] + _chatGroup.occupantsCount) > maxUsersCount) {
         UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"group.maxUserCount", nil) message:nil delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
         [alertView show];
         
@@ -324,25 +322,25 @@
     __weak typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSMutableArray *source = [NSMutableArray array];
-        for (EMBuddy *buddy in selectedSources) {
-            [source addObject:buddy.username];
+        for (NSString *username in selectedSources) {
+            [source addObject:username];
         }
         
-        NSDictionary *loginInfo = [[[EaseMob sharedInstance] chatManager] loginInfo];
-        NSString *username = [loginInfo objectForKey:kSDKUsername];
-        NSString *messageStr = [NSString stringWithFormat:NSLocalizedString(@"group.somebodyInvite", @"%@ invite you to join group \'%@\'"), username, weakSelf.chatGroup.groupSubject];
+        NSString *username = [[EMClient shareClient] currentUsername];
+        NSString *messageStr = [NSString stringWithFormat:NSLocalizedString(@"group.somebodyInvite", @"%@ invite you to join group \'%@\'"), username, weakSelf.chatGroup.subject];
         EMError *error = nil;
-        weakSelf.chatGroup = [[EaseMob sharedInstance].chatManager addOccupants:source toGroup:weakSelf.chatGroup.groupId welcomeMessage:messageStr error:&error];
-        if (!error) {
-            [weakSelf reloadDataSource];
-        }
-        else
-        {
-            dispatch_async(dispatch_get_main_queue(), ^{
+        weakSelf.chatGroup = [[EMClient shareClient].groupManager addOccupants:source toGroup:weakSelf.chatGroup.groupId welcomeMessage:messageStr error:&error];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (!error) {
+                [weakSelf reloadDataSource];
+            }
+            else
+            {
                 [weakSelf hideHud];
-                [weakSelf showHint:error.description];
-            });
-        }
+                [weakSelf showHint:error.domain];
+            }
+            
+        });
     });
     
     return YES;
@@ -361,18 +359,29 @@
 {
     __weak typeof(self) weakSelf = self;
     [self showHudInView:self.view hint:NSLocalizedString(@"loadData", @"Load data...")];
-    [[EaseMob sharedInstance].chatManager asyncFetchGroupInfo:_chatGroup.groupId completion:^(EMGroup *group, EMError *error) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [weakSelf hideHud];
-            if (!error) {
-                weakSelf.chatGroup = group;
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(){
+        EMError *error = nil;
+        EMGroup *group = [[EMClient shareClient].groupManager fetchGroupInfo:weakSelf.chatGroup.groupId includeMembersList:YES error:&error];
+        if (!error) {
+            weakSelf.chatGroup = group;
+            EMConversation *conversation = [[EMClient shareClient].chatManager getConversation:group.groupId type:EMConversationTypeGroupChat createIfNotExist:YES];
+            if ([group.groupId isEqualToString:conversation.conversationId]) {
+                NSMutableDictionary *ext = [NSMutableDictionary dictionaryWithDictionary:conversation.ext];
+                [ext setObject:group.subject forKey:@"groupSubject"];
+                [ext setObject:[NSNumber numberWithBool:group.isPublic] forKey:@"isPublic"];
+                conversation.ext = ext;
+            }
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [weakSelf hideHud];
                 [weakSelf reloadDataSource];
-            }
-            else{
+            });
+        }
+        else{
+            dispatch_async(dispatch_get_main_queue(), ^{
                 [weakSelf showHint:NSLocalizedString(@"group.fetchInfoFail", @"failed to get the group details, please try again later")];
-            }
-        });
-    } onQueue:nil];
+            });
+        }
+    });
 }
 
 - (void)reloadDataSource
@@ -380,8 +389,7 @@
     [self.dataSource removeAllObjects];
     
     self.occupantType = GroupOccupantTypeMember;
-    NSDictionary *loginInfo = [[[EaseMob sharedInstance] chatManager] loginInfo];
-    NSString *loginUsername = [loginInfo objectForKey:kSDKUsername];
+    NSString *loginUsername = [[EMClient shareClient] currentUsername];
     if ([self.chatGroup.owner isEqualToString:loginUsername]) {
         self.occupantType = GroupOccupantTypeOwner;
     }
@@ -416,7 +424,7 @@
         [self.scrollView addSubview:self.addButton];
         showAddButton = YES;
     }
-    else if (self.chatGroup.groupSetting.groupStyle == eGroupStyle_PrivateMemberCanInvite && self.occupantType == GroupOccupantTypeMember) {
+    else if (self.chatGroup.setting.style == EMGroupStylePrivateMemberCanInvite && self.occupantType == GroupOccupantTypeMember) {
         [self.scrollView addSubview:self.addButton];
         showAddButton = YES;
     }
@@ -428,8 +436,7 @@
     self.scrollView.frame = CGRectMake(10, 20, self.tableView.frame.size.width - 20, row * kContactSize);
     self.scrollView.contentSize = CGSizeMake(self.scrollView.frame.size.width, row * kContactSize);
     
-    NSDictionary *loginInfo = [[[EaseMob sharedInstance] chatManager] loginInfo];
-    NSString *loginUsername = [loginInfo objectForKey:kSDKUsername];
+    NSString *loginUsername = [[EMClient shareClient] currentUsername];
     
     int i = 0;
     int j = 0;
@@ -452,17 +459,21 @@
                 [contactView setDeleteContact:^(NSInteger index) {
                     [weakSelf showHudInView:weakSelf.view hint:NSLocalizedString(@"group.removingOccupant", @"deleting member...")];
                     NSArray *occupants = [NSArray arrayWithObject:[weakSelf.dataSource objectAtIndex:index]];
-                    [[EaseMob sharedInstance].chatManager asyncRemoveOccupants:occupants fromGroup:weakSelf.chatGroup.groupId completion:^(EMGroup *group, EMError *error) {
-                        [weakSelf hideHud];
-                        if (!error) {
-                            weakSelf.chatGroup = group;
-                            [weakSelf.dataSource removeObjectAtIndex:index];
-                            [weakSelf refreshScrollView];
-                        }
-                        else{
-                            [weakSelf showHint:error.description];
-                        }
-                    } onQueue:nil];
+                    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(){
+                        EMError *error = nil;
+                        EMGroup *group = [[EMClient shareClient].groupManager removeOccupants:occupants fromGroup:weakSelf.chatGroup.groupId error:&error];
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [weakSelf hideHud];
+                            if (!error) {
+                                weakSelf.chatGroup = group;
+                                [weakSelf.dataSource removeObjectAtIndex:index];
+                                [weakSelf refreshScrollView];
+                            }
+                            else{
+                                [weakSelf showHint:error.domain];
+                            }
+                        });
+                    });
                 }];
                 
                 [self.scrollView addSubview:contactView];
@@ -514,8 +525,7 @@
 {
     if (longPress.state == UIGestureRecognizerStateBegan)
     {
-        NSDictionary *loginInfo = [[[EaseMob sharedInstance] chatManager] loginInfo];
-        NSString *loginUsername = [loginInfo objectForKey:kSDKUsername];
+        NSString *loginUsername = [[EMClient shareClient] currentUsername];
         for (ContactView *contactView in self.scrollView.subviews)
         {
             CGPoint locaton = [longPress locationInView:contactView];
@@ -536,8 +546,7 @@
 
 - (void)setScrollViewEditing:(BOOL)isEditing
 {
-    NSDictionary *loginInfo = [[[EaseMob sharedInstance] chatManager] loginInfo];
-    NSString *loginUsername = [loginInfo objectForKey:kSDKUsername];
+    NSString *loginUsername = [[EMClient shareClient] currentUsername];
     
     for (ContactView *contactView in self.scrollView.subviews)
     {
@@ -580,28 +589,28 @@
 {
     __weak typeof(self) weakSelf = self;
     [self showHudInView:self.view hint:NSLocalizedString(@"group.destroy", @"dissolution of the group")];
-    [[EaseMob sharedInstance].chatManager asyncDestroyGroup:_chatGroup.groupId completion:^(EMGroup *group, EMGroupLeaveReason reason, EMError *error) {
-        [weakSelf hideHud];
-        if (error) {
-            [weakSelf showHint:NSLocalizedString(@"group.destroyFail", @"dissolution of group failure")];
-        }
-        else{
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"ExitGroup" object:nil];
-        }
-    } onQueue:nil];
-    
-    //    [[EaseMob sharedInstance].chatManager asyncLeaveGroup:_chatGroup.groupId];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(){
+        EMError *error = nil;
+        [[EMClient shareClient].groupManager destroyGroup:weakSelf.chatGroup.groupId error:&error];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [weakSelf hideHud];
+            if (error) {
+                [weakSelf showHint:NSLocalizedString(@"group.destroyFail", @"dissolution of group failure")];
+            }
+            else{
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"ExitGroup" object:nil];
+            }
+        });
+    });
 }
 
 //设置群组
 - (void)configureAction {
     // todo
-    [[[EaseMob sharedInstance] chatManager] asyncIgnoreGroupPushNotification:_chatGroup.groupId
-                                                                    isIgnore:_chatGroup.isPushNotificationEnabled];
-    
-    return;
-    UIViewController *viewController = [[UIViewController alloc] init];
-    [self.navigationController pushViewController:viewController animated:YES];
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(){
+        [[EMClient shareClient].groupManager ignoreGroupPush:weakSelf.chatGroup.groupId ignore:weakSelf.chatGroup.isPushNotificationEnabled];
+    });
 }
 
 //退出群组
@@ -609,34 +618,19 @@
 {
     __weak typeof(self) weakSelf = self;
     [self showHudInView:self.view hint:NSLocalizedString(@"group.leave", @"quit the group")];
-    [[EaseMob sharedInstance].chatManager asyncLeaveGroup:_chatGroup.groupId completion:^(EMGroup *group, EMGroupLeaveReason reason, EMError *error) {
-        [weakSelf hideHud];
-        if (error) {
-            [weakSelf showHint:NSLocalizedString(@"group.leaveFail", @"exit the group failure")];
-        }
-        else{
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"ExitGroup" object:nil];
-        }
-    } onQueue:nil];
-    
-    //    [[EaseMob sharedInstance].chatManager asyncLeaveGroup:_chatGroup.groupId];
-}
-
-//- (void)group:(EMGroup *)group didLeave:(EMGroupLeaveReason)reason error:(EMError *)error {
-//    __weak ChatGroupDetailViewController *weakSelf = self;
-//    [weakSelf hideHud];
-//    if (error) {
-//        if (reason == eGroupLeaveReason_UserLeave) {
-//            [weakSelf showHint:@"退出群组失败"];
-//        } else {
-//            [weakSelf showHint:@"解散群组失败"];
-//        }
-//    }
-//}
-
-- (void)didIgnoreGroupPushNotification:(NSArray *)ignoredGroupList error:(EMError *)error {
-    // todo
-    NSLog(@"ignored group list:%@.", ignoredGroupList);
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(){
+        EMError *error = nil;
+        [[EMClient shareClient].groupManager leaveGroup:weakSelf.chatGroup.groupId error:&error];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [weakSelf hideHud];
+            if (error) {
+                [weakSelf showHint:NSLocalizedString(@"group.leaveFail", @"exit the group failure")];
+            }
+            else{
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"ExitGroup" object:nil];
+            }
+        });
+    });
 }
 
 #pragma mark - UIActionSheetDelegate
@@ -654,21 +648,23 @@
         [self showHudInView:self.view hint:NSLocalizedString(@"group.ban.adding", @"Adding to black list..")];
         NSArray *occupants = [NSArray arrayWithObject:[self.dataSource objectAtIndex:_selectedContact.index]];
         __weak ChatGroupDetailViewController *weakSelf = self;
-        [[EaseMob sharedInstance].chatManager asyncBlockOccupants:occupants fromGroup:self.chatGroup.groupId completion:^(EMGroup *group, EMError *error) {
-            if (weakSelf)
-            {
-                __weak ChatGroupDetailViewController *strongSelf = weakSelf;
-                [strongSelf hideHud];
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(){
+            EMError *error = nil;
+            EMGroup *group = [[EMClient shareClient].groupManager blockOccupants:occupants
+                                                                       fromGroup:weakSelf.chatGroup.groupId
+                                                                           error:&error];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [weakSelf hideHud];
                 if (!error) {
-                    strongSelf.chatGroup = group;
-                    [strongSelf.dataSource removeObjectAtIndex:index];
-                    [strongSelf refreshScrollView];
+                    weakSelf.chatGroup = group;
+                    [weakSelf.dataSource removeObjectAtIndex:index];
+                    [weakSelf refreshScrollView];
                 }
                 else{
-                    [strongSelf showHint:error.description];
+                    [weakSelf showHint:error.domain];
                 }
-            }
-        } onQueue:nil];
+            });
+        });
     }
     _selectedContact = nil;
 }

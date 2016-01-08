@@ -28,7 +28,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    _connectionState = eEMConnectionConnected;
+    _connectionState = EMConnectionConnected;
     
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     self.window.backgroundColor = [UIColor whiteColor];
@@ -52,9 +52,11 @@
     // 环信UIdemo中有用到Parse，您的项目中不需要添加，可忽略此处。
     [self parseApplication:application didFinishLaunchingWithOptions:launchOptions];
 
-
-    [self loginStateChange:nil];
+    UIWindow *window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    window.rootViewController = [UIViewController new];
     [self.window makeKeyAndVisible];
+    
+    [self loginStateChange:nil];
     return YES;
 }
 
@@ -78,7 +80,7 @@
 {
     UINavigationController *nav = nil;
     
-    BOOL isAutoLogin = [[[EaseMob sharedInstance] chatManager] isAutoLoginEnabled];
+    BOOL isAutoLogin = [EMClient shareClient].options.isAutoLogin;
     BOOL loginSuccess = [notification.object boolValue];
     
     if (isAutoLogin || loginSuccess) {//登陆成功加载主窗口控制器
@@ -94,6 +96,13 @@
         
         // 环信UIdemo中有用到Parse，您的项目中不需要添加，可忽略此处。
         [self initParse];
+        
+        //获取数据库中数据
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [[EMClient shareClient].chatManager loadAllConversationsFromDB];
+            [[EMClient shareClient].groupManager loadAllMyGroupsFromDB];
+            [[EMClient shareClient] getPushOptionsFromServerWithError:nil];
+        });
     }else{//登陆失败加载登陆页面控制器
         _mainController = nil;
         LoginViewController *loginController = [[LoginViewController alloc] init];

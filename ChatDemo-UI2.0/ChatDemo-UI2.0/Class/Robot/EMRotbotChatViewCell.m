@@ -23,7 +23,7 @@
 {
     [super setMessageModel:model];
     
-    if (model.messageType != eMessageTypeChat) {
+    if (model.type != EMChatTypeChat) {
         _nameLabel.text = model.nickName;
         _nameLabel.hidden = model.isSender;
     }
@@ -35,27 +35,27 @@
 - (EMChatBaseBubbleView *)bubbleViewForMessageModel:(MessageModel *)messageModel
 {
     switch (messageModel.type) {
-        case eMessageBodyType_Text:
+        case EMMessageBodyTypeText:
         {
             return [[EMRobotChatTextBubbleView alloc] init];
         }
             break;
-        case eMessageBodyType_Image:
+        case EMMessageBodyTypeImage:
         {
             return [[EMChatImageBubbleView alloc] init];
         }
             break;
-        case eMessageBodyType_Voice:
+        case EMMessageBodyTypeVoice:
         {
             return [[EMChatAudioBubbleView alloc] init];
         }
             break;
-        case eMessageBodyType_Location:
+        case EMMessageBodyTypeLocation:
         {
             return [[EMChatLocationBubbleView alloc] init];
         }
             break;
-        case eMessageBodyType_Video:
+        case EMMessageBodyTypeVideo:
         {
             return [[EMChatVideoBubbleView alloc] init];
         }
@@ -70,27 +70,27 @@
 + (CGFloat)bubbleViewHeightForMessageModel:(MessageModel *)messageModel
 {
     switch (messageModel.type) {
-        case eMessageBodyType_Text:
+        case EMMessageBodyTypeText:
         {
             return [EMRobotChatTextBubbleView heightForBubbleWithObject:messageModel];
         }
             break;
-        case eMessageBodyType_Image:
+        case EMMessageBodyTypeImage:
         {
             return [EMChatImageBubbleView heightForBubbleWithObject:messageModel];
         }
             break;
-        case eMessageBodyType_Voice:
+        case EMMessageBodyTypeVoice:
         {
             return [EMChatAudioBubbleView heightForBubbleWithObject:messageModel];
         }
             break;
-        case eMessageBodyType_Location:
+        case EMMessageBodyTypeLocation:
         {
             return [EMChatLocationBubbleView heightForBubbleWithObject:messageModel];
         }
             break;
-        case eMessageBodyType_Video:
+        case EMMessageBodyTypeVideo:
         {
             return [EMChatVideoBubbleView heightForBubbleWithObject:messageModel];
         }

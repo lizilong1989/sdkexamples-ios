@@ -109,7 +109,7 @@ typedef NS_ENUM(NSInteger, EMAudioSession){
     // 文件名不存在
     if (!fileName || [fileName length] == 0) {
         error = [NSError errorWithDomain:NSLocalizedString(@"error.notFound", @"File path not exist")
-                                    code:EMErrorAttachmentNotFound
+                                    code:EMErrorFileNotFound
                                 userInfo:nil];
         completion(error);
         return ;
@@ -241,7 +241,7 @@ typedef NS_ENUM(NSInteger, EMAudioSession){
                                          error:&error];
         if(!success || error){
             error = [NSError errorWithDomain:NSLocalizedString(@"error.initPlayerFail", @"Failed to initialize AVAudioPlayer")
-                                        code:EMErrorInitFailure
+                                        code:EMErrorNotExist
                                     userInfo:nil];
             return error;
         }

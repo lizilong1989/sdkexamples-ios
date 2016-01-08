@@ -146,7 +146,7 @@ static MessageReadManager *detailInstance = nil;
 {
     BOOL isPrepare = NO;
     
-    if(messageModel.type == eMessageBodyType_Voice)
+    if(messageModel.type == EMMessageBodyTypeVoice)
     {
         MessageModel *prevAudioModel = self.audioMessageModel;
         MessageModel *currentAudioModel = messageModel;
@@ -172,7 +172,7 @@ static MessageReadManager *detailInstance = nil;
                     if (![[dict objectForKey:@"isPlayed"] boolValue]) {
                         [dict setObject:@YES forKey:@"isPlayed"];
                         chatMessage.ext = dict;
-                        [chatMessage updateMessageExtToDB];
+                        [[EMClient shareClient].chatManager updateMessage:chatMessage];
                     }
                 }
             }
@@ -189,7 +189,7 @@ static MessageReadManager *detailInstance = nil;
 - (MessageModel *)stopMessageAudioModel
 {
     MessageModel *model = nil;
-    if (self.audioMessageModel.type == eMessageBodyType_Voice) {
+    if (self.audioMessageModel.type == EMMessageBodyTypeVoice) {
         if (self.audioMessageModel.isPlaying) {
             model = self.audioMessageModel;
         }

@@ -28,7 +28,7 @@
         }
     }
     
-    _connectionState = eEMConnectionConnected;
+    _connectionState = EMConnectionConnected;
     
     [self registerRemoteNotification];
     
@@ -42,20 +42,15 @@
 #endif
 
     if (![self isSpecifyServer]) {
-        [[EaseMob sharedInstance] registerSDKWithAppKey:@"easemob-demo#chatdemoui"
-                                           apnsCertName:apnsCertName
-                                            otherConfig:@{kSDKConfigEnableConsoleLogger:@YES}];
+        EMOptions *options = [EMOptions optionsWithAppkey:@"easemob-demo#no1"];
+        options.enableConsoleLog = YES;
+        options.apnsCertName = apnsCertName;
+        options.isAutoAcceptGroupInvitation = NO;
+        [[EMClient shareClient] initializeSDKWithOptions:options];
     }
-    
-    // 登录成功后，自动去取好友列表
-    // SDK获取结束后，会回调
-    // - (void)didFetchedBuddyList:(NSArray *)buddyList error:(EMError *)error方法。
-    [[EaseMob sharedInstance].chatManager setIsAutoFetchBuddyList:YES];
     
     // 注册环信监听
     [self registerEaseMobNotification];
-    [[EaseMob sharedInstance] application:application
-            didFinishLaunchingWithOptions:launchOptions];
     
     [self setupNotifiers];
 }
@@ -73,100 +68,27 @@
                                              selector:@selector(appWillEnterForeground:)
                                                  name:UIApplicationWillEnterForegroundNotification
                                                object:nil];
-    
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(appDidFinishLaunching:)
-                                                 name:UIApplicationDidFinishLaunchingNotification
-                                               object:nil];
-    
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(appDidBecomeActiveNotif:)
-                                                 name:UIApplicationDidBecomeActiveNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(appWillResignActiveNotif:)
-                                                 name:UIApplicationWillResignActiveNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(appDidReceiveMemoryWarning:)
-                                                 name:UIApplicationDidReceiveMemoryWarningNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(appWillTerminateNotif:)
-                                                 name:UIApplicationWillTerminateNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(appProtectedDataWillBecomeUnavailableNotif:)
-                                                 name:UIApplicationProtectedDataWillBecomeUnavailable
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(appProtectedDataDidBecomeAvailableNotif:)
-                                                 name:UIApplicationProtectedDataDidBecomeAvailable
-                                               object:nil];
 }
 
 #pragma mark - notifiers
 - (void)appDidEnterBackgroundNotif:(NSNotification*)notif{
-    [[EaseMob sharedInstance] applicationDidEnterBackground:notif.object];
+    [[EMClient shareClient] applicationDidEnterBackground:notif.object];
 }
 
 - (void)appWillEnterForeground:(NSNotification*)notif
 {
-    [[EaseMob sharedInstance] applicationWillEnterForeground:notif.object];
-}
-
-- (void)appDidFinishLaunching:(NSNotification*)notif
-{
-    [[EaseMob sharedInstance] applicationDidFinishLaunching:notif.object];
-}
-
-- (void)appDidBecomeActiveNotif:(NSNotification*)notif
-{
-    [[EaseMob sharedInstance] applicationDidBecomeActive:notif.object];
-}
-
-- (void)appWillResignActiveNotif:(NSNotification*)notif
-{
-    [[EaseMob sharedInstance] applicationWillResignActive:notif.object];
-}
-
-- (void)appDidReceiveMemoryWarning:(NSNotification*)notif
-{
-    [[EaseMob sharedInstance] applicationDidReceiveMemoryWarning:notif.object];
-}
-
-- (void)appWillTerminateNotif:(NSNotification*)notif
-{
-    [[EaseMob sharedInstance] applicationWillTerminate:notif.object];
-}
-
-- (void)appProtectedDataWillBecomeUnavailableNotif:(NSNotification*)notif
-{
-    [[EaseMob sharedInstance] applicationProtectedDataWillBecomeUnavailable:notif.object];
-}
-
-- (void)appProtectedDataDidBecomeAvailableNotif:(NSNotification*)notif
-{
-    [[EaseMob sharedInstance] applicationProtectedDataDidBecomeAvailable:notif.object];
+    [[EMClient shareClient] applicationWillEnterForeground:notif.object];
 }
 
 // 将得到的deviceToken传给SDK
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken{
-    [[EaseMob sharedInstance] application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+    [[EMClient shareClient] bindDeviceToken:deviceToken];
 }
 
 // 注册deviceToken失败，此处失败，与环信SDK无关，一般是您的环境配置或者证书配置有误
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error{
-    [[EaseMob sharedInstance] application:application didFailToRegisterForRemoteNotificationsWithError:error];
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"apns.failToRegisterApns", Fail to register apns)
-                                                    message:error.description
+                                                    message:error.domain
                                                    delegate:nil
                                           cancelButtonTitle:NSLocalizedString(@"ok", @"OK")
                                           otherButtonTitles:nil];
@@ -202,18 +124,26 @@
 - (void)registerEaseMobNotification{
     [self unRegisterEaseMobNotification];
     // 将self 添加到SDK回调中，以便本类可以收到SDK回调
-    [[EaseMob sharedInstance].chatManager addDelegate:self delegateQueue:nil];
+    [[EMClient shareClient] addDelegate:self delegateQueue:nil];
+    [[EMClient shareClient].contactManager addDelegate:self delegateQueue:nil];
+    [[EMClient shareClient].chatManager addDelegate:self delegateQueue:nil];
+    [[EMClient shareClient].groupManager addDelegate:self delegateQueue:nil];
+    [[EMClient shareClient].roomManager addDelegate:self delegateQueue:nil];
 }
 
 - (void)unRegisterEaseMobNotification{
-    [[EaseMob sharedInstance].chatManager removeDelegate:self];
+    [[EMClient shareClient] removeDelegate:self];
+    [[EMClient shareClient].chatManager removeDelegate:self];
+    [[EMClient shareClient].contactManager removeDelegate:self];
+    [[EMClient shareClient].groupManager removeDelegate:self];
+    [[EMClient shareClient].roomManager removeDelegate:self];
 }
 
 
 
-#pragma mark - IChatManagerDelegate
+#pragma mark - EMClientDelegate
 // 开始自动登录回调
--(void)willAutoLoginWithInfo:(NSDictionary *)loginInfo error:(EMError *)error
+- (void)didAutoLoginError:(EMError *)error
 {
     UIAlertView *alertView = nil;
     if (error) {
@@ -221,73 +151,63 @@
         
         //发送自动登陆状态通知
         [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATION_LOGINCHANGE object:@NO];
-    }
-    else{
-        alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:NSLocalizedString(@"login.beginAutoLogin", @"Start automatic login...") delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
-        
-        
-        // 旧数据转换 (如果您的sdk是由2.1.2版本升级过来的，需要家这句话)
-        [[EaseMob sharedInstance].chatManager importDataToNewDatabase];
-        //获取数据库中的数据
-        [[EaseMob sharedInstance].chatManager loadDataFromDatabase];
-    }
-    
-    [alertView show];
-}
-
-// 结束自动登录回调
--(void)didAutoLoginWithInfo:(NSDictionary *)loginInfo error:(EMError *)error
-{
-    UIAlertView *alertView = nil;
-    if (error) {
-        alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:NSLocalizedString(@"login.errorAutoLogin", @"Automatic logon failure") delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
-        
-        //发送自动登陆状态通知
-        [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATION_LOGINCHANGE object:@NO];
-    }
-    else{
-        //获取群组列表
-        [[EaseMob sharedInstance].chatManager asyncFetchMyGroupsList];
+    } else if([[EMClient shareClient] isConnected]){
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [[EMClient shareClient] dataMigrationTo3];
+            
+            //获取群组列表
+            [[EMClient shareClient].groupManager getMyGroupsFromServerWithError:nil];
+        });
         
         alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:NSLocalizedString(@"login.endAutoLogin", @"End automatic login...") delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
     }
-    
     [alertView show];
 }
 
-// 好友申请回调
-- (void)didReceiveBuddyRequest:(NSString *)username
-                       message:(NSString *)message
+// 网络状态变化回调
+- (void)didConnectionStateChanged:(EMConnectionState)connectionState
 {
-    if (!username) {
+    _connectionState = connectionState;
+    [self.mainController networkChanged:connectionState];
+}
+
+
+#pragma mark - EMContactManagerDelegate
+// 好友申请回调
+- (void)didReceiveFriendInvitationFromUsername:(NSString *)aUsername
+                                       message:(NSString *)aMessage
+{
+    if (!aUsername) {
         return;
     }
-    if (!message) {
-        message = [NSString stringWithFormat:NSLocalizedString(@"friend.somebodyAddWithName", @"%@ add you as a friend"), username];
+    if (!aMessage) {
+        aMessage = [NSString stringWithFormat:NSLocalizedString(@"friend.somebodyAddWithName", @"%@ add you as a friend"), aUsername];
     }
-    NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithDictionary:@{@"title":username, @"username":username, @"applyMessage":message, @"applyStyle":[NSNumber numberWithInteger:ApplyStyleFriend]}];
+    NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithDictionary:@{@"title":aUsername, @"username":aUsername, @"applyMessage":aMessage, @"applyStyle":[NSNumber numberWithInteger:ApplyStyleFriend]}];
     [[ApplyViewController shareController] addNewApply:dic];
     if (self.mainController) {
         [self.mainController setupUntreatedApplyCount];
     }
 }
 
+#pragma mark - EMGroupManagerDelegate
 // 离开群组回调
-- (void)group:(EMGroup *)group didLeave:(EMGroupLeaveReason)reason error:(EMError *)error
+- (void)didReceiveLeavedGroup:(EMGroup *)aGroup
+                       reason:(EMGroupLeaveReason)aReason
 {
-    NSString *tmpStr = group.groupSubject;
+    NSString *tmpStr = aGroup.subject;
     NSString *str;
     if (!tmpStr || tmpStr.length == 0) {
-        NSArray *groupArray = [[EaseMob sharedInstance].chatManager groupList];
+        NSArray *groupArray = [[EMClient shareClient].groupManager getAllGroups];
         for (EMGroup *obj in groupArray) {
-            if ([obj.groupId isEqualToString:group.groupId]) {
-                tmpStr = obj.groupSubject;
+            if ([obj.groupId isEqualToString:aGroup.groupId]) {
+                tmpStr = obj.subject;
                 break;
             }
         }
     }
     
-    if (reason == eGroupLeaveReason_BeRemoved) {
+    if (aReason == EMGroupLeaveReasonBeRemoved) {
         str = [NSString stringWithFormat:NSLocalizedString(@"group.beKicked", @"you have been kicked out from the group of \'%@\'"), tmpStr];
     }
     if (str.length > 0) {
@@ -296,82 +216,46 @@
 }
 
 // 申请加入群组被拒绝回调
-- (void)didReceiveRejectApplyToJoinGroupFrom:(NSString *)fromId
-                                   groupname:(NSString *)groupname
-                                      reason:(NSString *)reason
-                                       error:(EMError *)error{
-    if (!reason || reason.length == 0) {
-        reason = [NSString stringWithFormat:NSLocalizedString(@"group.beRefusedToJoin", @"be refused to join the group\'%@\'"), groupname];
+- (void)didReceiveDeclinedJoinGroup:(NSString *)aGroupId
+                             reason:(NSString *)aReason
+{
+    if (!aReason || aReason.length == 0) {
+        aReason = [NSString stringWithFormat:NSLocalizedString(@"group.beRefusedToJoin", @"be refused to join the group\'%@\'"), aGroupId];
     }
-    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:reason delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:aReason delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
     [alertView show];
 }
 
 //接收到入群申请
-- (void)didReceiveApplyToJoinGroup:(NSString *)groupId
-                         groupname:(NSString *)groupname
-                     applyUsername:(NSString *)username
-                            reason:(NSString *)reason
-                             error:(EMError *)error
+- (void)didReceiveJoinGroupApplication:(EMGroup *)aGroup
+                             applicant:(NSString *)aApplicant
+                                reason:(NSString *)aReason
 {
-    if (!groupId || !username) {
+    if (!aGroup || !aApplicant) {
         return;
     }
     
-    if (!reason || reason.length == 0) {
-        reason = [NSString stringWithFormat:NSLocalizedString(@"group.applyJoin", @"%@ apply to join groups\'%@\'"), username, groupname];
+    if (!aReason || aReason.length == 0) {
+        aReason = [NSString stringWithFormat:NSLocalizedString(@"group.applyJoin", @"%@ apply to join groups\'%@\'"), aApplicant, aGroup.subject];
     }
     else{
-        reason = [NSString stringWithFormat:NSLocalizedString(@"group.applyJoinWithName", @"%@ apply to join groups\'%@\'：%@"), username, groupname, reason];
+        aReason = [NSString stringWithFormat:NSLocalizedString(@"group.applyJoinWithName", @"%@ apply to join groups\'%@\'：%@"), aApplicant, aGroup.subject, aReason];
     }
     
-    if (error) {
-        NSString *message = [NSString stringWithFormat:NSLocalizedString(@"group.sendApplyFail", @"send application failure:%@\nreason：%@"), reason, error.description];
-        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"error", @"Error") message:message delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
-        [alertView show];
-    }
-    else{
-        NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithDictionary:@{@"title":groupname, @"groupId":groupId, @"username":username, @"groupname":groupname, @"applyMessage":reason, @"applyStyle":[NSNumber numberWithInteger:ApplyStyleJoinGroup]}];
-        [[ApplyViewController shareController] addNewApply:dic];
-        if (self.mainController) {
-            [self.mainController setupUntreatedApplyCount];
-        }
+    NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithDictionary:@{@"title":aGroup.subject, @"groupId":aGroup.groupId, @"username":aApplicant, @"groupname":aGroup.subject, @"applyMessage":aReason, @"applyStyle":[NSNumber numberWithInteger:ApplyStyleJoinGroup]}];
+    [[ApplyViewController shareController] addNewApply:dic];
+    if (self.mainController) {
+        [self.mainController setupUntreatedApplyCount];
     }
 }
 
 // 已经同意并且加入群组后的回调
-- (void)didAcceptInvitationFromGroup:(EMGroup *)group
-                               error:(EMError *)error
+- (void)didJoinedGroup:(EMGroup *)aGroup
+               inviter:(NSString *)aInviter
+               message:(NSString *)aMessage
 {
-    if(error)
-    {
-        return;
-    }
-    
-    NSString *groupTag = group.groupSubject;
-    if ([groupTag length] == 0) {
-        groupTag = group.groupId;
-    }
-    
-    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"group.agreedAndJoined", @"agreed and joined the group of \'%@\'"), groupTag];
-    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:message delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:[NSString stringWithFormat:@"%@ invite you to group: %@ [%@]", aInviter, aGroup.subject, aGroup.groupId] delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
     [alertView show];
-}
-
-
-// 绑定deviceToken回调
-- (void)didBindDeviceWithError:(EMError *)error
-{
-    if (error) {
-        TTAlertNoTitle(NSLocalizedString(@"apns.failToBindDeviceToken", @"Fail to bind device token"));
-    }
-}
-
-// 网络状态变化回调
-- (void)didConnectionStateChanged:(EMConnectionState)connectionState
-{
-    _connectionState = connectionState;
-    [self.mainController networkChanged:connectionState];
 }
 
 // 打印收到的apns信息

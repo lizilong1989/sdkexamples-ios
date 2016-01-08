@@ -12,6 +12,8 @@
 
 #import "GroupSubjectChangingViewController.h"
 
+#import "GroupSubjectChangingViewController.h"
+
 @interface GroupSubjectChangingViewController () <UITextFieldDelegate>
 {
     EMGroup         *_group;
@@ -28,40 +30,39 @@
     self = [self init];
     if (self) {
         _group = group;
-        NSDictionary *loginInfo = [[[EaseMob sharedInstance] chatManager] loginInfo];
-        NSString *loginUsername = [loginInfo objectForKey:kSDKUsername];
+        NSString *loginUsername = [[EMClient shareClient] currentUsername];
         _isOwner = [_group.owner isEqualToString:loginUsername];
         self.view.backgroundColor = [UIColor whiteColor];
     }
-
+    
     return self;
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
-    self.title = NSLocalizedString(@"title.groupSubjectChanging", @"Change group name");
-
+    
+    self.title = NSLocalizedString(@"title.subjectChanging", @"Change group name");
+    
     UIButton *backButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 44, 44)];
     [backButton setImage:[UIImage imageNamed:@"back.png"] forState:UIControlStateNormal];
     [backButton addTarget:self action:@selector(back) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *backItem = [[UIBarButtonItem alloc] initWithCustomView:backButton];
     [self.navigationItem setLeftBarButtonItem:backItem];
-
+    
     if (_isOwner)
     {
         UIBarButtonItem *saveItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"save", @"Save") style:UIBarButtonItemStylePlain target:self action:@selector(save:)];
         saveItem.tintColor = [UIColor colorWithRed:32 / 255.0 green:134 / 255.0 blue:158 / 255.0 alpha:1.0];
         [self.navigationItem setRightBarButtonItem:saveItem];
     }
-
+    
     CGRect frame = CGRectMake(20, 80, self.view.frame.size.width - 40, 40);
     _subjectField = [[UITextField alloc] initWithFrame:frame];
     _subjectField.layer.cornerRadius = 5.0;
     _subjectField.layer.borderWidth = 1.0;
     _subjectField.placeholder = NSLocalizedString(@"group.setting.subject", @"Please input group name");
-    _subjectField.text = _group.groupSubject;
+    _subjectField.text = _group.subject;
     if (!_isOwner)
     {
         _subjectField.enabled = NO;
@@ -110,12 +111,22 @@
 - (void)save:(id)sender
 {
     [self saveSubject];
-    [self back];
 }
 
 - (void)saveSubject
 {
-    [[EaseMob sharedInstance].chatManager asyncChangeGroupSubject:_subjectField.text forGroup:_group.groupId];
+    EMConversation *conversation = [[EMClient shareClient].chatManager getConversation:_group.groupId type:EMConversationTypeGroupChat createIfNotExist:NO];
+    EMError *error = nil;
+    [[EMClient shareClient].groupManager changeGroupSubject:_subjectField.text forGroup:_group.groupId error:&error];
+    if (!error) {
+        if ([_group.groupId isEqualToString:conversation.conversationId]) {
+            NSMutableDictionary *ext = [NSMutableDictionary dictionaryWithDictionary:conversation.ext];
+            [ext setObject:_group.subject forKey:@"groupSubject"];
+            [ext setObject:[NSNumber numberWithBool:_group.isPublic] forKey:@"isPublic"];
+            conversation.ext = ext;
+        }
+    }
+    [self back];
 }
 
 @end

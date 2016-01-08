@@ -28,7 +28,7 @@ static NSString *kMessageType = @"MessageType";
 static NSString *kConversationChatter = @"ConversationChatter";
 static NSString *kGroupName = @"GroupName";
 
-@interface MainViewController () <UIAlertViewDelegate, IChatManagerDelegate, EMCallManagerDelegate>
+@interface MainViewController () <UIAlertViewDelegate, EMChatManagerDelegate,EMContactManagerDelegate,EMGroupManagerDelegate,EMChatroomManagerDelegate>
 {
     ChatListViewController *_chatListVC;
     ContactsViewController *_contactsVC;
@@ -67,6 +67,7 @@ static NSString *kGroupName = @"GroupName";
 #warning 把self注册为SDK的delegate
     [self registerNotifications];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setupUntreatedApplyCount) name:@"setupUntreatedApplyCount" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setupUnreadMessageCount) name:@"setupUnreadMessageCount" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(callOutWithChatter:) name:@"callOutWithChatter" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(callControllerClose:) name:@"callControllerClose" object:nil];
     
@@ -115,10 +116,8 @@ static NSString *kGroupName = @"GroupName";
 {
     if (alertView.tag == 99) {
         if (buttonIndex != [alertView cancelButtonIndex]) {
-            [[EaseMob sharedInstance].chatManager asyncLogoffWithUnbindDeviceToken:YES completion:^(NSDictionary *info, EMError *error) {
-                [[ApplyViewController shareController] clear];
-                [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATION_LOGINCHANGE object:@NO];
-            } onQueue:nil];
+            [[EMClient shareClient] logout:NO];
+            [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATION_LOGINCHANGE object:@NO];
         }
     }
     else if (alertView.tag == 100) {
@@ -134,14 +133,16 @@ static NSString *kGroupName = @"GroupName";
 {
     [self unregisterNotifications];
     
-    [[EaseMob sharedInstance].chatManager addDelegate:self delegateQueue:nil];
-    [[EaseMob sharedInstance].callManager addDelegate:self delegateQueue:nil];
+    [[EMClient shareClient].chatManager addDelegate:self delegateQueue:nil];
+    [[EMClient shareClient].contactManager addDelegate:self delegateQueue:nil];
+    [[EMClient shareClient].groupManager addDelegate:self delegateQueue:nil];
 }
 
 -(void)unregisterNotifications
 {
-    [[EaseMob sharedInstance].chatManager removeDelegate:self];
-    [[EaseMob sharedInstance].callManager removeDelegate:self];
+    [[EMClient shareClient].chatManager removeDelegate:self];
+    [[EMClient shareClient].contactManager removeDelegate:self];
+    [[EMClient shareClient].groupManager removeDelegate:self];
 }
 
 - (void)setupSubviews
@@ -200,7 +201,7 @@ static NSString *kGroupName = @"GroupName";
 // 统计未读消息数
 -(void)setupUnreadMessageCount
 {
-    NSArray *conversations = [[[EaseMob sharedInstance] chatManager] conversations];
+    NSArray *conversations = [[EMClient shareClient].chatManager getAllConversations];
     NSInteger unreadCount = 0;
     for (EMConversation *conversation in conversations) {
         unreadCount += conversation.unreadMessagesCount;
@@ -258,6 +259,7 @@ static NSString *kGroupName = @"GroupName";
     return bCanRecord;
 }
 
+/*
 - (void)callOutWithChatter:(NSNotification *)notification
 {
     id object = notification.object;
@@ -268,32 +270,31 @@ static NSString *kGroupName = @"GroupName";
         
         EMError *error = nil;
         NSString *chatter = [object objectForKey:@"chatter"];
-        EMCallSessionType type = [[object objectForKey:@"type"] intValue];
+        EMCallType type = [[object objectForKey:@"type"] intValue];
         EMCallSession *callSession = nil;
-        if (type == eCallSessionTypeAudio) {
-            callSession = [[EaseMob sharedInstance].callManager asyncMakeVoiceCall:chatter timeout:50 error:&error];
+        if (type == EMCallTypeVoice) {
+            callSession = [[EMClient shareClient].callManager asyncMakeVoiceCall:chatter timeout:50 error:&error];
         }
-        else if (type == eCallSessionTypeVideo){
+        else if (type == EMCallTypeVideo){
             if (![CallViewController canVideo]) {
                 return;
             }
-            callSession = [[EaseMob sharedInstance].callManager asyncMakeVideoCall:chatter timeout:50 error:&error];
+            callSession = [[EMClient shareClient].callManager asyncMakeVideoCall:chatter timeout:50 error:&error];
         }
         
         if (callSession && !error) {
-            [[EaseMob sharedInstance].callManager removeDelegate:self];
-            
-            CallViewController *callController = [[CallViewController alloc] initWithSession:callSession isIncoming:NO];
+            [[EMClient shareClient].callManager removeDelegate:self];
+            CallViewController *callController = [[CallViewController alloc] initWithUsername:callSession.username status:@"连接建立完成" isCaller:NO];
             callController.modalPresentationStyle = UIModalPresentationOverFullScreen;
             [self presentViewController:callController animated:NO completion:nil];
         }
         
         if (error) {
-            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"error", @"error") message:error.description delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
+            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"error", @"error") message:error.domain delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
             [alertView show];
         }
     }
-}
+}*/
 
 - (void)callControllerClose:(NSNotification *)notification
 {
@@ -301,10 +302,10 @@ static NSString *kGroupName = @"GroupName";
 //    [audioSession setCategory:AVAudioSessionCategoryPlayback error:nil];
 //    [audioSession setActive:YES error:nil];
  
-    [[EaseMob sharedInstance].callManager addDelegate:self delegateQueue:nil];
+//    [[EMClient shareClient].callManager addDelegate:self delegateQueue:nil];
 }
 
-#pragma mark - IChatManagerDelegate 消息变化
+#pragma mark - EMChatManagerDelegate 消息变化
 
 - (void)didUpdateConversationList:(NSArray *)conversationList
 {
@@ -312,26 +313,10 @@ static NSString *kGroupName = @"GroupName";
     [_chatListVC refreshDataSource];
 }
 
-// 未读消息数量变化回调
--(void)didUnreadMessagesCountChanged
-{
-    [self setupUnreadMessageCount];
-}
-
-- (void)didFinishedReceiveOfflineMessages
-{
-    [self setupUnreadMessageCount];
-}
-
-- (void)didFinishedReceiveOfflineCmdMessages
-{
-    
-}
-
 - (BOOL)needShowNotification:(NSString *)fromChatter
 {
     BOOL ret = YES;
-    NSArray *igGroupIds = [[EaseMob sharedInstance].chatManager ignoredGroupIds];
+    NSArray *igGroupIds = [[EMClient shareClient].groupManager getAllIgnoredGroupIds];
     for (NSString *str in igGroupIds) {
         if ([str isEqualToString:fromChatter]) {
             ret = NO;
@@ -343,37 +328,33 @@ static NSString *kGroupName = @"GroupName";
 }
 
 // 收到消息回调
--(void)didReceiveMessage:(EMMessage *)message
+-(void)didReceiveMessages:(NSArray *)aMessages
 {
-    BOOL needShowNotification = (message.messageType != eMessageTypeChat) ? [self needShowNotification:message.conversationChatter] : YES;
-    if (needShowNotification) {
+    for (EMMessage *message in aMessages) {
+        BOOL needShowNotification = (message.chatType != EMChatTypeChat) ? [self needShowNotification:message.conversationId] : YES;
+        if (needShowNotification) {
 #if !TARGET_IPHONE_SIMULATOR
-        
-        //        BOOL isAppActivity = [[UIApplication sharedApplication] applicationState] == UIApplicationStateActive;
-        //        if (!isAppActivity) {
-        //            [self showNotificationWithMessage:message];
-        //        }else {
-        //            [self playSoundAndVibration];
-        //        }
-        UIApplicationState state = [[UIApplication sharedApplication] applicationState];
-        switch (state) {
-            case UIApplicationStateActive:
-                [self playSoundAndVibration];
-                break;
-            case UIApplicationStateInactive:
-                [self playSoundAndVibration];
-                break;
-            case UIApplicationStateBackground:
-                [self showNotificationWithMessage:message];
-                break;
-            default:
-                break;
-        }
+            UIApplicationState state = [[UIApplication sharedApplication] applicationState];
+            switch (state) {
+                case UIApplicationStateActive:
+                    [self playSoundAndVibration];
+                    break;
+                case UIApplicationStateInactive:
+                    [self playSoundAndVibration];
+                    break;
+                case UIApplicationStateBackground:
+                    [self showNotificationWithMessage:message];
+                    break;
+                default:
+                    break;
+            }
 #endif
+        }
     }
+    [self setupUnreadMessageCount];
 }
 
--(void)didReceiveCmdMessage:(EMMessage *)message
+- (void)didReceiveCmdMessages:(NSArray *)aCmdMessages
 {
     [self showHint:NSLocalizedString(@"receiveCmd", @"receive cmd message")];
 }
@@ -398,36 +379,36 @@ static NSString *kGroupName = @"GroupName";
 
 - (void)showNotificationWithMessage:(EMMessage *)message
 {
-    EMPushNotificationOptions *options = [[EaseMob sharedInstance].chatManager pushNotificationOptions];
+    EMPushOptions *options = [[EMClient shareClient] pushOptions];
     //发送本地推送
     UILocalNotification *notification = [[UILocalNotification alloc] init];
     notification.fireDate = [NSDate date]; //触发通知的时间
     
-    if (options.displayStyle == ePushNotificationDisplayStyle_messageSummary) {
-        id<IEMMessageBody> messageBody = [message.messageBodies firstObject];
+    if (options.displayStyle == EMPushDisplayStyleMessageSummary) {
+        EMMessageBody *messageBody = [message body];
         NSString *messageStr = nil;
-        switch (messageBody.messageBodyType) {
-            case eMessageBodyType_Text:
+        switch (messageBody.type) {
+            case EMMessageBodyTypeText:
             {
                 messageStr = ((EMTextMessageBody *)messageBody).text;
             }
                 break;
-            case eMessageBodyType_Image:
+            case EMMessageBodyTypeImage:
             {
                 messageStr = NSLocalizedString(@"message.image", @"Image");
             }
                 break;
-            case eMessageBodyType_Location:
+            case EMMessageBodyTypeLocation:
             {
                 messageStr = NSLocalizedString(@"message.location", @"Location");
             }
                 break;
-            case eMessageBodyType_Voice:
+            case EMMessageBodyTypeVoice:
             {
                 messageStr = NSLocalizedString(@"message.voice", @"Voice");
             }
                 break;
-            case eMessageBodyType_Video:{
+            case EMMessageBodyTypeVideo:{
                 messageStr = NSLocalizedString(@"message.video", @"Video");
             }
                 break;
@@ -436,24 +417,24 @@ static NSString *kGroupName = @"GroupName";
         }
         
         NSString *title = [[UserProfileManager sharedInstance] getNickNameWithUsername:message.from];
-        if (message.messageType == eMessageTypeGroupChat) {
-            NSArray *groupArray = [[EaseMob sharedInstance].chatManager groupList];
+        if (message.chatType == EMChatTypeGroupChat) {
+            NSArray *groupArray = [[EMClient shareClient].groupManager getAllGroups];
             for (EMGroup *group in groupArray) {
-                if ([group.groupId isEqualToString:message.conversationChatter]) {
-                    title = [NSString stringWithFormat:@"%@(%@)", message.groupSenderName, group.groupSubject];
+                if ([group.groupId isEqualToString:message.conversationId]) {
+                    title = [NSString stringWithFormat:@"%@(%@)", message.from, group.subject];
                     break;
                 }
             }
         }
-        else if (message.messageType == eMessageTypeChatRoom)
+        else if (message.chatType == EMChatTypeChatRoom)
         {
             NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
-            NSString *key = [NSString stringWithFormat:@"OnceJoinedChatrooms_%@", [[[EaseMob sharedInstance].chatManager loginInfo] objectForKey:@"username" ]];
+            NSString *key = [NSString stringWithFormat:@"OnceJoinedChatrooms_%@", [[EMClient shareClient] currentUsername]];
             NSMutableDictionary *chatrooms = [NSMutableDictionary dictionaryWithDictionary:[ud objectForKey:key]];
-            NSString *chatroomName = [chatrooms objectForKey:message.conversationChatter];
+            NSString *chatroomName = [chatrooms objectForKey:message.conversationId];
             if (chatroomName)
             {
-                title = [NSString stringWithFormat:@"%@(%@)", message.groupSenderName, chatroomName];
+                title = [NSString stringWithFormat:@"%@(%@)", message.from, chatroomName];
             }
         }
         
@@ -477,8 +458,8 @@ static NSString *kGroupName = @"GroupName";
     }
     
     NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
-    [userInfo setObject:[NSNumber numberWithInt:message.messageType] forKey:kMessageType];
-    [userInfo setObject:message.conversationChatter forKey:kConversationChatter];
+    [userInfo setObject:[NSNumber numberWithInt:message.chatType] forKey:kMessageType];
+    [userInfo setObject:message.conversationId forKey:kConversationChatter];
     notification.userInfo = userInfo;
     
     //发送通知
@@ -487,28 +468,10 @@ static NSString *kGroupName = @"GroupName";
 //    application.applicationIconBadgeNumber += 1;
 }
 
-#pragma mark - IChatManagerDelegate 登陆回调（主要用于监听自动登录是否成功）
+#pragma mark - EMContactManagerDelegate 好友变化
 
-- (void)didLoginWithInfo:(NSDictionary *)loginInfo error:(EMError *)error
-{
-    if (error) {
-        NSString *hintText = NSLocalizedString(@"reconnection.retry", @"Fail to log in your account, is try again... \nclick 'logout' button to jump to the login page \nclick 'continue to wait for' button for reconnection successful");
-        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt")
-                                                            message:hintText
-                                                           delegate:self
-                                                  cancelButtonTitle:NSLocalizedString(@"reconnection.wait", @"continue to wait")
-                                                  otherButtonTitles:NSLocalizedString(@"logout", @"Logout"),
-                                  nil];
-        alertView.tag = 99;
-        [alertView show];
-        [_chatListVC isConnect:NO];
-    }
-}
-
-#pragma mark - IChatManagerDelegate 好友变化
-
-- (void)didReceiveBuddyRequest:(NSString *)username
-                       message:(NSString *)message
+- (void)didReceiveFriendInvitationFromUsername:(NSString *)aUsername
+                                       message:(NSString *)aMessage
 {
 #if !TARGET_IPHONE_SIMULATOR
     [self playSoundAndVibration];
@@ -518,7 +481,7 @@ static NSString *kGroupName = @"GroupName";
         //发送本地推送
         UILocalNotification *notification = [[UILocalNotification alloc] init];
         notification.fireDate = [NSDate date]; //触发通知的时间
-        notification.alertBody = [NSString stringWithFormat:NSLocalizedString(@"friend.somebodyAddWithName", @"%@ add you as a friend"), username];
+        notification.alertBody = [NSString stringWithFormat:NSLocalizedString(@"friend.somebodyAddWithName", @"%@ add you as a friend"), aUsername];
         notification.alertAction = NSLocalizedString(@"open", @"Open");
         notification.timeZone = [NSTimeZone defaultTimeZone];
     }
@@ -527,9 +490,30 @@ static NSString *kGroupName = @"GroupName";
     [_contactsVC reloadApplyView];
 }
 
+- (void)didReceiveDeletedFromUsernames:(NSArray *)aArray
+{
+    [self _removeBuddies:aArray];
+    [_contactsVC reloadDataSource];
+}
+
+- (void)didReceiveAgreedFromUsername:(NSString *)username
+{
+    [_contactsVC reloadDataSource];
+}
+
+- (void)didReceiveDeclinedFromUsername:(NSString *)username
+{
+    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"friend.beRefusedToAdd", @"you are shameless refused by '%@'"), username];
+    TTAlertNoTitle(message);
+}
+
+- (void)didReceiveAddedFromUsernames:(NSArray *)aArray
+{
+    [_contactsVC reloadDataSource];
+}
+
 - (void)_removeBuddies:(NSArray *)userNames
 {
-    [[EaseMob sharedInstance].chatManager removeConversationsByChatters:userNames deleteMessages:YES append2Chat:YES];
     [_chatListVC refreshDataSource];
     
     NSMutableArray *viewControllers = [NSMutableArray arrayWithArray:self.navigationController.viewControllers];
@@ -550,103 +534,35 @@ static NSString *kGroupName = @"GroupName";
     [self showHint:[NSString stringWithFormat:@"%@ %@", NSLocalizedString(@"delete", @"delete"), userNames[0]]];
 }
 
-- (void)didUpdateBuddyList:(NSArray *)buddyList
-            changedBuddies:(NSArray *)changedBuddies
-                     isAdd:(BOOL)isAdd
+
+#pragma mark - EMGroupManagerDelegate 群组变化
+
+- (void)didReceiveGroupInvitation:(NSString *)aGroupId
+                          inviter:(NSString *)aInviter
+                          message:(NSString *)aMessage
 {
-    if (!isAdd)
-    {
-        NSMutableArray *deletedBuddies = [NSMutableArray array];
-        for (EMBuddy *buddy in changedBuddies)
-        {
-            if ([buddy.username length])
-            {
-                [deletedBuddies addObject:buddy.username];
-            }
-        }
-        if (![deletedBuddies count])
-        {
-            return;
-        }
-        
-        [self _removeBuddies:deletedBuddies];
-    } else {
-        // clear conversation
-        NSArray *conversations = [[EaseMob sharedInstance].chatManager conversations];
-        NSMutableArray *deleteConversations = [NSMutableArray arrayWithArray:conversations];
-        NSMutableDictionary *buddyDic = [NSMutableDictionary dictionary];
-        for (EMBuddy *buddy in buddyList) {
-            if ([buddy.username length]) {
-                [buddyDic setObject:buddy forKey:buddy.username];
-            }
-        }
-        for (EMConversation *conversation in conversations) {
-            if (conversation.conversationType == eConversationTypeChat) {
-                if ([buddyDic objectForKey:conversation.chatter]) {
-                    [deleteConversations removeObject:conversation];
-                }
-            } else {
-                [deleteConversations removeObject:conversation];
-            }
-        }
-        if ([deleteConversations count] > 0) {
-            NSMutableArray *deletedBuddies = [NSMutableArray array];
-            for (EMConversation *conversation in deleteConversations) {
-                if (![[RobotManager sharedInstance] isRobotWithUsername:conversation.chatter]) {
-                    [deletedBuddies addObject:conversation.chatter];
-                }
-            }
-            if ([deletedBuddies count] > 0) {
-                [self _removeBuddies:deletedBuddies];
-            }
-        }
+    if (!aGroupId || !aInviter) {
+        return;
     }
-    [_contactsVC reloadDataSource];
-}
-
-- (void)didRemovedByBuddy:(NSString *)username
-{
-    [self _removeBuddies:@[username]];
-    [_contactsVC reloadDataSource];
-}
-
-- (void)didAcceptedByBuddy:(NSString *)username
-{
-    [_contactsVC reloadDataSource];
-}
-
-- (void)didRejectedByBuddy:(NSString *)username
-{
-    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"friend.beRefusedToAdd", @"you are shameless refused by '%@'"), username];
-    TTAlertNoTitle(message);
-}
-
-- (void)didAcceptBuddySucceed:(NSString *)username
-{
-    [_contactsVC reloadDataSource];
-}
-
-#pragma mark - IChatManagerDelegate 群组变化
-
-- (void)didReceiveGroupInvitationFrom:(NSString *)groupId
-                              inviter:(NSString *)username
-                              message:(NSString *)message
-{
+    
+    NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithDictionary:@{@"title":@"", @"groupId":aGroupId, @"username":aInviter, @"groupname":@"", @"applyMessage":aMessage, @"applyStyle":[NSNumber numberWithInteger:ApplyStyleGroupInvitation]}];
+    [[ApplyViewController shareController] addNewApply:dic];
+    [self setupUntreatedApplyCount];
 #if !TARGET_IPHONE_SIMULATOR
     [self playSoundAndVibration];
 #endif
     
-    [_contactsVC reloadGroupView];
+    if (_contactsVC) {
+        [_contactsVC reloadApplyView];
+    }
 }
 
 //接收到入群申请
-- (void)didReceiveApplyToJoinGroup:(NSString *)groupId
-                         groupname:(NSString *)groupname
-                     applyUsername:(NSString *)username
-                            reason:(NSString *)reason
-                             error:(EMError *)error
+- (void)didReceiveJoinGroupApplication:(EMGroup *)aGroup
+                             applicant:(NSString *)aApplicant
+                                reason:(NSString *)aReason
 {
-    if (!error) {
+    if (!aGroup) {
 #if !TARGET_IPHONE_SIMULATOR
         [self playSoundAndVibration];
 #endif
@@ -655,51 +571,47 @@ static NSString *kGroupName = @"GroupName";
     }
 }
 
-- (void)didReceiveGroupRejectFrom:(NSString *)groupId
-                          invitee:(NSString *)username
-                           reason:(NSString *)reason
+- (void)didReceiveDeclinedGroupInvitation:(EMGroup *)aGroup
+                                  invitee:(NSString *)aInvitee
+                                   reason:(NSString *)aReason
 {
-    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"friend.beRefusedToAdd", @"you are shameless refused by '%@'"), username];
+    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"friend.beRefusedToAdd", @"you are shameless refused by '%@'"), aInvitee];
     TTAlertNoTitle(message);
 }
 
 
-- (void)didReceiveAcceptApplyToJoinGroup:(NSString *)groupId
-                               groupname:(NSString *)groupname
+- (void)didReceiveAcceptedGroupInvitation:(EMGroup *)aGroup
+                                  invitee:(NSString *)aInvitee
 {
-    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"group.agreedAndJoined", @"agreed to join the group of \'%@\'"), groupname];
+    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"group.agreedAndJoined", @"agreed to join the group of \'%@\'"), aInvitee];
     [self showHint:message];
 }
 
-#pragma mark - IChatManagerDelegate 收到聊天室邀请
+#pragma mark - EMChatroomManagerDelegate 收到聊天室邀请
 
-- (void)didReceiveChatroomInvitationFrom:(NSString *)chatroomId
-                              inviter:(NSString *)username
-                              message:(NSString *)message
+- (void)didReceiveUserJoinedChatroom:(EMChatroom *)aChatroom
+                            username:(NSString *)aUsername
 {
-    message = [NSString stringWithFormat:NSLocalizedString(@"chatroom.somebodyInvite", @"%@ invite you to join chatroom \'%@\'"), username, chatroomId];
+    NSString *message = [NSString stringWithFormat:NSLocalizedString(@"chatroom.somebodyInvite", @"%@ invite you to join chatroom \'%@\'"), aUsername, aChatroom.chatroomId];
     [self showHint:message];
 }
 
-#pragma mark - IChatManagerDelegate 登录状态变化
+#pragma mark - EMClientDelegate 登录状态变化
 
 - (void)didLoginFromOtherDevice
 {
-    [[EaseMob sharedInstance].chatManager asyncLogoffWithUnbindDeviceToken:NO completion:^(NSDictionary *info, EMError *error) {
-        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:NSLocalizedString(@"loginAtOtherDevice", @"your login account has been in other places") delegate:self cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
-        alertView.tag = 100;
-        [alertView show];
-
-    } onQueue:nil];
+    [[EMClient shareClient] logout:NO];
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:NSLocalizedString(@"loginAtOtherDevice", @"your login account has been in other places") delegate:self cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
+    alertView.tag = 100;
+    [alertView show];
 }
 
 - (void)didRemovedFromServer
 {
-    [[EaseMob sharedInstance].chatManager asyncLogoffWithUnbindDeviceToken:NO completion:^(NSDictionary *info, EMError *error) {
-        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:NSLocalizedString(@"loginUserRemoveFromServer", @"your account has been removed from the server side") delegate:self cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
-        alertView.tag = 101;
-        [alertView show];
-    } onQueue:nil];
+    [[EMClient shareClient] logout:NO];
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:NSLocalizedString(@"loginUserRemoveFromServer", @"your account has been removed from the server side") delegate:self cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
+    alertView.tag = 101;
+    [alertView show];
 }
 
 - (void)didServersChanged
@@ -712,35 +624,17 @@ static NSString *kGroupName = @"GroupName";
     [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATION_LOGINCHANGE object:@NO];
 }
 
-#pragma mark - 自动登录回调
+- (void)didConnectionStateChanged:(EMConnectionState)connectionState
+{
 
-- (void)willAutoReconnect{
-    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
-    NSNumber *showreconnect = [ud objectForKey:@"identifier_showreconnect_enable"];
-    if (showreconnect && [showreconnect boolValue]) {
-        [self hideHud];
-        [self showHint:NSLocalizedString(@"reconnection.ongoing", @"reconnecting...")];
-    }
-}
-
-- (void)didAutoReconnectFinishedWithError:(NSError *)error{
-    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
-    NSNumber *showreconnect = [ud objectForKey:@"identifier_showreconnect_enable"];
-    if (showreconnect && [showreconnect boolValue]) {
-        [self hideHud];
-        if (error) {
-            [self showHint:NSLocalizedString(@"reconnection.fail", @"reconnection failure, later will continue to reconnection")];
-        }else{
-            [self showHint:NSLocalizedString(@"reconnection.success", @"reconnection successful！")];
-        }
-    }
 }
 
 #pragma mark - ICallManagerDelegate
 
-- (void)callSessionStatusChanged:(EMCallSession *)callSession changeReason:(EMCallStatusChangedReason)reason error:(EMError *)error
+/*
+- (void)callSessionStatusChanged:(EMCallSession *)callSession changeReason:(EMCallEndReason)reason error:(EMError *)error
 {
-    if (callSession.status == eCallSessionStatusConnected)
+    if (callSession.status == EMCallSessionStatusConnected)
     {
         EMError *error = nil;
         do {
@@ -756,14 +650,14 @@ static NSString *kGroupName = @"GroupName";
             }
             
 #warning 在后台不能进行视频通话
-            if(callSession.type == eCallSessionTypeVideo && ([[UIApplication sharedApplication] applicationState] != UIApplicationStateActive || ![CallViewController canVideo])){
+            if(callSession.type == EMCallTypeVideo && ([[UIApplication sharedApplication] applicationState] != UIApplicationStateActive || ![CallViewController canVideo])){
                 error = [EMError errorWithCode:EMErrorInitFailure andDescription:NSLocalizedString(@"call.initFailed", @"Establish call failure")];
                 break;
             }
             
             if (!isShowPicker){
-                [[EaseMob sharedInstance].callManager removeDelegate:self];
-                CallViewController *callController = [[CallViewController alloc] initWithSession:callSession isIncoming:YES];
+                [[EMClient shareClient].callManager removeDelegate:self];
+                CallViewController *callController = [[CallViewController alloc] initWithUsername:callSession.username status:@"连接建立完成" isCaller:NO];
                 callController.modalPresentationStyle = UIModalPresentationOverFullScreen;
                 [self presentViewController:callController animated:NO completion:nil];
                 if ([self.navigationController.topViewController isKindOfClass:[ChatViewController class]])
@@ -775,11 +669,11 @@ static NSString *kGroupName = @"GroupName";
         } while (0);
         
         if (error) {
-            [[EaseMob sharedInstance].callManager asyncEndCall:callSession.sessionId reason:eCallReasonHangup];
+            [[EMClient shareClient].callManager endCall:callSession.sessionId reason:EMCallEndReasonHangup];
             return;
         }
     }
-}
+}*/
 
 #pragma mark - public
 
@@ -796,18 +690,18 @@ static NSString *kGroupName = @"GroupName";
     }
 }
 
-- (EMConversationType)conversationTypeFromMessageType:(EMMessageType)type
+- (EMConversationType)conversationTypeFromMessageType:(EMChatType)type
 {
-    EMConversationType conversatinType = eConversationTypeChat;
+    EMConversationType conversatinType = EMConversationTypeChat;
     switch (type) {
-        case eMessageTypeChat:
-            conversatinType = eConversationTypeChat;
+        case EMChatTypeChat:
+            conversatinType = EMConversationTypeChat;
             break;
-        case eMessageTypeGroupChat:
-            conversatinType = eConversationTypeGroupChat;
+        case EMChatTypeGroupChat:
+            conversatinType = EMConversationTypeGroupChat;
             break;
-        case eMessageTypeChatRoom:
-            conversatinType = eConversationTypeChatRoom;
+        case EMChatTypeChatRoom:
+            conversatinType = EMConversationTypeChatRoom;
             break;
         default:
             break;
@@ -840,15 +734,15 @@ static NSString *kGroupName = @"GroupName";
                     if (![chatViewController.chatter isEqualToString:conversationChatter])
                     {
                         [self.navigationController popViewControllerAnimated:NO];
-                        EMMessageType messageType = [userInfo[kMessageType] intValue];
+                        EMChatType messageType = [userInfo[kMessageType] intValue];
                         chatViewController = [[ChatViewController alloc] initWithChatter:conversationChatter conversationType:[self conversationTypeFromMessageType:messageType]];
                         switch (messageType) {
-                            case eMessageTypeGroupChat:
+                            case EMChatTypeGroupChat:
                                 {
-                                    NSArray *groupArray = [[EaseMob sharedInstance].chatManager groupList];
+                                    NSArray *groupArray = [[EMClient shareClient].groupManager getAllGroups];
                                     for (EMGroup *group in groupArray) {
                                         if ([group.groupId isEqualToString:conversationChatter]) {
-                                            chatViewController.title = group.groupSubject;
+                                            chatViewController.title = group.subject;
                                             break;
                                         }
                                     }
@@ -867,15 +761,15 @@ static NSString *kGroupName = @"GroupName";
             {
                 ChatViewController *chatViewController = (ChatViewController *)obj;
                 NSString *conversationChatter = userInfo[kConversationChatter];
-                EMMessageType messageType = [userInfo[kMessageType] intValue];
+                EMChatType messageType = [userInfo[kMessageType] intValue];
                 chatViewController = [[ChatViewController alloc] initWithChatter:conversationChatter conversationType:[self conversationTypeFromMessageType:messageType]];
                 switch (messageType) {
-                    case eMessageTypeGroupChat:
+                    case EMChatTypeGroupChat:
                     {
-                        NSArray *groupArray = [[EaseMob sharedInstance].chatManager groupList];
+                        NSArray *groupArray = [[EMClient shareClient].groupManager getAllGroups];
                         for (EMGroup *group in groupArray) {
                             if ([group.groupId isEqualToString:conversationChatter]) {
-                                chatViewController.title = group.groupSubject;
+                                chatViewController.title = group.subject;
                                 break;
                             }
                         }

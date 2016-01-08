@@ -78,7 +78,7 @@ static EMAudioPlayerUtil *audioPlayerUtil = nil;
     NSFileManager *fm = [NSFileManager defaultManager];
     if (![fm fileExistsAtPath:aFilePath]) {
         error = [NSError errorWithDomain:NSLocalizedString(@"error.notFound", @"File path not exist")
-                                    code:EMErrorAttachmentNotFound
+                                    code:EMErrorFileNotFound
                                 userInfo:nil];
         if (playFinish) {
             playFinish(error);
@@ -93,7 +93,7 @@ static EMAudioPlayerUtil *audioPlayerUtil = nil;
     if (error || !_player) {
         _player = nil;
         error = [NSError errorWithDomain:NSLocalizedString(@"error.initPlayerFail", @"Failed to initialize AVAudioPlayer")
-                                    code:EMErrorInitFailure
+                                    code:EMErrorNotExist
                                 userInfo:nil];
         if (playFinish) {
             playFinish(error);
@@ -145,7 +145,7 @@ static EMAudioPlayerUtil *audioPlayerUtil = nil;
                                  error:(NSError *)error{
     if (playFinish) {
         NSError *error = [NSError errorWithDomain:NSLocalizedString(@"error.palyFail", @"Play failure")
-                                             code:EMErrorFailure
+                                             code:EMErrorGeneral
                                          userInfo:nil];
         playFinish(error);
     }

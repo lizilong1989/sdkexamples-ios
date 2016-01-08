@@ -18,22 +18,19 @@
 
 + (id)modelWithMessage:(EMMessage *)message
 {
-    id<IEMMessageBody> messageBody = [message.messageBodies firstObject];
-    NSDictionary *userInfo = [[EaseMob sharedInstance].chatManager loginInfo];
-    NSString *login = [userInfo objectForKey:kSDKUsername];
-    NSString *sender = (message.messageType == eMessageTypeChat) ? message.from : message.groupSenderName;
-    BOOL isSender = [login isEqualToString:sender] ? YES : NO;
+    EMMessageBody *messageBody = message.body;
+    BOOL isSender = message.direction == EMMessageDirectionSend ? YES : NO;
     
     MessageModel *model = [[MessageModel alloc] init];
     model.isRead = message.isRead;
     model.messageBody = messageBody;
     model.message = message;
-    model.type = messageBody.messageBodyType;
+    model.type = messageBody.type;
     model.isSender = isSender;
     model.isPlaying = NO;
-    model.messageType = message.messageType;
-    if (model.messageType != eMessageTypeChat) {
-        model.username = message.groupSenderName;
+    model.messageType = message.chatType;
+    if (model.type != EMChatTypeChat) {
+        model.username = message.conversationId;
     }
     else{
         model.username = message.from;
@@ -48,8 +45,8 @@
     }
      */
     
-    switch (messageBody.messageBodyType) {
-        case eMessageBodyType_Text:
+    switch (messageBody.type) {
+        case EMMessageBodyTypeText:
         {
             // 表情映射。
             NSString *didReceiveText = [ConvertToCommonEmoticonsHelper
@@ -57,7 +54,7 @@
             model.content = didReceiveText;
         }
             break;
-        case eMessageBodyType_Image:
+        case EMMessageBodyTypeImage:
         {
             EMImageMessageBody *imgMessageBody = (EMImageMessageBody*)messageBody;
             model.thumbnailSize = imgMessageBody.thumbnailSize;
@@ -72,17 +69,16 @@
             }
         }
             break;
-        case eMessageBodyType_Location:
+        case EMMessageBodyTypeLocation:
         {
             model.address = ((EMLocationMessageBody *)messageBody).address;
             model.latitude = ((EMLocationMessageBody *)messageBody).latitude;
             model.longitude = ((EMLocationMessageBody *)messageBody).longitude;
         }
             break;
-        case eMessageBodyType_Voice:
+        case EMMessageBodyTypeVoice:
         {
             model.time = ((EMVoiceMessageBody *)messageBody).duration;
-            model.chatVoice = (EMChatVoice *)((EMVoiceMessageBody *)messageBody).chatObject;
             if (message.ext) {
                 NSDictionary *dict = message.ext;
                 BOOL isPlayed = [[dict objectForKey:@"isPlayed"] boolValue];
@@ -90,17 +86,17 @@
             }else {
                 NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:@NO,@"isPlayed", nil];
                 message.ext = dict;
-                [message updateMessageExtToDB];
+                [[EMClient shareClient].chatManager updateMessage:message];
             }
             // 本地音频路径
             model.localPath = ((EMVoiceMessageBody *)messageBody).localPath;
             model.remotePath = ((EMVoiceMessageBody *)messageBody).remotePath;
         }
             break;
-        case eMessageBodyType_Video:{
+        case EMMessageBodyTypeVideo:{
             EMVideoMessageBody *videoMessageBody = (EMVideoMessageBody*)messageBody;
-            model.thumbnailSize = videoMessageBody.size;
-            model.size = videoMessageBody.size;
+            model.thumbnailSize = videoMessageBody.thumbnailSize;
+            model.size = videoMessageBody.thumbnailSize;
             model.localPath = videoMessageBody.thumbnailLocalPath;
             model.thumbnailImage = [UIImage imageWithContentsOfFile:videoMessageBody.thumbnailLocalPath];
             model.image = model.thumbnailImage;

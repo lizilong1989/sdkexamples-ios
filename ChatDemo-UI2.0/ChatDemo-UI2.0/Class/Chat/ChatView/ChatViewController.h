@@ -11,7 +11,7 @@
   */
 
 #import <UIKit/UIKit.h>
-#import "EMChatManagerDefs.h"
+//#import "EMChatManagerDefs.h"
 
 @protocol ChatViewControllerDelegate <NSObject>
 
@@ -36,11 +36,12 @@
 #pragma mark - sendMessage
 -(void)sendTextMessage:(NSString *)textMessage;
 -(void)sendImageMessage:(UIImage *)image;
--(void)sendAudioMessage:(EMChatVoice *)voice;
--(void)sendVideoMessage:(EMChatVideo *)video;
+- (void)sendVoiceMessageWithLocalPath:(NSString *)localPath
+                             duration:(NSInteger)duration;
+-(void)sendVideoMessageWithURL:(NSURL *)url;
 -(void)sendLocationLatitude:(double)latitude
                   longitude:(double)longitude
                  andAddress:(NSString *)address;
 -(void)addMessage:(EMMessage *)message;
-- (EMMessageType)messageType;
+- (EMChatType)messageType;
 @end

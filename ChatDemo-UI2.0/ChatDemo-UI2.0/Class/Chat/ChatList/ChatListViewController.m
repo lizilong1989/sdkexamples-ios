@@ -28,22 +28,22 @@
 //根据用户昵称,环信机器人名称,群名称进行搜索
 - (NSString*)showName
 {
-    if (self.conversationType == eConversationTypeChat) {
-        if ([[RobotManager sharedInstance] isRobotWithUsername:self.chatter]) {
-            return [[RobotManager sharedInstance] getRobotNickWithUsername:self.chatter];
+    if (self.type == EMConversationTypeChat) {
+        if ([[RobotManager sharedInstance] isRobotWithUsername:self.conversationId]) {
+            return [[RobotManager sharedInstance] getRobotNickWithUsername:self.conversationId];
         }
-        return [[UserProfileManager sharedInstance] getNickNameWithUsername:self.chatter];
-    } else if (self.conversationType == eConversationTypeGroupChat) {
+        return [[UserProfileManager sharedInstance] getNickNameWithUsername:self.conversationId];
+    } else if (self.type == EMConversationTypeGroupChat) {
         if ([self.ext objectForKey:@"groupSubject"] || [self.ext objectForKey:@"isPublic"]) {
-           return [self.ext objectForKey:@"groupSubject"];
+            return [self.ext objectForKey:@"groupSubject"];
         }
     }
-    return self.chatter;
+    return self.conversationId;
 }
 
 @end
 
-@interface ChatListViewController ()<UITableViewDelegate,UITableViewDataSource, UISearchDisplayDelegate,SRRefreshDelegate, UISearchBarDelegate, IChatManagerDelegate,ChatViewControllerDelegate>
+@interface ChatListViewController ()<UITableViewDelegate,UITableViewDataSource, UISearchDisplayDelegate,SRRefreshDelegate, UISearchBarDelegate, EMChatManagerDelegate,EMGroupManagerDelegate,ChatViewControllerDelegate>
 
 @property (strong, nonatomic) NSMutableArray        *dataSource;
 
@@ -70,7 +70,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    [[EaseMob sharedInstance].chatManager loadAllConversationsFromDatabaseWithAppend2Chat:NO];
+    [[EMClient shareClient].chatManager loadAllConversationsFromDB];
     [self removeEmptyConversationsFromDB];
 
     [self.view addSubview:self.searchBar];
@@ -102,43 +102,20 @@
 
 - (void)removeEmptyConversationsFromDB
 {
-    NSArray *conversations = [[EaseMob sharedInstance].chatManager conversations];
+    NSArray *conversations = [[EMClient shareClient].chatManager getAllConversations];
     NSMutableArray *needRemoveConversations;
     for (EMConversation *conversation in conversations) {
-        if (!conversation.latestMessage || (conversation.conversationType == eConversationTypeChatRoom)) {
+        if (!conversation.latestMessage || (conversation.type == EMConversationTypeChatRoom)) {
             if (!needRemoveConversations) {
                 needRemoveConversations = [[NSMutableArray alloc] initWithCapacity:0];
             }
             
-            [needRemoveConversations addObject:conversation.chatter];
+            [needRemoveConversations addObject:conversation];
         }
     }
     
     if (needRemoveConversations && needRemoveConversations.count > 0) {
-        [[EaseMob sharedInstance].chatManager removeConversationsByChatters:needRemoveConversations
-                                                             deleteMessages:YES
-                                                                append2Chat:NO];
-    }
-}
-
-- (void)removeChatroomConversationsFromDB
-{
-    NSArray *conversations = [[EaseMob sharedInstance].chatManager conversations];
-    NSMutableArray *needRemoveConversations;
-    for (EMConversation *conversation in conversations) {
-        if (conversation.conversationType == eConversationTypeChatRoom) {
-            if (!needRemoveConversations) {
-                needRemoveConversations = [[NSMutableArray alloc] initWithCapacity:0];
-            }
-            
-            [needRemoveConversations addObject:conversation.chatter];
-        }
-    }
-    
-    if (needRemoveConversations && needRemoveConversations.count > 0) {
-        [[EaseMob sharedInstance].chatManager removeConversationsByChatters:needRemoveConversations
-                                                             deleteMessages:YES
-                                                                append2Chat:NO];
+         [[EMClient shareClient].chatManager deleteConversations:needRemoveConversations deleteMessages:YES];
     }
 }
 
@@ -208,17 +185,17 @@
             }
             
             EMConversation *conversation = [weakSelf.searchController.resultsSource objectAtIndex:indexPath.row];
-            cell.name = conversation.chatter;
-            if (conversation.conversationType == eConversationTypeChat) {
-                cell.name = [[RobotManager sharedInstance] getRobotNickWithUsername:conversation.chatter];
+            cell.name = conversation.conversationId;
+            if (conversation.type == EMConversationTypeChat) {
+                cell.name = [[RobotManager sharedInstance] getRobotNickWithUsername:conversation.conversationId];
                 cell.placeholderImage = [UIImage imageNamed:@"chatListCellHead.png"];
             }
             else{
                 NSString *imageName = @"groupPublicHeader";
-                NSArray *groupArray = [[EaseMob sharedInstance].chatManager groupList];
+                NSArray *groupArray = [[EMClient shareClient].chatManager getAllConversations];
                 for (EMGroup *group in groupArray) {
-                    if ([group.groupId isEqualToString:conversation.chatter]) {
-                        cell.name = group.groupSubject;
+                    if ([group.groupId isEqualToString:conversation.conversationId]) {
+                        cell.name = group.subject;
                         imageName = group.isPublic ? @"groupPublicHeader" : @"groupPrivateHeader";
                         break;
                     }
@@ -246,16 +223,18 @@
             
             EMConversation *conversation = [weakSelf.searchController.resultsSource objectAtIndex:indexPath.row];
             ChatViewController *chatController;
-            if ([[RobotManager sharedInstance] isRobotWithUsername:conversation.chatter]) {
-                chatController = [[RobotChatViewController alloc] initWithChatter:conversation.chatter
-                                                                 conversationType:conversation.conversationType];
-                chatController.title = [[RobotManager sharedInstance] getRobotNickWithUsername:conversation.chatter];
+            if ([[RobotManager sharedInstance] isRobotWithUsername:conversation.conversationId]) {
+                chatController = [[RobotChatViewController alloc] initWithChatter:conversation.conversationId
+                                                                 conversationType:conversation.type];
+                chatController.title = [[RobotManager sharedInstance] getRobotNickWithUsername:conversation.conversationId];
             }else {
-                chatController = [[ChatViewController alloc] initWithChatter:conversation.chatter
-                                                            conversationType:conversation.conversationType];
+                chatController = [[ChatViewController alloc] initWithChatter:conversation.conversationId
+                                                            conversationType:conversation.type];
                 chatController.title = [conversation showName];
             }
             [weakSelf.navigationController pushViewController:chatController animated:YES];
+            [weakSelf.tableView reloadData];
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"setupUnreadMessageCount" object:nil];
         }];
     }
     
@@ -288,7 +267,7 @@
 - (NSMutableArray *)loadDataSource
 {
     NSMutableArray *ret = nil;
-    NSArray *conversations = [[EaseMob sharedInstance].chatManager conversations];
+    NSArray *conversations = [[EMClient shareClient].chatManager getAllConversations];
 
     NSArray* sorte = [conversations sortedArrayUsingComparator:
            ^(EMConversation *obj1, EMConversation* obj2){
@@ -332,12 +311,12 @@
     NSString *ret = @"";
     EMMessage *lastMessage = [conversation latestMessage];
     if (lastMessage) {
-        id<IEMMessageBody> messageBody = lastMessage.messageBodies.lastObject;
-        switch (messageBody.messageBodyType) {
-            case eMessageBodyType_Image:{
+        EMMessageBody *messageBody = [lastMessage body];
+        switch (messageBody.type) {
+            case EMMessageBodyTypeImage:{
                 ret = NSLocalizedString(@"message.image1", @"[image]");
             } break;
-            case eMessageBodyType_Text:{
+            case EMMessageBodyTypeText:{
                 // 表情映射。
                 NSString *didReceiveText = [ConvertToCommonEmoticonsHelper
                                             convertToSystemEmoticons:((EMTextMessageBody *)messageBody).text];
@@ -347,13 +326,13 @@
                     ret = didReceiveText;
                 }
             } break;
-            case eMessageBodyType_Voice:{
+            case EMMessageBodyTypeVoice:{
                 ret = NSLocalizedString(@"message.voice1", @"[voice]");
             } break;
-            case eMessageBodyType_Location: {
+            case EMMessageBodyTypeLocation: {
                 ret = NSLocalizedString(@"message.location1", @"[location]");
             } break;
-            case eMessageBodyType_Video: {
+            case EMMessageBodyTypeVideo: {
                 ret = NSLocalizedString(@"message.video1", @"[video]");
             } break;
             default: {
@@ -376,35 +355,36 @@
         cell = [[ChatListCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:identify];
     }
     EMConversation *conversation = [self.dataSource objectAtIndex:indexPath.row];
-    cell.name = conversation.chatter;
-    if (conversation.conversationType == eConversationTypeChat) {
-        cell.name = [[RobotManager sharedInstance] getRobotNickWithUsername:conversation.chatter];
+    cell.name = conversation.conversationId;
+    if (conversation.type == EMConversationTypeChat) {
+        cell.name = [[RobotManager sharedInstance] getRobotNickWithUsername:conversation.conversationId];
         cell.placeholderImage = [UIImage imageNamed:@"chatListCellHead.png"];
     }
     else{
-        NSString *imageName = @"groupPublicHeader";
-        if (![conversation.ext objectForKey:@"groupSubject"] || ![conversation.ext objectForKey:@"isPublic"])
+        if (conversation.type == EMConversationTypeChatRoom){
+            cell.placeholderImage = [UIImage imageNamed:@"group_header"];
+        }
+        else{
+            cell.placeholderImage = [UIImage imageNamed:@"groupPublicHeader"];
+        }
+        
+        if (![conversation.ext objectForKey:@"subject"])
         {
-            NSArray *groupArray = [[EaseMob sharedInstance].chatManager groupList];
+            NSArray *groupArray = [[EMClient shareClient].groupManager getAllGroups];
             for (EMGroup *group in groupArray) {
-                if ([group.groupId isEqualToString:conversation.chatter]) {
-                    cell.name = group.groupSubject;
-                    imageName = group.isPublic ? @"groupPublicHeader" : @"groupPrivateHeader";
-
+                if ([group.groupId isEqualToString:conversation.conversationId]) {
+                    cell.name = group.subject;
+                    
                     NSMutableDictionary *ext = [NSMutableDictionary dictionaryWithDictionary:conversation.ext];
-                    [ext setObject:group.groupSubject forKey:@"groupSubject"];
-                    [ext setObject:[NSNumber numberWithBool:group.isPublic] forKey:@"isPublic"];
+                    [ext setObject:group.subject forKey:@"subject"];
                     conversation.ext = ext;
                     break;
                 }
             }
         }
-        else
-        {
-            cell.name = [conversation.ext objectForKey:@"groupSubject"];
-            imageName = [[conversation.ext objectForKey:@"isPublic"] boolValue] ? @"groupPublicHeader" : @"groupPrivateHeader";
+        else{
+            cell.name = [conversation.ext objectForKey:@"subject"];
         }
-        cell.placeholderImage = [UIImage imageNamed:imageName];
     }
     cell.detailMsg = [self subTitleMessageByConversation:conversation];
     cell.time = [self lastMessageTimeByConversation:conversation];
@@ -431,39 +411,41 @@
     EMConversation *conversation = [self.dataSource objectAtIndex:indexPath.row];
     
     ChatViewController *chatController;
-    NSString *title = conversation.chatter;
-    if (conversation.conversationType != eConversationTypeChat) {
+    NSString *title = conversation.conversationId;
+    if (conversation.type != EMConversationTypeChat) {
         if ([[conversation.ext objectForKey:@"groupSubject"] length])
         {
             title = [conversation.ext objectForKey:@"groupSubject"];
         }
         else
         {
-            NSArray *groupArray = [[EaseMob sharedInstance].chatManager groupList];
+            NSArray *groupArray = [[EMClient shareClient].groupManager getAllGroups];
             for (EMGroup *group in groupArray) {
-                if ([group.groupId isEqualToString:conversation.chatter]) {
-                    title = group.groupSubject;
+                if ([group.groupId isEqualToString:conversation.conversationId]) {
+                    title = group.subject;
                     break;
                 }
             }
         }
-    } else if (conversation.conversationType == eConversationTypeChat) {
-        title = [[UserProfileManager sharedInstance] getNickNameWithUsername:conversation.chatter];
+    } else if (conversation.type == EMConversationTypeChat) {
+        title = [[UserProfileManager sharedInstance] getNickNameWithUsername:conversation.conversationId];
     }
     
-    NSString *chatter = conversation.chatter;
+    NSString *chatter = conversation.conversationId;
     if ([[RobotManager sharedInstance] isRobotWithUsername:chatter]) {
         chatController = [[RobotChatViewController alloc] initWithChatter:chatter
-                                                    conversationType:conversation.conversationType];
+                                                    conversationType:conversation.type];
         chatController.title = [[RobotManager sharedInstance] getRobotNickWithUsername:chatter];
     }else {
         chatController = [[ChatViewController alloc] initWithChatter:chatter
-                                                    conversationType:conversation.conversationType];
+                                                    conversationType:conversation.type];
         chatController.title = title;
     }
     
     chatController.delelgate = self;
     [self.navigationController pushViewController:chatController animated:YES];
+    [self.tableView reloadData];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"setupUnreadMessageCount" object:nil];
 }
 
 -(BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -474,7 +456,7 @@
     
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         EMConversation *converation = [self.dataSource objectAtIndex:indexPath.row];
-        [[EaseMob sharedInstance].chatManager removeConversationByChatter:converation.chatter deleteMessages:YES append2Chat:YES];
+        [[EMClient shareClient].chatManager deleteConversation:converation.conversationId deleteMessages:YES];
         [self.dataSource removeObjectAtIndex:indexPath.row];
         [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
     }
@@ -541,26 +523,30 @@
     [_slimeView endRefresh];
 }
 
-#pragma mark - IChatMangerDelegate
+#pragma mark - EMGroupManagerDelegate
 
--(void)didUnreadMessagesCountChanged
+- (void)didUpdateGroupList:(NSArray *)groupList
 {
     [self refreshDataSource];
 }
 
-- (void)didUpdateGroupList:(NSArray *)allGroups error:(EMError *)error
+#pragma mark - EMChatManagerDelegate
+
+-(void)didReceiveMessages:(NSArray *)aMessages
 {
-    [self refreshDataSource];
+    [self.tableView reloadData];
 }
 
 #pragma mark - registerNotifications
 -(void)registerNotifications{
     [self unregisterNotifications];
-    [[EaseMob sharedInstance].chatManager addDelegate:self delegateQueue:nil];
+    [[EMClient shareClient].chatManager addDelegate:self delegateQueue:nil];
+    [[EMClient shareClient].groupManager addDelegate:self delegateQueue:nil];
 }
 
 -(void)unregisterNotifications{
-    [[EaseMob sharedInstance].chatManager removeDelegate:self];
+    [[EMClient shareClient].chatManager removeDelegate:self];
+    [[EMClient shareClient].groupManager removeDelegate:self];
 }
 
 - (void)dealloc{
@@ -588,25 +574,12 @@
 
 - (void)networkChanged:(EMConnectionState)connectionState
 {
-    if (connectionState == eEMConnectionDisconnected) {
+    if (connectionState == EMConnectionDisconnected) {
         _tableView.tableHeaderView = _networkStateView;
     }
     else{
         _tableView.tableHeaderView = nil;
     }
-}
-
-- (void)willReceiveOfflineMessages{
-    NSLog(NSLocalizedString(@"message.beginReceiveOffine", @"Begin to receive offline messages"));
-}
-
-- (void)didReceiveOfflineMessages:(NSArray *)offlineMessages
-{
-    [self refreshDataSource];
-}
-
-- (void)didFinishedReceiveOfflineMessages{
-    NSLog(NSLocalizedString(@"message.endReceiveOffine", @"End to receive offline messages"));
 }
 
 #pragma mark - ChatViewControllerDelegate

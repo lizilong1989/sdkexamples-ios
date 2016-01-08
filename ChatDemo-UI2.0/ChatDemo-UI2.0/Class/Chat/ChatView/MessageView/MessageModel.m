@@ -35,9 +35,9 @@
     return _message.messageId;
 }
 
-- (MessageDeliveryState)status
+- (EMMessageStatus)status
 {
-    return _message.deliveryState;
+    return _message.status;
 }
 
 @end

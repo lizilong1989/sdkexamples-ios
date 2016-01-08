@@ -101,7 +101,7 @@
     [self.view addSubview:_hud];
     [_hud show:YES];
     
-    [[EaseMob sharedInstance].chatManager asyncBackupMessagesWithProgress:self
+    [[EMClient shareClient].chatManager asyncBackupMessagesWithProgress:self
                                                          statusCompletion:^void(EMBackupMessagesStatus status, EMError *error) {
         dispatch_sync(dispatch_get_main_queue(), ^{
             switch (status) {
@@ -139,7 +139,7 @@
             }
             
             if (error) {
-                [[[UIAlertView alloc] initWithTitle:@"错误" message:error.description delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil] show];
+                [[[UIAlertView alloc] initWithTitle:@"错误" message:error.domain delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil] show];
             }
         });
     }];
@@ -153,7 +153,7 @@
     [self.view addSubview:_hud];
     [_hud show:YES];
     
-    [[EaseMob sharedInstance].chatManager asyncRestoreBackupsWithProgress:self
+    [[EMClient shareClient].chatManager asyncRestoreBackupsWithProgress:self
                                                          statusCompletion:^(EMRestoreBackupStatus status, EMError *error) {
         dispatch_sync(dispatch_get_main_queue(), ^{
             switch (status) {
@@ -179,7 +179,7 @@
                 case eRestoreBackupStatusSucceeded:
                     self.hud.labelText = @"恢复备份成功";
                     [self.hud hide:YES afterDelay:2];
-                    [[EaseMob sharedInstance].chatManager loadAllConversationsFromDatabaseWithAppend2Chat:YES];
+                    [[EMClient shareClient].chatManager loadAllConversationsFromDatabaseWithAppend2Chat:YES];
                     break;
                 case eRestoreBackupStatusCancelled:
                     self.hud.labelText = @"取消恢复备份操作";
@@ -191,7 +191,7 @@
             }
             
             if (error) {
-                [[[UIAlertView alloc] initWithTitle:@"错误" message:error.description delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil] show];
+                [[[UIAlertView alloc] initWithTitle:@"错误" message:error.domain delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil] show];
             }
         });
 

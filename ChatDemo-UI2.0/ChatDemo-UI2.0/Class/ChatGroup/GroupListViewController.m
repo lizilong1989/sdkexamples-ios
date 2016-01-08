@@ -22,7 +22,7 @@
 #import "RealtimeSearchUtil.h"
 #import "UIViewController+HUD.h"
 
-@interface GroupListViewController ()<UISearchBarDelegate, UISearchDisplayDelegate, IChatManagerDelegate, SRRefreshDelegate>
+@interface GroupListViewController ()<UISearchBarDelegate, UISearchDisplayDelegate, EMGroupManagerDelegate, SRRefreshDelegate>
 
 @property (strong, nonatomic) NSMutableArray *dataSource;
 
@@ -56,8 +56,8 @@
     self.title = NSLocalizedString(@"title.group", @"Group");
     
 #warning 把self注册为SDK的delegate
-    [[EaseMob sharedInstance].chatManager removeDelegate:self];
-    [[EaseMob sharedInstance].chatManager addDelegate:self delegateQueue:nil];
+    [[EMClient shareClient].groupManager removeDelegate:self];
+    [[EMClient shareClient].groupManager addDelegate:self delegateQueue:nil];
     
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.backgroundColor = [UIColor whiteColor];
@@ -66,17 +66,17 @@
     [self.tableView addSubview:self.slimeView];
     [self searchController];
     
-//    UIButton *publicButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 50, 44)];
-//    [publicButton setImage:[UIImage imageNamed:@"nav_createGroup"] forState:UIControlStateNormal];
-//    [publicButton addTarget:self action:@selector(showPublicGroupList) forControlEvents:UIControlEventTouchUpInside];
-//    UIBarButtonItem *publicItem = [[UIBarButtonItem alloc] initWithCustomView:publicButton];
-//    
-//    UIButton *createButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 50, 44)];
-//    [createButton setImage:[UIImage imageNamed:@"add.png"] forState:UIControlStateNormal];
-//    [createButton addTarget:self action:@selector(createGroup) forControlEvents:UIControlEventTouchUpInside];
-//    UIBarButtonItem *createGroupItem = [[UIBarButtonItem alloc] initWithCustomView:createButton];
-//    
-//    [self.navigationItem setRightBarButtonItems:@[createGroupItem, publicItem]];
+    //    UIButton *publicButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 50, 44)];
+    //    [publicButton setImage:[UIImage imageNamed:@"nav_createGroup"] forState:UIControlStateNormal];
+    //    [publicButton addTarget:self action:@selector(showPublicGroupList) forControlEvents:UIControlEventTouchUpInside];
+    //    UIBarButtonItem *publicItem = [[UIBarButtonItem alloc] initWithCustomView:publicButton];
+    //
+    //    UIButton *createButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 50, 44)];
+    //    [createButton setImage:[UIImage imageNamed:@"add.png"] forState:UIControlStateNormal];
+    //    [createButton addTarget:self action:@selector(createGroup) forControlEvents:UIControlEventTouchUpInside];
+    //    UIBarButtonItem *createGroupItem = [[UIBarButtonItem alloc] initWithCustomView:createButton];
+    //
+    //    [self.navigationItem setRightBarButtonItems:@[createGroupItem, publicItem]];
     
     UIButton *backButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 44, 44)];
     [backButton setImage:[UIImage imageNamed:@"back.png"] forState:UIControlStateNormal];
@@ -95,7 +95,7 @@
 
 - (void)dealloc
 {
-    [[EaseMob sharedInstance].chatManager removeDelegate:self];
+    [[EMClient shareClient].groupManager removeDelegate:self];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -150,7 +150,7 @@
             EMGroup *group = [weakSelf.searchController.resultsSource objectAtIndex:indexPath.row];
             NSString *imageName = group.isPublic ? @"groupPublicHeader" : @"groupPrivateHeader";
             cell.imageView.image = [UIImage imageNamed:imageName];
-            cell.textLabel.text = group.groupSubject;
+            cell.textLabel.text = group.subject;
             
             return cell;
         }];
@@ -164,9 +164,10 @@
             [weakSelf.searchController.searchBar endEditing:YES];
             
             EMGroup *group = [weakSelf.searchController.resultsSource objectAtIndex:indexPath.row];
-            ChatViewController *chatVC = [[ChatViewController alloc] initWithChatter:group.groupId isGroup:YES];
-            chatVC.title = group.groupSubject;
-            [weakSelf.navigationController pushViewController:chatVC animated:YES];
+            ChatViewController *chatController = [[ChatViewController alloc] initWithChatter:group.groupId conversationType:EMConversationTypeGroupChat];
+            
+            chatController.title = group.subject;
+            [weakSelf.navigationController pushViewController:chatController animated:YES];
         }];
     }
     
@@ -216,10 +217,10 @@
     } else {
         EMGroup *group = [self.dataSource objectAtIndex:indexPath.row];
         NSString *imageName = @"group_header";
-//        NSString *imageName = group.isPublic ? @"groupPublicHeader" : @"groupPrivateHeader";
+        //        NSString *imageName = group.isPublic ? @"groupPublicHeader" : @"groupPrivateHeader";
         cell.imageView.image = [UIImage imageNamed:imageName];
-        if (group.groupSubject && group.groupSubject.length > 0) {
-            cell.textLabel.text = group.groupSubject;
+        if (group.subject && group.subject.length > 0) {
+            cell.textLabel.text = group.subject;
         }
         else {
             cell.textLabel.text = group.groupId;
@@ -258,8 +259,8 @@
         }
     } else {
         EMGroup *group = [self.dataSource objectAtIndex:indexPath.row];
-        ChatViewController *chatController = [[ChatViewController alloc] initWithChatter:group.groupId isGroup:YES];
-        chatController.title = group.groupSubject;
+        ChatViewController *chatController = [[ChatViewController alloc] initWithChatter:group.groupId conversationType:EMConversationTypeGroupChat];
+        chatController.title = group.subject;
         [self.navigationController pushViewController:chatController animated:YES];
     }
 }
@@ -299,7 +300,7 @@
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
 {
     __weak typeof(self) weakSelf = self;
-    [[RealtimeSearchUtil currentUtil] realtimeSearchWithSource:self.dataSource searchText:(NSString *)searchText collationStringSelector:@selector(groupSubject) resultBlock:^(NSArray *results) {
+    [[RealtimeSearchUtil currentUtil] realtimeSearchWithSource:self.dataSource searchText:(NSString *)searchText collationStringSelector:@selector(subject) resultBlock:^(NSArray *results) {
         if (results) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [weakSelf.searchController.resultsSource removeAllObjects];
@@ -350,27 +351,20 @@
 
 - (void)slimeRefreshStartRefresh:(SRRefreshView *)refreshView
 {
-    [[EaseMob sharedInstance].chatManager asyncFetchMyGroupsListWithCompletion:^(NSArray *groups, EMError *error) {
-        if (!error) {
-            [self.dataSource removeAllObjects];
-            [self.dataSource addObjectsFromArray:groups];
-            [self.tableView reloadData];
-        }
-    } onQueue:nil];
+    EMError *error = nil;
+    NSArray *groups = [[EMClient shareClient].groupManager getMyGroupsFromServerWithError:&error];
+    if (!error) {
+        [self.dataSource removeAllObjects];
+        [self.dataSource addObjectsFromArray:groups];
+        [self.tableView reloadData];
+    }
     
     [_slimeView endRefresh];
 }
 
-#pragma mark - IChatManagerDelegate
+#pragma mark - EMGroupManagerDelegate
 
-- (void)groupDidUpdateInfo:(EMGroup *)group error:(EMError *)error
-{
-    if (!error) {
-        [self reloadDataSource];
-    }
-}
-
-- (void)didUpdateGroupList:(NSArray *)allGroups error:(EMError *)error
+- (void)didUpdateGroupList:(NSArray *)groupList
 {
     [self reloadDataSource];
 }
@@ -381,7 +375,7 @@
 {
     [self.dataSource removeAllObjects];
     
-    NSArray *rooms = [[EaseMob sharedInstance].chatManager groupList];
+    NSArray *rooms = [[EMClient shareClient].groupManager getAllGroups];
     [self.dataSource addObjectsFromArray:rooms];
     
     [self.tableView reloadData];
