@@ -88,7 +88,7 @@
     if (indexPath.row == 0)
     {
         cell.textLabel.text = NSLocalizedString(@"setting.sdkVersion", @"SDK version");
-        NSString *ver = [[EMClient shareClient] version];
+        NSString *ver = [[EMClient sharedClient] version];
         cell.detailTextLabel.text = ver;
     }
     
@@ -106,10 +106,10 @@
 {
 //    __weak typeof(self) weakSelf = self;
 //    [self showHudInView:self.view hint:NSLocalizedString(@"setting.uploading", @"uploading...")];
-//    [[EMClient shareClient] asyncUploadLogToServerWithCompletion:^(EMError *error) {
+//    [[EMClient sharedClient] asyncUploadLogToServerWithCompletion:^(EMError *error) {
 //        [weakSelf hideHud];
 //        if (error) {
-//            [weakSelf showHint:error.domain];
+//            [weakSelf showHint:error.errorDescription];
 //        }
 //        else{
 //            [weakSelf showHint:NSLocalizedString(@"setting.uploadSuccess", @"uploaded successfully")];

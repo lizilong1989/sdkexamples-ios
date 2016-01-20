@@ -172,7 +172,7 @@ static MessageReadManager *detailInstance = nil;
                     if (![[dict objectForKey:@"isPlayed"] boolValue]) {
                         [dict setObject:@YES forKey:@"isPlayed"];
                         chatMessage.ext = dict;
-                        [[EMClient shareClient].chatManager updateMessage:chatMessage];
+                        [[EMClient sharedClient].chatManager updateMessage:chatMessage];
                     }
                 }
             }

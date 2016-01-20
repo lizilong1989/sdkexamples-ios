@@ -46,7 +46,7 @@
         options.enableConsoleLog = YES;
         options.apnsCertName = apnsCertName;
         options.isAutoAcceptGroupInvitation = NO;
-        [[EMClient shareClient] initializeSDKWithOptions:options];
+        [[EMClient sharedClient] initializeSDKWithOptions:options];
     }
     
     // 注册环信监听
@@ -72,17 +72,17 @@
 
 #pragma mark - notifiers
 - (void)appDidEnterBackgroundNotif:(NSNotification*)notif{
-    [[EMClient shareClient] applicationDidEnterBackground:notif.object];
+    [[EMClient sharedClient] applicationDidEnterBackground:notif.object];
 }
 
 - (void)appWillEnterForeground:(NSNotification*)notif
 {
-    [[EMClient shareClient] applicationWillEnterForeground:notif.object];
+    [[EMClient sharedClient] applicationWillEnterForeground:notif.object];
 }
 
 // 将得到的deviceToken传给SDK
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken{
-    [[EMClient shareClient] bindDeviceToken:deviceToken];
+    [[EMClient sharedClient] bindDeviceToken:deviceToken];
 }
 
 // 注册deviceToken失败，此处失败，与环信SDK无关，一般是您的环境配置或者证书配置有误
@@ -124,19 +124,19 @@
 - (void)registerEaseMobNotification{
     [self unRegisterEaseMobNotification];
     // 将self 添加到SDK回调中，以便本类可以收到SDK回调
-    [[EMClient shareClient] addDelegate:self delegateQueue:nil];
-    [[EMClient shareClient].contactManager addDelegate:self delegateQueue:nil];
-    [[EMClient shareClient].chatManager addDelegate:self delegateQueue:nil];
-    [[EMClient shareClient].groupManager addDelegate:self delegateQueue:nil];
-    [[EMClient shareClient].roomManager addDelegate:self delegateQueue:nil];
+    [[EMClient sharedClient] addDelegate:self delegateQueue:nil];
+    [[EMClient sharedClient].contactManager addDelegate:self delegateQueue:nil];
+    [[EMClient sharedClient].chatManager addDelegate:self delegateQueue:nil];
+    [[EMClient sharedClient].groupManager addDelegate:self delegateQueue:nil];
+    [[EMClient sharedClient].roomManager addDelegate:self delegateQueue:nil];
 }
 
 - (void)unRegisterEaseMobNotification{
-    [[EMClient shareClient] removeDelegate:self];
-    [[EMClient shareClient].chatManager removeDelegate:self];
-    [[EMClient shareClient].contactManager removeDelegate:self];
-    [[EMClient shareClient].groupManager removeDelegate:self];
-    [[EMClient shareClient].roomManager removeDelegate:self];
+    [[EMClient sharedClient] removeDelegate:self];
+    [[EMClient sharedClient].chatManager removeDelegate:self];
+    [[EMClient sharedClient].contactManager removeDelegate:self];
+    [[EMClient sharedClient].groupManager removeDelegate:self];
+    [[EMClient sharedClient].roomManager removeDelegate:self];
 }
 
 
@@ -151,12 +151,12 @@
         
         //发送自动登陆状态通知
         [[NSNotificationCenter defaultCenter] postNotificationName:KNOTIFICATION_LOGINCHANGE object:@NO];
-    } else if([[EMClient shareClient] isConnected]){
+    } else if([[EMClient sharedClient] isConnected]){
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [[EMClient shareClient] dataMigrationTo3];
+            [[EMClient sharedClient] dataMigrationTo3];
             
             //获取群组列表
-            [[EMClient shareClient].groupManager getMyGroupsFromServerWithError:nil];
+            [[EMClient sharedClient].groupManager getMyGroupsFromServerWithError:nil];
         });
         
         alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:NSLocalizedString(@"login.endAutoLogin", @"End automatic login...") delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
@@ -198,7 +198,7 @@
     NSString *tmpStr = aGroup.subject;
     NSString *str;
     if (!tmpStr || tmpStr.length == 0) {
-        NSArray *groupArray = [[EMClient shareClient].groupManager getAllGroups];
+        NSArray *groupArray = [[EMClient sharedClient].groupManager getAllGroups];
         for (EMGroup *obj in groupArray) {
             if ([obj.groupId isEqualToString:aGroup.groupId]) {
                 tmpStr = obj.subject;

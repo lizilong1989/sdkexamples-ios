@@ -70,7 +70,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    [[EMClient shareClient].chatManager loadAllConversationsFromDB];
+    [[EMClient sharedClient].chatManager loadAllConversationsFromDB];
     [self removeEmptyConversationsFromDB];
 
     [self.view addSubview:self.searchBar];
@@ -102,7 +102,7 @@
 
 - (void)removeEmptyConversationsFromDB
 {
-    NSArray *conversations = [[EMClient shareClient].chatManager getAllConversations];
+    NSArray *conversations = [[EMClient sharedClient].chatManager getAllConversations];
     NSMutableArray *needRemoveConversations;
     for (EMConversation *conversation in conversations) {
         if (!conversation.latestMessage || (conversation.type == EMConversationTypeChatRoom)) {
@@ -115,7 +115,7 @@
     }
     
     if (needRemoveConversations && needRemoveConversations.count > 0) {
-         [[EMClient shareClient].chatManager deleteConversations:needRemoveConversations deleteMessages:YES];
+         [[EMClient sharedClient].chatManager deleteConversations:needRemoveConversations deleteMessages:YES];
     }
 }
 
@@ -192,7 +192,7 @@
             }
             else{
                 NSString *imageName = @"groupPublicHeader";
-                NSArray *groupArray = [[EMClient shareClient].chatManager getAllConversations];
+                NSArray *groupArray = [[EMClient sharedClient].chatManager getAllConversations];
                 for (EMGroup *group in groupArray) {
                     if ([group.groupId isEqualToString:conversation.conversationId]) {
                         cell.name = group.subject;
@@ -267,7 +267,7 @@
 - (NSMutableArray *)loadDataSource
 {
     NSMutableArray *ret = nil;
-    NSArray *conversations = [[EMClient shareClient].chatManager getAllConversations];
+    NSArray *conversations = [[EMClient sharedClient].chatManager getAllConversations];
 
     NSArray* sorte = [conversations sortedArrayUsingComparator:
            ^(EMConversation *obj1, EMConversation* obj2){
@@ -370,7 +370,7 @@
         
         if (![conversation.ext objectForKey:@"subject"])
         {
-            NSArray *groupArray = [[EMClient shareClient].groupManager getAllGroups];
+            NSArray *groupArray = [[EMClient sharedClient].groupManager getAllGroups];
             for (EMGroup *group in groupArray) {
                 if ([group.groupId isEqualToString:conversation.conversationId]) {
                     cell.name = group.subject;
@@ -419,7 +419,7 @@
         }
         else
         {
-            NSArray *groupArray = [[EMClient shareClient].groupManager getAllGroups];
+            NSArray *groupArray = [[EMClient sharedClient].groupManager getAllGroups];
             for (EMGroup *group in groupArray) {
                 if ([group.groupId isEqualToString:conversation.conversationId]) {
                     title = group.subject;
@@ -456,7 +456,7 @@
     
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         EMConversation *converation = [self.dataSource objectAtIndex:indexPath.row];
-        [[EMClient shareClient].chatManager deleteConversation:converation.conversationId deleteMessages:YES];
+        [[EMClient sharedClient].chatManager deleteConversation:converation.conversationId deleteMessages:YES];
         [self.dataSource removeObjectAtIndex:indexPath.row];
         [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
     }
@@ -540,13 +540,13 @@
 #pragma mark - registerNotifications
 -(void)registerNotifications{
     [self unregisterNotifications];
-    [[EMClient shareClient].chatManager addDelegate:self delegateQueue:nil];
-    [[EMClient shareClient].groupManager addDelegate:self delegateQueue:nil];
+    [[EMClient sharedClient].chatManager addDelegate:self delegateQueue:nil];
+    [[EMClient sharedClient].groupManager addDelegate:self delegateQueue:nil];
 }
 
 -(void)unregisterNotifications{
-    [[EMClient shareClient].chatManager removeDelegate:self];
-    [[EMClient shareClient].groupManager removeDelegate:self];
+    [[EMClient sharedClient].chatManager removeDelegate:self];
+    [[EMClient sharedClient].groupManager removeDelegate:self];
 }
 
 - (void)dealloc{

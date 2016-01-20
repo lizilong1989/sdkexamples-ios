@@ -228,7 +228,7 @@
 - (void)savePushOptions
 {
     BOOL isUpdate = NO;
-    EMPushOptions *options = [[EMClient shareClient] pushOptions];
+    EMPushOptions *options = [[EMClient sharedClient] pushOptions];
     if (_pushDisplayStyle != options.displayStyle) {
         options.displayStyle = _pushDisplayStyle;
         isUpdate = YES;
@@ -247,7 +247,7 @@
     }
     
     if (isUpdate) {
-        [[EMClient shareClient] updatePushOptionsToServer];
+        [[EMClient sharedClient] updatePushOptionsToServer];
     }
     
     [self.navigationController popViewControllerAnimated:YES];
@@ -266,7 +266,7 @@
 
 - (void)refreshPushOptions
 {
-    EMPushOptions *options = [[EMClient shareClient] pushOptions];
+    EMPushOptions *options = [[EMClient sharedClient] pushOptions];
     _nickName = options.nickname;
     _pushDisplayStyle = options.displayStyle;
     _noDisturbingStatus = options.noDisturbStatus;

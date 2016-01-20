@@ -65,7 +65,7 @@
         _dataSource = [NSMutableArray array];
         _contactsSource = [NSMutableArray array];
         _sectionTitles = [NSMutableArray array];
-        [[EMClient shareClient].contactManager addDelegate:self delegateQueue:nil];
+        [[EMClient sharedClient].contactManager addDelegate:self delegateQueue:nil];
     }
     return self;
 }
@@ -101,7 +101,7 @@
 
 - (void)dealloc
 {
-    [[EMClient shareClient].contactManager removeDelegate:self];
+    [[EMClient sharedClient].contactManager removeDelegate:self];
 }
 #pragma mark - getter
 
@@ -199,7 +199,7 @@
             [tableView deselectRowAtIndexPath:indexPath animated:YES];
             
             NSString *username = [weakSelf.searchController.resultsSource objectAtIndex:indexPath.row];
-            NSString *loginUsername = [[EMClient shareClient] currentUsername];
+            NSString *loginUsername = [[EMClient sharedClient] currentUsername];
             if (loginUsername && loginUsername.length > 0) {
                 if ([loginUsername isEqualToString:username]) {
                     UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:NSLocalizedString(@"friend.notChatSelf", @"can't talk to yourself") delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
@@ -299,7 +299,7 @@
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-        NSString *loginUsername = [[EMClient shareClient] currentUsername];
+        NSString *loginUsername = [[EMClient sharedClient] currentUsername];
         NSString *username = [[self.dataSource objectAtIndex:(indexPath.section - 1)] objectAtIndex:indexPath.row];
         if ([username isEqualToString:loginUsername]) {
             UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:NSLocalizedString(@"friend.notDeleteSelf", @"can't delete self") delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
@@ -308,9 +308,9 @@
             return;
         }
         
-        EMError *error = [[EMClient shareClient].contactManager deleteContact:username];
+        EMError *error = [[EMClient sharedClient].contactManager deleteContact:username];
         if (!error) {
-            [[EMClient shareClient].chatManager deleteConversation:username deleteMessages:YES];
+            [[EMClient sharedClient].chatManager deleteConversation:username deleteMessages:YES];
             
             [tableView beginUpdates];
             [[self.dataSource objectAtIndex:(indexPath.section - 1)] removeObjectAtIndex:indexPath.row];
@@ -319,7 +319,7 @@
             [tableView  endUpdates];
         }
         else{
-            [self showHint:[NSString stringWithFormat:NSLocalizedString(@"deleteFailed", @"Delete failed:%@"), error.domain]];
+            [self showHint:[NSString stringWithFormat:NSLocalizedString(@"deleteFailed", @"Delete failed:%@"), error.errorDescription]];
             [tableView reloadData];
         }
     }
@@ -407,7 +407,7 @@
     }
     else{
         NSString *username = [[self.dataSource objectAtIndex:(indexPath.section - 1)] objectAtIndex:indexPath.row];
-        NSString *loginUsername = [[EMClient shareClient] currentUsername];
+        NSString *loginUsername = [[EMClient sharedClient] currentUsername];
         if (loginUsername && loginUsername.length > 0) {
             if ([loginUsername isEqualToString:username]) {
                 UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"prompt", @"Prompt") message:NSLocalizedString(@"friend.notChatSelf", @"can't talk to yourself") delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", @"OK") otherButtonTitles:nil, nil];
@@ -473,7 +473,7 @@
         [self hideHud];
         [self showHudInView:self.view hint:NSLocalizedString(@"wait", @"Pleae wait...")];
 
-        EMError *error = [[EMClient shareClient].contactManager addUserToBlackList:username relationshipBoth:YES];
+        EMError *error = [[EMClient sharedClient].contactManager addUserToBlackList:username relationshipBoth:YES];
         if (!error)
         {
             [self.tableView beginUpdates];
@@ -484,7 +484,7 @@
         }
         else
         {
-            [self showHint:error.domain];
+            [self showHint:error.errorDescription];
         }
     }
     _currentLongPressIndex = nil;
@@ -510,7 +510,7 @@
     __weak typeof(self) weakself = self;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         EMError *error = nil;
-        [[EMClient shareClient].contactManager getContactsFromServerWithError:&error];
+        [[EMClient sharedClient].contactManager getContactsFromServerWithError:&error];
         dispatch_async(dispatch_get_main_queue(), ^{
             [weakself hideHud];
             if (!error) {
@@ -531,7 +531,7 @@
         // 群组，聊天室
         return;
     }
-    NSString *loginUsername = [[EMClient shareClient] currentUsername];
+    NSString *loginUsername = [[EMClient sharedClient] currentUsername];
     NSString *username = [[self.dataSource objectAtIndex:(indexPath.section - 1)] objectAtIndex:indexPath.row];
     if ([username isEqualToString:loginUsername])
     {
@@ -598,15 +598,15 @@
     [self.dataSource removeAllObjects];
     [self.contactsSource removeAllObjects];
     
-    NSArray *buddyList = [[EMClient shareClient].contactManager getContactsFromDB];
-    NSArray *blockList = [[EMClient shareClient].contactManager getBlackListFromDB];
+    NSArray *buddyList = [[EMClient sharedClient].contactManager getContactsFromDB];
+    NSArray *blockList = [[EMClient sharedClient].contactManager getBlackListFromDB];
     for (NSString *username in buddyList) {
         if (![blockList containsObject:username]) {
             [self.contactsSource addObject:username];
         }
     }
     
-    NSString *loginUsername =[[EMClient shareClient] currentUsername];
+    NSString *loginUsername =[[EMClient sharedClient] currentUsername];
     if (loginUsername && loginUsername.length > 0) {
         [self.contactsSource addObject:loginUsername];
     }

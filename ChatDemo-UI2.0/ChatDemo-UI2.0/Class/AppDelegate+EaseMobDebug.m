@@ -59,7 +59,7 @@
                               kSDKServerChatDomain:@"easemob.com",
                               kSDKServerChatPort:imPort};
         
-        id easemob = [EMClient shareClient];
+        id easemob = [EMClient sharedClient];
         SEL selector = @selector(registerPrivateServerWithParams:);
         [easemob performSelector:selector withObject:dic];
         return YES;
@@ -69,7 +69,7 @@
             [ud setObject:[NSNumber numberWithBool:YES] forKey:@"identifier_userip_enable"];
             [ud synchronize];
         } else {
-//            [[EMClient shareClient].chatManager setIsUseIp:[useIP boolValue]];
+//            [[EMClient sharedClient].chatManager setIsUseIp:[useIP boolValue]];
         }
     }
     */

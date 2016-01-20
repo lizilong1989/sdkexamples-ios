@@ -86,7 +86,7 @@
             }else {
                 NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:@NO,@"isPlayed", nil];
                 message.ext = dict;
-                [[EMClient shareClient].chatManager updateMessage:message];
+                [[EMClient sharedClient].chatManager updateMessage:message];
             }
             // 本地音频路径
             model.localPath = ((EMVoiceMessageBody *)messageBody).localPath;

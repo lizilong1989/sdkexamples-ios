@@ -26,7 +26,7 @@
     // 表情映射。
     NSString *willSendText = [ConvertToCommonEmoticonsHelper convertToCommonEmoticons:str];
     EMTextMessageBody *body = [[EMTextMessageBody alloc] initWithText:willSendText];
-    NSString *from = [[EMClient shareClient] currentUsername];
+    NSString *from = [[EMClient sharedClient] currentUsername];
     EMMessage *message = [[EMMessage alloc] initWithConversationID:username from:from to:username body:body ext:ext];
     message.chatType = messageType;
     
@@ -40,7 +40,7 @@
 {
     NSData *data = UIImageJPEGRepresentation(image, 1);
     EMImageMessageBody *body = [[EMImageMessageBody alloc] initWithData:data displayName:@"image.png"];
-    NSString *from = [[EMClient shareClient] currentUsername];
+    NSString *from = [[EMClient sharedClient] currentUsername];
     EMMessage *message = [[EMMessage alloc] initWithConversationID:to from:from to:to body:body ext:messageExt];
     message.chatType = messageType;
     
@@ -55,7 +55,7 @@
                                     messageExt:(NSDictionary *)messageExt
 {
     EMLocationMessageBody *body = [[EMLocationMessageBody alloc] initWithLatitude:latitude longitude:longitude address:address];
-    NSString *from = [[EMClient shareClient] currentUsername];
+    NSString *from = [[EMClient sharedClient] currentUsername];
     EMMessage *message = [[EMMessage alloc] initWithConversationID:to from:from to:to body:body ext:messageExt];
     message.chatType = messageType;
     
@@ -70,7 +70,7 @@
 {
     EMVoiceMessageBody *body = [[EMVoiceMessageBody alloc] initWithLocalPath:localPath displayName:@"audio"];
     body.duration = (int)duration;
-    NSString *from = [[EMClient shareClient] currentUsername];
+    NSString *from = [[EMClient sharedClient] currentUsername];
     EMMessage *message = [[EMMessage alloc] initWithConversationID:to from:from to:to body:body ext:messageExt];
     message.chatType = messageType;
     
@@ -83,7 +83,7 @@
                             messageExt:(NSDictionary *)messageExt
 {
     EMVideoMessageBody *body = [[EMVideoMessageBody alloc] initWithLocalPath:[url relativePath] displayName:@"video.mp4"];
-    NSString *from = [[EMClient shareClient] currentUsername];
+    NSString *from = [[EMClient sharedClient] currentUsername];
     EMMessage *message = [[EMMessage alloc] initWithConversationID:to from:from to:to body:body ext:messageExt];
     message.chatType = messageType;
     

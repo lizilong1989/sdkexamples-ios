@@ -80,7 +80,7 @@
 {
     UINavigationController *nav = nil;
     
-    BOOL isAutoLogin = [EMClient shareClient].options.isAutoLogin;
+    BOOL isAutoLogin = [EMClient sharedClient].options.isAutoLogin;
     BOOL loginSuccess = [notification.object boolValue];
     
     if (isAutoLogin || loginSuccess) {//登陆成功加载主窗口控制器
@@ -99,9 +99,9 @@
         
         //获取数据库中数据
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [[EMClient shareClient].chatManager loadAllConversationsFromDB];
-            [[EMClient shareClient].groupManager loadAllMyGroupsFromDB];
-            [[EMClient shareClient] getPushOptionsFromServerWithError:nil];
+            [[EMClient sharedClient].chatManager loadAllConversationsFromDB];
+            [[EMClient sharedClient].groupManager loadAllMyGroupsFromDB];
+            [[EMClient sharedClient] getPushOptionsFromServerWithError:nil];
         });
     }else{//登陆失败加载登陆页面控制器
         _mainController = nil;
