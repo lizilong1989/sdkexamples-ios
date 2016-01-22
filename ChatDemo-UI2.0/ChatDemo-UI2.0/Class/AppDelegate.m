@@ -80,7 +80,7 @@
 {
     UINavigationController *nav = nil;
     
-    BOOL isAutoLogin = [EMClient sharedClient].options.isAutoLogin;
+    BOOL isAutoLogin = [EMClient sharedClient].isAutoLogin;
     BOOL loginSuccess = [notification.object boolValue];
     
     if (isAutoLogin || loginSuccess) {//登陆成功加载主窗口控制器
